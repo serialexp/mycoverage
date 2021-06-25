@@ -10,18 +10,25 @@ import {
 import LoginForm from "app/auth/components/LoginForm"
 import { Suspense } from "react"
 
+import { ChakraProvider } from "@chakra-ui/react"
+import { library, config, dom } from "@fortawesome/fontawesome-svg-core"
+import { fas } from "@fortawesome/free-solid-svg-icons"
+library.add(fas)
+
 export default function App({ Component, pageProps }: AppProps) {
   const getLayout = Component.getLayout || ((page) => page)
 
   return (
-    <Suspense fallback="Loading...">
-      <ErrorBoundary
-        FallbackComponent={RootErrorFallback}
-        onReset={useQueryErrorResetBoundary().reset}
-      >
-        {getLayout(<Component {...pageProps} />)}
-      </ErrorBoundary>
-    </Suspense>
+    <ChakraProvider>
+      <Suspense fallback="Loading...">
+        <ErrorBoundary
+          FallbackComponent={RootErrorFallback}
+          onReset={useQueryErrorResetBoundary().reset}
+        >
+          {getLayout(<Component {...pageProps} />)}
+        </ErrorBoundary>
+      </Suspense>
+    </ChakraProvider>
   )
 }
 

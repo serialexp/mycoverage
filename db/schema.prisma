@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -46,8 +46,6 @@ model Token {
   updatedAt   DateTime @updatedAt
   hashedToken String
   type        String
-  // See note below about TokenType enum
-  // type        TokenType
   expiresAt   DateTime
   sentTo      String
 
@@ -57,9 +55,119 @@ model Token {
   @@unique([hashedToken, type])
 }
 
-// NOTE: It's highly recommended to use an enum for the token type
-//       but enums only work in Postgres.
-//       See: https://blitzjs.com/docs/database-overview#switch-to-postgresql
-// enum TokenType {
-//   RESET_PASSWORD
-// }
+model Commit {
+  id                  Int      @id @default(autoincrement())
+  branch              Branch   @relation(fields: [branchId], references: [id])
+  branchId            Int
+  ref                 String
+  createdDate         DateTime @default(now())
+  updatedDate         DateTime @updatedAt
+  statements          Int      @default(0)
+  conditionals        Int      @default(0)
+  methods             Int      @default(0)
+  elements            Int      @default(0)
+  coveredElements     Int      @default(0)
+  coveredStatements   Int      @default(0)
+  coveredConditionals Int      @default(0)
+  coveredMethods      Int      @default(0)
+  coveredPercentage   Float    @default(0)
+  Test                Test[]
+
+  PackageCoverage PackageCoverage[]
+  @@unique([branchId, ref])
+}
+
+model Test {
+  id                  Int               @id @default(autoincrement())
+  commit              Commit            @relation(fields: [commitId], references: [id])
+  commitId            Int
+  testName            String
+  statements          Int
+  conditionals        Int
+  methods             Int
+  elements            Int               @default(0)
+  coveredElements     Int               @default(0)
+  coveredStatements   Int
+  coveredConditionals Int
+  coveredMethods      Int
+  coveredPercentage   Float             @default(0)
+  createdDate         DateTime          @default(now())
+  updatedDate         DateTime          @default(now()) @updatedAt
+  PackageCoverage     PackageCoverage[]
+}
+
+model PackageCoverage {
+  id                  Int            @id @default(autoincrement())
+  name                String
+  depth               Int            @default(0)
+  test                Test?          @relation(fields: [testId], references: [id])
+  testId              Int?
+  commit              Commit?        @relation(fields: [commitId], references: [id])
+  commitId            Int?
+  createdDate         DateTime       @default(now())
+  updatedDate         DateTime       @updatedAt
+  statements          Int
+  conditionals        Int
+  methods             Int
+  elements            Int            @default(0)
+  coveredElements     Int            @default(0)
+  coveredStatements   Int
+  coveredConditionals Int
+  coveredMethods      Int
+  coveredPercentage   Float          @default(0)
+  FileCoverage        FileCoverage[]
+}
+
+model FileCoverage {
+  id                  Int              @id @default(autoincrement())
+  name                String
+  // cascaded delete, so this will actually never be null, but necessary to make prisma happy
+  packageCoverage     PackageCoverage? @relation(fields: [packageCoverageId], references: [id])
+  packageCoverageId   Int?
+  coverageData        String           @db.LongText
+  createdDate         DateTime         @default(now())
+  statements          Int
+  conditionals        Int
+  methods             Int
+  elements            Int              @default(0)
+  coveredElements     Int              @default(0)
+  coveredStatements   Int
+  coveredConditionals Int
+  coveredMethods      Int
+  coveredPercentage   Float            @default(0)
+  updatedDate         DateTime         @updatedAt
+}
+
+model Group {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @default("")
+  createdDate DateTime  @default(now())
+  updatedDate DateTime  @updatedAt
+  Project     Project[]
+}
+
+model Project {
+  id                Int      @id @default(autoincrement())
+  name              String
+  slug              String   @default("")
+  group             Group?   @relation(fields: [groupId], references: [id])
+  groupId           Int
+  defaultBaseBranch String
+  createdDate       DateTime @default(now())
+  updatedDate       DateTime @updatedAt
+  Branch            Branch[]
+}
+
+model Branch {
+  id          Int      @id @default(autoincrement())
+  name        String
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   Int
+  baseBranch  String
+  createdDate DateTime @default(now())
+  updatedDate DateTime @updatedAt
+  Commit      Commit[]
+
+  @@unique([name, projectId])
+}
