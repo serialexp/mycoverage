@@ -15,11 +15,12 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     try {
       const mydb: PrismaClient = db
 
+      const groupInteger = parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
           OR: [
             {
-              id: parseInt(query.groupId || ""),
+              id: !isNaN(groupInteger) ? groupInteger : undefined,
             },
             {
               slug: query.groupId,
@@ -32,11 +33,12 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("Specified group does not exist")
       }
 
+      const projectInteger = parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
           OR: [
             {
-              id: parseInt(query.projectId || ""),
+              id: !isNaN(projectInteger) ? projectInteger : undefined,
             },
             {
               slug: query.projectId,
@@ -60,7 +62,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       const branch = await mydb.branch.upsert({
         where: {
           name_projectId: {
-            projectId: parseInt(query.projectId || ""),
+            projectId: project.id,
             name: query.branch,
           },
         },
@@ -69,7 +71,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
         create: {
           name: query.branch,
-          projectId: parseInt(query.projectId || ""),
+          projectId: project.id,
           baseBranch: query.baseBranch ?? project.defaultBaseBranch,
         },
       })
