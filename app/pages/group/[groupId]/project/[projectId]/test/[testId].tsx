@@ -24,7 +24,7 @@ import {
 } from "@chakra-ui/react"
 import { Heading, Table, Td, Tr } from "@chakra-ui/react"
 import getTest from "app/coverage/queries/getTest"
-import getPackages from "../../../../../../coverage/queries/getPackages"
+import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
 
 const TestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
@@ -32,7 +32,7 @@ const TestPage: BlitzPage = () => {
   const projectId = useParam("projectId", "number")
 
   const [test] = useQuery(getTest, { testId: testId || 0 })
-  const [packages] = useQuery(getPackages, { testId: testId || 0, path: undefined })
+  const [packages] = useQuery(getPackagesForTest, { testId: testId || 0, path: undefined })
 
   console.log(packages)
 
@@ -53,7 +53,7 @@ const TestPage: BlitzPage = () => {
             <Tr key={pack.id}>
               <Td>
                 <Link
-                  href={Routes.FilesPage({
+                  href={Routes.TestFilesPage({
                     groupId,
                     projectId,
                     testId,
@@ -62,6 +62,12 @@ const TestPage: BlitzPage = () => {
                 >
                   <ChakraLink color={"blue.500"}>{pack.name}</ChakraLink>
                 </Link>
+              </Td>
+              <Td isNumeric={true}>
+                {pack.coveredElements} / {pack.elements}
+              </Td>
+              <Td width={"10%"} isNumeric={true}>
+                {Math.round(pack.coveredPercentage) + "%"}
               </Td>
             </Tr>
           )

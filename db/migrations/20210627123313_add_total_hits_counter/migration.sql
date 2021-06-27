@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE `Commit` ADD COLUMN `hits` INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `FileCoverage` ADD COLUMN `hits` INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `PackageCoverage` ADD COLUMN `hits` INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `Test` ADD COLUMN `hits` INTEGER NOT NULL DEFAULT 0;

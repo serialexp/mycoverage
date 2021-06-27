@@ -45,7 +45,7 @@ export const uploadJob = (coverageFile: CoberturaCoverage, commit: Commit, test:
         console.log("Creating " + pkg.files.length + " files")
         await Promise.all(
           pkg.files?.map((file) => {
-            const coverageData = CoverageData.fromCoberturaFile(file)
+            const coverageData = CoverageData.fromCoberturaFile(file, test.testName)
             return mydb.fileCoverage.create({
               data: {
                 name: file.name,

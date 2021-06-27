@@ -1,5 +1,6 @@
 import combineCoverage from "app/coverage/mutations/combineCoverage"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
+import { format } from "app/library/format"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
@@ -7,8 +8,6 @@ import { Box, Button, Link as ChakraLink, Th } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Heading, Table, Td, Tr } from "@chakra-ui/react"
-
-const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
 const BranchPage: BlitzPage = () => {
   const groupId = useParam("groupId", "number")
@@ -58,17 +57,26 @@ const BranchPage: BlitzPage = () => {
           baseMetrics={baseBuildInfo?.lastCommit ?? undefined}
         />
       ) : null}
+      <Link
+        href={Routes.CommitPage({
+          groupId,
+          projectId,
+          commitRef: buildInfo?.lastCommit?.ref || "",
+        })}
+      >
+        <Button>Browse file coverage</Button>
+      </Link>
       <Heading mt={4} size={"md"}>
         Test results
       </Heading>
       <Table>
         <Tr>
           <Th>Test</Th>
-          <Th>Statements</Th>
-          <Th>Conditions</Th>
-          <Th>Methods</Th>
-          <Th>Coverage</Th>
           <Th>Result time</Th>
+          <Th isNumeric>Statements</Th>
+          <Th isNumeric>Conditions</Th>
+          <Th isNumeric>Methods</Th>
+          <Th isNumeric>Coverage</Th>
         </Tr>
         {buildInfo?.lastCommit?.Test.map((test) => {
           return (
@@ -78,17 +86,42 @@ const BranchPage: BlitzPage = () => {
                   <ChakraLink color={"blue.500"}>{test.testName}</ChakraLink>
                 </Link>
               </Td>
-              <Td>
+              <Td>{test.createdDate.toLocaleString()}</Td>
+              <Td isNumeric>
                 {format.format(test.coveredStatements)}/{format.format(test.statements)}
               </Td>
-              <Td>
+              <Td isNumeric>
                 {format.format(test.coveredConditionals)}/{format.format(test.conditionals)}
               </Td>
-              <Td>
+              <Td isNumeric>
                 {format.format(test.coveredMethods)}/{format.format(test.methods)}
               </Td>
-              <Td>{format.format(test.coveredPercentage)}%</Td>
-              <Td>{test.createdDate.toLocaleString()}</Td>
+              <Td isNumeric>{format.format(test.coveredPercentage)}%</Td>
+            </Tr>
+          )
+        })}
+      </Table>
+      <Heading mt={4} size={"md"}>
+        Recent Commits
+      </Heading>
+      <Table>
+        <Tr>
+          <Th>Commit</Th>
+          <Th>Received Date</Th>
+          <Th>Tests</Th>
+          <Th isNumeric>Coverage</Th>
+        </Tr>
+        {buildInfo?.commits?.map((commit) => {
+          return (
+            <Tr key={commit.id}>
+              <Td>
+                <Link href={Routes.CommitPage({ groupId, projectId, commitRef: commit.ref })}>
+                  <ChakraLink color={"blue.500"}>{commit.ref}</ChakraLink>
+                </Link>
+              </Td>
+              <Td>{commit.createdDate.toLocaleString()}</Td>
+              <Td>{commit._count?.Test}</Td>
+              <Td isNumeric>{format.format(commit.coveredPercentage)}%</Td>
             </Tr>
           )
         })}

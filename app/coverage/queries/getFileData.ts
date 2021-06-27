@@ -7,7 +7,7 @@ const filepath = process.env.GITLAB_RAW_URL
 export default async function getFileData(
   args: { groupName?: string; projectName?: string; branchName?: string; path?: string },
   { session }: Ctx
-) {
+): Promise<string | null> {
   if (!args.groupName || !args.projectName || !args.branchName || !args.path || !filepath)
     return null
   return axios

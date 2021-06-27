@@ -30,6 +30,7 @@ interface Metrics {
   statements: number
   coveredstatements: number
   conditionals: number
+  hits: number
   coveredconditionals: number
   methods: number
   coveredmethods: number
@@ -52,6 +53,7 @@ export interface CoberturaFile {
   metrics?: Metrics
   lines?: (CoberturaLine | CoberturaBranchLine)[]
   functions?: CoberturaFunction[]
+  coverageData?: CoverageData
 }
 
 interface CoberturaFileFormat {
@@ -233,6 +235,7 @@ export class CoberturaCoverage {
         elements: 0,
         coveredelements: 0,
         methods: 0,
+        hits: 0,
         coveredmethods: 0,
         conditionals: 0,
         coveredconditionals: 0,
@@ -300,9 +303,11 @@ export class CoberturaCoverage {
               metrics.coveredelements += line.coveredConditions
               metrics.conditionals += line.conditions
               metrics.coveredconditionals += line.coveredConditions
+              metrics.hits += line.hits
             } else {
               metrics.elements++
               metrics.statements++
+              metrics.hits += line.hits
               if (line.hits > 0) {
                 metrics.coveredstatements++
                 metrics.coveredelements++
@@ -314,6 +319,7 @@ export class CoberturaCoverage {
           ;[globalMetrics, ...relevantPackages, fileMetrics].forEach((metrics) => {
             metrics.elements++
             metrics.methods++
+            metrics.hits += func.hits
             if (func.hits > 0) {
               metrics.coveredelements++
               metrics.coveredmethods++
@@ -326,7 +332,12 @@ export class CoberturaCoverage {
     return coberturaFile
   }
 
-  public mergeCoverage(packageName: string, fileName: string, coverageData: string) {
+  public mergeCoverage(
+    packageName: string,
+    fileName: string,
+    coverageData: string,
+    source?: string
+  ) {
     let pkg = this.data.coverage.packages.find((p) => p.name === packageName)
 
     if (!pkg) {
@@ -347,8 +358,10 @@ export class CoberturaCoverage {
       pkg.files.push(file)
     }
 
-    const currentCoverage = CoverageData.fromCoberturaFile(file)
-    const newCoverage = CoverageData.fromString(coverageData)
+    const currentCoverage = file.coverageData
+      ? file.coverageData
+      : CoverageData.fromCoberturaFile(file)
+    const newCoverage = CoverageData.fromString(coverageData, source)
 
     currentCoverage.merge(newCoverage)
 
@@ -356,5 +369,6 @@ export class CoberturaCoverage {
 
     file.lines = lines
     file.functions = functions
+    file.coverageData = currentCoverage
   }
 }

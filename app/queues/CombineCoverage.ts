@@ -44,11 +44,11 @@ export const combineCoverageJob = (commit: Commit) => {
           "/" +
           test.elements +
           " covered",
-        test.PackageCoverage.length + "packages"
+        test.PackageCoverage.length + " packages"
       )
       test.PackageCoverage.forEach(async (pkg) => {
         pkg.FileCoverage?.forEach((file) => {
-          coverage.mergeCoverage(pkg.name, file.name, file.coverageData)
+          coverage.mergeCoverage(pkg.name, file.name, file.coverageData, test.testName)
         })
       })
     })
@@ -62,6 +62,7 @@ export const combineCoverageJob = (commit: Commit) => {
         " covered"
     )
 
+    console.log("deleting existing results")
     await mydb.packageCoverage.deleteMany({
       where: {
         commitId: commit.id,
@@ -77,6 +78,7 @@ export const combineCoverageJob = (commit: Commit) => {
         conditionals: coverage.data.coverage.metrics?.conditionals ?? 0,
         methods: coverage.data.coverage.metrics?.methods ?? 0,
         elements: coverage.data.coverage.metrics?.elements ?? 0,
+        hits: coverage.data.coverage.metrics?.hits ?? 0,
         coveredStatements: coverage.data.coverage.metrics?.coveredstatements ?? 0,
         coveredConditionals: coverage.data.coverage.metrics?.coveredconditionals ?? 0,
         coveredMethods: coverage.data.coverage.metrics?.coveredmethods ?? 0,
@@ -95,6 +97,7 @@ export const combineCoverageJob = (commit: Commit) => {
           conditionals: pkg.metrics?.conditionals ?? 0,
           methods: pkg.metrics?.methods ?? 0,
           elements: pkg.metrics?.elements ?? 0,
+          hits: pkg.metrics?.hits ?? 0,
           coveredStatements: pkg.metrics?.coveredstatements ?? 0,
           coveredConditionals: pkg.metrics?.coveredconditionals ?? 0,
           coveredMethods: pkg.metrics?.coveredmethods ?? 0,
@@ -108,7 +111,9 @@ export const combineCoverageJob = (commit: Commit) => {
 
         await Promise.all(
           pkg.files?.map((file) => {
-            const coverageData = CoverageData.fromCoberturaFile(file)
+            const coverageData = file.coverageData
+              ? file.coverageData
+              : CoverageData.fromCoberturaFile(file)
             return mydb.fileCoverage.create({
               data: {
                 name: file.name,
@@ -116,6 +121,7 @@ export const combineCoverageJob = (commit: Commit) => {
                 statements: file.metrics?.statements ?? 0,
                 conditionals: file.metrics?.conditionals ?? 0,
                 methods: file.metrics?.methods ?? 0,
+                hits: file.metrics?.hits ?? 0,
                 coveredStatements: file.metrics?.coveredstatements ?? 0,
                 coveredConditionals: file.metrics?.coveredconditionals ?? 0,
                 coveredMethods: file.metrics?.coveredmethods ?? 0,

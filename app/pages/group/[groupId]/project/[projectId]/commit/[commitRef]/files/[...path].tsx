@@ -1,71 +1,73 @@
 import { Heading } from "@chakra-ui/react"
 import Layout from "app/core/layouts/Layout"
-import getPackageCoverageForTest from "app/coverage/queries/getPackageCoverageForTest"
-import getTest from "app/coverage/queries/getTest"
+import getCommit from "app/coverage/queries/getCommit"
+import getPackageCoverageForCommit from "app/coverage/queries/getPackageCoverageForCommit"
 import { DirectoryDisplay } from "app/library/components/DirectoryDisplay"
 import { FileDisplay } from "app/library/components/FileDisplay"
 import { BlitzPage, Link, Routes, useParam, useParams, useQuery } from "blitz"
 
-const TestFilesPage: BlitzPage = () => {
+const CommitFilesPage: BlitzPage = () => {
   const groupId = useParam("groupId", "number")
   const projectId = useParam("projectId", "number")
-  const testId = useParam("testId", "number")
+  const commitRef = useParam("commitRef", "string")
   const path = useParam("path", "array")
 
-  const [test] = useQuery(getTest, { testId: testId || 0 })
+  const [commit] = useQuery(getCommit, {
+    commitRef: commitRef,
+  })
 
-  const [pack] = useQuery(getPackageCoverageForTest, {
-    testId: testId,
+  const [pack] = useQuery(getPackageCoverageForCommit, {
+    commitId: commit?.id,
     path: path?.join("."),
   })
-  const [packForFile] = useQuery(getPackageCoverageForTest, {
-    testId: testId,
+  const [packForFile] = useQuery(getPackageCoverageForCommit, {
+    commitId: commit?.id,
     path: path?.slice(0, path.length - 1).join("."),
   })
 
-  return groupId && projectId && testId ? (
+  return groupId && projectId && commitRef ? (
     <div className="container">
-      <Heading>
-        Browsing {path?.join("/")} for test {test?.testName}
+      <Heading m={2}>
+        Browsing {path?.join("/")} for commit {commit?.ref}
       </Heading>
       {pack ? (
         <DirectoryDisplay
           pack={pack}
           route={(path) => {
-            return Routes.TestFilesPage({
+            return Routes.CommitFilesPage({
               groupId,
               projectId,
-              testId,
+              commitRef,
               path,
             })
           }}
           backRoute={() => {
-            return Routes.TestPage({
+            return Routes.CommitPage({
               groupId,
               projectId,
-              testId,
+              commitRef,
             })
           }}
         />
-      ) : (
+      ) : packForFile ? (
         <FileDisplay
           pack={packForFile ?? undefined}
           route={(path) => {
-            return Routes.TestFilesPage({
+            return Routes.CommitFilesPage({
               groupId,
               projectId,
-              testId,
+              commitRef,
               path,
             })
           }}
-          commitRef={test?.commit.ref}
+          commitRef={commit?.ref}
         />
-      )}
+      ) : null}
     </div>
   ) : null
 }
 
-TestFilesPage.suppressFirstRenderFlicker = true
-TestFilesPage.getLayout = (page) => <Layout title={"Browsing"}>{page}</Layout>
+CommitFilesPage.suppressFirstRenderFlicker = true
+CommitFilesPage.getLayout = (page) => <Layout title="Files">{page}</Layout>
 
-export default TestFilesPage
+export default CommitFilesPage

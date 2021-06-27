@@ -33,8 +33,20 @@ export default async function getLastBuildInfo(
     },
   })
 
+  const commits = await db.commit.findMany({
+    where: { branchId: branch?.id },
+    orderBy: { updatedDate: "desc" },
+    include: {
+      _count: {
+        select: { Test: true },
+      },
+    },
+    take: 10,
+  })
+
   return {
     branch: branch,
     lastCommit: commit,
+    commits: commits,
   }
 }

@@ -8,6 +8,7 @@ import {
 type CoverageInfo = {
   line: number
   hits: number
+  hitsBySource: Record<string, number>
 } & (
   | {
       type: "branch"
@@ -49,7 +50,7 @@ export class CoverageData {
     }
   }
 
-  static fromCoberturaFile(file: CoberturaFile): CoverageData {
+  static fromCoberturaFile(file: CoberturaFile, source?: string): CoverageData {
     const data = new CoverageData()
 
     file.lines?.forEach((line) => {
@@ -60,12 +61,22 @@ export class CoverageData {
           hits: line.hits,
           conditionals: line.conditions,
           coveredConditionals: line.coveredConditions,
+          hitsBySource: source
+            ? {
+                [source]: line.hits,
+              }
+            : {},
         })
       } else {
         data.addCoverage(line.number.toString(), {
           type: "statement",
           line: line.number,
           hits: line.hits,
+          hitsBySource: source
+            ? {
+                [source]: line.hits,
+              }
+            : {},
         })
       }
     })
@@ -77,44 +88,80 @@ export class CoverageData {
         hits: func.hits,
         signature: func.signature,
         name: func.name,
+        hitsBySource: source
+          ? {
+              [source]: func.hits,
+            }
+          : {},
       })
     })
 
     return data
   }
 
-  static fromString(str: string) {
+  static fromString(str: string, defaultSource?: string) {
     const data = new CoverageData()
+
+    const getHitsBySource = (data?: string) => {
+      return data
+        ?.split(";")
+        .map((kv) => kv.split("="))
+        .reduce((map, current, index) => {
+          map[current[0] || ""] = current[1]
+          return map
+        }, {})
+    }
 
     const lines = str.split("\n")
     lines.forEach((line) => {
       const fields = line.split(",")
       switch (fields[0]) {
         case "stmt": {
+          const hitsBySource = getHitsBySource(fields[3])
+          const hits = parseInt(fields[2] || "")
           data.addCoverage(fields[1] || "", {
             type: "statement",
             line: parseInt(fields[1] || ""),
-            hits: parseInt(fields[2] || ""),
+            hits,
+            hitsBySource: hitsBySource
+              ? hitsBySource
+              : defaultSource
+              ? { [defaultSource]: hits }
+              : {},
           })
           break
         }
         case "cond": {
+          const hitsBySource = getHitsBySource(fields[5])
+          const hits = parseInt(fields[2] || "")
           data.addCoverage(fields[1] || "", {
             type: "branch",
             line: parseInt(fields[1] || ""),
             hits: parseInt(fields[2] || ""),
             coveredConditionals: parseInt(fields[3] || ""),
             conditionals: parseInt(fields[4] || ""),
+            hitsBySource: hitsBySource
+              ? hitsBySource
+              : defaultSource
+              ? { [defaultSource]: hits }
+              : {},
           })
           break
         }
         case "func": {
+          const hitsBySource = getHitsBySource(fields[5])
+          const hits = parseInt(fields[2] || "")
           data.addCoverage(fields[1] || "", {
             type: "function",
             line: parseInt(fields[1] || ""),
             hits: parseInt(fields[2] || ""),
             signature: fields[3] || "",
             name: fields[4] || "",
+            hitsBySource: hitsBySource
+              ? hitsBySource
+              : defaultSource
+              ? { [defaultSource]: hits }
+              : {},
           })
           break
         }
@@ -170,8 +217,13 @@ export class CoverageData {
     Object.keys(this.coverage)?.forEach((lineNr) => {
       this.coverage[lineNr]?.forEach((line) => {
         const type = this.typeToStringMap[line.type]
+        const hitsBySource = Object.keys(line.hitsBySource)
+          .map((k) => {
+            return k + "=" + line.hitsBySource[k]
+          })
+          .join(";")
         if (line.type === "statement") {
-          lines.push(type + "," + line.line + "," + line.hits)
+          lines.push(type + "," + line.line + "," + line.hits + "," + hitsBySource)
         } else if (line.type === "branch") {
           lines.push(
             type +
@@ -182,11 +234,23 @@ export class CoverageData {
               "," +
               line.coveredConditionals +
               "," +
-              line.conditionals
+              line.conditionals +
+              "," +
+              hitsBySource
           )
         } else if (line.type === "function") {
           lines.push(
-            type + "," + line.line + "," + line.hits + "," + line.signature + "," + line.name
+            type +
+              "," +
+              line.line +
+              "," +
+              line.hits +
+              "," +
+              line.signature +
+              "," +
+              line.name +
+              "," +
+              hitsBySource
           )
         }
       })
@@ -204,18 +268,18 @@ export class CoverageData {
         newItems?.forEach((newItem) => {
           const existingItem = existingItems.find((i) => i.type === newItem.type)
           if (existingItem) {
+            Object.keys(newItem.hitsBySource).forEach((key) => {
+              const val = newItem.hitsBySource[key]
+              if (val) {
+                existingItem.hitsBySource[key] = val
+              }
+            })
+            existingItem.hits = existingItem.hits + newItem.hits
             if (existingItem.type === "branch" && newItem.type === "branch") {
-              existingItem.hits = existingItem.hits + newItem.hits
               existingItem.coveredConditionals = Math.max(
                 existingItem.coveredConditionals,
                 newItem.coveredConditionals
               )
-            } else if (existingItem.type === "statement" && newItem.type === "statement") {
-              existingItem.hits = existingItem.hits + newItem.hits
-            } else if (existingItem.type === "function" && newItem.type === "function") {
-              existingItem.hits = existingItem.hits + newItem.hits
-            } else {
-              throw new Error("Merge Error: Got type we cannot handle, or types did not match")
             }
           } else {
             this.addCoverage(lineNr, newItem)

@@ -20,7 +20,7 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
     <Flex mt={4} mb={4}>
       <Stat>
         <StatLabel>Percentage Covered</StatLabel>
-        <StatNumber>{format.format(props.metrics.coveredPercentage)}</StatNumber>
+        <StatNumber>{format.format(props.metrics.coveredPercentage)}%</StatNumber>
         <StatHelpText>
           <DiffHelper
             from={props.baseMetrics?.coveredPercentage}
