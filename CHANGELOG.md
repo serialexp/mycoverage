@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/Aeolun/mycoverage/compare/v1.2.0...v1.3.0) (2021-09-06)
+
+### Features
+
+- clean up the layout and add fix job processing ([aed891b](https://github.com/Aeolun/mycoverage/commit/aed891ba7759ac71ab8c3f108e6afbf27119d79f))
+
 ## [1.2.0](https://github.com/Aeolun/mycoverage/compare/v1.1.1...v1.2.0) (2021-06-27)
 
 ### Features
