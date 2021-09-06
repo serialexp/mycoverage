@@ -76,6 +76,7 @@ model Commit {
   Test                Test[]
 
   PackageCoverage PackageCoverage[]
+  Project         Project[]
   @@unique([branchId, ref])
 }
 
@@ -84,6 +85,30 @@ model Test {
   commit              Commit            @relation(fields: [commitId], references: [id])
   commitId            Int
   testName            String
+  repositoryRoot      String?
+  statements          Int
+  conditionals        Int
+  methods             Int
+  elements            Int               @default(0)
+  hits                Int               @default(0)
+  coveredElements     Int               @default(0)
+  coveredStatements   Int
+  coveredConditionals Int
+  coveredMethods      Int
+  coveredPercentage   Float             @default(0)
+  createdDate         DateTime          @default(now())
+  updatedDate         DateTime          @default(now()) @updatedAt
+  PackageCoverage     PackageCoverage[]
+  TestInstance        TestInstance[]
+
+  @@unique([testName, commitId])
+}
+
+model TestInstance {
+  id                  Int               @id @default(autoincrement())
+  index               Int
+  test                Test              @relation(fields: [testId], references: [id])
+  testId              Int
   statements          Int
   conditionals        Int
   methods             Int
@@ -105,6 +130,8 @@ model PackageCoverage {
   depth               Int            @default(0)
   test                Test?          @relation(fields: [testId], references: [id])
   testId              Int?
+  testInstance        TestInstance?  @relation(fields: [testInstanceId], references: [id])
+  testInstanceId      Int?
   commit              Commit?        @relation(fields: [commitId], references: [id])
   commitId            Int?
   createdDate         DateTime       @default(now())
@@ -152,6 +179,14 @@ model Group {
   Project     Project[]
 }
 
+model JobLog {
+  id          Int      @id @default(autoincrement())
+  name        String
+  message     String   @default("")
+  createdDate DateTime @default(now())
+  updatedDate DateTime @updatedAt
+}
+
 model Project {
   id                Int      @id @default(autoincrement())
   name              String
@@ -159,6 +194,8 @@ model Project {
   group             Group?   @relation(fields: [groupId], references: [id])
   groupId           Int
   defaultBaseBranch String
+  lastCommit        Commit?  @relation(fields: [lastCommitId], references: [id])
+  lastCommitId      Int?
   createdDate       DateTime @default(now())
   updatedDate       DateTime @updatedAt
   Branch            Branch[]

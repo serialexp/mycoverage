@@ -4,8 +4,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import getFiles from "app/coverage/queries/getFiles"
 import getPackagesForCommit from "app/coverage/queries/getPackagesForCommit"
 import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
+import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
+import { Subheading } from "app/library/components/Subheading"
 import { Link, Routes, RouteUrlObject, useParam, useQuery } from "blitz"
 import { PackageCoverage } from "db"
 
@@ -32,7 +34,7 @@ export const DirectoryDisplay = (props: {
 
   return groupId && projectId && path ? (
     <>
-      <Box m={2}>
+      <Actions>
         {path?.length == 1 ? (
           <Link href={props.backRoute()}>
             <Button>Back</Button>
@@ -42,8 +44,17 @@ export const DirectoryDisplay = (props: {
             <Button variantColor={"blue"}>Back</Button>
           </Link>
         )}
-        {props.pack ? <CoverageSummary metrics={props.pack} /> : null}
-      </Box>
+      </Actions>
+
+      {props.pack ? (
+        <>
+          <Subheading mt={4} size={"md"}>
+            Combined coverage
+          </Subheading>
+          <CoverageSummary metrics={props.pack} />
+        </>
+      ) : null}
+      <Subheading size={"md"}>Files</Subheading>
       <PackageFileTable
         packages={packages}
         files={files}

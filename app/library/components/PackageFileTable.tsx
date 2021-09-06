@@ -25,11 +25,12 @@ export const PackageFileTable = (props: {
       </Tr>
       {props.packages?.map((pack) => {
         return (
-          <Tr key={pack.id}>
+          <Tr key={pack.id} _hover={{ bg: "primary.50" }}>
             <Td>
               <Link href={props.dirRoute(pack.name.split("."))}>
                 <ChakraLink color={"blue.500"}>
-                  <FontAwesomeIcon icon={"folder"} size={"xs"} /> {pack.name.replace(/\./g, "/")}
+                  <FontAwesomeIcon icon={"folder"} size={"xs"} />{" "}
+                  {pack.name.split(".").slice(-1).join("")}
                 </ChakraLink>
               </Link>
             </Td>
@@ -45,7 +46,7 @@ export const PackageFileTable = (props: {
       })}
       {props.files.map((file) => {
         return (
-          <Tr key={file.id}>
+          <Tr key={file.id} _hover={{ bg: "primary.50" }}>
             <Td>
               <Link href={props.fileRoute([file.name])}>
                 <ChakraLink color={"blue.500"}>{file.name}</ChakraLink>

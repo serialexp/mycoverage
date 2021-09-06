@@ -1,9 +1,9 @@
-import { Heading } from "@chakra-ui/react"
 import Layout from "app/core/layouts/Layout"
 import getCommit from "app/coverage/queries/getCommit"
 import getPackageCoverageForCommit from "app/coverage/queries/getPackageCoverageForCommit"
 import { DirectoryDisplay } from "app/library/components/DirectoryDisplay"
 import { FileDisplay } from "app/library/components/FileDisplay"
+import { Heading } from "app/library/components/Heading"
 import { BlitzPage, Link, Routes, useParam, useParams, useQuery } from "blitz"
 
 const CommitFilesPage: BlitzPage = () => {
@@ -26,9 +26,9 @@ const CommitFilesPage: BlitzPage = () => {
   })
 
   return groupId && projectId && commitRef ? (
-    <div className="container">
+    <>
       <Heading m={2}>
-        Browsing {path?.join("/")} for commit {commit?.ref}
+        Browsing {path?.join("/")} for commit {commit?.ref.substr(0, 10)}
       </Heading>
       {pack ? (
         <DirectoryDisplay
@@ -63,7 +63,7 @@ const CommitFilesPage: BlitzPage = () => {
           commitRef={commit?.ref}
         />
       ) : null}
-    </div>
+    </>
   ) : null
 }
 

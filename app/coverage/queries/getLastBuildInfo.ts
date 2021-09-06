@@ -26,6 +26,11 @@ export default async function getLastBuildInfo(
     orderBy: { updatedDate: "desc" },
     include: {
       Test: {
+        include: {
+          _count: {
+            select: { TestInstance: true },
+          },
+        },
         orderBy: {
           createdDate: "desc",
         },

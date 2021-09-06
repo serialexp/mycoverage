@@ -9,18 +9,32 @@ import {
 } from "blitz"
 import LoginForm from "app/auth/components/LoginForm"
 import { Suspense } from "react"
+import "./style.css"
 
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider, extendTheme, theme as defaultTheme, Flex, Spinner } from "@chakra-ui/react"
 import { library, config, dom } from "@fortawesome/fontawesome-svg-core"
 import { fas } from "@fortawesome/free-solid-svg-icons"
 library.add(fas)
+
+const theme = extendTheme({
+  colors: {
+    primary: defaultTheme.colors.orange,
+    secondary: defaultTheme.colors.linkedin,
+  },
+})
 
 export default function App({ Component, pageProps }: AppProps) {
   const getLayout = Component.getLayout || ((page) => page)
 
   return (
-    <ChakraProvider>
-      <Suspense fallback="Loading...">
+    <ChakraProvider theme={theme}>
+      <Suspense
+        fallback={
+          <Flex justifyContent={"center"} alignItems={"center"} width={"100%"} minHeight={"300px"}>
+            <Spinner size="xl" />
+          </Flex>
+        }
+      >
         <ErrorBoundary
           FallbackComponent={RootErrorFallback}
           onReset={useQueryErrorResetBoundary().reset}

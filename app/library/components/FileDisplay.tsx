@@ -4,6 +4,7 @@ import getFileData from "app/coverage/queries/getFileData"
 import getGroup from "app/coverage/queries/getGroup"
 import getProject from "app/coverage/queries/getProject"
 import getTest from "app/coverage/queries/getTest"
+import { Actions } from "app/library/components/Actions"
 import { Link, Routes, RouteUrlObject, useParam, useQuery } from "blitz"
 import { PackageCoverage } from "db"
 
@@ -19,16 +20,17 @@ export const FileDisplay = (props: {
 
   const packagePath = path?.slice(0, path.length - 1)
   const fileName = path?.slice(path?.length - 1).join("")
-  console.log(packagePath, fileName)
+
   const [file] = useQuery(getFile, { packageCoverageId: props.pack?.id, fileName: fileName })
   const [project] = useQuery(getProject, { projectId: projectId })
+  const [test] = useQuery(getTest, { testId: testId })
   const [group] = useQuery(getGroup, { groupId: groupId })
 
   const [fileData] = useQuery(getFileData, {
     groupName: group?.name,
     projectName: project?.name,
     branchName: props.commitRef,
-    path: path?.join("/"),
+    path: (test?.repositoryRoot ?? "") + path?.join("/"),
   })
 
   const lines = fileData?.split("\n")
@@ -54,13 +56,13 @@ export const FileDisplay = (props: {
     }
   })
 
-  return groupId && projectId && lines && packagePath ? (
+  return groupId && projectId && lines && packagePath && test ? (
     <>
-      <Box m={2}>
+      <Actions>
         <Link href={props.route(packagePath)}>
           <Button variantColor={"blue"}>Back</Button>
         </Link>
-      </Box>
+      </Actions>
       <Box padding={2} bg={"gray.50"} m={2}>
         {lines?.map((line, lineNr) => {
           let color = "transparent"
@@ -146,5 +148,16 @@ export const FileDisplay = (props: {
         })}
       </Box>
     </>
-  ) : null
+  ) : (
+    <>
+      <Actions>
+        {packagePath ? (
+          <Link href={props.route(packagePath)}>
+            <Button variantColor={"blue"}>Back</Button>
+          </Link>
+        ) : null}
+      </Actions>
+      <Box p={4}>Unable to display due to missing data.</Box>
+    </>
+  )
 }

@@ -10,7 +10,8 @@ export default async function combineCoverage(args: { commitId: number }, { sess
   })
 
   if (commit) {
-    combineCoverageQueue.push(combineCoverageJob(commit))
+    combineCoverageJob(commit)
+    console.log("starting coverage job")
   }
 
   return true

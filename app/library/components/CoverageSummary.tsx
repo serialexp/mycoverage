@@ -17,7 +17,7 @@ const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
 export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics }) => {
   return (
-    <Flex mt={4} mb={4}>
+    <Flex m={4}>
       <Stat>
         <StatLabel>Percentage Covered</StatLabel>
         <StatNumber>{format.format(props.metrics.coveredPercentage)}%</StatNumber>
@@ -36,8 +36,9 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
         <StatHelpText>
           {props.baseMetrics ? (
             <DiffHelper
-              from={props.baseMetrics.coveredStatements / props.baseMetrics.statements}
-              to={props.metrics.coveredStatements / props.metrics.statements}
+              from={props.baseMetrics.coveredStatements}
+              to={props.metrics.coveredStatements}
+              fromAbsolute={props.baseMetrics.coveredStatements}
             />
           ) : null}
         </StatHelpText>
@@ -51,8 +52,9 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
         <StatHelpText>
           {props.baseMetrics ? (
             <DiffHelper
-              from={props.baseMetrics.coveredConditionals / props.baseMetrics.conditionals}
-              to={props.metrics.coveredConditionals / props.metrics.conditionals}
+              from={props.baseMetrics.coveredConditionals}
+              to={props.metrics.coveredConditionals}
+              fromAbsolute={props.baseMetrics.coveredConditionals}
             />
           ) : null}
         </StatHelpText>
@@ -65,8 +67,9 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
         <StatHelpText>
           {props.baseMetrics ? (
             <DiffHelper
-              from={props.baseMetrics.coveredMethods / props.baseMetrics.methods}
-              to={props.metrics.coveredMethods / props.metrics.methods}
+              from={props.baseMetrics.coveredMethods}
+              to={props.metrics.coveredMethods}
+              fromAbsolute={props.baseMetrics.coveredMethods}
             />
           ) : null}
         </StatHelpText>

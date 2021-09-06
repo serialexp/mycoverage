@@ -1,7 +1,10 @@
 import combineCoverage from "app/coverage/mutations/combineCoverage"
 import getPackagesForCommit from "app/coverage/queries/getPackagesForCommit"
+import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
+import { Heading } from "app/library/components/Heading"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
+import { Subheading } from "app/library/components/Subheading"
 import { Suspense } from "react"
 import {
   Link,
@@ -15,7 +18,7 @@ import {
 } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import { Box, Button, Link as ChakraLink } from "@chakra-ui/react"
-import { Heading, Table, Td, Tr } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
 import getCommit from "app/coverage/queries/getCommit"
 
 const CommitPage: BlitzPage = () => {
@@ -30,25 +33,19 @@ const CommitPage: BlitzPage = () => {
   console.log(packages)
 
   return commit && commitRef && projectId && groupId ? (
-    <Box m={2}>
-      <Heading color={"blue.500"}>
-        Commit {commit.ref.substr(0, 10)} on {commit.branch?.name}
-      </Heading>
-      <Link href={Routes.BranchPage({ groupId, projectId, branchId: commit.branch.name })}>
-        <Button>To branch</Button>
-      </Link>
-      <Button
-        ml={2}
-        onClick={() => {
-          if (commit?.id) {
-            combineCoverageMutation({ commitId: commit.id })
-          }
-        }}
-      >
-        Combine Coverage
-      </Button>
+    <>
+      <Heading color={"blue.500"}>Commit {commit.ref.substr(0, 10)}</Heading>
+      <Actions>
+        <Link href={Routes.BranchPage({ groupId, projectId, branchId: commit.branch.name })}>
+          <Button>To branch</Button>
+        </Link>
+        `
+      </Actions>
+      <Subheading mt={4} size={"md"}>
+        Combined coverage
+      </Subheading>
       <CoverageSummary metrics={commit} />
-      <Heading size={"md"}>Files</Heading>
+      <Subheading size={"md"}>Files</Subheading>
       <PackageFileTable
         packages={packages}
         files={[]}
@@ -69,7 +66,7 @@ const CommitPage: BlitzPage = () => {
           })
         }
       />
-    </Box>
+    </>
   ) : null
 }
 

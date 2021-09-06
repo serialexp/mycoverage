@@ -10,6 +10,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
   if (req.headers["content-type"] !== "application/xml") {
     return res.status(400).send("Content type must be application/xml")
   }
+  console.log("serving upload")
   const query = fixQuery(req.query)
   if (query.projectId && query.branch && query.testName && query.ref) {
     try {
@@ -92,6 +93,17 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
+      if (project.defaultBaseBranch == branch.name) {
+        mydb.project.update({
+          data: {
+            lastCommitId: commit.id || null,
+          },
+          where: {
+            id: project.id,
+          },
+        })
+      }
+
       const covInfo = coverageFile.data.coverage
 
       if (!covInfo) {
@@ -102,10 +114,34 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("Could not calculate metrics for input file.")
       }
 
-      const test = await mydb.test.create({
-        data: {
+      const test = await mydb.test.upsert({
+        where: {
+          testName_commitId: {
+            commitId: commit.id,
+            testName: query.testName,
+          },
+        },
+        update: {},
+        create: {
           testName: query.testName,
+          repositoryRoot: query.repositoryRoot,
           commitId: commit.id,
+          statements: covInfo.metrics.statements,
+          conditionals: covInfo.metrics.conditionals,
+          methods: covInfo.metrics.methods,
+          elements: covInfo.metrics.elements,
+          coveredStatements: covInfo.metrics.coveredstatements,
+          coveredConditionals: covInfo.metrics.coveredconditionals,
+          coveredMethods: covInfo.metrics.coveredmethods,
+          coveredElements: covInfo.metrics.coveredelements,
+          coveredPercentage: coveredPercentage(covInfo.metrics),
+        },
+      })
+
+      const testInstance = await mydb.testInstance.create({
+        data: {
+          index: query.index ? parseInt(query.index) : Math.floor(Math.random() * 1000000),
+          testId: test.id,
           statements: covInfo.metrics.statements,
           conditionals: covInfo.metrics.conditionals,
           methods: covInfo.metrics.methods,
@@ -133,7 +169,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      uploadQueue.push(uploadJob(coverageFile, commit, test))
+      uploadJob(coverageFile, commit, test, testInstance)
 
       const baseCommit = baseBranch?.Commit[0]
       if (baseBranch && baseCommit) {

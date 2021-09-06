@@ -1,4 +1,7 @@
+import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
+import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
@@ -17,7 +20,7 @@ import {
   Th,
 } from "@chakra-ui/react"
 import getLastBuildInfo from "../../../../coverage/queries/getLastBuildInfo"
-import { Heading, Table, Td, Tr } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
@@ -29,29 +32,31 @@ const ProjectPage: BlitzPage = () => {
   const [buildInfo] = useQuery(getLastBuildInfo, { projectId: projectId || 0 })
 
   return groupId && projectId ? (
-    <Box p={2}>
+    <>
       <Heading>{project?.name}</Heading>
-      <Link href={Routes.GroupPage({ groupId: groupId || 0 })}>
-        <Button>Back</Button>
-      </Link>
-      <Heading mt={4} size={"md"}>
-        Main branch
-      </Heading>
-      <div>{buildInfo.branch?.name}</div>
-      <Heading mt={4} size={"md"}>
-        Current coverage
-      </Heading>
-      {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
-      <div>
+      <Actions>
+        <Link href={Routes.GroupPage({ groupId: groupId || 0 })}>
+          <Button>Back</Button>
+        </Link>
+      </Actions>
+      <Subheading>Main branch</Subheading>
+      <Box m={4}>
+        <Link
+          href={Routes.BranchPage({ groupId, projectId, branchId: buildInfo.branch?.name || "" })}
+        >
+          <ChakraLink color={"blue.500"}>{buildInfo.branch?.name}</ChakraLink>
+        </Link>
+      </Box>
+      <Box m={4}>
         Last commit:{" "}
         <strong>
           {buildInfo.lastCommit?.createdDate.toLocaleString()}{" "}
           {buildInfo.lastCommit?.ref.substr(0, 10)}
         </strong>
-      </div>
-      <Heading mt={4} size={"md"}>
-        Test results
-      </Heading>
+      </Box>
+      <Subheading>Current coverage</Subheading>
+      {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
+      <Subheading>Test results</Subheading>
       <Table>
         <Tr>
           <Th>Test</Th>
@@ -72,9 +77,7 @@ const ProjectPage: BlitzPage = () => {
           )
         })}
       </Table>
-      <Heading mt={4} size={"md"}>
-        Recent Branches
-      </Heading>
+      <Subheading>Recent Branches</Subheading>
       <Table>
         <Tr>
           <Th>Branch name</Th>
@@ -93,7 +96,7 @@ const ProjectPage: BlitzPage = () => {
           )
         })}
       </Table>
-    </Box>
+    </>
   ) : null
 }
 

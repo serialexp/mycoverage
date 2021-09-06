@@ -26,7 +26,8 @@ const TestFilesPage: BlitzPage = () => {
   return groupId && projectId && testId ? (
     <div className="container">
       <Heading>
-        Browsing {path?.join("/")} for test {test?.testName}
+        Browsing {test?.repositoryRoot ?? ""}
+        {path?.join("/")} for test {test?.testName}
       </Heading>
       {pack ? (
         <DirectoryDisplay

@@ -3,8 +3,10 @@
   "version": "1.2.0",
   "scripts": {
     "dev": "blitz dev",
+    "build:worker": "webpack --config ./worker.webpack.config.js",
+    "start:worker": "node -r dotenv/config ./dist/worker.js",
     "build": "blitz build",
-    "start": "blitz start",
+    "start": "concurrently -n worker,app npm:start:worker 'blitz start'",
     "studio": "blitz prisma studio",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts,.tsx .",
     "pretty": "prettier .",
@@ -26,6 +28,7 @@
     ]
   },
   "dependencies": {
+    "@chakra-ui/icons": "1.0.15",
     "@chakra-ui/react": "1.1.2",
     "@emotion/react": "11.1.4",
     "@emotion/styled": "11.0.0",
@@ -35,6 +38,8 @@
     "@prisma/client": "2.25.0",
     "axios": "0.21.1",
     "blitz": "^0.38.1",
+    "bullmq": "1.44.2",
+    "concurrently": "6.2.1",
     "final-form": "4.20.2",
     "framer-motion": "3.2.0",
     "joi": "17.4.0",
@@ -42,15 +47,18 @@
     "react": "18.0.0-alpha-568dc3532",
     "react-dom": "18.0.0-alpha-568dc3532",
     "react-final-form": "6.5.3",
+    "react-icons": "4.2.0",
+    "ts-node": "10.2.1",
     "xml2js": "^0.4.23",
     "zod": "3.2.0"
   },
   "devDependencies": {
+    "@types/bull": "3.15.4",
     "@types/preview-email": "2.0.0",
     "@types/react": "17.0.11",
     "@types/xml2js": "^0.4.8",
+    "dotenv": "10.0.0",
     "eslint": "7.28.0",
-    "standard-version": "9.3.0",
     "husky": "6.0.0",
     "lint-staged": "10.5.4",
     "prettier": "2.3.1",
@@ -58,7 +66,13 @@
     "pretty-quick": "3.1.1",
     "preview-email": "3.0.4",
     "prisma": "2.25.0",
-    "typescript": "~4.3"
+    "standard-version": "9.3.0",
+    "ts-loader": "9.2.5",
+    "tsconfig-paths": "3.11.0",
+    "typescript": "4.3.5",
+    "webpack": "5.51.1",
+    "webpack-cli": "4.8.0",
+    "webpack-node-externals": "3.0.0"
   },
   "private": true
 }

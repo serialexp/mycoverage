@@ -1,5 +1,6 @@
+import { Button, Container, Link as ChakraLink } from "@chakra-ui/react"
 import { ReactNode } from "react"
-import { Head } from "blitz"
+import { Head, Link, Routes } from "blitz"
 import { library, config, dom } from "@fortawesome/fontawesome-svg-core"
 
 type LayoutProps = {
@@ -12,11 +13,23 @@ const Layout = ({ title, children }: LayoutProps) => {
     <>
       <Head>
         <title>{title || "mycoverage"}</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
         <style>{dom.css()}</style>
       </Head>
 
-      {children}
+      <Container maxW={"container.lg"} textAlign={"right"}>
+        <Link href={Routes.Home()}>
+          <ChakraLink mr={4} color={"secondary"}>
+            Home
+          </ChakraLink>
+        </Link>
+        <Link href={Routes.Logs()}>
+          <ChakraLink color={"secondary"}>Logs</ChakraLink>
+        </Link>
+      </Container>
+      <Container p={0} bg={"white"} maxW={"container.lg"}>
+        {children}
+      </Container>
     </>
   )
 }

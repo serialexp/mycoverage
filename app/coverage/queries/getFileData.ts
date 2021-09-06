@@ -10,19 +10,18 @@ export default async function getFileData(
 ): Promise<string | null> {
   if (!args.groupName || !args.projectName || !args.branchName || !args.path || !filepath)
     return null
+  const requestPath = filepath
+    .replace("{group}", args.groupName)
+    .replace("{project}", args.projectName)
+    .replace("{branch}", args.branchName)
+    .replace("{path}", args.path)
+  console.log(requestPath)
   return axios
-    .get(
-      filepath
-        .replace("{group}", args.groupName)
-        .replace("{project}", args.projectName)
-        .replace("{branch}", args.branchName)
-        .replace("{path}", args.path),
-      {
-        httpsAgent: new https.Agent({
-          rejectUnauthorized: false,
-        }),
-      }
-    )
+    .get(requestPath, {
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false,
+      }),
+    })
     .then((result) => {
       return result.data
     })
