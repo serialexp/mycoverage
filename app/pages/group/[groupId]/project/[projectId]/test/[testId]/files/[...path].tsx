@@ -1,9 +1,9 @@
-import { Heading } from "@chakra-ui/react"
 import Layout from "app/core/layouts/Layout"
 import getPackageCoverageForTest from "app/coverage/queries/getPackageCoverageForTest"
 import getTest from "app/coverage/queries/getTest"
 import { DirectoryDisplay } from "app/library/components/DirectoryDisplay"
 import { FileDisplay } from "app/library/components/FileDisplay"
+import { Heading } from "app/library/components/Heading"
 import { BlitzPage, Link, Routes, useParam, useParams, useQuery } from "blitz"
 
 const TestFilesPage: BlitzPage = () => {
@@ -24,7 +24,7 @@ const TestFilesPage: BlitzPage = () => {
   })
 
   return groupId && projectId && testId ? (
-    <div className="container">
+    <>
       <Heading>
         Browsing {test?.repositoryRoot ?? ""}
         {path?.join("/")} for test {test?.testName}
@@ -62,7 +62,7 @@ const TestFilesPage: BlitzPage = () => {
           commitRef={test?.commit.ref}
         />
       )}
-    </div>
+    </>
   ) : null
 }
 

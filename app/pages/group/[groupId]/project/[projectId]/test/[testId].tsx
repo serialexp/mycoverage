@@ -1,4 +1,8 @@
+import getCommit from "app/coverage/queries/getCommit"
+import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
+import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
 import { Suspense } from "react"
 import {
   Link,
@@ -22,7 +26,7 @@ import {
   StatLabel,
   StatNumber,
 } from "@chakra-ui/react"
-import { Heading, Table, Td, Tr } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
 import getTest from "app/coverage/queries/getTest"
 import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
 
@@ -32,21 +36,33 @@ const TestPage: BlitzPage = () => {
   const projectId = useParam("projectId", "number")
 
   const [test] = useQuery(getTest, { testId: testId || 0 })
+  const [commit] = useQuery(getCommit, { commitRef: test?.commit.ref || "" })
   const [packages] = useQuery(getPackagesForTest, { testId: testId || 0, path: undefined })
 
   console.log(packages)
 
   return test && testId && projectId && groupId ? (
-    <Box m={2}>
+    <>
       <Heading color={"blue.500"}>
         Test result &apos;{test?.testName}&apos; for {test?.commit.ref.substr(0, 10)} on{" "}
-        {test?.commit.branch.name}
+        {commit?.branches[0]?.branch.name}
       </Heading>
-      <Link href={Routes.BranchPage({ groupId, projectId, branchId: test.commit.branch.name })}>
-        <Button>To branch</Button>
-      </Link>
+      <Actions>
+        <Link
+          href={Routes.BranchPage({
+            groupId,
+            projectId,
+            branchId: commit?.branches[0]?.branch.name || "",
+          })}
+        >
+          <Button>To branch</Button>
+        </Link>
+      </Actions>
+      <Subheading mt={4} size={"md"}>
+        Combined coverage
+      </Subheading>
       <CoverageSummary metrics={test} />
-      <Heading size={"md"}>Files</Heading>
+      <Subheading size={"md"}>Files</Subheading>
       <Table>
         {packages?.map((pack) => {
           return (
@@ -73,7 +89,7 @@ const TestPage: BlitzPage = () => {
           )
         })}
       </Table>
-    </Box>
+    </>
   ) : null
 }
 

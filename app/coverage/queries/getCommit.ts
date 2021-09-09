@@ -6,7 +6,11 @@ export default async function getCommit(args: { commitRef?: string }, { session 
   return db.commit.findFirst({
     where: { ref: args.commitRef },
     include: {
-      branch: true,
+      branches: {
+        include: {
+          branch: true,
+        },
+      },
     },
   })
 }

@@ -11,33 +11,33 @@
                 Object.assign ||
                 function (e) {
                   for (var t, o = 1, n = arguments.length; o < n; o++)
-                    for (var i in (t = arguments[o]))
-                      Object.prototype.hasOwnProperty.call(t, i) && (e[i] = t[i])
+                    for (var r in (t = arguments[o]))
+                      Object.prototype.hasOwnProperty.call(t, r) && (e[r] = t[r])
                   return e
                 }).apply(this, arguments)
             },
-          i =
+          r =
             (this && this.__awaiter) ||
             function (e, t, o, n) {
-              return new (o || (o = Promise))(function (i, r) {
+              return new (o || (o = Promise))(function (r, i) {
                 function a(e) {
                   try {
                     s(n.next(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function c(e) {
                   try {
                     s(n.throw(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function s(e) {
                   var t
                   e.done
-                    ? i(e.value)
+                    ? r(e.value)
                     : ((t = e.value),
                       t instanceof o
                         ? t
@@ -48,102 +48,102 @@
                 s((n = n.apply(e, t || [])).next())
               })
             },
-          r =
+          i =
             (this && this.__generator) ||
             function (e, t) {
               var o,
                 n,
-                i,
                 r,
+                i,
                 a = {
                   label: 0,
                   sent: function () {
-                    if (1 & i[0]) throw i[1]
-                    return i[1]
+                    if (1 & r[0]) throw r[1]
+                    return r[1]
                   },
                   trys: [],
                   ops: [],
                 }
               return (
-                (r = { next: c(0), throw: c(1), return: c(2) }),
+                (i = { next: c(0), throw: c(1), return: c(2) }),
                 "function" == typeof Symbol &&
-                  (r[Symbol.iterator] = function () {
+                  (i[Symbol.iterator] = function () {
                     return this
                   }),
-                r
+                i
               )
-              function c(r) {
+              function c(i) {
                 return function (c) {
-                  return (function (r) {
+                  return (function (i) {
                     if (o) throw new TypeError("Generator is already executing.")
                     for (; a; )
                       try {
                         if (
                           ((o = 1),
                           n &&
-                            (i =
-                              2 & r[0]
+                            (r =
+                              2 & i[0]
                                 ? n.return
-                                : r[0]
-                                ? n.throw || ((i = n.return) && i.call(n), 0)
+                                : i[0]
+                                ? n.throw || ((r = n.return) && r.call(n), 0)
                                 : n.next) &&
-                            !(i = i.call(n, r[1])).done)
+                            !(r = r.call(n, i[1])).done)
                         )
-                          return i
-                        switch (((n = 0), i && (r = [2 & r[0], i.value]), r[0])) {
+                          return r
+                        switch (((n = 0), r && (i = [2 & i[0], r.value]), i[0])) {
                           case 0:
                           case 1:
-                            i = r
+                            r = i
                             break
                           case 4:
-                            return a.label++, { value: r[1], done: !1 }
+                            return a.label++, { value: i[1], done: !1 }
                           case 5:
-                            a.label++, (n = r[1]), (r = [0])
+                            a.label++, (n = i[1]), (i = [0])
                             continue
                           case 7:
-                            ;(r = a.ops.pop()), a.trys.pop()
+                            ;(i = a.ops.pop()), a.trys.pop()
                             continue
                           default:
                             if (
                               !(
-                                (i = (i = a.trys).length > 0 && i[i.length - 1]) ||
-                                (6 !== r[0] && 2 !== r[0])
+                                (r = (r = a.trys).length > 0 && r[r.length - 1]) ||
+                                (6 !== i[0] && 2 !== i[0])
                               )
                             ) {
                               a = 0
                               continue
                             }
-                            if (3 === r[0] && (!i || (r[1] > i[0] && r[1] < i[3]))) {
-                              a.label = r[1]
+                            if (3 === i[0] && (!r || (i[1] > r[0] && i[1] < r[3]))) {
+                              a.label = i[1]
                               break
                             }
-                            if (6 === r[0] && a.label < i[1]) {
-                              ;(a.label = i[1]), (i = r)
+                            if (6 === i[0] && a.label < r[1]) {
+                              ;(a.label = r[1]), (r = i)
                               break
                             }
-                            if (i && a.label < i[2]) {
-                              ;(a.label = i[2]), a.ops.push(r)
+                            if (r && a.label < r[2]) {
+                              ;(a.label = r[2]), a.ops.push(i)
                               break
                             }
-                            i[2] && a.ops.pop(), a.trys.pop()
+                            r[2] && a.ops.pop(), a.trys.pop()
                             continue
                         }
-                        r = t.call(e, a)
+                        i = t.call(e, a)
                       } catch (e) {
-                        ;(r = [6, e]), (n = 0)
+                        ;(i = [6, e]), (n = 0)
                       } finally {
-                        o = i = 0
+                        o = r = 0
                       }
-                    if (5 & r[0]) throw r[1]
-                    return { value: r[0] ? r[1] : void 0, done: !0 }
-                  })([r, c])
+                    if (5 & i[0]) throw i[1]
+                    return { value: i[0] ? i[1] : void 0, done: !0 }
+                  })([i, c])
                 }
               }
             },
           a =
             (this && this.__spreadArray) ||
             function (e, t) {
-              for (var o = 0, n = t.length, i = e.length; o < n; o++, i++) e[i] = t[o]
+              for (var o = 0, n = t.length, r = e.length; o < n; o++, r++) e[r] = t[o]
               return e
             },
           c =
@@ -231,20 +231,20 @@
             }
             return (
               (e.prototype.init = function (e) {
-                return i(this, void 0, void 0, function () {
+                return r(this, void 0, void 0, function () {
                   var t = this
-                  return r(this, function (o) {
+                  return i(this, function (o) {
                     return [
                       2,
-                      new Promise(function (o, i) {
-                        l.parseString(e, function (e, r) {
+                      new Promise(function (o, r) {
+                        l.parseString(e, function (e, i) {
                           var a
-                          e && i(e)
+                          e && r(e)
                           var c = {
-                              coverage: n(n({}, r.coverage.$), {
-                                sources: { source: r.coverage.sources[0].source[0] },
+                              coverage: n(n({}, i.coverage.$), {
+                                sources: { source: i.coverage.sources[0].source[0] },
                                 packages:
-                                  null === (a = r.coverage.packages[0].package) || void 0 === a
+                                  null === (a = i.coverage.packages[0].package) || void 0 === a
                                     ? void 0
                                     : a.map(function (e) {
                                         var t
@@ -253,7 +253,7 @@
                                             null === (t = e.classes[0].class) || void 0 === t
                                               ? void 0
                                               : t.map(function (e) {
-                                                  var t, o, i, r
+                                                  var t, o, r, i
                                                   return n(n({}, e.$), {
                                                     lines:
                                                       null ===
@@ -269,22 +269,22 @@
                                                                 t["condition-coverage"]
                                                               )
                                                               if (o && o[1]) {
-                                                                var i = o[1].split("/")
-                                                                ;(t.conditions = i[1]),
-                                                                  (t.coveredConditions = i[0])
+                                                                var r = o[1].split("/")
+                                                                ;(t.conditions = r[1]),
+                                                                  (t.coveredConditions = r[0])
                                                               }
                                                             }
                                                             return n({}, t)
                                                           }),
                                                     functions:
                                                       null ===
-                                                        (r =
-                                                          null === (i = e.methods[0]) ||
-                                                          void 0 === i
+                                                        (i =
+                                                          null === (r = e.methods[0]) ||
+                                                          void 0 === r
                                                             ? void 0
-                                                            : i.method) || void 0 === r
+                                                            : r.method) || void 0 === i
                                                         ? void 0
-                                                        : r.map(function (e) {
+                                                        : i.map(function (e) {
                                                             return n(
                                                               n({}, e.$),
                                                               e.lines[0].line[0].$
@@ -335,10 +335,10 @@
                     }
                   }),
                   e.coverage.packages.forEach(function (t) {
-                    for (var n = t.name.split("."), i = 1; i < n.length; i++) {
-                      var r = n.slice(0, i).join(".")
-                      o[r] ||
-                        ((o[r] = {
+                    for (var n = t.name.split("."), r = 1; r < n.length; r++) {
+                      var i = n.slice(0, r).join(".")
+                      o[i] ||
+                        ((o[i] = {
                           elements: 0,
                           coveredelements: 0,
                           methods: 0,
@@ -350,17 +350,17 @@
                           coveredstatements: 0,
                         }),
                         e.coverage.packages.push({
-                          name: r,
+                          name: i,
                           "line-rate": "0",
                           "branch-rate": "0",
                           files: [],
-                          metrics: o[r],
+                          metrics: o[i],
                         }))
                     }
                   }),
                   e.coverage.packages.forEach(function (e) {
-                    for (var n = [], i = e.name.split("."), r = 1; r < i.length; r++) {
-                      var c = i.slice(0, r).join("."),
+                    for (var n = [], r = e.name.split("."), i = 1; i < r.length; i++) {
+                      var c = r.slice(0, i).join("."),
                         s = o[c]
                       s && n.push(s)
                     }
@@ -368,8 +368,8 @@
                     l && n.push(l),
                       e.files.forEach(function (e) {
                         var o,
-                          i,
-                          r = (e.metrics = {
+                          r,
+                          i = (e.metrics = {
                             elements: 0,
                             coveredelements: 0,
                             methods: 0,
@@ -383,7 +383,7 @@
                         null === (o = e.lines) ||
                           void 0 === o ||
                           o.forEach(function (e) {
-                            a(a([t], n), [r]).forEach(function (t) {
+                            a(a([t], n), [i]).forEach(function (t) {
                               if (e.branch) {
                                 if (void 0 === e.coveredConditions || isNaN(e.coveredConditions))
                                   throw (console.log(e), Error("Invalid line"))
@@ -395,10 +395,10 @@
                               } else t.elements++, t.statements++, (t.hits += e.hits), e.hits > 0 && (t.coveredstatements++, t.coveredelements++)
                             })
                           }),
-                          null === (i = e.functions) ||
-                            void 0 === i ||
-                            i.forEach(function (e) {
-                              a(a([t], n), [r]).forEach(function (t) {
+                          null === (r = e.functions) ||
+                            void 0 === r ||
+                            r.forEach(function (e) {
+                              a(a([t], n), [i]).forEach(function (t) {
                                 t.elements++,
                                   t.methods++,
                                   (t.hits += e.hits),
@@ -411,21 +411,21 @@
                 )
               }),
               (e.prototype.mergeCoverage = function (e, t, o, n) {
-                var i = this.data.coverage.packages.find(function (t) {
+                var r = this.data.coverage.packages.find(function (t) {
                   return t.name === e
                 })
-                i || ((i = { name: e, files: [] }), this.data.coverage.packages.push(i))
-                var r = i.files.find(function (e) {
+                r || ((r = { name: e, files: [] }), this.data.coverage.packages.push(r))
+                var i = r.files.find(function (e) {
                   return e.name === t
                 })
-                r || ((r = { name: t, lines: [], functions: [] }), i.files.push(r))
-                var a = r.coverageData ? r.coverageData : s.CoverageData.fromCoberturaFile(r),
+                i || ((i = { name: t, lines: [], functions: [] }), r.files.push(i))
+                var a = i.coverageData ? i.coverageData : s.CoverageData.fromCoberturaFile(i),
                   c = s.CoverageData.fromString(o, n)
                 a.merge(c)
                 var l = a.toCoberturaFile(),
                   d = l.functions,
                   u = l.lines
-                ;(r.lines = u), (r.functions = d), (r.coverageData = a)
+                ;(i.lines = u), (i.functions = d), (i.coverageData = a)
               }),
               e
             )
@@ -447,15 +447,15 @@
             }),
             (e.fromCoberturaFile = function (t, o) {
               var n,
-                i,
-                r = new e()
+                r,
+                i = new e()
               return (
                 null === (n = t.lines) ||
                   void 0 === n ||
                   n.forEach(function (e) {
                     var t, n
                     e.branch
-                      ? r.addCoverage(e.number.toString(), {
+                      ? i.addCoverage(e.number.toString(), {
                           type: "branch",
                           line: e.number,
                           hits: e.hits,
@@ -463,18 +463,18 @@
                           coveredConditionals: e.coveredConditions,
                           hitsBySource: o ? ((t = {}), (t[o] = e.hits), t) : {},
                         })
-                      : r.addCoverage(e.number.toString(), {
+                      : i.addCoverage(e.number.toString(), {
                           type: "statement",
                           line: e.number,
                           hits: e.hits,
                           hitsBySource: o ? ((n = {}), (n[o] = e.hits), n) : {},
                         })
                   }),
-                null === (i = t.functions) ||
-                  void 0 === i ||
-                  i.forEach(function (e) {
+                null === (r = t.functions) ||
+                  void 0 === r ||
+                  r.forEach(function (e) {
                     var t
-                    r.addCoverage(e.number.toString(), {
+                    i.addCoverage(e.number.toString(), {
                       type: "function",
                       line: e.number,
                       hits: e.hits,
@@ -483,12 +483,12 @@
                       hitsBySource: o ? ((t = {}), (t[o] = e.hits), t) : {},
                     })
                   }),
-                r
+                i
               )
             }),
             (e.fromString = function (t, o) {
               var n = new e(),
-                i = function (e) {
+                r = function (e) {
                   return null == e
                     ? void 0
                     : e
@@ -503,12 +503,12 @@
               return (
                 t.split("\n").forEach(function (e) {
                   var t,
-                    r,
+                    i,
                     a,
                     c = e.split(",")
                   switch (c[0]) {
                     case "stmt":
-                      var s = i(c[3]),
+                      var s = r(c[3]),
                         l = parseInt(c[2] || "")
                       n.addCoverage(c[1] || "", {
                         type: "statement",
@@ -518,7 +518,7 @@
                       })
                       break
                     case "cond":
-                      ;(s = i(c[5])),
+                      ;(s = r(c[5])),
                         (l = parseInt(c[2] || "")),
                         n.addCoverage(c[1] || "", {
                           type: "branch",
@@ -526,11 +526,11 @@
                           hits: parseInt(c[2] || ""),
                           coveredConditionals: parseInt(c[3] || ""),
                           conditionals: parseInt(c[4] || ""),
-                          hitsBySource: s || (o ? ((r = {}), (r[o] = l), r) : {}),
+                          hitsBySource: s || (o ? ((i = {}), (i[o] = l), i) : {}),
                         })
                       break
                     case "func":
-                      ;(s = i(c[5])),
+                      ;(s = r(c[5])),
                         (l = parseInt(c[2] || "")),
                         n.addCoverage(c[1] || "", {
                           type: "function",
@@ -554,10 +554,10 @@
                 null === (e = Object.keys(this.coverage)) ||
                   void 0 === e ||
                   e.forEach(function (e) {
-                    var i
-                    null === (i = t.coverage[e]) ||
-                      void 0 === i ||
-                      i.forEach(function (e) {
+                    var r
+                    null === (r = t.coverage[e]) ||
+                      void 0 === r ||
+                      r.forEach(function (e) {
                         t.typeToStringMap[e.type],
                           "statement" === e.type
                             ? o.push({ branch: !1, number: e.line, hits: e.hits })
@@ -594,13 +594,13 @@
                       void 0 === n ||
                       n.forEach(function (e) {
                         var n = t.typeToStringMap[e.type],
-                          i = Object.keys(e.hitsBySource)
+                          r = Object.keys(e.hitsBySource)
                             .map(function (t) {
                               return t + "=" + e.hitsBySource[t]
                             })
                             .join(";")
                         "statement" === e.type
-                          ? o.push(n + "," + e.line + "," + e.hits + "," + i)
+                          ? o.push(n + "," + e.line + "," + e.hits + "," + r)
                           : "branch" === e.type
                           ? o.push(
                               n +
@@ -613,7 +613,7 @@
                                 "," +
                                 e.conditionals +
                                 "," +
-                                i
+                                r
                             )
                           : "function" === e.type &&
                             o.push(
@@ -627,7 +627,7 @@
                                 "," +
                                 e.name +
                                 "," +
-                                i
+                                r
                             )
                       })
                   }),
@@ -638,29 +638,29 @@
               var t = this
               Object.keys(e.coverage).forEach(function (o) {
                 var n = t.coverage[o],
-                  i = e.coverage[o]
-                i && n
-                  ? null == i ||
-                    i.forEach(function (e) {
-                      var i = n.find(function (t) {
+                  r = e.coverage[o]
+                r && n
+                  ? null == r ||
+                    r.forEach(function (e) {
+                      var r = n.find(function (t) {
                         return t.type === e.type
                       })
-                      i
+                      r
                         ? (Object.keys(e.hitsBySource).forEach(function (t) {
                             var o = e.hitsBySource[t]
-                            o && (i.hitsBySource[t] = o)
+                            o && (r.hitsBySource[t] = o)
                           }),
-                          (i.hits = i.hits + e.hits),
-                          "branch" === i.type &&
+                          (r.hits = r.hits + e.hits),
+                          "branch" === r.type &&
                             "branch" === e.type &&
-                            (i.coveredConditionals = Math.max(
-                              i.coveredConditionals,
+                            (r.coveredConditionals = Math.max(
+                              r.coveredConditionals,
                               e.coveredConditionals
                             )))
                         : t.addCoverage(o, e)
                     })
-                  : null == i ||
-                    i.forEach(function (e) {
+                  : null == r ||
+                    r.forEach(function (e) {
                       t.addCoverage(o, e)
                     })
               })
@@ -686,25 +686,25 @@
         var n =
             (this && this.__awaiter) ||
             function (e, t, o, n) {
-              return new (o || (o = Promise))(function (i, r) {
+              return new (o || (o = Promise))(function (r, i) {
                 function a(e) {
                   try {
                     s(n.next(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function c(e) {
                   try {
                     s(n.throw(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function s(e) {
                   var t
                   e.done
-                    ? i(e.value)
+                    ? r(e.value)
                     : ((t = e.value),
                       t instanceof o
                         ? t
@@ -715,99 +715,99 @@
                 s((n = n.apply(e, t || [])).next())
               })
             },
-          i =
+          r =
             (this && this.__generator) ||
             function (e, t) {
               var o,
                 n,
-                i,
                 r,
+                i,
                 a = {
                   label: 0,
                   sent: function () {
-                    if (1 & i[0]) throw i[1]
-                    return i[1]
+                    if (1 & r[0]) throw r[1]
+                    return r[1]
                   },
                   trys: [],
                   ops: [],
                 }
               return (
-                (r = { next: c(0), throw: c(1), return: c(2) }),
+                (i = { next: c(0), throw: c(1), return: c(2) }),
                 "function" == typeof Symbol &&
-                  (r[Symbol.iterator] = function () {
+                  (i[Symbol.iterator] = function () {
                     return this
                   }),
-                r
+                i
               )
-              function c(r) {
+              function c(i) {
                 return function (c) {
-                  return (function (r) {
+                  return (function (i) {
                     if (o) throw new TypeError("Generator is already executing.")
                     for (; a; )
                       try {
                         if (
                           ((o = 1),
                           n &&
-                            (i =
-                              2 & r[0]
+                            (r =
+                              2 & i[0]
                                 ? n.return
-                                : r[0]
-                                ? n.throw || ((i = n.return) && i.call(n), 0)
+                                : i[0]
+                                ? n.throw || ((r = n.return) && r.call(n), 0)
                                 : n.next) &&
-                            !(i = i.call(n, r[1])).done)
+                            !(r = r.call(n, i[1])).done)
                         )
-                          return i
-                        switch (((n = 0), i && (r = [2 & r[0], i.value]), r[0])) {
+                          return r
+                        switch (((n = 0), r && (i = [2 & i[0], r.value]), i[0])) {
                           case 0:
                           case 1:
-                            i = r
+                            r = i
                             break
                           case 4:
-                            return a.label++, { value: r[1], done: !1 }
+                            return a.label++, { value: i[1], done: !1 }
                           case 5:
-                            a.label++, (n = r[1]), (r = [0])
+                            a.label++, (n = i[1]), (i = [0])
                             continue
                           case 7:
-                            ;(r = a.ops.pop()), a.trys.pop()
+                            ;(i = a.ops.pop()), a.trys.pop()
                             continue
                           default:
                             if (
                               !(
-                                (i = (i = a.trys).length > 0 && i[i.length - 1]) ||
-                                (6 !== r[0] && 2 !== r[0])
+                                (r = (r = a.trys).length > 0 && r[r.length - 1]) ||
+                                (6 !== i[0] && 2 !== i[0])
                               )
                             ) {
                               a = 0
                               continue
                             }
-                            if (3 === r[0] && (!i || (r[1] > i[0] && r[1] < i[3]))) {
-                              a.label = r[1]
+                            if (3 === i[0] && (!r || (i[1] > r[0] && i[1] < r[3]))) {
+                              a.label = i[1]
                               break
                             }
-                            if (6 === r[0] && a.label < i[1]) {
-                              ;(a.label = i[1]), (i = r)
+                            if (6 === i[0] && a.label < r[1]) {
+                              ;(a.label = r[1]), (r = i)
                               break
                             }
-                            if (i && a.label < i[2]) {
-                              ;(a.label = i[2]), a.ops.push(r)
+                            if (r && a.label < r[2]) {
+                              ;(a.label = r[2]), a.ops.push(i)
                               break
                             }
-                            i[2] && a.ops.pop(), a.trys.pop()
+                            r[2] && a.ops.pop(), a.trys.pop()
                             continue
                         }
-                        r = t.call(e, a)
+                        i = t.call(e, a)
                       } catch (e) {
-                        ;(r = [6, e]), (n = 0)
+                        ;(i = [6, e]), (n = 0)
                       } finally {
-                        o = i = 0
+                        o = r = 0
                       }
-                    if (5 & r[0]) throw r[1]
-                    return { value: r[0] ? r[1] : void 0, done: !0 }
-                  })([r, c])
+                    if (5 & i[0]) throw i[1]
+                    return { value: i[0] ? i[1] : void 0, done: !0 }
+                  })([i, c])
                 }
               }
             },
-          r =
+          i =
             (this && this.__importDefault) ||
             function (e) {
               return e && e.__esModule ? e : { default: e }
@@ -818,14 +818,14 @@
           s = o(93),
           l = o(4),
           d = o(686),
-          u = r(o(673))
+          u = i(o(673))
         ;(t.combineCoverageWorker = new d.Worker(
           "combinecoverage",
           function (e) {
             return n(void 0, void 0, void 0, function () {
               var t,
                 o,
-                r,
+                i,
                 l,
                 d,
                 v,
@@ -856,12 +856,12 @@
                 N,
                 T,
                 $,
+                L,
                 Q,
                 R,
                 A,
                 G,
                 J,
-                L,
                 U,
                 z,
                 H,
@@ -873,21 +873,23 @@
                 ee,
                 te,
                 oe,
-                ne
-              return i(this, function (ie) {
+                ne,
+                re
+              return r(this, function (ie) {
                 switch (ie.label) {
                   case 0:
                     return (
+                      ie.trys.push([0, 12, , 14]),
                       (t = e.data),
                       (o = t.commit),
-                      (r = t.testInstance),
+                      (i = t.testInstance),
                       console.log("Executing combine coverage job"),
                       (l = u.default),
-                      r
+                      i
                         ? [
                             4,
                             l.test.findFirst({
-                              where: { id: null !== (p = r.testId) && void 0 !== p ? p : void 0 },
+                              where: { id: null !== (b = i.testId) && void 0 !== b ? b : void 0 },
                             }),
                           ]
                         : [3, 6]
@@ -912,7 +914,7 @@
                         e.PackageCoverage.forEach(function (e) {
                           return n(void 0, void 0, void 0, function () {
                             var t
-                            return i(this, function (o) {
+                            return r(this, function (o) {
                               return (
                                 null === (t = e.FileCoverage) ||
                                   void 0 === t ||
@@ -928,13 +930,13 @@
                       m.updateMetrics(m.data),
                       console.log(
                         "Test instance combination with previous test instances result: " +
-                          (null === (b = m.data.coverage.metrics) || void 0 === b
-                            ? void 0
-                            : b.coveredelements) +
-                          "/" +
                           (null === (y = m.data.coverage.metrics) || void 0 === y
                             ? void 0
-                            : y.elements) +
+                            : y.coveredelements) +
+                          "/" +
+                          (null === (C = m.data.coverage.metrics) || void 0 === C
+                            ? void 0
+                            : C.elements) +
                           " covered based on " +
                           v.length +
                           " instances"
@@ -953,75 +955,75 @@
                           data: {
                             statements:
                               null !==
-                                (w =
-                                  null === (C = m.data.coverage.metrics) || void 0 === C
+                                (k =
+                                  null === (w = m.data.coverage.metrics) || void 0 === w
                                     ? void 0
-                                    : C.statements) && void 0 !== w
-                                ? w
+                                    : w.statements) && void 0 !== k
+                                ? k
                                 : 0,
                             conditionals:
                               null !==
-                                (_ =
-                                  null === (k = m.data.coverage.metrics) || void 0 === k
+                                (E =
+                                  null === (_ = m.data.coverage.metrics) || void 0 === _
                                     ? void 0
-                                    : k.conditionals) && void 0 !== _
-                                ? _
+                                    : _.conditionals) && void 0 !== E
+                                ? E
                                 : 0,
                             methods:
                               null !==
-                                (P =
-                                  null === (E = m.data.coverage.metrics) || void 0 === E
+                                (S =
+                                  null === (P = m.data.coverage.metrics) || void 0 === P
                                     ? void 0
-                                    : E.methods) && void 0 !== P
-                                ? P
+                                    : P.methods) && void 0 !== S
+                                ? S
                                 : 0,
                             elements:
                               null !==
-                                (j =
-                                  null === (S = m.data.coverage.metrics) || void 0 === S
+                                (x =
+                                  null === (j = m.data.coverage.metrics) || void 0 === j
                                     ? void 0
-                                    : S.elements) && void 0 !== j
-                                ? j
+                                    : j.elements) && void 0 !== x
+                                ? x
                                 : 0,
                             hits:
                               null !==
-                                (I =
-                                  null === (x = m.data.coverage.metrics) || void 0 === x
+                                (M =
+                                  null === (I = m.data.coverage.metrics) || void 0 === I
                                     ? void 0
-                                    : x.hits) && void 0 !== I
-                                ? I
+                                    : I.hits) && void 0 !== M
+                                ? M
                                 : 0,
                             coveredStatements:
                               null !==
-                                (D =
-                                  null === (M = m.data.coverage.metrics) || void 0 === M
+                                (O =
+                                  null === (D = m.data.coverage.metrics) || void 0 === D
                                     ? void 0
-                                    : M.coveredstatements) && void 0 !== D
-                                ? D
+                                    : D.coveredstatements) && void 0 !== O
+                                ? O
                                 : 0,
                             coveredConditionals:
                               null !==
-                                (F =
-                                  null === (O = m.data.coverage.metrics) || void 0 === O
+                                (B =
+                                  null === (F = m.data.coverage.metrics) || void 0 === F
                                     ? void 0
-                                    : O.coveredconditionals) && void 0 !== F
-                                ? F
+                                    : F.coveredconditionals) && void 0 !== B
+                                ? B
                                 : 0,
                             coveredMethods:
                               null !==
-                                (q =
-                                  null === (B = m.data.coverage.metrics) || void 0 === B
+                                (W =
+                                  null === (q = m.data.coverage.metrics) || void 0 === q
                                     ? void 0
-                                    : B.coveredmethods) && void 0 !== q
-                                ? q
+                                    : q.coveredmethods) && void 0 !== W
+                                ? W
                                 : 0,
                             coveredElements:
                               null !==
-                                (N =
-                                  null === (W = m.data.coverage.metrics) || void 0 === W
+                                (T =
+                                  null === (N = m.data.coverage.metrics) || void 0 === N
                                     ? void 0
-                                    : W.coveredelements) && void 0 !== N
-                                ? N
+                                    : N.coveredelements) && void 0 !== T
+                                ? T
                                 : 0,
                             coveredPercentage: s.coveredPercentage(m.data.coverage.metrics),
                           },
@@ -1037,8 +1039,8 @@
                         Promise.all(
                           m.data.coverage.packages.map(function (e) {
                             return n(void 0, void 0, void 0, function () {
-                              var t, o, n, r, a, u, v, m, f, h, g, p, b, y, C, w, k, _, E, P, S
-                              return i(this, function (i) {
+                              var t, o, n, i, a, u, v, m, f, h, g, p, b, y, C, w, k, _, E, P, S
+                              return r(this, function (r) {
                                 return (
                                   (t = e.name.length - e.name.replace(/\./g, "").length),
                                   (o = {
@@ -1046,11 +1048,11 @@
                                     testId: d.id,
                                     statements:
                                       null !==
-                                        (r =
+                                        (i =
                                           null === (n = e.metrics) || void 0 === n
                                             ? void 0
-                                            : n.statements) && void 0 !== r
-                                        ? r
+                                            : n.statements) && void 0 !== i
+                                        ? i
                                         : 0,
                                     conditionals:
                                       null !==
@@ -1126,8 +1128,8 @@
                                               var t,
                                                 o,
                                                 n,
-                                                i,
                                                 r,
+                                                i,
                                                 a,
                                                 l,
                                                 d,
@@ -1156,18 +1158,18 @@
                                                     : 0,
                                                 conditionals:
                                                   null !==
-                                                    (i =
+                                                    (r =
                                                       null === (n = e.metrics) || void 0 === n
                                                         ? void 0
-                                                        : n.conditionals) && void 0 !== i
-                                                    ? i
+                                                        : n.conditionals) && void 0 !== r
+                                                    ? r
                                                     : 0,
                                                 methods:
                                                   null !==
                                                     (a =
-                                                      null === (r = e.metrics) || void 0 === r
+                                                      null === (i = e.metrics) || void 0 === i
                                                         ? void 0
-                                                        : r.methods) && void 0 !== a
+                                                        : i.methods) && void 0 !== a
                                                     ? a
                                                     : 0,
                                                 hits:
@@ -1258,7 +1260,7 @@
                       (g = new a.CoberturaCoverage()),
                       Object.values(h).forEach(function (e) {
                         return n(void 0, void 0, void 0, function () {
-                          return i(this, function (t) {
+                          return r(this, function (t) {
                             return (
                               console.log(
                                 "Combining: " +
@@ -1273,7 +1275,7 @@
                               e.PackageCoverage.forEach(function (t) {
                                 return n(void 0, void 0, void 0, function () {
                                   var o
-                                  return i(this, function (n) {
+                                  return r(this, function (n) {
                                     return (
                                       null === (o = t.FileCoverage) ||
                                         void 0 === o ||
@@ -1298,13 +1300,13 @@
                       g.updateMetrics(g.data),
                       console.log(
                         "All test combination result " +
-                          (null === (T = g.data.coverage.metrics) || void 0 === T
-                            ? void 0
-                            : T.coveredelements) +
-                          "/" +
                           (null === ($ = g.data.coverage.metrics) || void 0 === $
                             ? void 0
-                            : $.elements) +
+                            : $.coveredelements) +
+                          "/" +
+                          (null === (L = g.data.coverage.metrics) || void 0 === L
+                            ? void 0
+                            : L.elements) +
                           " covered"
                       ),
                       console.log("Deleting existing results for commit"),
@@ -1337,59 +1339,59 @@
                                 : 0,
                             methods:
                               null !==
-                                (L =
+                                (U =
                                   null === (J = g.data.coverage.metrics) || void 0 === J
                                     ? void 0
-                                    : J.methods) && void 0 !== L
-                                ? L
+                                    : J.methods) && void 0 !== U
+                                ? U
                                 : 0,
                             elements:
                               null !==
-                                (z =
-                                  null === (U = g.data.coverage.metrics) || void 0 === U
+                                (H =
+                                  null === (z = g.data.coverage.metrics) || void 0 === z
                                     ? void 0
-                                    : U.elements) && void 0 !== z
-                                ? z
+                                    : z.elements) && void 0 !== H
+                                ? H
                                 : 0,
                             hits:
                               null !==
-                                (K =
-                                  null === (H = g.data.coverage.metrics) || void 0 === H
+                                (V =
+                                  null === (K = g.data.coverage.metrics) || void 0 === K
                                     ? void 0
-                                    : H.hits) && void 0 !== K
-                                ? K
+                                    : K.hits) && void 0 !== V
+                                ? V
                                 : 0,
                             coveredStatements:
                               null !==
-                                (X =
-                                  null === (V = g.data.coverage.metrics) || void 0 === V
+                                (Y =
+                                  null === (X = g.data.coverage.metrics) || void 0 === X
                                     ? void 0
-                                    : V.coveredstatements) && void 0 !== X
-                                ? X
+                                    : X.coveredstatements) && void 0 !== Y
+                                ? Y
                                 : 0,
                             coveredConditionals:
                               null !==
-                                (Z =
-                                  null === (Y = g.data.coverage.metrics) || void 0 === Y
+                                (ee =
+                                  null === (Z = g.data.coverage.metrics) || void 0 === Z
                                     ? void 0
-                                    : Y.coveredconditionals) && void 0 !== Z
-                                ? Z
+                                    : Z.coveredconditionals) && void 0 !== ee
+                                ? ee
                                 : 0,
                             coveredMethods:
                               null !==
-                                (te =
-                                  null === (ee = g.data.coverage.metrics) || void 0 === ee
+                                (oe =
+                                  null === (te = g.data.coverage.metrics) || void 0 === te
                                     ? void 0
-                                    : ee.coveredmethods) && void 0 !== te
-                                ? te
+                                    : te.coveredmethods) && void 0 !== oe
+                                ? oe
                                 : 0,
                             coveredElements:
                               null !==
-                                (ne =
-                                  null === (oe = g.data.coverage.metrics) || void 0 === oe
+                                (re =
+                                  null === (ne = g.data.coverage.metrics) || void 0 === ne
                                     ? void 0
-                                    : oe.coveredelements) && void 0 !== ne
-                                ? ne
+                                    : ne.coveredelements) && void 0 !== re
+                                ? re
                                 : 0,
                             coveredPercentage: s.coveredPercentage(g.data.coverage.metrics),
                           },
@@ -1405,9 +1407,9 @@
                         Promise.all(
                           g.data.coverage.packages.map(function (e) {
                             return n(void 0, void 0, void 0, function () {
-                              var t, n, r, a, d, u, v, m, f, h, g, p, b, y, C, w, k, _, E, P, S
-                              return i(this, function (i) {
-                                switch (i.label) {
+                              var t, n, i, a, d, u, v, m, f, h, g, p, b, y, C, w, k, _, E, P, S
+                              return r(this, function (r) {
+                                switch (r.label) {
                                   case 0:
                                     return (
                                       (t = e.name.length - e.name.replace(/\./g, "").length),
@@ -1417,9 +1419,9 @@
                                         statements:
                                           null !==
                                             (a =
-                                              null === (r = e.metrics) || void 0 === r
+                                              null === (i = e.metrics) || void 0 === i
                                                 ? void 0
-                                                : r.statements) && void 0 !== a
+                                                : i.statements) && void 0 !== a
                                             ? a
                                             : 0,
                                         conditionals:
@@ -1496,8 +1498,8 @@
                                                   var t,
                                                     o,
                                                     n,
-                                                    i,
                                                     r,
+                                                    i,
                                                     a,
                                                     l,
                                                     d,
@@ -1526,18 +1528,18 @@
                                                         : 0,
                                                     conditionals:
                                                       null !==
-                                                        (i =
+                                                        (r =
                                                           null === (n = e.metrics) || void 0 === n
                                                             ? void 0
-                                                            : n.conditionals) && void 0 !== i
-                                                        ? i
+                                                            : n.conditionals) && void 0 !== r
+                                                        ? r
                                                         : 0,
                                                     methods:
                                                       null !==
                                                         (a =
-                                                          null === (r = e.metrics) || void 0 === r
+                                                          null === (i = e.metrics) || void 0 === i
                                                             ? void 0
-                                                            : r.methods) && void 0 !== a
+                                                            : i.methods) && void 0 !== a
                                                         ? a
                                                         : 0,
                                                     hits:
@@ -1599,7 +1601,7 @@
                                       [4, l.packageCoverage.create({ data: n })]
                                     )
                                   case 1:
-                                    return i.sent(), [2]
+                                    return r.sent(), [2]
                                 }
                               })
                             })
@@ -1618,13 +1620,30 @@
                             message:
                               "Combined coverage for commit " +
                               o.id +
-                              (r ? " and test instance " + r.id : ""),
+                              (i ? " and test instance " + i.id : ""),
                           },
                         }),
                       ]
                     )
                   case 11:
                     return ie.sent(), [2, !0]
+                  case 12:
+                    return (
+                      (p = ie.sent()),
+                      [
+                        4,
+                        u.default.jobLog.create({
+                          data: {
+                            name: "combinecoverage",
+                            message: "Failure processing " + p.message,
+                          },
+                        }),
+                      ]
+                    )
+                  case 13:
+                    return ie.sent(), [2, !1]
+                  case 14:
+                    return [2]
                 }
               })
             })
@@ -1642,25 +1661,25 @@
         var n =
             (this && this.__awaiter) ||
             function (e, t, o, n) {
-              return new (o || (o = Promise))(function (i, r) {
+              return new (o || (o = Promise))(function (r, i) {
                 function a(e) {
                   try {
                     s(n.next(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function c(e) {
                   try {
                     s(n.throw(e))
                   } catch (e) {
-                    r(e)
+                    i(e)
                   }
                 }
                 function s(e) {
                   var t
                   e.done
-                    ? i(e.value)
+                    ? r(e.value)
                     : ((t = e.value),
                       t instanceof o
                         ? t
@@ -1671,99 +1690,99 @@
                 s((n = n.apply(e, t || [])).next())
               })
             },
-          i =
+          r =
             (this && this.__generator) ||
             function (e, t) {
               var o,
                 n,
-                i,
                 r,
+                i,
                 a = {
                   label: 0,
                   sent: function () {
-                    if (1 & i[0]) throw i[1]
-                    return i[1]
+                    if (1 & r[0]) throw r[1]
+                    return r[1]
                   },
                   trys: [],
                   ops: [],
                 }
               return (
-                (r = { next: c(0), throw: c(1), return: c(2) }),
+                (i = { next: c(0), throw: c(1), return: c(2) }),
                 "function" == typeof Symbol &&
-                  (r[Symbol.iterator] = function () {
+                  (i[Symbol.iterator] = function () {
                     return this
                   }),
-                r
+                i
               )
-              function c(r) {
+              function c(i) {
                 return function (c) {
-                  return (function (r) {
+                  return (function (i) {
                     if (o) throw new TypeError("Generator is already executing.")
                     for (; a; )
                       try {
                         if (
                           ((o = 1),
                           n &&
-                            (i =
-                              2 & r[0]
+                            (r =
+                              2 & i[0]
                                 ? n.return
-                                : r[0]
-                                ? n.throw || ((i = n.return) && i.call(n), 0)
+                                : i[0]
+                                ? n.throw || ((r = n.return) && r.call(n), 0)
                                 : n.next) &&
-                            !(i = i.call(n, r[1])).done)
+                            !(r = r.call(n, i[1])).done)
                         )
-                          return i
-                        switch (((n = 0), i && (r = [2 & r[0], i.value]), r[0])) {
+                          return r
+                        switch (((n = 0), r && (i = [2 & i[0], r.value]), i[0])) {
                           case 0:
                           case 1:
-                            i = r
+                            r = i
                             break
                           case 4:
-                            return a.label++, { value: r[1], done: !1 }
+                            return a.label++, { value: i[1], done: !1 }
                           case 5:
-                            a.label++, (n = r[1]), (r = [0])
+                            a.label++, (n = i[1]), (i = [0])
                             continue
                           case 7:
-                            ;(r = a.ops.pop()), a.trys.pop()
+                            ;(i = a.ops.pop()), a.trys.pop()
                             continue
                           default:
                             if (
                               !(
-                                (i = (i = a.trys).length > 0 && i[i.length - 1]) ||
-                                (6 !== r[0] && 2 !== r[0])
+                                (r = (r = a.trys).length > 0 && r[r.length - 1]) ||
+                                (6 !== i[0] && 2 !== i[0])
                               )
                             ) {
                               a = 0
                               continue
                             }
-                            if (3 === r[0] && (!i || (r[1] > i[0] && r[1] < i[3]))) {
-                              a.label = r[1]
+                            if (3 === i[0] && (!r || (i[1] > r[0] && i[1] < r[3]))) {
+                              a.label = i[1]
                               break
                             }
-                            if (6 === r[0] && a.label < i[1]) {
-                              ;(a.label = i[1]), (i = r)
+                            if (6 === i[0] && a.label < r[1]) {
+                              ;(a.label = r[1]), (r = i)
                               break
                             }
-                            if (i && a.label < i[2]) {
-                              ;(a.label = i[2]), a.ops.push(r)
+                            if (r && a.label < r[2]) {
+                              ;(a.label = r[2]), a.ops.push(i)
                               break
                             }
-                            i[2] && a.ops.pop(), a.trys.pop()
+                            r[2] && a.ops.pop(), a.trys.pop()
                             continue
                         }
-                        r = t.call(e, a)
+                        i = t.call(e, a)
                       } catch (e) {
-                        ;(r = [6, e]), (n = 0)
+                        ;(i = [6, e]), (n = 0)
                       } finally {
-                        o = i = 0
+                        o = r = 0
                       }
-                    if (5 & r[0]) throw r[1]
-                    return { value: r[0] ? r[1] : void 0, done: !0 }
-                  })([r, c])
+                    if (5 & i[0]) throw i[1]
+                    return { value: i[0] ? i[1] : void 0, done: !0 }
+                  })([i, c])
                 }
               }
             },
-          r =
+          i =
             (this && this.__importDefault) ||
             function (e) {
               return e && e.__esModule ? e : { default: e }
@@ -1773,20 +1792,21 @@
           c = o(93),
           s = o(533),
           l = o(4),
-          d = r(o(673)),
+          d = i(o(673)),
           u = o(686)
         ;(t.uploadWorker = new u.Worker(
           "upload",
           function (e) {
             return n(void 0, void 0, void 0, function () {
-              var t, o, r, l, u, v, m
-              return i(this, function (f) {
-                switch (f.label) {
+              var t, o, i, l, u, v, m, f
+              return r(this, function (h) {
+                switch (h.label) {
                   case 0:
                     if (
-                      ((t = e.data),
+                      (h.trys.push([0, 3, , 5]),
+                      (t = e.data),
                       (o = t.coverageFile),
-                      (r = t.commit),
+                      (i = t.commit),
                       (l = t.test),
                       (u = t.testInstance),
                       console.log("Executing process upload job"),
@@ -1803,9 +1823,9 @@
                         Promise.all(
                           m.packages.map(function (e) {
                             return n(void 0, void 0, void 0, function () {
-                              var t, o, n, r, s, d, m, f, h, g, p, b, y, C, w, k, _, E, P
-                              return i(this, function (i) {
-                                switch (i.label) {
+                              var t, o, n, i, s, d, m, f, h, g, p, b, y, C, w, k, _, E, P
+                              return r(this, function (r) {
+                                switch (r.label) {
                                   case 0:
                                     return (
                                       (t = e.name.length - e.name.replace(/\./g, "").length),
@@ -1814,11 +1834,11 @@
                                         testInstanceId: u.id,
                                         statements:
                                           null !==
-                                            (r =
+                                            (i =
                                               null === (n = e.metrics) || void 0 === n
                                                 ? void 0
-                                                : n.statements) && void 0 !== r
-                                            ? r
+                                                : n.statements) && void 0 !== i
+                                            ? i
                                             : 0,
                                         conditionals:
                                           null !==
@@ -1886,8 +1906,8 @@
                                                   var t,
                                                     o,
                                                     n,
-                                                    i,
                                                     r,
+                                                    i,
                                                     s,
                                                     d,
                                                     u,
@@ -1915,18 +1935,18 @@
                                                         : 0,
                                                     conditionals:
                                                       null !==
-                                                        (i =
+                                                        (r =
                                                           null === (n = e.metrics) || void 0 === n
                                                             ? void 0
-                                                            : n.conditionals) && void 0 !== i
-                                                        ? i
+                                                            : n.conditionals) && void 0 !== r
+                                                        ? r
                                                         : 0,
                                                     methods:
                                                       null !==
                                                         (s =
-                                                          null === (r = e.metrics) || void 0 === r
+                                                          null === (i = e.metrics) || void 0 === i
                                                             ? void 0
-                                                            : r.methods) && void 0 !== s
+                                                            : i.methods) && void 0 !== s
                                                         ? s
                                                         : 0,
                                                     coveredStatements:
@@ -1980,7 +2000,7 @@
                                       [4, v.packageCoverage.create({ data: o })]
                                     )
                                   case 1:
-                                    return i.sent(), [2]
+                                    return r.sent(), [2]
                                 }
                               })
                             })
@@ -1990,7 +2010,7 @@
                     )
                   case 1:
                     return (
-                      f.sent(),
+                      h.sent(),
                       console.log("Inserted all package and file information"),
                       [
                         4,
@@ -1999,14 +2019,31 @@
                             name: "processupload",
                             message:
                               "Processed upload information for commit " +
-                              r.id +
+                              i.id +
                               (u ? " and test instance " + u.id : ""),
                           },
                         }),
                       ]
                     )
                   case 2:
-                    return f.sent(), s.combineCoverageJob(r, u), [2]
+                    return h.sent(), s.combineCoverageJob(i, u), [3, 5]
+                  case 3:
+                    return (
+                      (f = h.sent()),
+                      [
+                        4,
+                        d.default.jobLog.create({
+                          data: {
+                            name: "combinecoverage",
+                            message: "Failure processing " + f.message,
+                          },
+                        }),
+                      ]
+                    )
+                  case 4:
+                    return h.sent(), [2, !1]
+                  case 5:
+                    return [2]
                 }
               })
             })
@@ -2024,8 +2061,8 @@
         Object.defineProperty(t, "__esModule", { value: !0 }),
           (t.combineCoverageJob = t.combineCoverageQueue = void 0)
         var n = o(4),
-          i = o(686)
-        ;(t.combineCoverageQueue = new i.Queue("combinecoverage", { connection: n.queueConfig })),
+          r = o(686)
+        ;(t.combineCoverageQueue = new r.Queue("combinecoverage", { connection: n.queueConfig })),
           (t.combineCoverageJob = function (e, o) {
             return (
               console.log("Adding new combine coverage job for " + e.ref),
@@ -2062,17 +2099,17 @@
               : function (e, t, o, n) {
                   void 0 === n && (n = o), (e[n] = t[o])
                 }),
-          i =
+          r =
             (this && this.__exportStar) ||
             function (e, t) {
               for (var o in e)
                 "default" === o || Object.prototype.hasOwnProperty.call(t, o) || n(t, e, o)
             }
         Object.defineProperty(t, "__esModule", { value: !0 })
-        var r = o(21),
+        var i = o(21),
           a = o(212),
-          c = r.enhancePrisma(a.PrismaClient)
-        i(o(212), t), (t.default = new c())
+          c = i.enhancePrisma(a.PrismaClient)
+        r(o(212), t), (t.default = new c())
       },
       212: (e) => {
         e.exports = require("@prisma/client")
@@ -2091,14 +2128,14 @@
       },
     },
     n = {}
-  function i(e) {
+  function r(e) {
     var t = n[e]
     if (void 0 !== t) return t.exports
-    var r = (n[e] = { exports: {} })
-    return o[e].call(r.exports, r, r.exports, i), r.exports
+    var i = (n[e] = { exports: {} })
+    return o[e].call(i.exports, i, i.exports, r), i.exports
   }
-  ;(e = i(914)),
-    (t = i(801)),
+  ;(e = r(914)),
+    (t = r(801)),
     e.uploadWorker.resume(),
     t.combineCoverageWorker.resume(),
     console.log("started")

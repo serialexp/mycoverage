@@ -91,7 +91,7 @@ const ProjectPage: BlitzPage = () => {
                   <ChakraLink color={"blue.500"}>{branch.name}</ChakraLink>
                 </Link>
               </Td>
-              <Td>{branch.Commit[0]?.createdDate.toLocaleString()}</Td>
+              <Td>{branch.commits[0]?.commit?.createdDate.toLocaleString()}</Td>
             </Tr>
           )
         })}

@@ -79,19 +79,30 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
 
       const commit = await mydb["commit"].upsert({
         where: {
-          branchId_ref: {
-            ref: query.ref,
-            branchId: branch.id,
-          },
+          ref: query.ref,
         },
         update: {
           updatedDate: new Date(),
         },
         create: {
           ref: query.ref,
-          branchId: branch.id,
         },
       })
+
+      try {
+        const commitBranch = await mydb.commitOnBranch.create({
+          data: {
+            commitId: commit.id,
+            branchId: branch.id,
+          },
+        })
+      } catch (error) {
+        if (error.message.includes("Unique constraint")) {
+          console.log("commit already on branch")
+        } else {
+          throw error
+        }
+      }
 
       if (project.defaultBaseBranch == branch.name) {
         mydb.project.update({
@@ -159,19 +170,24 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           name: branch.baseBranch,
           projectId: project.id,
         },
+      })
+      const firstCommit = await mydb.commitOnBranch.findFirst({
+        where: {
+          branchId: branch.id,
+        },
         include: {
-          Commit: {
-            take: 1,
-            orderBy: {
-              createdDate: "desc",
-            },
+          commit: true,
+        },
+        orderBy: {
+          commit: {
+            createdDate: "desc",
           },
         },
       })
+      const baseCommit = firstCommit?.commit
 
       uploadJob(coverageFile, commit, test, testInstance)
 
-      const baseCommit = baseBranch?.Commit[0]
       if (baseBranch && baseCommit) {
         const baseBranchTest = await mydb.test.findFirst({
           where: {

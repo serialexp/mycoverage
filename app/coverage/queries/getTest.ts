@@ -6,11 +6,7 @@ export default async function getTest(args: { testId?: number }, { session }: Ct
   return db.test.findFirst({
     where: { id: args.testId },
     include: {
-      commit: {
-        include: {
-          branch: true,
-        },
-      },
+      commit: true,
     },
   })
 }

@@ -36,10 +36,15 @@ const CommitPage: BlitzPage = () => {
     <>
       <Heading color={"blue.500"}>Commit {commit.ref.substr(0, 10)}</Heading>
       <Actions>
-        <Link href={Routes.BranchPage({ groupId, projectId, branchId: commit.branch.name })}>
+        <Link
+          href={Routes.BranchPage({
+            groupId,
+            projectId,
+            branchId: commit.branches[0]?.branch.name || "",
+          })}
+        >
           <Button>To branch</Button>
         </Link>
-        `
       </Actions>
       <Subheading mt={4} size={"md"}>
         Combined coverage

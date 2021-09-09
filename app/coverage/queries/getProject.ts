@@ -11,9 +11,14 @@ export default async function getProject(args: { projectId?: number }, { session
           createdDate: "desc",
         },
         include: {
-          Commit: {
+          commits: {
+            include: {
+              commit: true,
+            },
             orderBy: {
-              createdDate: "desc",
+              commit: {
+                createdDate: "desc",
+              },
             },
             take: 1,
           },

@@ -22,7 +22,13 @@ export default async function getLastBuildInfo(
   })
 
   const commit = await db.commit.findFirst({
-    where: { branchId: branch?.id },
+    where: {
+      branches: {
+        some: {
+          branchId: branch?.id,
+        },
+      },
+    },
     orderBy: { updatedDate: "desc" },
     include: {
       Test: {
@@ -39,7 +45,13 @@ export default async function getLastBuildInfo(
   })
 
   const commits = await db.commit.findMany({
-    where: { branchId: branch?.id },
+    where: {
+      branches: {
+        some: {
+          branchId: branch?.id,
+        },
+      },
+    },
     orderBy: { updatedDate: "desc" },
     include: {
       _count: {

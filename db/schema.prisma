@@ -8,7 +8,7 @@ datasource db {
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["selectRelationCount"]
+  previewFeatures = ["selectRelationCount", "orderByRelation"]
 }
 
 // --------------------------------------
@@ -58,8 +58,6 @@ model Token {
 
 model Commit {
   id                  Int      @id @default(autoincrement())
-  branch              Branch   @relation(fields: [branchId], references: [id])
-  branchId            Int
   ref                 String
   createdDate         DateTime @default(now())
   updatedDate         DateTime @updatedAt
@@ -73,11 +71,21 @@ model Commit {
   coveredConditionals Int      @default(0)
   coveredMethods      Int      @default(0)
   coveredPercentage   Float    @default(0)
-  Test                Test[]
 
+  // things for sonarqube results
+  blockerSonarIssues  Int @default(0)
+  criticalSonarIssues Int @default(0)
+  majorSonarIssues    Int @default(0)
+  minorSonarIssues    Int @default(0)
+  infoSonarIssues     Int @default(0)
+
+  Test Test[]
+
+  branches        CommitOnBranch[]
+  codeIssues      CodeIssueOnCommit[]
   PackageCoverage PackageCoverage[]
   Project         Project[]
-  @@unique([branchId, ref])
+  @@unique([ref])
 }
 
 model Test {
@@ -187,6 +195,33 @@ model JobLog {
   updatedDate DateTime @updatedAt
 }
 
+model CodeIssue {
+  id          Int      @id @default(autoincrement())
+  hash        String
+  file        String
+  line        Int
+  message     String   @default("")
+  effort      String   @default("")
+  type        String
+  severity    String
+  tags        String
+  createdDate DateTime @default(now())
+  updatedDate DateTime @updatedAt
+
+  commits CodeIssueOnCommit[]
+
+  @@unique([hash])
+}
+
+model CodeIssueOnCommit {
+  commit      Commit    @relation(fields: [commitId], references: [id])
+  commitId    Int
+  codeIssue   CodeIssue @relation(fields: [codeIssueId], references: [id])
+  codeIssueId Int
+
+  @@id([commitId, codeIssueId])
+}
+
 model Project {
   id                Int      @id @default(autoincrement())
   name              String
@@ -202,14 +237,23 @@ model Project {
 }
 
 model Branch {
-  id          Int      @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   name        String
-  project     Project  @relation(fields: [projectId], references: [id])
+  project     Project          @relation(fields: [projectId], references: [id])
   projectId   Int
   baseBranch  String
-  createdDate DateTime @default(now())
-  updatedDate DateTime @updatedAt
-  Commit      Commit[]
+  createdDate DateTime         @default(now())
+  updatedDate DateTime         @updatedAt
+  commits     CommitOnBranch[]
 
   @@unique([name, projectId])
+}
+
+model CommitOnBranch {
+  commit   Commit @relation(fields: [commitId], references: [id])
+  commitId Int
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId Int
+
+  @@id([commitId, branchId])
 }
