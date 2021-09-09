@@ -4,4 +4,16 @@ import { PrismaClient } from "@prisma/client"
 const EnhancedPrisma = enhancePrisma(PrismaClient)
 
 export * from "@prisma/client"
-export default new EnhancedPrisma()
+const prisma = new EnhancedPrisma({
+  log: [
+    {
+      emit: "event",
+      level: "query",
+    },
+  ],
+})
+// prisma.$on("query", async (e: any) => {
+//   console.log(`${e.query} ${e.params}`)
+// });
+
+export default prisma

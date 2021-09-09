@@ -16,6 +16,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     try {
       const mydb: PrismaClient = db
 
+      console.log("find group")
       const groupInteger = parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
@@ -34,6 +35,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("Specified group does not exist")
       }
 
+      console.log("find project")
       const projectInteger = parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
@@ -57,39 +59,48 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("No coverage data posted")
       }
 
+      console.log("parse file")
       const coverageFile = new CoberturaCoverage()
       await coverageFile.init(req.body)
 
-      const branch = await mydb.branch.upsert({
-        where: {
-          name_projectId: {
-            projectId: project.id,
-            name: query.branch,
-          },
-        },
-        update: {
-          updatedDate: new Date(),
-        },
-        create: {
-          name: query.branch,
-          projectId: project.id,
-          baseBranch: query.baseBranch ?? project.defaultBaseBranch,
-        },
-      })
+      console.log("finding branch")
 
-      const commit = await mydb["commit"].upsert({
+      let branch = await mydb.branch.findFirst({
+        where: {
+          projectId: project.id,
+          name: query.branch,
+        },
+      })
+      if (!branch) {
+        console.log("creating branch")
+        branch = await mydb.branch.create({
+          data: {
+            name: query.branch,
+            projectId: project.id,
+            baseBranch: query.baseBranch ?? project.defaultBaseBranch,
+          },
+        })
+      }
+
+      console.log("find commit")
+      let commit = await mydb.commit.findFirst({
         where: {
           ref: query.ref,
         },
-        update: {
-          updatedDate: new Date(),
-        },
-        create: {
-          ref: query.ref,
-        },
       })
+      if (!branch) {
+        console.log("creating commit")
+        commit = await mydb.commit.create({
+          data: {
+            ref: query.ref,
+          },
+        })
+      }
+
+      if (!commit) throw new Error("No commit")
 
       try {
+        console.log("create commit on branch")
         const commitBranch = await mydb.commitOnBranch.create({
           data: {
             commitId: commit.id,
@@ -105,6 +116,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       }
 
       if (project.defaultBaseBranch == branch.name) {
+        console.log("update last commit id")
         mydb.project.update({
           data: {
             lastCommitId: commit.id || null,
@@ -125,6 +137,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("Could not calculate metrics for input file.")
       }
 
+      console.log("upsert test")
       const test = await mydb.test.upsert({
         where: {
           testName_commitId: {
@@ -149,6 +162,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
+      console.log(req.headers)
+      console.log("create test instance")
       const testInstance = await mydb.testInstance.create({
         data: {
           index: query.index ? parseInt(query.index) : Math.floor(Math.random() * 1000000),
@@ -162,15 +177,18 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           coveredMethods: covInfo.metrics.coveredmethods,
           coveredElements: covInfo.metrics.coveredelements,
           coveredPercentage: coveredPercentage(covInfo.metrics),
+          dataSize: parseInt(req.headers["content-length"] || "0"),
         },
       })
 
+      console.log("find first branch")
       const baseBranch = await mydb.branch.findFirst({
         where: {
           name: branch.baseBranch,
           projectId: project.id,
         },
       })
+      console.log("find commit on branch")
       const firstCommit = await mydb.commitOnBranch.findFirst({
         where: {
           branchId: branch.id,
@@ -186,9 +204,11 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       })
       const baseCommit = firstCommit?.commit
 
+      console.log("create uploadjob")
       uploadJob(coverageFile, commit, test, testInstance)
 
       if (baseBranch && baseCommit) {
+        console.log("compare commits")
         const baseBranchTest = await mydb.test.findFirst({
           where: {
             testName: query.testName,
@@ -196,6 +216,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           },
         })
 
+        console.log("done")
         if (baseBranchTest && baseBranchTest.coveredPercentage > test.coveredPercentage) {
           res.status(200).json({
             code: "COVERAGE_TOO_LOW",
@@ -220,6 +241,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       })
     }
   } else {
+    console.log("done")
     res.status(400).send("Missing either branch, ref or testName parameter")
   }
 }

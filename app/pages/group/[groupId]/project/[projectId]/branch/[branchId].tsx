@@ -72,7 +72,7 @@ const BranchPage: BlitzPage = () => {
         Last commit:{" "}
         <strong>
           {buildInfo.lastCommit?.createdDate.toLocaleString()}{" "}
-          {buildInfo.lastCommit?.ref.substr(0, 10)}
+          {buildInfo.lastCommit?.ref.substr(0, 10)} ({buildInfo.lastCommit?.id})
         </strong>
       </Box>
       <Subheading mt={4} size={"md"}>

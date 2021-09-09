@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { CoverageData } from "app/library/CoverageData"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { insertCoverageData } from "app/library/insertCoverageData"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
@@ -12,9 +13,8 @@ export const combineCoverageWorker = new Worker<{
 }>(
   "combinecoverage",
   async (job) => {
+    const { commit, testInstance } = job.data
     try {
-      const { commit, testInstance } = job.data
-
       console.log("Executing combine coverage job")
       const mydb: PrismaClient = db
 
@@ -25,11 +25,34 @@ export const combineCoverageWorker = new Worker<{
           },
         })
 
-        if (!test) throw Error("Cannot combine coverage for testInstance without a test")
+        if (!test) throw new Error("Cannot combine coverage for testInstance without a test")
 
         //DO THE COMBINATION FOR THE TEST RESULTS
+        //Check if we can actually combine this much data
+        const instancesWithDatasize = await mydb.testInstance.aggregate({
+          _sum: {
+            dataSize: true,
+          },
+          where: {
+            testId: test.id,
+          },
+        })
 
-        const latestInstances = await mydb.testInstance.findMany({
+        console.log(
+          "Total size of combinable data estimated at: " +
+            (instancesWithDatasize._sum.dataSize || 0) / 1024 / 1024 +
+            "MB"
+        )
+        if (
+          instancesWithDatasize &&
+          instancesWithDatasize._sum.dataSize &&
+          instancesWithDatasize._sum.dataSize > 100 * 1024 * 1024
+        ) {
+          throw new Error("Data to combine is inordinately big, cancelling.")
+        }
+
+        //Retrieve all the datas!
+        const instancesForTest = await mydb.testInstance.findMany({
           where: {
             testId: test.id,
           },
@@ -38,8 +61,14 @@ export const combineCoverageWorker = new Worker<{
           },
           include: {
             PackageCoverage: {
-              include: {
-                FileCoverage: true,
+              select: {
+                name: true,
+                FileCoverage: {
+                  select: {
+                    name: true,
+                    coverageData: true,
+                  },
+                },
               },
             },
           },
@@ -49,9 +78,12 @@ export const combineCoverageWorker = new Worker<{
 
         console.log("Merging coverage information for all test instances")
 
-        latestInstances.forEach((instance) => {
+        let fileCounter = 0
+        const start = new Date()
+        instancesForTest.forEach((instance) => {
           instance.PackageCoverage.forEach(async (pkg) => {
             pkg.FileCoverage?.forEach((file) => {
+              fileCounter++
               testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData, test.testName)
             })
           })
@@ -59,12 +91,20 @@ export const combineCoverageWorker = new Worker<{
         testCoverage.updateMetrics(testCoverage.data)
 
         console.log(
+          "Combined coverage results for " +
+            fileCounter +
+            " files in " +
+            (new Date().getTime() - start.getTime()) +
+            "ms"
+        )
+
+        console.log(
           "Test instance combination with previous test instances result: " +
             testCoverage.data.coverage.metrics?.coveredelements +
             "/" +
             testCoverage.data.coverage.metrics?.elements +
             " covered based on " +
-            latestInstances.length +
+            instancesForTest.length +
             " instances"
         )
 
@@ -95,50 +135,10 @@ export const combineCoverageWorker = new Worker<{
         })
 
         console.log("Inserting new package and file coverage for test")
-        await Promise.all(
-          testCoverage.data.coverage.packages.map(async (pkg) => {
-            const depth = pkg.name.length - pkg.name.replace(/\./g, "").length
-            const packageData = {
-              name: pkg.name,
-              testId: test.id,
-              statements: pkg.metrics?.statements ?? 0,
-              conditionals: pkg.metrics?.conditionals ?? 0,
-              methods: pkg.metrics?.methods ?? 0,
-              elements: pkg.metrics?.elements ?? 0,
-              hits: pkg.metrics?.hits ?? 0,
-              coveredStatements: pkg.metrics?.coveredstatements ?? 0,
-              coveredConditionals: pkg.metrics?.coveredconditionals ?? 0,
-              coveredMethods: pkg.metrics?.coveredmethods ?? 0,
-              coveredElements: pkg.metrics?.coveredelements ?? 0,
-              coveredPercentage: coveredPercentage(pkg.metrics),
-              depth,
-              FileCoverage: {
-                create: pkg.files?.map((file) => {
-                  const coverageData = file.coverageData
-                    ? file.coverageData
-                    : CoverageData.fromCoberturaFile(file)
-                  return {
-                    name: file.name,
-                    statements: file.metrics?.statements ?? 0,
-                    conditionals: file.metrics?.conditionals ?? 0,
-                    methods: file.metrics?.methods ?? 0,
-                    hits: file.metrics?.hits ?? 0,
-                    coveredStatements: file.metrics?.coveredstatements ?? 0,
-                    coveredConditionals: file.metrics?.coveredconditionals ?? 0,
-                    coveredMethods: file.metrics?.coveredmethods ?? 0,
-                    coverageData: coverageData.toString(),
-                    coveredElements: file.metrics?.coveredelements ?? 0,
-                    elements: file.metrics?.elements ?? 0,
-                    coveredPercentage: coveredPercentage(file.metrics),
-                  }
-                }),
-              },
-            }
-            return mydb.packageCoverage.create({
-              data: packageData,
-            })
-          })
-        )
+
+        await insertCoverageData(testCoverage.data.coverage, undefined, {
+          testId: test.id,
+        })
       }
 
       //DO THE COMBINATION STUFF FOR THE COMMIT
@@ -205,7 +205,7 @@ export const combineCoverageWorker = new Worker<{
         },
       })
 
-      console.log("Updating coverage summary data for commit")
+      console.log("Updating coverage summary data for commit", commit.id)
       await mydb.commit.update({
         where: {
           id: commit.id,
@@ -225,50 +225,9 @@ export const combineCoverageWorker = new Worker<{
       })
 
       console.log("Inserting new package and file coverage for commit")
-      await Promise.all(
-        coverage.data.coverage.packages.map(async (pkg) => {
-          const depth = pkg.name.length - pkg.name.replace(/\./g, "").length
-          const packageData = {
-            name: pkg.name,
-            commitId: commit.id,
-            statements: pkg.metrics?.statements ?? 0,
-            conditionals: pkg.metrics?.conditionals ?? 0,
-            methods: pkg.metrics?.methods ?? 0,
-            elements: pkg.metrics?.elements ?? 0,
-            hits: pkg.metrics?.hits ?? 0,
-            coveredStatements: pkg.metrics?.coveredstatements ?? 0,
-            coveredConditionals: pkg.metrics?.coveredconditionals ?? 0,
-            coveredMethods: pkg.metrics?.coveredmethods ?? 0,
-            coveredElements: pkg.metrics?.coveredelements ?? 0,
-            coveredPercentage: coveredPercentage(pkg.metrics),
-            depth,
-            FileCoverage: {
-              create: pkg.files?.map((file) => {
-                const coverageData = file.coverageData
-                  ? file.coverageData
-                  : CoverageData.fromCoberturaFile(file)
-                return {
-                  name: file.name,
-                  statements: file.metrics?.statements ?? 0,
-                  conditionals: file.metrics?.conditionals ?? 0,
-                  methods: file.metrics?.methods ?? 0,
-                  hits: file.metrics?.hits ?? 0,
-                  coveredStatements: file.metrics?.coveredstatements ?? 0,
-                  coveredConditionals: file.metrics?.coveredconditionals ?? 0,
-                  coveredMethods: file.metrics?.coveredmethods ?? 0,
-                  coverageData: coverageData.toString(),
-                  coveredElements: file.metrics?.coveredelements ?? 0,
-                  elements: file.metrics?.elements ?? 0,
-                  coveredPercentage: coveredPercentage(file.metrics),
-                }
-              }),
-            },
-          }
-          const packageCoverage = await mydb.packageCoverage.create({
-            data: packageData,
-          })
-        })
-      )
+      await insertCoverageData(coverage.data.coverage, undefined, {
+        commitId: commit.id,
+      })
 
       await mydb.jobLog.create({
         data: {
@@ -285,7 +244,8 @@ export const combineCoverageWorker = new Worker<{
       await db.jobLog.create({
         data: {
           name: "combinecoverage",
-          message: "Failure processing " + error.message,
+          message:
+            "Failure processing test instance " + testInstance?.id + ", error " + error.message,
         },
       })
       return false

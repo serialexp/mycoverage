@@ -4,6 +4,7 @@
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+
 }
 
 generator client {
@@ -130,6 +131,7 @@ model TestInstance {
   createdDate         DateTime          @default(now())
   updatedDate         DateTime          @default(now()) @updatedAt
   PackageCoverage     PackageCoverage[]
+  dataSize            Int               @default(0)
 }
 
 model PackageCoverage {

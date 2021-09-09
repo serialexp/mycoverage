@@ -1,3 +1,4 @@
+import getRecentCommits from "app/coverage/queries/getRecentCommits"
 import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
@@ -29,6 +30,7 @@ const ProjectPage: BlitzPage = () => {
   const groupId = useParam("groupId", "number")
 
   const [project] = useQuery(getProject, { projectId: projectId || 0 })
+  const [recentCommits] = useQuery(getRecentCommits, { projectId: projectId || 0 })
   const [buildInfo] = useQuery(getLastBuildInfo, { projectId: projectId || 0 })
 
   return groupId && projectId ? (
@@ -73,6 +75,25 @@ const ProjectPage: BlitzPage = () => {
               </Td>
               <Td>{format.format(test.coveredPercentage)}%</Td>
               <Td>{test.createdDate.toLocaleString()}</Td>
+            </Tr>
+          )
+        })}
+      </Table>
+      <Subheading>Recent Commits</Subheading>
+      <Table>
+        <Tr>
+          <Th>Commit Sha</Th>
+          <Th>Last commit</Th>
+        </Tr>
+        {recentCommits?.map((commit) => {
+          return (
+            <Tr key={commit.id}>
+              <Td>
+                <Link href={Routes.CommitPage({ groupId, projectId, commitRef: commit.ref })}>
+                  <ChakraLink color={"blue.500"}>{commit.ref}</ChakraLink>
+                </Link>
+              </Td>
+              <Td>{commit.createdDate.toLocaleString()}</Td>
             </Tr>
           )
         })}

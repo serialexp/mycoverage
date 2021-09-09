@@ -56,7 +56,7 @@ export interface CoberturaFile {
   coverageData?: CoverageData
 }
 
-interface CoberturaFileFormat {
+export interface CoberturaFileFormat {
   coverage: {
     "lines-valid"?: number
     "lines-covered"?: number
