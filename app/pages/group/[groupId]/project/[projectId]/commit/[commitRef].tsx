@@ -23,8 +23,8 @@ import getCommit from "app/coverage/queries/getCommit"
 
 const CommitPage: BlitzPage = () => {
   const commitRef = useParam("commitRef", "string")
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
 
   const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
   const [packages] = useQuery(getPackagesForCommit, { commitId: commit?.id || 0, path: undefined })

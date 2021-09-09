@@ -16,8 +16,8 @@ export const DirectoryDisplay = (props: {
   route: (path: string[]) => RouteUrlObject
   backRoute: () => RouteUrlObject
 }) => {
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
   const path = useParam("path", "array")
 
   const [packagesForTest] = useQuery(getPackagesForTest, {

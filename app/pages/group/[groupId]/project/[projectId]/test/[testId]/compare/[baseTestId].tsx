@@ -60,8 +60,8 @@ const calculateChange = (diff: Diff) => {
 const CompareTestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
   const baseTestId = useParam("baseTestId", "number")
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
 
   const [test] = useQuery(getTest, {
     testId: testId,

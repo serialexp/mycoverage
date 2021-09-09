@@ -10,16 +10,19 @@ import db, { Commit, Test, TestInstance } from "db"
 export const combineCoverageWorker = new Worker<{
   commit: Commit
   testInstance?: TestInstance
+  namespaceSlug: string
+  repositorySlug: string
 }>(
   "combinecoverage",
   async (job) => {
-    const { commit, testInstance } = job.data
+    const { commit, testInstance, namespaceSlug, repositorySlug } = job.data
     try {
       console.log("Executing combine coverage job")
       const mydb: PrismaClient = db
 
+      let test: Test | null = null
       if (testInstance) {
-        const test = await mydb.test.findFirst({
+        test = await mydb.test.findFirst({
           where: {
             id: testInstance.testId ?? undefined,
           },
@@ -84,7 +87,7 @@ export const combineCoverageWorker = new Worker<{
           instance.PackageCoverage.forEach(async (pkg) => {
             pkg.FileCoverage?.forEach((file) => {
               fileCounter++
-              testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData, test.testName)
+              testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData, test?.testName)
             })
           })
         })
@@ -171,6 +174,8 @@ export const combineCoverageWorker = new Worker<{
 
       const coverage = new CoberturaCoverage()
 
+      let fileCounter = 0
+      const start = new Date()
       Object.values(lastOfEach).forEach(async (test) => {
         console.log(
           "Combining: " +
@@ -184,11 +189,20 @@ export const combineCoverageWorker = new Worker<{
         )
         test.PackageCoverage.forEach(async (pkg) => {
           pkg.FileCoverage?.forEach((file) => {
+            fileCounter++
             coverage.mergeCoverage(pkg.name, file.name, file.coverageData, test.testName)
           })
         })
       })
       coverage.updateMetrics(coverage.data)
+
+      console.log(
+        "Combined coverage results for " +
+          fileCounter +
+          " files in " +
+          (new Date().getTime() - start.getTime()) +
+          "ms"
+      )
 
       console.log(
         "All test combination result " +
@@ -232,10 +246,14 @@ export const combineCoverageWorker = new Worker<{
       await mydb.jobLog.create({
         data: {
           name: "combinecoverage",
+          namespace: namespaceSlug,
+          repository: repositorySlug,
           message:
             "Combined coverage for commit " +
-            commit.id +
-            (testInstance ? " and test instance " + testInstance.id : ""),
+            commit.ref.substr(0, 10) +
+            (testInstance
+              ? " and test instance " + testInstance.id + " for test " + test?.testName
+              : ""),
         },
       })
 
@@ -244,6 +262,8 @@ export const combineCoverageWorker = new Worker<{
       await db.jobLog.create({
         data: {
           name: "combinecoverage",
+          namespace: namespaceSlug,
+          repository: repositorySlug,
           message:
             "Failure processing test instance " + testInstance?.id + ", error " + error.message,
         },

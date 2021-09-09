@@ -1,7 +1,13 @@
 import { Flex, Stat, StatArrow, StatHelpText, StatLabel, StatNumber } from "@chakra-ui/react"
+import { combineIssueCount } from "app/library/combineIssueCount"
 import { DiffHelper } from "app/library/components/DiffHelper"
 
 interface Metrics {
+  blockerSonarIssues: number
+  criticalSonarIssues: number
+  majorSonarIssues: number
+  minorSonarIssues: number
+  infoSonarIssues: number
   statements: number
   conditionals: number
   methods: number
@@ -70,7 +76,19 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
         </Stat>
       </Flex>
       <Flex m={4}>
-        <Stat></Stat>
+        <Stat>
+          <StatLabel>Issues</StatLabel>
+          <StatNumber>{format.format(combineIssueCount(props.metrics))}</StatNumber>
+          <StatHelpText>
+            {props.baseMetrics ? (
+              <DiffHelper
+                from={combineIssueCount(props.baseMetrics)}
+                to={combineIssueCount(props.metrics)}
+                fromAbsolute={combineIssueCount(props.baseMetrics)}
+              />
+            ) : null}
+          </StatHelpText>
+        </Stat>
         <Stat>
           <StatLabel>Total Statements</StatLabel>
           <StatNumber>{format.format(props.metrics.statements)}</StatNumber>

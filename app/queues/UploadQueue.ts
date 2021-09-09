@@ -9,7 +9,9 @@ export const uploadJob = (
   coverageFile: CoberturaCoverage,
   commit: Commit,
   test: Test,
-  testInstance: TestInstance
+  testInstance: TestInstance,
+  namespaceSlug: string,
+  repositorySlug: string
 ) => {
   console.log("Adding upload job to queue")
   return uploadQueue.add(
@@ -19,6 +21,8 @@ export const uploadJob = (
       commit,
       test,
       testInstance,
+      namespaceSlug,
+      repositorySlug,
     },
     {
       removeOnComplete: true,

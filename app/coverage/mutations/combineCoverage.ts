@@ -7,10 +7,29 @@ export default async function combineCoverage(args: { commitId: number }, { sess
     where: {
       id: args.commitId,
     },
+    include: {
+      branches: {
+        include: {
+          branch: {
+            include: {
+              project: {
+                include: {
+                  group: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   })
 
   if (commit) {
-    combineCoverageJob(commit)
+    combineCoverageJob(
+      commit,
+      commit.branches[0]?.branch.project.group?.slug || "",
+      commit.branches[0]?.branch.project.slug || ""
+    )
     console.log("starting coverage job")
   }
 

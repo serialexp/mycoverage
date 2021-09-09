@@ -14,17 +14,17 @@ export const FileDisplay = (props: {
   commitRef?: string
 }) => {
   const testId = useParam("testId", "number")
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
   const path = useParam("path", "array")
 
   const packagePath = path?.slice(0, path.length - 1)
   const fileName = path?.slice(path?.length - 1).join("")
 
   const [file] = useQuery(getFile, { packageCoverageId: props.pack?.id, fileName: fileName })
-  const [project] = useQuery(getProject, { projectId: projectId })
+  const [project] = useQuery(getProject, { projectSlug: projectId })
   const [test] = useQuery(getTest, { testId: testId })
-  const [group] = useQuery(getGroup, { groupId: groupId })
+  const [group] = useQuery(getGroup, { groupSlug: groupId })
 
   const [fileData] = useQuery(getFileData, {
     groupName: group?.name,

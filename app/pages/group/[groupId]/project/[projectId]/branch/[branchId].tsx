@@ -3,6 +3,7 @@ import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Subheading } from "app/library/components/Subheading"
+import { TestResults } from "app/library/components/TestResults"
 import { format } from "app/library/format"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
@@ -14,17 +15,17 @@ import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaClock } from "react-icons/fa"
 
 const BranchPage: BlitzPage = () => {
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
   const branchId = useParam("branchId", "string")
 
-  const [project] = useQuery(getProject, { projectId: projectId })
+  const [project] = useQuery(getProject, { projectSlug: projectId })
   const [buildInfo] = useQuery(getLastBuildInfo, {
-    projectId,
+    projectId: project?.id,
     branch: branchId,
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
-    projectId: projectId,
+    projectId: project?.id,
     branch: buildInfo?.branch?.baseBranch,
   })
   const [combineCoverageMutation] = useMutation(combineCoverage)
@@ -87,40 +88,7 @@ const BranchPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results
       </Subheading>
-      <Table>
-        <Tr>
-          <Th>Test</Th>
-          <Th>Result time</Th>
-          <Th>Instances</Th>
-          <Th isNumeric>Statements</Th>
-          <Th isNumeric>Conditions</Th>
-          <Th isNumeric>Methods</Th>
-          <Th isNumeric>Coverage</Th>
-        </Tr>
-        {buildInfo?.lastCommit?.Test.map((test) => {
-          return (
-            <Tr key={test.id} _hover={{ bg: "primary.50" }}>
-              <Td>
-                <Link href={Routes.TestPage({ groupId, projectId, testId: test.id })}>
-                  <ChakraLink color={"blue.500"}>{test.testName}</ChakraLink>
-                </Link>
-              </Td>
-              <Td>{test.createdDate.toLocaleString()}</Td>
-              <Td>{test._count?.TestInstance}</Td>
-              <Td isNumeric>
-                {format.format(test.coveredStatements)}/{format.format(test.statements)}
-              </Td>
-              <Td isNumeric>
-                {format.format(test.coveredConditionals)}/{format.format(test.conditionals)}
-              </Td>
-              <Td isNumeric>
-                {format.format(test.coveredMethods)}/{format.format(test.methods)}
-              </Td>
-              <Td isNumeric>{format.format(test.coveredPercentage)}%</Td>
-            </Tr>
-          )
-        })}
-      </Table>
+      <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
       <Subheading mt={4} size={"md"}>
         Recent Commits
       </Subheading>

@@ -1,4 +1,4 @@
-import { Box, Table, Td, Tr, Link as ChakraLink, Button } from "@chakra-ui/react"
+import { Box, Table, Td, Tr, Link as ChakraLink, Button, Th } from "@chakra-ui/react"
 import { Actions } from "app/library/components/Actions"
 import { Heading } from "app/library/components/Heading"
 import { format } from "app/library/format"
@@ -23,19 +23,28 @@ const GroupPage: BlitzPage = () => {
         </Link>
       </Actions>
       <Table>
+        <Tr>
+          <Th>Repository Name</Th>
+          <Th>Last Commit</Th>
+          <Th>Commit Time</Th>
+          <Th isNumeric>Percentage Covered</Th>
+        </Tr>
         {projects.map((p) => {
           return (
             <Tr key={p.id} _hover={{ bg: "primary.50" }}>
               <Td>
-                <Link href={Routes.ProjectPage({ groupId: params.groupId || "", projectId: p.id })}>
+                <Link
+                  href={Routes.ProjectPage({ groupId: params.groupId || "", projectId: p.slug })}
+                >
                   <ChakraLink color={"blue.500"}>{p.name}</ChakraLink>
                 </Link>
               </Td>
-              <Td>
-                {p.lastCommit ? <>{format.format(p.lastCommit?.coveredPercentage)}%</> : null}
-              </Td>
+
               <Td>{p.lastCommit ? <>{p.lastCommit?.ref.substr(0, 12)}</> : null}</Td>
               <Td>{p.lastCommit ? <>{p.lastCommit?.createdDate.toLocaleString()}</> : null}</Td>
+              <Td isNumeric>
+                {p.lastCommit ? <>{format.format(p.lastCommit?.coveredPercentage)}%</> : null}
+              </Td>
             </Tr>
           )
         })}

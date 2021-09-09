@@ -97,40 +97,51 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
   })
 
   const hashToId: Record<string, number> = {}
-  const links: { commitId: number; codeIssueId: number }[] = []
   const existingHashes = existingIssues.map((issue) => {
     hashToId[issue.hash] = issue.id
+    return issue.hash
+  })
+
+  const newIssues: any[] = []
+
+  issues.forEach((issue: SonarIssue) => {
+    if (!issue.hash) return
+    if (existingHashes.includes(issue.hash)) return
+
+    newIssues.push({
+      hash: issue.hash,
+      file: issue.path,
+      line: issue.line,
+      message: issue.message,
+      effort: issue.effort,
+      type: issue.type,
+      severity: issue.severity,
+      tags: issue.tags.join(","),
+    })
+  })
+
+  db.codeIssue.createMany({
+    data: newIssues,
+  })
+
+  const refreshedIssues = await db.codeIssue.findMany({
+    select: {
+      id: true,
+    },
+    where: {
+      hash: {
+        in: hashes,
+      },
+    },
+  })
+
+  const links: { commitId: number; codeIssueId: number }[] = []
+  refreshedIssues.forEach((issue) => {
     links.push({
       commitId: commit.id,
       codeIssueId: issue.id,
     })
-    return issue.hash
   })
-
-  await Promise.all(
-    issues.map(async (issue: SonarIssue) => {
-      if (!issue.hash) return
-      if (existingHashes.includes(issue.hash)) return
-
-      const newIssue = await db.codeIssue.create({
-        data: {
-          hash: issue.hash,
-          file: issue.path,
-          line: issue.line,
-          message: issue.message,
-          effort: issue.effort,
-          type: issue.type,
-          severity: issue.severity,
-          tags: issue.tags.join(","),
-        },
-      })
-      links.push({
-        commitId: commit.id,
-        codeIssueId: newIssue.id,
-      })
-      hashToId[issue.hash] = newIssue.id
-    })
-  )
 
   console.log("links", links)
 

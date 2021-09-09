@@ -840,7 +840,7 @@
                     (d = []),
                     e.packages.forEach(function (e) {
                       return r(void 0, void 0, void 0, function () {
-                        var t, r, i, c, l, d, v, f, m, h, g, p, b, y, C, w, _, k
+                        var t, r, i, c, l, d, v, f, m, g, h, p, b, y, C, w, _, k
                         return a(this, function (a) {
                           return (
                             (t = e.name.length - e.name.replace(/\./g, "").length),
@@ -872,18 +872,18 @@
                                   : 0,
                               elements:
                                 null !==
-                                  (h =
+                                  (g =
                                     null === (m = e.metrics) || void 0 === m
                                       ? void 0
-                                      : m.elements) && void 0 !== h
-                                  ? h
+                                      : m.elements) && void 0 !== g
+                                  ? g
                                   : 0,
                               coveredStatements:
                                 null !==
                                   (p =
-                                    null === (g = e.metrics) || void 0 === g
+                                    null === (h = e.metrics) || void 0 === h
                                       ? void 0
-                                      : g.coveredstatements) && void 0 !== p
+                                      : h.coveredstatements) && void 0 !== p
                                   ? p
                                   : 0,
                               coveredConditionals:
@@ -952,8 +952,8 @@
                                 u,
                                 v,
                                 m,
-                                h,
                                 g,
+                                h,
                                 p,
                                 b,
                                 y,
@@ -998,11 +998,11 @@
                                     : 0,
                                 coveredConditionals:
                                   null !==
-                                    (g =
-                                      null === (h = n.metrics) || void 0 === h
+                                    (h =
+                                      null === (g = n.metrics) || void 0 === g
                                         ? void 0
-                                        : h.coveredconditionals) && void 0 !== g
-                                    ? g
+                                        : g.coveredconditionals) && void 0 !== h
+                                    ? h
                                     : 0,
                                 coveredMethods:
                                   null !==
@@ -1196,8 +1196,8 @@
                 v,
                 f,
                 m,
-                h,
                 g,
+                h,
                 p,
                 b,
                 y,
@@ -1206,8 +1206,8 @@
                 _,
                 k,
                 E,
-                j,
                 S,
+                j,
                 x,
                 I,
                 P,
@@ -1218,8 +1218,8 @@
                 F,
                 q,
                 T,
-                W,
                 N,
+                W,
                 z,
                 $,
                 R,
@@ -1242,47 +1242,55 @@
                 re,
                 ae,
                 ie,
-                ce
-              return r(this, function (se) {
-                switch (se.label) {
+                ce,
+                se,
+                le
+              return r(this, function (ue) {
+                switch (ue.label) {
                   case 0:
-                    ;(t = e.data), (n = t.commit), (a = t.testInstance), (se.label = 1)
+                    ;(t = e.data),
+                      (n = t.commit),
+                      (a = t.testInstance),
+                      (l = t.namespaceSlug),
+                      (u = t.repositorySlug),
+                      (ue.label = 1)
                   case 1:
                     return (
-                      se.trys.push([1, 14, , 16]),
+                      ue.trys.push([1, 14, , 16]),
                       console.log("Executing combine coverage job"),
-                      (l = d.default),
+                      (v = d.default),
+                      (f = null),
                       a
                         ? [
                             4,
-                            l.test.findFirst({
-                              where: { id: null !== (w = a.testId) && void 0 !== w ? w : void 0 },
+                            v.test.findFirst({
+                              where: { id: null !== (k = a.testId) && void 0 !== k ? k : void 0 },
                             }),
                           ]
                         : [3, 8]
                     )
                   case 2:
-                    if (!(u = se.sent()))
+                    if (!(f = ue.sent()))
                       throw new Error("Cannot combine coverage for testInstance without a test")
                     return [
                       4,
-                      l.testInstance.aggregate({ _sum: { dataSize: !0 }, where: { testId: u.id } }),
+                      v.testInstance.aggregate({ _sum: { dataSize: !0 }, where: { testId: f.id } }),
                     ]
                   case 3:
                     if (
-                      ((v = se.sent()),
+                      ((m = ue.sent()),
                       console.log(
                         "Total size of combinable data estimated at: " +
-                          (v._sum.dataSize || 0) / 1024 / 1024 +
+                          (m._sum.dataSize || 0) / 1024 / 1024 +
                           "MB"
                       ),
-                      v && v._sum.dataSize && v._sum.dataSize > 104857600)
+                      m && m._sum.dataSize && m._sum.dataSize > 104857600)
                     )
                       throw new Error("Data to combine is inordinately big, cancelling.")
                     return [
                       4,
-                      l.testInstance.findMany({
-                        where: { testId: u.id },
+                      v.testInstance.findMany({
+                        where: { testId: f.id },
                         orderBy: { createdDate: "desc" },
                         include: {
                           PackageCoverage: {
@@ -1296,12 +1304,12 @@
                     ]
                   case 4:
                     return (
-                      (f = se.sent()),
-                      (m = new i.CoberturaCoverage()),
+                      (g = ue.sent()),
+                      (h = new i.CoberturaCoverage()),
                       console.log("Merging coverage information for all test instances"),
-                      (h = 0),
-                      (g = new Date()),
-                      f.forEach(function (e) {
+                      (p = 0),
+                      (b = new Date()),
+                      g.forEach(function (e) {
                         e.PackageCoverage.forEach(function (e) {
                           return o(void 0, void 0, void 0, function () {
                             var t
@@ -1310,7 +1318,13 @@
                                 null === (t = e.FileCoverage) ||
                                   void 0 === t ||
                                   t.forEach(function (t) {
-                                    h++, m.mergeCoverage(e.name, t.name, t.coverageData, u.testName)
+                                    p++,
+                                      h.mergeCoverage(
+                                        e.name,
+                                        t.name,
+                                        t.coverageData,
+                                        null == f ? void 0 : f.testName
+                                      )
                                   }),
                                 [2]
                               )
@@ -1318,131 +1332,131 @@
                           })
                         })
                       }),
-                      m.updateMetrics(m.data),
+                      h.updateMetrics(h.data),
                       console.log(
                         "Combined coverage results for " +
-                          h +
+                          p +
                           " files in " +
-                          (new Date().getTime() - g.getTime()) +
+                          (new Date().getTime() - b.getTime()) +
                           "ms"
                       ),
                       console.log(
                         "Test instance combination with previous test instances result: " +
-                          (null === (_ = m.data.coverage.metrics) || void 0 === _
+                          (null === (E = h.data.coverage.metrics) || void 0 === E
                             ? void 0
-                            : _.coveredelements) +
+                            : E.coveredelements) +
                           "/" +
-                          (null === (k = m.data.coverage.metrics) || void 0 === k
+                          (null === (S = h.data.coverage.metrics) || void 0 === S
                             ? void 0
-                            : k.elements) +
+                            : S.elements) +
                           " covered based on " +
-                          f.length +
+                          g.length +
                           " instances"
                       ),
                       console.log("Deleting existing results for test"),
-                      [4, l.packageCoverage.deleteMany({ where: { testId: u.id } })]
+                      [4, v.packageCoverage.deleteMany({ where: { testId: f.id } })]
                     )
                   case 5:
                     return (
-                      se.sent(),
+                      ue.sent(),
                       console.log("Updating coverage summary data for test"),
                       [
                         4,
-                        l.test.update({
-                          where: { id: u.id },
+                        v.test.update({
+                          where: { id: f.id },
                           data: {
                             statements:
                               null !==
-                                (j =
-                                  null === (E = m.data.coverage.metrics) || void 0 === E
+                                (x =
+                                  null === (j = h.data.coverage.metrics) || void 0 === j
                                     ? void 0
-                                    : E.statements) && void 0 !== j
-                                ? j
+                                    : j.statements) && void 0 !== x
+                                ? x
                                 : 0,
                             conditionals:
                               null !==
-                                (x =
-                                  null === (S = m.data.coverage.metrics) || void 0 === S
+                                (P =
+                                  null === (I = h.data.coverage.metrics) || void 0 === I
                                     ? void 0
-                                    : S.conditionals) && void 0 !== x
-                                ? x
+                                    : I.conditionals) && void 0 !== P
+                                ? P
                                 : 0,
                             methods:
                               null !==
-                                (P =
-                                  null === (I = m.data.coverage.metrics) || void 0 === I
+                                (D =
+                                  null === (M = h.data.coverage.metrics) || void 0 === M
                                     ? void 0
-                                    : I.methods) && void 0 !== P
-                                ? P
+                                    : M.methods) && void 0 !== D
+                                ? D
                                 : 0,
                             elements:
                               null !==
-                                (D =
-                                  null === (M = m.data.coverage.metrics) || void 0 === M
+                                (B =
+                                  null === (O = h.data.coverage.metrics) || void 0 === O
                                     ? void 0
-                                    : M.elements) && void 0 !== D
-                                ? D
+                                    : O.elements) && void 0 !== B
+                                ? B
                                 : 0,
                             hits:
                               null !==
-                                (B =
-                                  null === (O = m.data.coverage.metrics) || void 0 === O
+                                (q =
+                                  null === (F = h.data.coverage.metrics) || void 0 === F
                                     ? void 0
-                                    : O.hits) && void 0 !== B
-                                ? B
+                                    : F.hits) && void 0 !== q
+                                ? q
                                 : 0,
                             coveredStatements:
                               null !==
-                                (q =
-                                  null === (F = m.data.coverage.metrics) || void 0 === F
+                                (N =
+                                  null === (T = h.data.coverage.metrics) || void 0 === T
                                     ? void 0
-                                    : F.coveredstatements) && void 0 !== q
-                                ? q
+                                    : T.coveredstatements) && void 0 !== N
+                                ? N
                                 : 0,
                             coveredConditionals:
                               null !==
-                                (W =
-                                  null === (T = m.data.coverage.metrics) || void 0 === T
+                                (z =
+                                  null === (W = h.data.coverage.metrics) || void 0 === W
                                     ? void 0
-                                    : T.coveredconditionals) && void 0 !== W
-                                ? W
+                                    : W.coveredconditionals) && void 0 !== z
+                                ? z
                                 : 0,
                             coveredMethods:
                               null !==
-                                (z =
-                                  null === (N = m.data.coverage.metrics) || void 0 === N
+                                (R =
+                                  null === ($ = h.data.coverage.metrics) || void 0 === $
                                     ? void 0
-                                    : N.coveredmethods) && void 0 !== z
-                                ? z
+                                    : $.coveredmethods) && void 0 !== R
+                                ? R
                                 : 0,
                             coveredElements:
                               null !==
-                                (R =
-                                  null === ($ = m.data.coverage.metrics) || void 0 === $
+                                (L =
+                                  null === (G = h.data.coverage.metrics) || void 0 === G
                                     ? void 0
-                                    : $.coveredelements) && void 0 !== R
-                                ? R
+                                    : G.coveredelements) && void 0 !== L
+                                ? L
                                 : 0,
-                            coveredPercentage: c.coveredPercentage(m.data.coverage.metrics),
+                            coveredPercentage: c.coveredPercentage(h.data.coverage.metrics),
                           },
                         }),
                       ]
                     )
                   case 6:
                     return (
-                      se.sent(),
+                      ue.sent(),
                       console.log("Inserting new package and file coverage for test"),
-                      [4, s.insertCoverageData(m.data.coverage, void 0, { testId: u.id })]
+                      [4, s.insertCoverageData(h.data.coverage, void 0, { testId: f.id })]
                     )
                   case 7:
-                    se.sent(), (se.label = 8)
+                    ue.sent(), (ue.label = 8)
                   case 8:
                     if (!n) throw Error("Cannot combine coverage without a commit")
                     return (
                       console.log("Combining test coverage results for commit"),
                       [
                         4,
-                        l.test.findMany({
+                        v.test.findMany({
                           where: { commitId: n.id },
                           orderBy: { createdDate: "desc" },
                           include: { PackageCoverage: { include: { FileCoverage: !0 } } },
@@ -1451,14 +1465,14 @@
                     )
                   case 9:
                     return (
-                      (p = se.sent()),
-                      (b = {}),
-                      p.forEach(function (e) {
-                        b[e.testName] = e
+                      (y = ue.sent()),
+                      (C = {}),
+                      y.forEach(function (e) {
+                        C[e.testName] = e
                       }),
-                      console.log("Found " + Object.keys(b).length + " tests to combine."),
-                      (y = new i.CoberturaCoverage()),
-                      Object.values(b).forEach(function (e) {
+                      console.log("Found " + Object.keys(C).length + " tests to combine."),
+                      (w = new i.CoberturaCoverage()),
+                      Object.values(C).forEach(function (e) {
                         return o(void 0, void 0, void 0, function () {
                           return r(this, function (t) {
                             return (
@@ -1480,7 +1494,7 @@
                                       null === (n = t.FileCoverage) ||
                                         void 0 === n ||
                                         n.forEach(function (n) {
-                                          y.mergeCoverage(
+                                          w.mergeCoverage(
                                             t.name,
                                             n.name,
                                             n.coverageData,
@@ -1497,150 +1511,159 @@
                           })
                         })
                       }),
-                      y.updateMetrics(y.data),
+                      w.updateMetrics(w.data),
                       console.log(
                         "All test combination result " +
-                          (null === (G = y.data.coverage.metrics) || void 0 === G
+                          (null === (Q = w.data.coverage.metrics) || void 0 === Q
                             ? void 0
-                            : G.coveredelements) +
+                            : Q.coveredelements) +
                           "/" +
-                          (null === (L = y.data.coverage.metrics) || void 0 === L
+                          (null === (A = w.data.coverage.metrics) || void 0 === A
                             ? void 0
-                            : L.elements) +
+                            : A.elements) +
                           " covered"
                       ),
                       console.log("Deleting existing results for commit"),
-                      [4, l.packageCoverage.deleteMany({ where: { commitId: n.id } })]
+                      [4, v.packageCoverage.deleteMany({ where: { commitId: n.id } })]
                     )
                   case 10:
                     return (
-                      se.sent(),
+                      ue.sent(),
                       console.log("Updating coverage summary data for commit", n.id),
                       [
                         4,
-                        l.commit.update({
+                        v.commit.update({
                           where: { id: n.id },
                           data: {
                             statements:
                               null !==
-                                (A =
-                                  null === (Q = y.data.coverage.metrics) || void 0 === Q
+                                (U =
+                                  null === (J = w.data.coverage.metrics) || void 0 === J
                                     ? void 0
-                                    : Q.statements) && void 0 !== A
-                                ? A
+                                    : J.statements) && void 0 !== U
+                                ? U
                                 : 0,
                             conditionals:
                               null !==
-                                (U =
-                                  null === (J = y.data.coverage.metrics) || void 0 === J
+                                (K =
+                                  null === (H = w.data.coverage.metrics) || void 0 === H
                                     ? void 0
-                                    : J.conditionals) && void 0 !== U
-                                ? U
+                                    : H.conditionals) && void 0 !== K
+                                ? K
                                 : 0,
                             methods:
                               null !==
-                                (K =
-                                  null === (H = y.data.coverage.metrics) || void 0 === H
+                                (X =
+                                  null === (V = w.data.coverage.metrics) || void 0 === V
                                     ? void 0
-                                    : H.methods) && void 0 !== K
-                                ? K
+                                    : V.methods) && void 0 !== X
+                                ? X
                                 : 0,
                             elements:
                               null !==
-                                (X =
-                                  null === (V = y.data.coverage.metrics) || void 0 === V
+                                (Z =
+                                  null === (Y = w.data.coverage.metrics) || void 0 === Y
                                     ? void 0
-                                    : V.elements) && void 0 !== X
-                                ? X
+                                    : Y.elements) && void 0 !== Z
+                                ? Z
                                 : 0,
                             hits:
                               null !==
-                                (Z =
-                                  null === (Y = y.data.coverage.metrics) || void 0 === Y
+                                (te =
+                                  null === (ee = w.data.coverage.metrics) || void 0 === ee
                                     ? void 0
-                                    : Y.hits) && void 0 !== Z
-                                ? Z
+                                    : ee.hits) && void 0 !== te
+                                ? te
                                 : 0,
                             coveredStatements:
                               null !==
-                                (te =
-                                  null === (ee = y.data.coverage.metrics) || void 0 === ee
+                                (oe =
+                                  null === (ne = w.data.coverage.metrics) || void 0 === ne
                                     ? void 0
-                                    : ee.coveredstatements) && void 0 !== te
-                                ? te
+                                    : ne.coveredstatements) && void 0 !== oe
+                                ? oe
                                 : 0,
                             coveredConditionals:
                               null !==
-                                (oe =
-                                  null === (ne = y.data.coverage.metrics) || void 0 === ne
+                                (ae =
+                                  null === (re = w.data.coverage.metrics) || void 0 === re
                                     ? void 0
-                                    : ne.coveredconditionals) && void 0 !== oe
-                                ? oe
+                                    : re.coveredconditionals) && void 0 !== ae
+                                ? ae
                                 : 0,
                             coveredMethods:
                               null !==
-                                (ae =
-                                  null === (re = y.data.coverage.metrics) || void 0 === re
+                                (ce =
+                                  null === (ie = w.data.coverage.metrics) || void 0 === ie
                                     ? void 0
-                                    : re.coveredmethods) && void 0 !== ae
-                                ? ae
+                                    : ie.coveredmethods) && void 0 !== ce
+                                ? ce
                                 : 0,
                             coveredElements:
                               null !==
-                                (ce =
-                                  null === (ie = y.data.coverage.metrics) || void 0 === ie
+                                (le =
+                                  null === (se = w.data.coverage.metrics) || void 0 === se
                                     ? void 0
-                                    : ie.coveredelements) && void 0 !== ce
-                                ? ce
+                                    : se.coveredelements) && void 0 !== le
+                                ? le
                                 : 0,
-                            coveredPercentage: c.coveredPercentage(y.data.coverage.metrics),
+                            coveredPercentage: c.coveredPercentage(w.data.coverage.metrics),
                           },
                         }),
                       ]
                     )
                   case 11:
                     return (
-                      se.sent(),
+                      ue.sent(),
                       console.log("Inserting new package and file coverage for commit"),
-                      [4, s.insertCoverageData(y.data.coverage, void 0, { commitId: n.id })]
+                      [4, s.insertCoverageData(w.data.coverage, void 0, { commitId: n.id })]
                     )
                   case 12:
                     return (
-                      se.sent(),
+                      ue.sent(),
                       [
                         4,
-                        l.jobLog.create({
+                        v.jobLog.create({
                           data: {
                             name: "combinecoverage",
+                            namespace: l,
+                            repository: u,
                             message:
                               "Combined coverage for commit " +
-                              n.id +
-                              (a ? " and test instance " + a.id : ""),
+                              n.ref.substr(0, 10) +
+                              (a
+                                ? " and test instance " +
+                                  a.id +
+                                  " for test " +
+                                  (null == f ? void 0 : f.testName)
+                                : ""),
                           },
                         }),
                       ]
                     )
                   case 13:
-                    return se.sent(), [2, !0]
+                    return ue.sent(), [2, !0]
                   case 14:
                     return (
-                      (C = se.sent()),
+                      (_ = ue.sent()),
                       [
                         4,
                         d.default.jobLog.create({
                           data: {
                             name: "combinecoverage",
+                            namespace: l,
+                            repository: u,
                             message:
                               "Failure processing test instance " +
                               (null == a ? void 0 : a.id) +
                               ", error " +
-                              C.message,
+                              _.message,
                           },
                         }),
                       ]
                     )
                   case 15:
-                    return se.sent(), [2, !1]
+                    return ue.sent(), [2, !1]
                   case 16:
                     return [2]
                 }
@@ -1796,64 +1819,72 @@
           "upload",
           function (e) {
             return o(void 0, void 0, void 0, function () {
-              var t, n, o, a, s, u, d, v
+              var t, n, o, a, s, u, d, v, f, m
               return r(this, function (r) {
                 switch (r.label) {
                   case 0:
-                    if (
-                      (r.trys.push([0, 3, , 5]),
-                      (t = e.data),
+                    ;(t = e.data),
                       (n = t.coverageFile),
                       (o = t.commit),
                       (a = t.test),
                       (s = t.testInstance),
+                      (u = t.namespaceSlug),
+                      (d = t.repositorySlug),
+                      (r.label = 1)
+                  case 1:
+                    if (
+                      (r.trys.push([1, 4, , 6]),
                       console.log("Executing process upload job"),
-                      (u = l.default),
-                      !(d = n.data.coverage))
+                      (v = l.default),
+                      !(f = n.data.coverage))
                     )
                       throw new Error(
                         "No coverage information in the input file, cannot read first project."
                       )
                     return (
                       console.log("Creating package and file information for test instance"),
-                      [4, i.insertCoverageData(d, a.testName, { testInstanceId: s.id })]
+                      [4, i.insertCoverageData(f, a.testName, { testInstanceId: s.id })]
                     )
-                  case 1:
+                  case 2:
                     return (
                       r.sent(),
                       console.log("Inserted all package and file information"),
                       [
                         4,
-                        u.jobLog.create({
+                        v.jobLog.create({
                           data: {
                             name: "processupload",
+                            namespace: u,
+                            repository: d,
                             message:
                               "Processed upload information for commit " +
-                              o.id +
-                              (s ? " and test instance " + s.id : ""),
+                              o.ref.substr(0, 10) +
+                              (s ? " and test instance " + s.id + " and test" + a.testName : ""),
                           },
                         }),
                       ]
                     )
-                  case 2:
-                    return r.sent(), c.combineCoverageJob(o, s), [3, 5]
                   case 3:
+                    return r.sent(), c.combineCoverageJob(o, u, d, s), [3, 6]
+                  case 4:
                     return (
-                      (v = r.sent()),
-                      console.error(v),
+                      (m = r.sent()),
+                      console.error(m),
                       [
                         4,
                         l.default.jobLog.create({
                           data: {
                             name: "combinecoverage",
-                            message: "Failure processing " + v.message,
+                            namespace: u,
+                            repository: d,
+                            message: "Failure processing " + m.message,
                           },
                         }),
                       ]
                     )
-                  case 4:
-                    return r.sent(), [2, !1]
                   case 5:
+                    return r.sent(), [2, !1]
+                  case 6:
                     return [2]
                 }
               })
@@ -1874,12 +1905,12 @@
         var o = n(4),
           r = n(686)
         ;(t.combineCoverageQueue = new r.Queue("combinecoverage", { connection: o.queueConfig })),
-          (t.combineCoverageJob = function (e, n) {
+          (t.combineCoverageJob = function (e, n, o, r) {
             return (
               console.log("Adding new combine coverage job for " + e.ref),
               t.combineCoverageQueue.add(
                 "combinecoverage",
-                { commit: e, testInstance: n },
+                { commit: e, testInstance: r, namespaceSlug: n, repositorySlug: o },
                 { removeOnComplete: !0, removeOnFail: 3 }
               )
             )

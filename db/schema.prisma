@@ -187,11 +187,15 @@ model Group {
   createdDate DateTime  @default(now())
   updatedDate DateTime  @updatedAt
   Project     Project[]
+
+  @@index([slug])
 }
 
 model JobLog {
   id          Int      @id @default(autoincrement())
   name        String
+  namespace   String   @default("")
+  repository  String   @default("")
   message     String   @default("")
   createdDate DateTime @default(now())
   updatedDate DateTime @updatedAt
@@ -236,6 +240,8 @@ model Project {
   createdDate       DateTime @default(now())
   updatedDate       DateTime @updatedAt
   Branch            Branch[]
+
+  @@index([slug])
 }
 
 model Branch {

@@ -21,7 +21,7 @@ const Home: BlitzPage = () => {
           return (
             <Tr key={g.id} _hover={{ bg: "primary.50" }}>
               <Td>
-                <Link href={Routes.GroupPage({ groupId: g.id })}>
+                <Link href={Routes.GroupPage({ groupId: g.slug })}>
                   <ChakraLink color={"blue.500"}>{g.name}</ChakraLink>
                 </Link>
               </Td>

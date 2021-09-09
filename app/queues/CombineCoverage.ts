@@ -4,13 +4,20 @@ import { Queue } from "bullmq"
 
 export const combineCoverageQueue = new Queue("combinecoverage", { connection: queueConfig })
 
-export const combineCoverageJob = (commit: Commit, testInstance?: TestInstance) => {
+export const combineCoverageJob = (
+  commit: Commit,
+  namespaceSlug: string,
+  repositorySlug: string,
+  testInstance?: TestInstance
+) => {
   console.log("Adding new combine coverage job for " + commit.ref)
   return combineCoverageQueue.add(
     "combinecoverage",
     {
       commit,
       testInstance,
+      namespaceSlug,
+      repositorySlug,
     },
     {
       removeOnComplete: true,

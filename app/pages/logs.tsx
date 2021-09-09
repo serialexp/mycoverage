@@ -16,11 +16,13 @@ const Logs: BlitzPage = () => {
   return (
     <>
       <Heading>Logs</Heading>
-      <Table>
+      <Table size="sm">
         {logs.map((g) => {
           return (
             <Tr key={g.id} _hover={{ bg: "primary.50" }}>
               <Td>{g.id}</Td>
+              <Td>{g.namespace}</Td>
+              <Td>{g.repository}</Td>
               <Td>{g.name}</Td>
               <Td>{g.message}</Td>
               <Td>{g.createdDate.toLocaleString()}</Td>

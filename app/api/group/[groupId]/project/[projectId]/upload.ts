@@ -205,7 +205,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       const baseCommit = firstCommit?.commit
 
       console.log("create uploadjob")
-      uploadJob(coverageFile, commit, test, testInstance)
+      uploadJob(coverageFile, commit, test, testInstance, group.slug, project.slug)
 
       if (baseBranch && baseCommit) {
         console.log("compare commits")

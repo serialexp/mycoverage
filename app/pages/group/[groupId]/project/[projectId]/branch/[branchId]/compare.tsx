@@ -87,8 +87,8 @@ const CompareRow = (props: {
 }
 
 const CompareBranchPage: BlitzPage = () => {
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
   const branchId = useParam("branchId", "string")
 
   const [buildInfo] = useQuery(getLastBuildInfo, {

@@ -7,8 +7,8 @@ import { Heading } from "app/library/components/Heading"
 import { BlitzPage, Link, Routes, useParam, useParams, useQuery } from "blitz"
 
 const TestFilesPage: BlitzPage = () => {
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
   const testId = useParam("testId", "number")
   const path = useParam("path", "array")
 

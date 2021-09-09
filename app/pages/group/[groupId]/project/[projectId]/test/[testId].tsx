@@ -32,8 +32,8 @@ import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
 
 const TestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
-  const groupId = useParam("groupId", "number")
-  const projectId = useParam("projectId", "number")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
 
   const [test] = useQuery(getTest, { testId: testId || 0 })
   const [commit] = useQuery(getCommit, { commitRef: test?.commit.ref || "" })

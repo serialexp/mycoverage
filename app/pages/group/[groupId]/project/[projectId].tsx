@@ -3,6 +3,7 @@ import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Subheading } from "app/library/components/Subheading"
+import { TestResults } from "app/library/components/TestResults"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
@@ -22,16 +23,17 @@ import {
 } from "@chakra-ui/react"
 import getLastBuildInfo from "../../../../coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
+import { combineIssueCount } from "app/library/combineIssueCount"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
 const ProjectPage: BlitzPage = () => {
-  const projectId = useParam("projectId", "number")
-  const groupId = useParam("groupId", "number")
+  const projectId = useParam("projectId", "string")
+  const groupId = useParam("groupId", "string")
 
-  const [project] = useQuery(getProject, { projectId: projectId || 0 })
-  const [recentCommits] = useQuery(getRecentCommits, { projectId: projectId || 0 })
-  const [buildInfo] = useQuery(getLastBuildInfo, { projectId: projectId || 0 })
+  const [project] = useQuery(getProject, { projectSlug: projectId })
+  const [recentCommits] = useQuery(getRecentCommits, { projectId: project?.id || 0 })
+  const [buildInfo] = useQuery(getLastBuildInfo, { projectId: project?.id || 0 })
 
   return groupId && projectId ? (
     <>
@@ -59,31 +61,14 @@ const ProjectPage: BlitzPage = () => {
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
       <Subheading>Test results</Subheading>
-      <Table>
-        <Tr>
-          <Th>Test</Th>
-          <Th>Coverage</Th>
-          <Th>Result time</Th>
-        </Tr>
-        {buildInfo.lastCommit?.Test.map((test) => {
-          return (
-            <Tr key={test.id}>
-              <Td>
-                <Link href={Routes.TestPage({ groupId, projectId, testId: test.id })}>
-                  <ChakraLink color={"blue.500"}>{test.testName}</ChakraLink>
-                </Link>
-              </Td>
-              <Td>{format.format(test.coveredPercentage)}%</Td>
-              <Td>{test.createdDate.toLocaleString()}</Td>
-            </Tr>
-          )
-        })}
-      </Table>
+      <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
       <Subheading>Recent Commits</Subheading>
       <Table>
         <Tr>
           <Th>Commit Sha</Th>
-          <Th>Last commit</Th>
+          <Th width={"10%"}>Issues</Th>
+          <Th width={"15%"}>Coverage</Th>
+          <Th width={"25%"}>Created</Th>
         </Tr>
         {recentCommits?.map((commit) => {
           return (
@@ -93,6 +78,8 @@ const ProjectPage: BlitzPage = () => {
                   <ChakraLink color={"blue.500"}>{commit.ref}</ChakraLink>
                 </Link>
               </Td>
+              <Td>{format.format(combineIssueCount(commit))}</Td>
+              <Td>{format.format(commit.coveredPercentage)}%</Td>
               <Td>{commit.createdDate.toLocaleString()}</Td>
             </Tr>
           )
@@ -102,7 +89,8 @@ const ProjectPage: BlitzPage = () => {
       <Table>
         <Tr>
           <Th>Branch name</Th>
-          <Th>Last commit</Th>
+          <Th width={"15%"}>Coverage</Th>
+          <Th width={"25%"}>Last commit</Th>
         </Tr>
         {project?.Branch.map((branch) => {
           return (
@@ -112,6 +100,7 @@ const ProjectPage: BlitzPage = () => {
                   <ChakraLink color={"blue.500"}>{branch.name}</ChakraLink>
                 </Link>
               </Td>
+              <Td>{format.format(branch.commits[0]?.commit?.coveredPercentage || 0)}%</Td>
               <Td>{branch.commits[0]?.commit?.createdDate.toLocaleString()}</Td>
             </Tr>
           )

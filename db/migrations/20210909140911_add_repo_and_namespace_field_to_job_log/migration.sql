@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `JobLog` ADD COLUMN `namespace` VARCHAR(191) NOT NULL DEFAULT '',
+    ADD COLUMN `repository` VARCHAR(191) NOT NULL DEFAULT '';

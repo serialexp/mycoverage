@@ -15,12 +15,13 @@ export const uploadWorker = new Worker<{
   commit: Commit
   test: Test
   testInstance: TestInstance
+  namespaceSlug: string
+  repositorySlug: string
 }>(
   "upload",
   async (job) => {
+    const { coverageFile, commit, test, testInstance, namespaceSlug, repositorySlug } = job.data
     try {
-      const { coverageFile, commit, test, testInstance } = job.data
-
       console.log("Executing process upload job")
       const mydb: PrismaClient = db
 
@@ -41,19 +42,25 @@ export const uploadWorker = new Worker<{
       await mydb.jobLog.create({
         data: {
           name: "processupload",
+          namespace: namespaceSlug,
+          repository: repositorySlug,
           message:
             "Processed upload information for commit " +
-            commit.id +
-            (testInstance ? " and test instance " + testInstance.id : ""),
+            commit.ref.substr(0, 10) +
+            (testInstance
+              ? " and test instance " + testInstance.id + " and test" + test.testName
+              : ""),
         },
       })
 
-      combineCoverageJob(commit, testInstance)
+      combineCoverageJob(commit, namespaceSlug, repositorySlug, testInstance)
     } catch (error) {
       console.error(error)
       await db.jobLog.create({
         data: {
           name: "combinecoverage",
+          namespace: namespaceSlug,
+          repository: repositorySlug,
           message: "Failure processing " + error.message,
         },
       })
