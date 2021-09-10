@@ -1,5 +1,8 @@
 import getFileDifferences from "app/coverage/queries/getFileDifferences"
+import { Actions } from "app/library/components/Actions"
 import { DiffHelper } from "app/library/components/DiffHelper"
+import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
 import { format } from "app/library/format"
 import CompareTestPage from "app/pages/group/[groupId]/project/[projectId]/test/[testId]/compare/[baseTestId]"
 import { Test } from "db"
@@ -20,34 +23,34 @@ import {
 } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
-import { Heading, Table, Td, Tr } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
 
 const CompareRow = (props: {
   baseTest?: Test
   test?: Test
-  groupId: number
-  projectId: number
+  groupId: string
+  projectId: string
 }) => {
   return (
     <Box mt={4}>
       {props.baseTest && props.test ? (
-        <Link
-          href={Routes.CompareTestPage({
-            projectId: props.projectId,
-            groupId: props.groupId,
-            testId: props.test?.id,
-            baseTestId: props.baseTest?.id,
-          })}
-        >
-          <ChakraLink color={"blue.500"}>
-            <Heading size={"md"}>{props.baseTest?.testName ?? props.test?.testName}</Heading>
-          </ChakraLink>
-        </Link>
+        <Subheading size={"md"}>
+          <Link
+            href={Routes.CompareTestPage({
+              projectId: props.projectId,
+              groupId: props.groupId,
+              testId: props.test?.id,
+              baseTestId: props.baseTest?.id,
+            })}
+          >
+            <ChakraLink>{props.baseTest?.testName ?? props.test?.testName}</ChakraLink>
+          </Link>
+        </Subheading>
       ) : (
-        <Heading size={"md"}>{props.baseTest?.testName ?? props.test?.testName}</Heading>
+        <Subheading size={"md"}>{props.baseTest?.testName ?? props.test?.testName}</Subheading>
       )}
 
-      <StatGroup border={"1px"} borderColor={"gray.200"} mt={2} borderRadius={4} p={4}>
+      <StatGroup border={"1px"} borderColor={"gray.200"} m={4} borderRadius={4} p={4}>
         <Stat>
           <StatLabel>Covered Percentage</StatLabel>
           <StatNumber>
@@ -91,12 +94,13 @@ const CompareBranchPage: BlitzPage = () => {
   const projectId = useParam("projectId", "string")
   const branchId = useParam("branchId", "string")
 
+  const [project] = useQuery(getProject, { projectSlug: projectId })
   const [buildInfo] = useQuery(getLastBuildInfo, {
-    projectId: projectId,
+    projectId: project?.id,
     branch: branchId,
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
-    projectId,
+    projectId: project?.id,
     branch: buildInfo?.branch?.baseBranch,
   })
 
@@ -115,17 +119,19 @@ const CompareBranchPage: BlitzPage = () => {
   console.log(lastOfEach, baseLastOfEach)
 
   return groupId && projectId && branchId ? (
-    <Box m={2}>
+    <>
       <Heading>
         {baseBuildInfo?.branch?.name} to {buildInfo?.branch?.name}
       </Heading>
-      <Link href={Routes.BranchPage({ groupId, projectId, branchId })}>
-        <Button>To branch</Button>
-      </Link>
-      <Box>
+      <Actions>
+        <Link href={Routes.BranchPage({ groupId, projectId, branchId })}>
+          <Button>To branch</Button>
+        </Link>
+      </Actions>
+      <Box m={4}>
         Tests in {baseBuildInfo?.branch?.name}: {Object.keys(baseLastOfEach).length}
       </Box>
-      <Box>
+      <Box m={4}>
         Tests in {buildInfo?.branch?.name}: {Object.keys(lastOfEach).length}
       </Box>
 
@@ -152,7 +158,7 @@ const CompareBranchPage: BlitzPage = () => {
           />
         )
       })}
-    </Box>
+    </>
   ) : null
 }
 

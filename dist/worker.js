@@ -22,19 +22,19 @@
               return new (n || (n = Promise))(function (r, a) {
                 function i(e) {
                   try {
-                    s(o.next(e))
-                  } catch (e) {
-                    a(e)
-                  }
-                }
-                function c(e) {
-                  try {
-                    s(o.throw(e))
+                    c(o.next(e))
                   } catch (e) {
                     a(e)
                   }
                 }
                 function s(e) {
+                  try {
+                    c(o.throw(e))
+                  } catch (e) {
+                    a(e)
+                  }
+                }
+                function c(e) {
                   var t
                   e.done
                     ? r(e.value)
@@ -43,9 +43,9 @@
                         ? t
                         : new n(function (e) {
                             e(t)
-                          })).then(i, c)
+                          })).then(i, s)
                 }
-                s((o = o.apply(e, t || [])).next())
+                c((o = o.apply(e, t || [])).next())
               })
             },
           a =
@@ -65,15 +65,15 @@
                   ops: [],
                 }
               return (
-                (a = { next: c(0), throw: c(1), return: c(2) }),
+                (a = { next: s(0), throw: s(1), return: s(2) }),
                 "function" == typeof Symbol &&
                   (a[Symbol.iterator] = function () {
                     return this
                   }),
                 a
               )
-              function c(a) {
-                return function (c) {
+              function s(a) {
+                return function (s) {
                   return (function (a) {
                     if (n) throw new TypeError("Generator is already executing.")
                     for (; i; )
@@ -136,7 +136,7 @@
                       }
                     if (5 & a[0]) throw a[1]
                     return { value: a[0] ? a[1] : void 0, done: !0 }
-                  })([a, c])
+                  })([a, s])
                 }
               }
             },
@@ -146,15 +146,15 @@
               for (var n = 0, o = t.length, r = e.length; n < o; n++, r++) e[r] = t[n]
               return e
             },
-          c =
+          s =
             (this && this.__importDefault) ||
             function (e) {
               return e && e.__esModule ? e : { default: e }
             }
         Object.defineProperty(t, "__esModule", { value: !0 }), (t.CoberturaCoverage = void 0)
-        var s = n(456),
+        var c = n(456),
           l = n(589),
-          u = c(n(320)),
+          u = s(n(320)),
           d = u.default.object({
             statements: u.default.number(),
             coveredstatements: u.default.number(),
@@ -186,39 +186,33 @@
                     "line-rate": u.default.number(),
                     "branch-rate": u.default.number(),
                     metrics: d,
-                    files: u.default
-                      .array()
-                      .items(
-                        u.default.object({
-                          name: u.default.string(),
-                          filename: u.default.string(),
-                          "line-rate": u.default.number(),
-                          "branch-rate": u.default.number(),
-                          metrics: d,
-                          lines: u.default
-                            .array()
-                            .items(
-                              u.default.object({
-                                branch: u.default.boolean(),
-                                number: u.default.number(),
-                                hits: u.default.number(),
-                                coveredConditions: u.default.number(),
-                                conditions: u.default.number(),
-                                "condition-coverage": u.default.string(),
-                              })
-                            ),
-                          functions: u.default
-                            .array()
-                            .items(
-                              u.default.object({
-                                name: u.default.string(),
-                                number: u.default.number(),
-                                hits: u.default.number(),
-                                signature: u.default.string(),
-                              })
-                            ),
-                        })
-                      ),
+                    files: u.default.array().items(
+                      u.default.object({
+                        name: u.default.string(),
+                        filename: u.default.string(),
+                        "line-rate": u.default.number(),
+                        "branch-rate": u.default.number(),
+                        metrics: d,
+                        lines: u.default.array().items(
+                          u.default.object({
+                            branch: u.default.boolean(),
+                            number: u.default.number(),
+                            hits: u.default.number(),
+                            coveredConditions: u.default.number(),
+                            conditions: u.default.number(),
+                            "condition-coverage": u.default.string(),
+                          })
+                        ),
+                        functions: u.default.array().items(
+                          u.default.object({
+                            name: u.default.string(),
+                            number: u.default.number(),
+                            hits: u.default.number(),
+                            signature: u.default.string(),
+                          })
+                        ),
+                      })
+                    ),
                   })
                 )
                 .min(1)
@@ -240,7 +234,7 @@
                         l.parseString(e, function (e, a) {
                           var i
                           e && r(e)
-                          var c = {
+                          var s = {
                               coverage: o(o({}, a.coverage.$), {
                                 sources: { source: a.coverage.sources[0].source[0] },
                                 packages:
@@ -296,9 +290,9 @@
                                       }),
                               }),
                             },
-                            s = v.validate(c),
-                            l = s.error,
-                            u = s.value
+                            c = v.validate(s),
+                            l = c.error,
+                            u = c.value
                           if (l) throw l
                           t.updateMetrics(u), (t.data = u), n()
                         })
@@ -360,9 +354,9 @@
                   }),
                   e.coverage.packages.forEach(function (e) {
                     for (var o = [], r = e.name.split("."), a = 1; a < r.length; a++) {
-                      var c = r.slice(0, a).join("."),
-                        s = n[c]
-                      s && o.push(s)
+                      var s = r.slice(0, a).join("."),
+                        c = n[s]
+                      c && o.push(c)
                     }
                     var l = n[e.name]
                     l && o.push(l),
@@ -419,9 +413,9 @@
                   return e.name === t
                 })
                 a || ((a = { name: t, lines: [], functions: [] }), r.files.push(a))
-                var i = a.coverageData ? a.coverageData : s.CoverageData.fromCoberturaFile(a),
-                  c = s.CoverageData.fromString(n, o)
-                i.merge(c)
+                var i = a.coverageData ? a.coverageData : c.CoverageData.fromCoberturaFile(a),
+                  s = c.CoverageData.fromString(n, o)
+                i.merge(s)
                 var l = i.toCoberturaFile(),
                   u = l.functions,
                   d = l.lines
@@ -505,40 +499,40 @@
                   var t,
                     a,
                     i,
-                    c = e.split(",")
-                  switch (c[0]) {
+                    s = e.split(",")
+                  switch (s[0]) {
                     case "stmt":
-                      var s = r(c[3]),
-                        l = parseInt(c[2] || "")
-                      o.addCoverage(c[1] || "", {
+                      var c = r(s[3]),
+                        l = parseInt(s[2] || "")
+                      o.addCoverage(s[1] || "", {
                         type: "statement",
-                        line: parseInt(c[1] || ""),
+                        line: parseInt(s[1] || ""),
                         hits: l,
-                        hitsBySource: s || (n ? ((t = {}), (t[n] = l), t) : {}),
+                        hitsBySource: c || (n ? ((t = {}), (t[n] = l), t) : {}),
                       })
                       break
                     case "cond":
-                      ;(s = r(c[5])),
-                        (l = parseInt(c[2] || "")),
-                        o.addCoverage(c[1] || "", {
+                      ;(c = r(s[5])),
+                        (l = parseInt(s[2] || "")),
+                        o.addCoverage(s[1] || "", {
                           type: "branch",
-                          line: parseInt(c[1] || ""),
-                          hits: parseInt(c[2] || ""),
-                          coveredConditionals: parseInt(c[3] || ""),
-                          conditionals: parseInt(c[4] || ""),
-                          hitsBySource: s || (n ? ((a = {}), (a[n] = l), a) : {}),
+                          line: parseInt(s[1] || ""),
+                          hits: parseInt(s[2] || ""),
+                          coveredConditionals: parseInt(s[3] || ""),
+                          conditionals: parseInt(s[4] || ""),
+                          hitsBySource: c || (n ? ((a = {}), (a[n] = l), a) : {}),
                         })
                       break
                     case "func":
-                      ;(s = r(c[5])),
-                        (l = parseInt(c[2] || "")),
-                        o.addCoverage(c[1] || "", {
+                      ;(c = r(s[5])),
+                        (l = parseInt(s[2] || "")),
+                        o.addCoverage(s[1] || "", {
                           type: "function",
-                          line: parseInt(c[1] || ""),
-                          hits: parseInt(c[2] || ""),
-                          signature: c[3] || "",
-                          name: c[4] || "",
-                          hitsBySource: s || (n ? ((i = {}), (i[n] = l), i) : {}),
+                          line: parseInt(s[1] || ""),
+                          hits: parseInt(s[2] || ""),
+                          signature: s[3] || "",
+                          name: s[4] || "",
+                          hitsBySource: c || (n ? ((i = {}), (i[n] = l), i) : {}),
                         })
                   }
                 }),
@@ -701,19 +695,19 @@
               return new (n || (n = Promise))(function (r, a) {
                 function i(e) {
                   try {
-                    s(o.next(e))
-                  } catch (e) {
-                    a(e)
-                  }
-                }
-                function c(e) {
-                  try {
-                    s(o.throw(e))
+                    c(o.next(e))
                   } catch (e) {
                     a(e)
                   }
                 }
                 function s(e) {
+                  try {
+                    c(o.throw(e))
+                  } catch (e) {
+                    a(e)
+                  }
+                }
+                function c(e) {
                   var t
                   e.done
                     ? r(e.value)
@@ -722,9 +716,9 @@
                         ? t
                         : new n(function (e) {
                             e(t)
-                          })).then(i, c)
+                          })).then(i, s)
                 }
-                s((o = o.apply(e, t || [])).next())
+                c((o = o.apply(e, t || [])).next())
               })
             },
           a =
@@ -744,15 +738,15 @@
                   ops: [],
                 }
               return (
-                (a = { next: c(0), throw: c(1), return: c(2) }),
+                (a = { next: s(0), throw: s(1), return: s(2) }),
                 "function" == typeof Symbol &&
                   (a[Symbol.iterator] = function () {
                     return this
                   }),
                 a
               )
-              function c(a) {
-                return function (c) {
+              function s(a) {
+                return function (s) {
                   return (function (a) {
                     if (n) throw new TypeError("Generator is already executing.")
                     for (; i; )
@@ -815,7 +809,7 @@
                       }
                     if (5 & a[0]) throw a[1]
                     return { value: a[0] ? a[1] : void 0, done: !0 }
-                  })([a, c])
+                  })([a, s])
                 }
               }
             },
@@ -825,8 +819,8 @@
               return e && e.__esModule ? e : { default: e }
             }
         Object.defineProperty(t, "__esModule", { value: !0 }), (t.insertCoverageData = void 0)
-        var c = n(456),
-          s = n(93),
+        var s = n(456),
+          c = n(93),
           l = i(n(673))
         t.insertCoverageData = function (e, t, n) {
           return r(void 0, void 0, void 0, function () {
@@ -840,7 +834,7 @@
                     (d = []),
                     e.packages.forEach(function (e) {
                       return r(void 0, void 0, void 0, function () {
-                        var t, r, i, c, l, d, v, f, m, g, h, p, b, y, C, w, _, k
+                        var t, r, i, s, l, d, v, f, m, g, h, p, b, y, C, w, _, k
                         return a(this, function (a) {
                           return (
                             (t = e.name.length - e.name.replace(/\./g, "").length),
@@ -848,11 +842,11 @@
                               name: e.name,
                               statements:
                                 null !==
-                                  (c =
+                                  (s =
                                     null === (i = e.metrics) || void 0 === i
                                       ? void 0
-                                      : i.statements) && void 0 !== c
-                                  ? c
+                                      : i.statements) && void 0 !== s
+                                  ? s
                                   : 0,
                               conditionals:
                                 null !==
@@ -910,7 +904,7 @@
                                       : _.coveredelements) && void 0 !== k
                                   ? k
                                   : 0,
-                              coveredPercentage: s.coveredPercentage(e.metrics),
+                              coveredPercentage: c.coveredPercentage(e.metrics),
                               depth: t,
                             })),
                             u.push(r),
@@ -960,7 +954,7 @@
                                 C,
                                 w,
                                 _,
-                                k = c.CoverageData.fromCoberturaFile(n, t)
+                                k = s.CoverageData.fromCoberturaFile(n, t)
                               d.push({
                                 name: n.name,
                                 packageCoverageId: f[e.name],
@@ -1029,7 +1023,7 @@
                                         : w.elements) && void 0 !== _
                                     ? _
                                     : 0,
-                                coveredPercentage: s.coveredPercentage(n.metrics),
+                                coveredPercentage: c.coveredPercentage(n.metrics),
                               })
                             }),
                             [2]
@@ -1054,19 +1048,19 @@
               return new (n || (n = Promise))(function (r, a) {
                 function i(e) {
                   try {
-                    s(o.next(e))
-                  } catch (e) {
-                    a(e)
-                  }
-                }
-                function c(e) {
-                  try {
-                    s(o.throw(e))
+                    c(o.next(e))
                   } catch (e) {
                     a(e)
                   }
                 }
                 function s(e) {
+                  try {
+                    c(o.throw(e))
+                  } catch (e) {
+                    a(e)
+                  }
+                }
+                function c(e) {
                   var t
                   e.done
                     ? r(e.value)
@@ -1075,9 +1069,9 @@
                         ? t
                         : new n(function (e) {
                             e(t)
-                          })).then(i, c)
+                          })).then(i, s)
                 }
-                s((o = o.apply(e, t || [])).next())
+                c((o = o.apply(e, t || [])).next())
               })
             },
           r =
@@ -1097,15 +1091,15 @@
                   ops: [],
                 }
               return (
-                (a = { next: c(0), throw: c(1), return: c(2) }),
+                (a = { next: s(0), throw: s(1), return: s(2) }),
                 "function" == typeof Symbol &&
                   (a[Symbol.iterator] = function () {
                     return this
                   }),
                 a
               )
-              function c(a) {
-                return function (c) {
+              function s(a) {
+                return function (s) {
                   return (function (a) {
                     if (n) throw new TypeError("Generator is already executing.")
                     for (; i; )
@@ -1168,7 +1162,7 @@
                       }
                     if (5 & a[0]) throw a[1]
                     return { value: a[0] ? a[1] : void 0, done: !0 }
-                  })([a, c])
+                  })([a, s])
                 }
               }
             },
@@ -1179,8 +1173,8 @@
             }
         Object.defineProperty(t, "__esModule", { value: !0 }), (t.combineCoverageWorker = void 0)
         var i = n(606),
-          c = n(93),
-          s = n(115),
+          s = n(93),
+          c = n(115),
           l = n(4),
           u = n(686),
           d = a(n(673))
@@ -1211,13 +1205,13 @@
                 x,
                 I,
                 P,
-                M,
                 D,
+                M,
                 O,
                 B,
                 F,
-                q,
                 T,
+                q,
                 N,
                 W,
                 z,
@@ -1242,21 +1236,23 @@
                 re,
                 ae,
                 ie,
-                ce,
                 se,
-                le
-              return r(this, function (ue) {
-                switch (ue.label) {
+                ce,
+                le,
+                ue,
+                de
+              return r(this, function (ve) {
+                switch (ve.label) {
                   case 0:
                     ;(t = e.data),
                       (n = t.commit),
                       (a = t.testInstance),
                       (l = t.namespaceSlug),
                       (u = t.repositorySlug),
-                      (ue.label = 1)
+                      (ve.label = 1)
                   case 1:
                     return (
-                      ue.trys.push([1, 14, , 16]),
+                      ve.trys.push([1, 14, , 16]),
                       console.log("Executing combine coverage job"),
                       (v = d.default),
                       (f = null),
@@ -1264,13 +1260,13 @@
                         ? [
                             4,
                             v.test.findFirst({
-                              where: { id: null !== (k = a.testId) && void 0 !== k ? k : void 0 },
+                              where: { id: null !== (S = a.testId) && void 0 !== S ? S : void 0 },
                             }),
                           ]
                         : [3, 8]
                     )
                   case 2:
-                    if (!(f = ue.sent()))
+                    if (!(f = ve.sent()))
                       throw new Error("Cannot combine coverage for testInstance without a test")
                     return [
                       4,
@@ -1278,7 +1274,7 @@
                     ]
                   case 3:
                     if (
-                      ((m = ue.sent()),
+                      ((m = ve.sent()),
                       console.log(
                         "Total size of combinable data estimated at: " +
                           (m._sum.dataSize || 0) / 1024 / 1024 +
@@ -1304,7 +1300,7 @@
                     ]
                   case 4:
                     return (
-                      (g = ue.sent()),
+                      (g = ve.sent()),
                       (h = new i.CoberturaCoverage()),
                       console.log("Merging coverage information for all test instances"),
                       (p = 0),
@@ -1342,13 +1338,13 @@
                       ),
                       console.log(
                         "Test instance combination with previous test instances result: " +
-                          (null === (E = h.data.coverage.metrics) || void 0 === E
+                          (null === (j = h.data.coverage.metrics) || void 0 === j
                             ? void 0
-                            : E.coveredelements) +
+                            : j.coveredelements) +
                           "/" +
-                          (null === (S = h.data.coverage.metrics) || void 0 === S
+                          (null === (x = h.data.coverage.metrics) || void 0 === x
                             ? void 0
-                            : S.elements) +
+                            : x.elements) +
                           " covered based on " +
                           g.length +
                           " instances"
@@ -1358,7 +1354,7 @@
                     )
                   case 5:
                     return (
-                      ue.sent(),
+                      ve.sent(),
                       console.log("Updating coverage summary data for test"),
                       [
                         4,
@@ -1367,89 +1363,89 @@
                           data: {
                             statements:
                               null !==
-                                (x =
-                                  null === (j = h.data.coverage.metrics) || void 0 === j
-                                    ? void 0
-                                    : j.statements) && void 0 !== x
-                                ? x
-                                : 0,
-                            conditionals:
-                              null !==
                                 (P =
                                   null === (I = h.data.coverage.metrics) || void 0 === I
                                     ? void 0
-                                    : I.conditionals) && void 0 !== P
+                                    : I.statements) && void 0 !== P
                                 ? P
                                 : 0,
-                            methods:
+                            conditionals:
                               null !==
-                                (D =
-                                  null === (M = h.data.coverage.metrics) || void 0 === M
+                                (M =
+                                  null === (D = h.data.coverage.metrics) || void 0 === D
                                     ? void 0
-                                    : M.methods) && void 0 !== D
-                                ? D
+                                    : D.conditionals) && void 0 !== M
+                                ? M
                                 : 0,
-                            elements:
+                            methods:
                               null !==
                                 (B =
                                   null === (O = h.data.coverage.metrics) || void 0 === O
                                     ? void 0
-                                    : O.elements) && void 0 !== B
+                                    : O.methods) && void 0 !== B
                                 ? B
+                                : 0,
+                            elements:
+                              null !==
+                                (T =
+                                  null === (F = h.data.coverage.metrics) || void 0 === F
+                                    ? void 0
+                                    : F.elements) && void 0 !== T
+                                ? T
                                 : 0,
                             hits:
                               null !==
-                                (q =
-                                  null === (F = h.data.coverage.metrics) || void 0 === F
-                                    ? void 0
-                                    : F.hits) && void 0 !== q
-                                ? q
-                                : 0,
-                            coveredStatements:
-                              null !==
                                 (N =
-                                  null === (T = h.data.coverage.metrics) || void 0 === T
+                                  null === (q = h.data.coverage.metrics) || void 0 === q
                                     ? void 0
-                                    : T.coveredstatements) && void 0 !== N
+                                    : q.hits) && void 0 !== N
                                 ? N
                                 : 0,
-                            coveredConditionals:
+                            coveredStatements:
                               null !==
                                 (z =
                                   null === (W = h.data.coverage.metrics) || void 0 === W
                                     ? void 0
-                                    : W.coveredconditionals) && void 0 !== z
+                                    : W.coveredstatements) && void 0 !== z
                                 ? z
                                 : 0,
-                            coveredMethods:
+                            coveredConditionals:
                               null !==
                                 (R =
                                   null === ($ = h.data.coverage.metrics) || void 0 === $
                                     ? void 0
-                                    : $.coveredmethods) && void 0 !== R
+                                    : $.coveredconditionals) && void 0 !== R
                                 ? R
                                 : 0,
-                            coveredElements:
+                            coveredMethods:
                               null !==
                                 (L =
                                   null === (G = h.data.coverage.metrics) || void 0 === G
                                     ? void 0
-                                    : G.coveredelements) && void 0 !== L
+                                    : G.coveredmethods) && void 0 !== L
                                 ? L
                                 : 0,
-                            coveredPercentage: c.coveredPercentage(h.data.coverage.metrics),
+                            coveredElements:
+                              null !==
+                                (A =
+                                  null === (Q = h.data.coverage.metrics) || void 0 === Q
+                                    ? void 0
+                                    : Q.coveredelements) && void 0 !== A
+                                ? A
+                                : 0,
+                            coveredPercentage: s.coveredPercentage(h.data.coverage.metrics),
                           },
                         }),
                       ]
                     )
                   case 6:
                     return (
-                      ue.sent(),
+                      ve.sent(),
                       console.log("Inserting new package and file coverage for test"),
-                      [4, s.insertCoverageData(h.data.coverage, void 0, { testId: f.id })]
+                      [4, c.insertCoverageData(h.data.coverage, void 0, { testId: f.id })]
                     )
                   case 7:
-                    ue.sent(), (ue.label = 8)
+                    ve.sent(), (ve.label = 8)
                   case 8:
                     if (!n) throw Error("Cannot combine coverage without a commit")
                     return (
@@ -1465,13 +1461,15 @@
                     )
                   case 9:
                     return (
-                      (y = ue.sent()),
+                      (y = ve.sent()),
                       (C = {}),
                       y.forEach(function (e) {
                         C[e.testName] = e
                       }),
                       console.log("Found " + Object.keys(C).length + " tests to combine."),
                       (w = new i.CoberturaCoverage()),
+                      (_ = 0),
+                      (k = new Date()),
                       Object.values(C).forEach(function (e) {
                         return o(void 0, void 0, void 0, function () {
                           return r(this, function (t) {
@@ -1494,12 +1492,13 @@
                                       null === (n = t.FileCoverage) ||
                                         void 0 === n ||
                                         n.forEach(function (n) {
-                                          w.mergeCoverage(
-                                            t.name,
-                                            n.name,
-                                            n.coverageData,
-                                            e.testName
-                                          )
+                                          _++,
+                                            w.mergeCoverage(
+                                              t.name,
+                                              n.name,
+                                              n.coverageData,
+                                              e.testName
+                                            )
                                         }),
                                       [2]
                                     )
@@ -1513,14 +1512,21 @@
                       }),
                       w.updateMetrics(w.data),
                       console.log(
+                        "Combined coverage results for " +
+                          _ +
+                          " files in " +
+                          (new Date().getTime() - k.getTime()) +
+                          "ms"
+                      ),
+                      console.log(
                         "All test combination result " +
-                          (null === (Q = w.data.coverage.metrics) || void 0 === Q
+                          (null === (J = w.data.coverage.metrics) || void 0 === J
                             ? void 0
-                            : Q.coveredelements) +
+                            : J.coveredelements) +
                           "/" +
-                          (null === (A = w.data.coverage.metrics) || void 0 === A
+                          (null === (U = w.data.coverage.metrics) || void 0 === U
                             ? void 0
-                            : A.elements) +
+                            : U.elements) +
                           " covered"
                       ),
                       console.log("Deleting existing results for commit"),
@@ -1528,7 +1534,7 @@
                     )
                   case 10:
                     return (
-                      ue.sent(),
+                      ve.sent(),
                       console.log("Updating coverage summary data for commit", n.id),
                       [
                         4,
@@ -1537,90 +1543,90 @@
                           data: {
                             statements:
                               null !==
-                                (U =
-                                  null === (J = w.data.coverage.metrics) || void 0 === J
-                                    ? void 0
-                                    : J.statements) && void 0 !== U
-                                ? U
-                                : 0,
-                            conditionals:
-                              null !==
                                 (K =
                                   null === (H = w.data.coverage.metrics) || void 0 === H
                                     ? void 0
-                                    : H.conditionals) && void 0 !== K
+                                    : H.statements) && void 0 !== K
                                 ? K
                                 : 0,
-                            methods:
+                            conditionals:
                               null !==
                                 (X =
                                   null === (V = w.data.coverage.metrics) || void 0 === V
                                     ? void 0
-                                    : V.methods) && void 0 !== X
+                                    : V.conditionals) && void 0 !== X
                                 ? X
                                 : 0,
-                            elements:
+                            methods:
                               null !==
                                 (Z =
                                   null === (Y = w.data.coverage.metrics) || void 0 === Y
                                     ? void 0
-                                    : Y.elements) && void 0 !== Z
+                                    : Y.methods) && void 0 !== Z
                                 ? Z
                                 : 0,
-                            hits:
+                            elements:
                               null !==
                                 (te =
                                   null === (ee = w.data.coverage.metrics) || void 0 === ee
                                     ? void 0
-                                    : ee.hits) && void 0 !== te
+                                    : ee.elements) && void 0 !== te
                                 ? te
                                 : 0,
-                            coveredStatements:
+                            hits:
                               null !==
                                 (oe =
                                   null === (ne = w.data.coverage.metrics) || void 0 === ne
                                     ? void 0
-                                    : ne.coveredstatements) && void 0 !== oe
+                                    : ne.hits) && void 0 !== oe
                                 ? oe
                                 : 0,
-                            coveredConditionals:
+                            coveredStatements:
                               null !==
                                 (ae =
                                   null === (re = w.data.coverage.metrics) || void 0 === re
                                     ? void 0
-                                    : re.coveredconditionals) && void 0 !== ae
+                                    : re.coveredstatements) && void 0 !== ae
                                 ? ae
+                                : 0,
+                            coveredConditionals:
+                              null !==
+                                (se =
+                                  null === (ie = w.data.coverage.metrics) || void 0 === ie
+                                    ? void 0
+                                    : ie.coveredconditionals) && void 0 !== se
+                                ? se
                                 : 0,
                             coveredMethods:
                               null !==
-                                (ce =
-                                  null === (ie = w.data.coverage.metrics) || void 0 === ie
+                                (le =
+                                  null === (ce = w.data.coverage.metrics) || void 0 === ce
                                     ? void 0
-                                    : ie.coveredmethods) && void 0 !== ce
-                                ? ce
+                                    : ce.coveredmethods) && void 0 !== le
+                                ? le
                                 : 0,
                             coveredElements:
                               null !==
-                                (le =
-                                  null === (se = w.data.coverage.metrics) || void 0 === se
+                                (de =
+                                  null === (ue = w.data.coverage.metrics) || void 0 === ue
                                     ? void 0
-                                    : se.coveredelements) && void 0 !== le
-                                ? le
+                                    : ue.coveredelements) && void 0 !== de
+                                ? de
                                 : 0,
-                            coveredPercentage: c.coveredPercentage(w.data.coverage.metrics),
+                            coveredPercentage: s.coveredPercentage(w.data.coverage.metrics),
                           },
                         }),
                       ]
                     )
                   case 11:
                     return (
-                      ue.sent(),
+                      ve.sent(),
                       console.log("Inserting new package and file coverage for commit"),
-                      [4, s.insertCoverageData(w.data.coverage, void 0, { commitId: n.id })]
+                      [4, c.insertCoverageData(w.data.coverage, void 0, { commitId: n.id })]
                     )
                   case 12:
                     return (
-                      ue.sent(),
+                      ve.sent(),
                       [
                         4,
                         v.jobLog.create({
@@ -1642,10 +1648,10 @@
                       ]
                     )
                   case 13:
-                    return ue.sent(), [2, !0]
+                    return ve.sent(), [2, !0]
                   case 14:
                     return (
-                      (_ = ue.sent()),
+                      (E = ve.sent()),
                       [
                         4,
                         d.default.jobLog.create({
@@ -1657,13 +1663,13 @@
                               "Failure processing test instance " +
                               (null == a ? void 0 : a.id) +
                               ", error " +
-                              _.message,
+                              E.message,
                           },
                         }),
                       ]
                     )
                   case 15:
-                    return ue.sent(), [2, !1]
+                    return ve.sent(), [2, !1]
                   case 16:
                     return [2]
                 }
@@ -1686,19 +1692,19 @@
               return new (n || (n = Promise))(function (r, a) {
                 function i(e) {
                   try {
-                    s(o.next(e))
-                  } catch (e) {
-                    a(e)
-                  }
-                }
-                function c(e) {
-                  try {
-                    s(o.throw(e))
+                    c(o.next(e))
                   } catch (e) {
                     a(e)
                   }
                 }
                 function s(e) {
+                  try {
+                    c(o.throw(e))
+                  } catch (e) {
+                    a(e)
+                  }
+                }
+                function c(e) {
                   var t
                   e.done
                     ? r(e.value)
@@ -1707,9 +1713,9 @@
                         ? t
                         : new n(function (e) {
                             e(t)
-                          })).then(i, c)
+                          })).then(i, s)
                 }
-                s((o = o.apply(e, t || [])).next())
+                c((o = o.apply(e, t || [])).next())
               })
             },
           r =
@@ -1729,15 +1735,15 @@
                   ops: [],
                 }
               return (
-                (a = { next: c(0), throw: c(1), return: c(2) }),
+                (a = { next: s(0), throw: s(1), return: s(2) }),
                 "function" == typeof Symbol &&
                   (a[Symbol.iterator] = function () {
                     return this
                   }),
                 a
               )
-              function c(a) {
-                return function (c) {
+              function s(a) {
+                return function (s) {
                   return (function (a) {
                     if (n) throw new TypeError("Generator is already executing.")
                     for (; i; )
@@ -1800,7 +1806,7 @@
                       }
                     if (5 & a[0]) throw a[1]
                     return { value: a[0] ? a[1] : void 0, done: !0 }
-                  })([a, c])
+                  })([a, s])
                 }
               }
             },
@@ -1811,15 +1817,15 @@
             }
         Object.defineProperty(t, "__esModule", { value: !0 }), (t.uploadWorker = void 0)
         var i = n(115),
-          c = n(533),
-          s = n(4),
+          s = n(533),
+          c = n(4),
           l = a(n(673)),
           u = n(686)
         ;(t.uploadWorker = new u.Worker(
           "upload",
           function (e) {
             return o(void 0, void 0, void 0, function () {
-              var t, n, o, a, s, u, d, v, f, m
+              var t, n, o, a, c, u, d, v, f, m
               return r(this, function (r) {
                 switch (r.label) {
                   case 0:
@@ -1827,7 +1833,7 @@
                       (n = t.coverageFile),
                       (o = t.commit),
                       (a = t.test),
-                      (s = t.testInstance),
+                      (c = t.testInstance),
                       (u = t.namespaceSlug),
                       (d = t.repositorySlug),
                       (r.label = 1)
@@ -1843,7 +1849,7 @@
                       )
                     return (
                       console.log("Creating package and file information for test instance"),
-                      [4, i.insertCoverageData(f, a.testName, { testInstanceId: s.id })]
+                      [4, i.insertCoverageData(f, a.testName, { testInstanceId: c.id })]
                     )
                   case 2:
                     return (
@@ -1859,13 +1865,13 @@
                             message:
                               "Processed upload information for commit " +
                               o.ref.substr(0, 10) +
-                              (s ? " and test instance " + s.id + " and test" + a.testName : ""),
+                              (c ? " and test instance " + c.id + " and test" + a.testName : ""),
                           },
                         }),
                       ]
                     )
                   case 3:
-                    return r.sent(), c.combineCoverageJob(o, u, d, s), [3, 6]
+                    return r.sent(), s.combineCoverageJob(o, u, d, c), [3, 6]
                   case 4:
                     return (
                       (m = r.sent()),
@@ -1890,7 +1896,7 @@
               })
             })
           },
-          { connection: s.queueConfig, concurrency: 4 }
+          { connection: c.queueConfig, concurrency: 4 }
         )),
           t.uploadWorker.on("completed", function (e) {
             console.log(e.id + " has completed!")
@@ -1950,10 +1956,10 @@
         Object.defineProperty(t, "__esModule", { value: !0 })
         var a = n(21),
           i = n(212),
-          c = a.enhancePrisma(i.PrismaClient)
+          s = a.enhancePrisma(i.PrismaClient)
         r(n(212), t)
-        var s = new c({ log: [{ emit: "event", level: "query" }] })
-        t.default = s
+        var c = new s({ log: [{ emit: "event", level: "query" }] })
+        t.default = c
       },
       212: (e) => {
         e.exports = require("@prisma/client")

@@ -88,7 +88,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           ref: query.ref,
         },
       })
-      if (!branch) {
+      console.log("commit is", commit)
+      if (!commit) {
         console.log("creating commit")
         commit = await mydb.commit.create({
           data: {
@@ -97,7 +98,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         })
       }
 
-      if (!commit) throw new Error("No commit")
+      if (!commit) throw new Error("Could not create commit for ref " + query.ref)
 
       try {
         console.log("create commit on branch")

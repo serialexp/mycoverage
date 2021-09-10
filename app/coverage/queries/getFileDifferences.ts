@@ -41,8 +41,8 @@ export default async function getFileDifferences(
         const nextFile = nextPackage.FileCoverage.find((p) => p.name === baseFile.name)
         if (nextFile && baseFile.coveredPercentage !== nextFile.coveredPercentage) {
           changedFiles.push({
-            base: baseFile,
-            next: nextFile,
+            base: { ...baseFile, name: basePackage.name + "." + baseFile.name },
+            next: { ...nextFile, name: nextPackage.name + "." + nextFile.name },
           })
         }
       })
@@ -61,13 +61,14 @@ export default async function getFileDifferences(
             baseFile.elements !== nextFile.elements)
         ) {
           changedFiles.push({
-            base: baseFile,
-            next: nextFile,
+            base: { ...baseFile, name: basePackage?.name + "." + baseFile.name },
+            next: { ...nextFile, name: nextPackage.name + "." + nextFile.name },
           })
         } else if (!baseFile) {
+          nextFile.name = nextPackage.name + "." + nextFile.name
           changedFiles.push({
             base: undefined,
-            next: nextFile,
+            next: { ...nextFile, name: nextPackage.name + "." + nextFile.name },
           })
         }
       })

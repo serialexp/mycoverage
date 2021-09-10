@@ -1,5 +1,8 @@
 import getFileDifferences from "app/coverage/queries/getFileDifferences"
 import getTest from "app/coverage/queries/getTest"
+import { Actions } from "app/library/components/Actions"
+import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
 import { Test, FileCoverage } from "db"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
@@ -18,7 +21,7 @@ import {
 } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
-import { Heading, Table, Td, Tr } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
@@ -32,19 +35,18 @@ const RowItem = (diff: Diff) => {
 
   return (
     <Tr>
-      <Td>{diff.next.name}</Td>
+      <Td wordBreak={"break-all"}>{diff.next.name}</Td>
       <Td isNumeric>
+        {diff.base ? format.format(diff.base.coveredPercentage) : "?"}%<br />
         {diff.base?.coveredElements} / {diff.base?.elements}
       </Td>
       <Td>&raquo;</Td>
       <Td isNumeric>
+        {format.format(diff.next.coveredPercentage)}%<br />
         {diff.next.coveredElements} / {diff.next.elements}
       </Td>
-      <Td isNumeric>{diff.base ? format.format(diff.base.coveredPercentage) : "?"}%</Td>
-      <Td>&raquo;</Td>
-      <Td isNumeric>{format.format(diff.next.coveredPercentage)}%</Td>
       <Td isNumeric></Td>
-      <Td>
+      <Td isNumeric>
         <StatArrow type={isIncrease ? "increase" : "decrease"} />{" "}
         {diff.next?.coveredPercentage ? format.format(calculateChange(diff)) + "%" : "-"}
       </Td>
@@ -72,21 +74,26 @@ const CompareTestPage: BlitzPage = () => {
   })
 
   return groupId && projectId ? (
-    <Box m={2}>
+    <>
       <Heading>Comparing differences in {test?.testName}</Heading>
-      <Link href={Routes.ProjectPage({ groupId, projectId })}>
-        <Button>To project</Button>
-      </Link>
-      <Box mt={4}>Found {fileDifferences?.length} file differences.</Box>
-      <Heading mt={4} size={"md"}>
+      <Actions>
+        <Link href={Routes.ProjectPage({ groupId, projectId })}>
+          <Button>To project</Button>
+        </Link>
+      </Actions>
+      <Box m={4}>Found {fileDifferences?.length} file differences.</Box>
+      <Subheading mt={4} size={"md"}>
         Coverage Decreased
-      </Heading>
-      <Table>
+      </Subheading>
+      <Table size={"sm"}>
         <Tr>
-          <Th>Filename</Th>
-          <Th colspan={3}>Elements</Th>
-          <Th colspan={3}>Coverage</Th>
-          <Th colspan={2}>Difference</Th>
+          <Th width={"50%"}>Filename</Th>
+          <Th isNumeric colspan={3}>
+            Coverage
+          </Th>
+          <Th isNumeric colspan={2}>
+            Difference
+          </Th>
         </Tr>
         {fileDifferences
           ?.filter((diff) => calculateChange(diff) <= 0)
@@ -94,15 +101,18 @@ const CompareTestPage: BlitzPage = () => {
             return <RowItem key={i} base={diff.base} next={diff.next} />
           })}
       </Table>
-      <Heading mt={4} size={"md"}>
+      <Subheading mt={4} size={"md"}>
         Coverage Increased
-      </Heading>
+      </Subheading>
       <Table>
         <Tr>
-          <Th>Filename</Th>
-          <Th colspan={3}>Elements</Th>
-          <Th colspan={3}>Coverage</Th>
-          <Th colspan={2}>Difference</Th>
+          <Th width={"50%"}>Filename</Th>
+          <Th isNumeric colspan={3}>
+            Coverage
+          </Th>
+          <Th isNumeric colspan={2}>
+            Difference
+          </Th>
         </Tr>
         {fileDifferences
           ?.filter((diff) => calculateChange(diff) > 0)
@@ -110,7 +120,7 @@ const CompareTestPage: BlitzPage = () => {
             return <RowItem key={i} base={diff.base} next={diff.next} />
           })}
       </Table>
-    </Box>
+    </>
   ) : null
 }
 

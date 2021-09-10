@@ -12,8 +12,8 @@ const prisma = new EnhancedPrisma({
     },
   ],
 })
-// prisma.$on("query", async (e: any) => {
-//   console.log(`${e.query} ${e.params}`)
-// });
+prisma.$on("query", async (e: any) => {
+  console.log(`${e.query} ${e.params}`)
+})
 
 export default prisma
