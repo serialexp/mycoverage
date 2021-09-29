@@ -116,9 +116,10 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         }
       }
 
+      console.log("should update default?", project.defaultBaseBranch, branch.name)
       if (project.defaultBaseBranch == branch.name) {
         console.log("update last commit id")
-        mydb.project.update({
+        await mydb.project.update({
           data: {
             lastCommitId: commit.id || null,
           },
