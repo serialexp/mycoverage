@@ -58,7 +58,7 @@ export const uploadWorker = new Worker<{
       console.error(error)
       await db.jobLog.create({
         data: {
-          name: "combinecoverage",
+          name: "processupload",
           namespace: namespaceSlug,
           repository: repositorySlug,
           message: "Failure processing " + error.message,

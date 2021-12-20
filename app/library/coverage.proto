@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package coverage;
+
+message Coverage {
+  string awesome_field = 1;
+}

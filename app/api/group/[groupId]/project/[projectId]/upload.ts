@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { slugify } from "app/library/slugify"
 import { uploadJob, uploadQueue } from "app/queues/UploadQueue"
 import { BlitzApiRequest, BlitzApiResponse } from "blitz"
 import db from "db"
 import { fixQuery } from "../../../../../library/fixQuery"
+import { S3 } from "aws-sdk"
 
 export default async function handler(req: BlitzApiRequest, res: BlitzApiResponse) {
   if (req.headers["content-type"] !== "application/xml") {
@@ -59,6 +61,28 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("No coverage data posted")
       }
 
+      console.log("uploading to s3")
+      const s3 = new S3({})
+      await s3
+        .putObject({
+          Bucket: process.env.S3_BUCKET || "",
+          Key:
+            process.env.S3_KEY_PREFIX +
+            group.slug +
+            "/" +
+            project.slug +
+            "/" +
+            query.ref +
+            "/instance-" +
+            query.testName +
+            "-" +
+            new Date().getTime() +
+            ".xml",
+          Body: req.body,
+        })
+        .promise()
+      console.log("uploaded")
+
       console.log("parse file")
       const coverageFile = new CoberturaCoverage()
       await coverageFile.init(req.body)
@@ -68,7 +92,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       let branch = await mydb.branch.findFirst({
         where: {
           projectId: project.id,
-          name: query.branch,
+          slug: slugify(query.branch),
         },
       })
       if (!branch) {
@@ -76,6 +100,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         branch = await mydb.branch.create({
           data: {
             name: query.branch,
+            slug: slugify(query.branch),
             projectId: project.id,
             baseBranch: query.baseBranch ?? project.defaultBaseBranch,
           },
@@ -94,6 +119,16 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         commit = await mydb.commit.create({
           data: {
             ref: query.ref,
+            message: query.message,
+          },
+        })
+      } else if (query.message) {
+        await mydb.commit.update({
+          where: {
+            id: commit.id,
+          },
+          data: {
+            message: query.message,
           },
         })
       }
@@ -166,9 +201,21 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
 
       console.log(req.headers)
       console.log("create test instance")
+
+      const testInstanceIndex = query.index
+        ? parseInt(query.index)
+        : Math.floor(Math.random() * 1000000)
+
+      // let testInstance = await mydb.testInstance.find({
+      //   where: {
+      //     testId: test.id,
+      //     index: testInstanceIndex
+      //   }
+      // })
+
       const testInstance = await mydb.testInstance.create({
         data: {
-          index: query.index ? parseInt(query.index) : Math.floor(Math.random() * 1000000),
+          index: testInstanceIndex,
           testId: test.id,
           statements: covInfo.metrics.statements,
           conditionals: covInfo.metrics.conditionals,
@@ -232,6 +279,14 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       }
     } catch (error) {
       console.error(error)
+      await db.jobLog.create({
+        data: {
+          name: "upload",
+          namespace: query.groupId,
+          repository: query.projectId,
+          message: "Failure uploading " + error.message,
+        },
+      })
       res.status(500).json({
         error: error.details
           ? {

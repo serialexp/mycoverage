@@ -31,7 +31,9 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
           <StatHelpText>
             <DiffHelper
               from={props.baseMetrics?.coveredPercentage}
-              to={props.baseMetrics?.coveredPercentage}
+              to={props.metrics?.coveredPercentage}
+              fromAbsolute={props.baseMetrics?.coveredPercentage}
+              isPercentage={true}
             />
           </StatHelpText>
         </Stat>
@@ -77,25 +79,11 @@ export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics
       </Flex>
       <Flex m={4}>
         <Stat>
-          {props.metrics.blockerSonarIssues &&
-          props.metrics.criticalSonarIssues &&
-          props.metrics.majorSonarIssues &&
-          props.metrics.minorSonarIssues &&
-          props.metrics.infoSonarIssues ? (
-            <>
-              <StatLabel>Issues</StatLabel>
-              <StatNumber>{format.format(combineIssueCount(props.metrics))}</StatNumber>
-              <StatHelpText>
-                {props.baseMetrics ? (
-                  <DiffHelper
-                    from={combineIssueCount(props.baseMetrics)}
-                    to={combineIssueCount(props.metrics)}
-                    fromAbsolute={combineIssueCount(props.baseMetrics)}
-                  />
-                ) : null}
-              </StatHelpText>
-            </>
-          ) : null}
+          <StatLabel>Total Covered</StatLabel>
+          <StatNumber>
+            {format.format(props.metrics.coveredElements)}/{format.format(props.metrics.elements)}
+          </StatNumber>
+          <StatHelpText></StatHelpText>
         </Stat>
         <Stat>
           <StatLabel>Total Statements</StatLabel>

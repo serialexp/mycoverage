@@ -1,14 +1,16 @@
 import combineCoverage from "app/coverage/mutations/combineCoverage"
+import getMergeBase from "app/coverage/queries/getMergeBase"
 import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Subheading } from "app/library/components/Subheading"
 import { TestResults } from "app/library/components/TestResults"
 import { format } from "app/library/format"
+import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import { Box, Button, Link as ChakraLink, Th } from "@chakra-ui/react"
+import { Alert, AlertIcon, AlertTitle, Box, Button, Link as ChakraLink, Th } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
@@ -17,12 +19,18 @@ import { FaClock } from "react-icons/fa"
 const BranchPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
-  const branchId = useParam("branchId", "string")
+  const branchSlug = useParam("branchId", "string")
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: branchId,
+    branch: branchSlug,
+  })
+  const [mergeBase] = useQuery(getMergeBase, {
+    groupName: groupId,
+    projectName: project?.slug,
+    branchName: buildInfo.branch?.name,
+    baseBranch: buildInfo.branch?.baseBranch,
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
@@ -30,12 +38,12 @@ const BranchPage: BlitzPage = () => {
   })
   const [combineCoverageMutation] = useMutation(combineCoverage)
 
-  return groupId && projectId && branchId ? (
+  return groupId && projectId && branchSlug ? (
     <>
       <Heading>{buildInfo?.branch?.name}</Heading>
       <Actions>
         <Link href={Routes.ProjectPage({ groupId, projectId })}>
-          <Button>To project</Button>
+          <Button>Back</Button>
         </Link>
 
         <Link
@@ -50,8 +58,17 @@ const BranchPage: BlitzPage = () => {
           </Button>
         </Link>
 
-        <Link href={Routes.CompareBranchPage({ groupId, projectId, branchId })}>
-          <Button ml={2}>Compare to base</Button>
+        <Link
+          href={Routes.CompareBranchPage({
+            groupId,
+            projectId,
+            branchId: branchSlug,
+            baseCommitRef: mergeBase || "",
+          })}
+        >
+          <Button ml={2} isDisabled={!mergeBase}>
+            Compare
+          </Button>
         </Link>
 
         <Button
@@ -88,6 +105,14 @@ const BranchPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results
       </Subheading>
+      {!satisfiesExpectedResults(buildInfo?.lastCommit, project?.ExpectedResult || []) ? (
+        <Box p={2}>
+          <Alert status={"error"}>
+            <AlertIcon />
+            <AlertTitle>Build not yet complete</AlertTitle>
+          </Alert>
+        </Box>
+      ) : null}
       <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
       <Subheading mt={4} size={"md"}>
         Recent Commits
@@ -96,7 +121,8 @@ const BranchPage: BlitzPage = () => {
         <Tr>
           <Th>Commit</Th>
           <Th>Received Date</Th>
-          <Th>Tests</Th>
+          <Th isNumeric>Tests</Th>
+          <Th></Th>
           <Th isNumeric>Coverage</Th>
         </Tr>
         {buildInfo?.commits?.map((commit) => {
@@ -104,11 +130,14 @@ const BranchPage: BlitzPage = () => {
             <Tr key={commit.id} _hover={{ bg: "primary.50" }}>
               <Td>
                 <Link href={Routes.CommitPage({ groupId, projectId, commitRef: commit.ref })}>
-                  <ChakraLink color={"blue.500"}>{commit.ref}</ChakraLink>
+                  <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
                 </Link>
               </Td>
               <Td>{commit.createdDate.toLocaleString()}</Td>
-              <Td>{commit._count?.Test}</Td>
+              <Td isNumeric>{commit._count?.Test}</Td>
+              <Td isNumeric>
+                {format.format(commit.coveredElements)}/{format.format(commit.elements)}
+              </Td>
               <Td isNumeric>{format.format(commit.coveredPercentage)}%</Td>
             </Tr>
           )

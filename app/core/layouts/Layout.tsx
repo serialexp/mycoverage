@@ -24,7 +24,12 @@ const Layout = ({ title, children }: LayoutProps) => {
           </ChakraLink>
         </Link>
         <Link href={Routes.Logs()}>
-          <ChakraLink color={"secondary"}>Logs</ChakraLink>
+          <ChakraLink mr={4} color={"secondary"}>
+            Logs
+          </ChakraLink>
+        </Link>
+        <Link href={Routes.SettingsPage()}>
+          <ChakraLink color={"secondary"}>Settings</ChakraLink>
         </Link>
       </Container>
       <Container p={0} bg={"white"} maxW={"container.lg"}>

@@ -11,6 +11,16 @@ export default async function getCommit(args: { commitRef?: string }, { session 
           branch: true,
         },
       },
+      Test: {
+        include: {
+          _count: {
+            select: { TestInstance: true },
+          },
+        },
+        orderBy: {
+          createdDate: "desc",
+        },
+      },
     },
   })
 }

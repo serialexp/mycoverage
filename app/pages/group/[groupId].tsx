@@ -1,6 +1,7 @@
 import { Box, Table, Td, Tr, Link as ChakraLink, Button, Th } from "@chakra-ui/react"
 import { Actions } from "app/library/components/Actions"
 import { Heading } from "app/library/components/Heading"
+import { Minibar } from "app/library/components/Minbar"
 import { format } from "app/library/format"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams } from "blitz"
@@ -27,6 +28,7 @@ const GroupPage: BlitzPage = () => {
           <Th>Repository Name</Th>
           <Th>Last Commit</Th>
           <Th>Commit Time</Th>
+          <Th>Elements</Th>
           <Th isNumeric>Percentage Covered</Th>
         </Tr>
         {projects.map((p) => {
@@ -42,8 +44,9 @@ const GroupPage: BlitzPage = () => {
 
               <Td>{p.lastCommit ? <>{p.lastCommit?.ref.substr(0, 12)}</> : null}</Td>
               <Td>{p.lastCommit ? <>{p.lastCommit?.createdDate.toLocaleString()}</> : null}</Td>
+              <Td isNumeric>{format.format(p.lastCommit?.elements)}</Td>
               <Td isNumeric>
-                {p.lastCommit ? <>{format.format(p.lastCommit?.coveredPercentage)}%</> : null}
+                {p.lastCommit ? <Minibar progress={p.lastCommit?.coveredPercentage / 100} /> : null}
               </Td>
             </Tr>
           )

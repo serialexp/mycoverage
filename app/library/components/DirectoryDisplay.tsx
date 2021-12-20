@@ -1,4 +1,4 @@
-import { Link as ChakraLink } from "@chakra-ui/react"
+import { Input, Link as ChakraLink } from "@chakra-ui/react"
 import { Box, Button, Heading, Table, Td, Tr } from "@chakra-ui/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import getFiles from "app/coverage/queries/getFiles"
@@ -8,7 +8,7 @@ import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
 import { Subheading } from "app/library/components/Subheading"
-import { Link, Routes, RouteUrlObject, useParam, useQuery } from "blitz"
+import { Link, Router, Routes, RouteUrlObject, useParam, useQuery } from "blitz"
 import { PackageCoverage } from "db"
 
 export const DirectoryDisplay = (props: {
@@ -40,12 +40,28 @@ export const DirectoryDisplay = (props: {
             <Button>Back</Button>
           </Link>
         ) : (
-          <Link href={props.route(path.slice(0, path.length - 1))}>
-            <Button variantColor={"blue"}>Back</Button>
-          </Link>
+          <>
+            <Link href={props.backRoute()}>
+              <Button>Back to top</Button>
+            </Link>
+            <Link href={props.route(path.slice(0, path.length - 1))}>
+              <Button ml={2} variantColor={"blue"}>
+                Back
+              </Button>
+            </Link>
+          </>
         )}
       </Actions>
-
+      <Box p={2}>
+        <Input
+          placeholder={"Jump to path"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              Router.push(props.route(e.currentTarget.value.split("/")))
+            }
+          }}
+        />
+      </Box>
       {props.pack ? (
         <>
           <Subheading mt={4} size={"md"}>

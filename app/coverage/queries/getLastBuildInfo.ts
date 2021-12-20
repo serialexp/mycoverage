@@ -6,19 +6,19 @@ export default async function getLastBuildInfo(
   { session }: Ctx
 ) {
   if (!args.projectId) return { branch: undefined, lastCommit: undefined }
-  let branchName
+  let branchSlug
   if (args.branch) {
-    branchName = args.branch
+    branchSlug = args.branch
   } else {
     const project = await db.project.findFirst({
       where: { id: args.projectId },
     })
 
-    branchName = project?.defaultBaseBranch
+    branchSlug = project?.defaultBaseBranch
   }
 
   const branch = await db.branch.findFirst({
-    where: { projectId: args.projectId, name: branchName },
+    where: { projectId: args.projectId, slug: branchSlug },
   })
 
   const commit = await db.commit.findFirst({
@@ -29,7 +29,7 @@ export default async function getLastBuildInfo(
         },
       },
     },
-    orderBy: { updatedDate: "desc" },
+    orderBy: { createdDate: "desc" },
     include: {
       Test: {
         include: {
@@ -52,10 +52,15 @@ export default async function getLastBuildInfo(
         },
       },
     },
-    orderBy: { updatedDate: "desc" },
+    orderBy: { createdDate: "desc" },
     include: {
       _count: {
         select: { Test: true },
+      },
+      branches: {
+        include: {
+          branch: true,
+        },
       },
     },
     take: 10,

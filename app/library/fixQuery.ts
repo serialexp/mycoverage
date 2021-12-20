@@ -1,6 +1,6 @@
-import { BlitzApiRequest, Dict } from "blitz"
+import { BlitzApiRequest } from "blitz"
 
-export function fixQuery(query: BlitzApiRequest["query"] | Dict<string | string[]>) {
+export function fixQuery(query: BlitzApiRequest["query"]) {
   const result: { [key: string]: string | undefined } = {}
 
   Object.keys(query).forEach((key) => {

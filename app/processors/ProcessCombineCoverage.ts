@@ -16,11 +16,11 @@ export const combineCoverageWorker = new Worker<{
   "combinecoverage",
   async (job) => {
     const { commit, testInstance, namespaceSlug, repositorySlug } = job.data
+    let test: Test | null = null
     try {
       console.log("Executing combine coverage job")
       const mydb: PrismaClient = db
 
-      let test: Test | null = null
       if (testInstance) {
         test = await mydb.test.findFirst({
           where: {
@@ -87,11 +87,16 @@ export const combineCoverageWorker = new Worker<{
           instance.PackageCoverage.forEach(async (pkg) => {
             pkg.FileCoverage?.forEach((file) => {
               fileCounter++
-              testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData, test?.testName)
+              testCoverage.mergeCoverageString(
+                pkg.name,
+                file.name,
+                file.coverageData,
+                test?.testName
+              )
             })
           })
         })
-        testCoverage.updateMetrics(testCoverage.data)
+        CoberturaCoverage.updateMetrics(testCoverage.data)
 
         console.log(
           "Combined coverage results for " +
@@ -190,11 +195,12 @@ export const combineCoverageWorker = new Worker<{
         test.PackageCoverage.forEach(async (pkg) => {
           pkg.FileCoverage?.forEach((file) => {
             fileCounter++
-            coverage.mergeCoverage(pkg.name, file.name, file.coverageData, test.testName)
+            coverage.mergeCoverageString(pkg.name, file.name, file.coverageData, test.testName)
           })
         })
       })
-      coverage.updateMetrics(coverage.data)
+
+      CoberturaCoverage.updateMetrics(coverage.data)
 
       console.log(
         "Combined coverage results for " +
@@ -265,7 +271,13 @@ export const combineCoverageWorker = new Worker<{
           namespace: namespaceSlug,
           repository: repositorySlug,
           message:
-            "Failure processing test instance " + testInstance?.id + ", error " + error.message,
+            "Failure processing test instance " +
+            commit.ref.substr(0, 10) +
+            (testInstance
+              ? " and test instance " + testInstance.id + " for test " + test?.testName
+              : "") +
+            ", error " +
+            error.message,
         },
       })
       return false

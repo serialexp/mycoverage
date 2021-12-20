@@ -2,6 +2,7 @@ import getCommit from "app/coverage/queries/getCommit"
 import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
+import { PackageFileTable } from "app/library/components/PackageFileTable"
 import { Subheading } from "app/library/components/Subheading"
 import { Suspense } from "react"
 import {
@@ -39,23 +40,20 @@ const TestPage: BlitzPage = () => {
   const [commit] = useQuery(getCommit, { commitRef: test?.commit.ref || "" })
   const [packages] = useQuery(getPackagesForTest, { testId: testId || 0, path: undefined })
 
-  console.log(packages)
-
   return test && testId && projectId && groupId ? (
     <>
       <Heading color={"blue.500"}>
-        Test result &apos;{test?.testName}&apos; for {test?.commit.ref.substr(0, 10)} on{" "}
-        {commit?.branches[0]?.branch.name}
+        Test result &apos;{test?.testName}&apos; for {test?.commit.ref.substr(0, 10)}
       </Heading>
       <Actions>
         <Link
-          href={Routes.BranchPage({
+          href={Routes.CommitPage({
             groupId,
             projectId,
-            branchId: commit?.branches[0]?.branch.name || "",
+            commitRef: commit?.ref || "",
           })}
         >
-          <Button>To branch</Button>
+          <Button>To commit</Button>
         </Link>
       </Actions>
       <Subheading mt={4} size={"md"}>
@@ -63,32 +61,26 @@ const TestPage: BlitzPage = () => {
       </Subheading>
       <CoverageSummary metrics={test} />
       <Subheading size={"md"}>Files</Subheading>
-      <Table>
-        {packages?.map((pack) => {
-          return (
-            <Tr key={pack.id}>
-              <Td>
-                <Link
-                  href={Routes.TestFilesPage({
-                    groupId,
-                    projectId,
-                    testId,
-                    path: pack.name.split("."),
-                  })}
-                >
-                  <ChakraLink color={"blue.500"}>{pack.name}</ChakraLink>
-                </Link>
-              </Td>
-              <Td isNumeric={true}>
-                {pack.coveredElements} / {pack.elements}
-              </Td>
-              <Td width={"10%"} isNumeric={true}>
-                {Math.round(pack.coveredPercentage) + "%"}
-              </Td>
-            </Tr>
-          )
-        })}
-      </Table>
+      <PackageFileTable
+        packages={packages}
+        files={[]}
+        fileRoute={(parts) =>
+          Routes.TestFilesPage({
+            groupId,
+            projectId,
+            testId,
+            path: parts,
+          })
+        }
+        dirRoute={(parts) =>
+          Routes.TestFilesPage({
+            groupId,
+            projectId,
+            testId,
+            path: parts,
+          })
+        }
+      />
     </>
   ) : null
 }

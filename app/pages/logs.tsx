@@ -1,8 +1,9 @@
-import { Box, Table, Td, Tr, Link as ChakraLink } from "@chakra-ui/react"
+import { Box, Table, Td, Tr, Link as ChakraLink, Input } from "@chakra-ui/react"
 import getLogs from "app/coverage/queries/getLogs"
 import { Heading } from "app/library/components/Heading"
 import { Link, BlitzPage, useMutation, Routes, useQuery } from "blitz"
 import Layout from "app/core/layouts/Layout"
+import { useState } from "react"
 import packageConfig from "../../package.json"
 
 /*
@@ -11,11 +12,27 @@ import packageConfig from "../../package.json"
  */
 
 const Logs: BlitzPage = () => {
-  const [logs] = useQuery(getLogs, null)
+  const [filter, setFilter] = useState("")
+  const [logs] = useQuery(getLogs, {
+    filter: filter,
+  })
 
   return (
     <>
       <Heading>Logs</Heading>
+      <Box p={4}>
+        <Input
+          placeholder={"Filter"}
+          onBlur={(e) => {
+            setFilter(e.currentTarget.value)
+          }}
+          onKeyDown={(e) => {
+            if (e.code == "Enter") {
+              setFilter(e.currentTarget.value)
+            }
+          }}
+        />
+      </Box>
       <Table size="sm">
         {logs.map((g) => {
           return (

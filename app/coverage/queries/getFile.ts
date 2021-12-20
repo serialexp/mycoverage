@@ -11,6 +11,12 @@ export default async function getFile(
       packageCoverageId: args.packageCoverageId,
       name: args.fileName,
     },
-    take: 30,
+    include: {
+      CodeIssueOnFileCoverage: {
+        include: {
+          codeIssue: true,
+        },
+      },
+    },
   })
 }

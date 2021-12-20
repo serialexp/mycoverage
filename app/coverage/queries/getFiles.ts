@@ -7,6 +7,6 @@ export default async function getFiles(args: { packageCoverageId: number }, { se
     where: {
       packageCoverageId: args.packageCoverageId,
     },
-    take: 30,
+    take: 3000,
   })
 }

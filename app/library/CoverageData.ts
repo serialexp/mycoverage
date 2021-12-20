@@ -47,10 +47,20 @@ export class CoverageData {
     const line = this.coverage[lineNr]
     if (line) {
       line.push(data)
+      line.sort((a, b) => {
+        const res = a.type.localeCompare(b.type)
+        if (res === 0 && a.type === "function" && b.type === "function") {
+          return a.name.localeCompare(b.name)
+        }
+        return res
+      })
     }
   }
 
-  static fromCoberturaFile(file: CoberturaFile, source?: string): CoverageData {
+  static fromCoberturaFile(
+    file: Omit<CoberturaFile, "coverageData">,
+    source?: string
+  ): CoverageData {
     const data = new CoverageData()
 
     file.lines?.forEach((line) => {
@@ -59,8 +69,8 @@ export class CoverageData {
           type: "branch",
           line: line.number,
           hits: line.hits,
-          conditionals: line.conditions,
-          coveredConditionals: line.coveredConditions,
+          conditionals: line.conditions ? line.conditions : 0,
+          coveredConditionals: line.coveredConditions ? line.coveredConditions : 0,
           hitsBySource: source
             ? {
                 [source]: line.hits,
@@ -114,7 +124,7 @@ export class CoverageData {
 
     const lines = str.split("\n")
     lines.forEach((line) => {
-      const fields = line.split(",")
+      const fields = line.trim().split(",")
       switch (fields[0]) {
         case "stmt": {
           const hitsBySource = getHitsBySource(fields[3])
@@ -179,31 +189,33 @@ export class CoverageData {
     const functions: CoberturaFunction[] = []
 
     Object.keys(this.coverage)?.forEach((lineNr) => {
-      this.coverage[lineNr]?.forEach((line) => {
-        const type = this.typeToStringMap[line.type]
-        if (line.type === "statement") {
-          lines.push({
-            branch: false,
-            number: line.line,
-            hits: line.hits,
-          })
-        } else if (line.type === "branch") {
-          lines.push({
-            branch: true,
-            number: line.line,
-            hits: line.hits,
-            conditions: line.conditionals,
-            coveredConditions: line.coveredConditionals,
-          })
-        } else if (line.type === "function") {
-          functions.push({
-            name: line.name,
-            number: line.line,
-            hits: line.hits,
-            signature: line.signature,
-          })
-        }
-      })
+      this.coverage[lineNr]
+        ?.sort((a, b) => a.type.localeCompare(b.type))
+        .forEach((line) => {
+          const type = this.typeToStringMap[line.type]
+          if (line.type === "statement") {
+            lines.push({
+              branch: false,
+              number: line.line,
+              hits: line.hits,
+            })
+          } else if (line.type === "branch") {
+            lines.push({
+              branch: true,
+              number: line.line,
+              hits: line.hits,
+              conditions: line.conditionals,
+              coveredConditions: line.coveredConditionals,
+            })
+          } else if (line.type === "function") {
+            functions.push({
+              name: line.name,
+              number: line.line,
+              hits: line.hits,
+              signature: line.signature,
+            })
+          }
+        })
     })
 
     return {
@@ -218,6 +230,7 @@ export class CoverageData {
       this.coverage[lineNr]?.forEach((line) => {
         const type = this.typeToStringMap[line.type]
         const hitsBySource = Object.keys(line.hitsBySource)
+          .sort((a, b) => a.localeCompare(b))
           .map((k) => {
             return k + "=" + line.hitsBySource[k]
           })
@@ -266,12 +279,22 @@ export class CoverageData {
 
       if (newItems && existingItems) {
         newItems?.forEach((newItem) => {
-          const existingItem = existingItems.find((i) => i.type === newItem.type)
+          let existingItem
+          if (newItem.type === "function" && newItem.name) {
+            existingItem = existingItems.find(
+              (i) => i.type === newItem.type && i.name === newItem.name
+            )
+          } else if (newItem.type === "function") {
+            existingItem = existingItems.find((i) => i.type === newItem.type)
+          } else {
+            existingItem = existingItems.find((i) => i.type === newItem.type)
+          }
+
           if (existingItem) {
             Object.keys(newItem.hitsBySource).forEach((key) => {
               const val = newItem.hitsBySource[key]
-              if (val) {
-                existingItem.hitsBySource[key] = val
+              if (val !== undefined) {
+                existingItem.hitsBySource[key] = (existingItem.hitsBySource[key] || 0) + val
               }
             })
             existingItem.hits = existingItem.hits + newItem.hits
@@ -280,6 +303,7 @@ export class CoverageData {
                 existingItem.coveredConditionals,
                 newItem.coveredConditionals
               )
+              existingItem.conditionals = Math.max(existingItem.conditionals, newItem.conditionals)
             }
           } else {
             this.addCoverage(lineNr, newItem)

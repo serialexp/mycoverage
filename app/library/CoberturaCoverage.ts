@@ -48,22 +48,20 @@ export interface CoberturaFunction {
 export interface CoberturaFile {
   name: string
   filename?: string
-  "line-rate"?: string
-  "branch-rate"?: string
+  "line-rate"?: number
+  "branch-rate"?: number
   metrics?: Metrics
-  lines?: (CoberturaLine | CoberturaBranchLine)[]
-  functions?: CoberturaFunction[]
-  coverageData?: CoverageData
+  lines: (CoberturaLine | CoberturaBranchLine)[]
+  functions: CoberturaFunction[]
+  coverageData: CoverageData
 }
 
 export interface CoberturaFileFormat {
   coverage: {
     "lines-valid"?: number
     "lines-covered"?: number
-    "line-rate"?: number
     "branches-valid"?: number
     "branches-covered"?: number
-    "branch-rate"?: number
     timestamp?: number
     complexity?: number
     version: string
@@ -73,8 +71,6 @@ export interface CoberturaFileFormat {
     metrics?: Metrics
     packages: {
       name: string
-      "line-rate"?: string
-      "branch-rate"?: string
       metrics?: Metrics
       files: CoberturaFile[]
     }[]
@@ -111,16 +107,13 @@ const schema = Joi.object({
       .items(
         Joi.object({
           name: Joi.string(),
-          "line-rate": Joi.number(),
-          "branch-rate": Joi.number(),
           metrics: joiMetrics,
           files: Joi.array().items(
             Joi.object({
               name: Joi.string(),
               filename: Joi.string(),
-              "line-rate": Joi.number(),
-              "branch-rate": Joi.number(),
               metrics: joiMetrics,
+              coverageData: Joi.any(),
               lines: Joi.array().items(
                 Joi.object({
                   branch: Joi.boolean(),
@@ -160,7 +153,7 @@ export class CoberturaCoverage {
     }
   }
 
-  async init(data: string): Promise<void> {
+  async init(data: string, source?: string): Promise<void> {
     return new Promise((resolve, reject) => {
       parseString(data, (err, result) => {
         if (err) {
@@ -168,19 +161,15 @@ export class CoberturaCoverage {
         }
 
         // transform data to remove all '$' attribute properties.
-        const newData: CoberturaFileFormat = {
-          coverage: {
-            ...result.coverage["$"],
-            sources: {
-              source: result.coverage.sources[0].source[0],
-            },
-            packages: result.coverage.packages[0].package?.map((pack) => {
-              return {
-                ...pack["$"],
-                files: pack.classes[0]["class"]?.map((file) => {
-                  return {
-                    ...file["$"],
-                    lines: file.lines[0]?.line?.map((l) => {
+        const packages = result.coverage.packages[0].package?.map((pack) => {
+          const packData = {
+            ...pack["$"],
+            files: pack.classes[0]["class"]
+              ?.map((file) => {
+                const fileData = {
+                  ...file["$"],
+                  lines:
+                    file.lines[0]?.line?.map((l) => {
                       const args = l["$"]
                       if (args["condition-coverage"]) {
                         const matches = /\(([0-9]+\/[0-9]+)\)/.exec(args["condition-coverage"])
@@ -191,20 +180,66 @@ export class CoberturaCoverage {
                         }
                         //delete args["condition-coverage"]
                       }
-                      return {
-                        ...args,
+
+                      if (args.branch === "true") {
+                        return {
+                          hits: parseInt(args.hits),
+                          number: parseInt(args.number),
+                          branch: true,
+                          conditions: args.conditions ? parseInt(args.conditions) : undefined,
+                          coveredConditions: args.coveredConditions
+                            ? parseInt(args.coveredConditions)
+                            : undefined,
+                          "condition-coverage": args["condition-coverage"],
+                        }
+                      } else {
+                        return {
+                          hits: parseInt(args.hits),
+                          number: parseInt(args.number),
+                          branch: false,
+                        }
                       }
-                    }),
-                    functions: file.methods[0]?.method?.map((meth) => {
-                      return {
+                    }) || [],
+                  functions:
+                    file.methods[0]?.method?.map((meth) => {
+                      const funcData = {
                         ...meth["$"],
                         ...meth.lines[0].line[0]["$"],
                       }
-                    }),
-                  }
-                }),
-              }
-            }),
+                      return {
+                        name: funcData.name,
+                        hits: parseInt(funcData.hits),
+                        signature: funcData.signature,
+                        number: parseInt(funcData.number),
+                      }
+                    }) || [],
+                }
+                delete fileData["line-rate"]
+                delete fileData["branch-rate"]
+                return {
+                  ...fileData,
+                  coverageData: CoverageData.fromCoberturaFile(fileData, source),
+                }
+              })
+              .sort((a, b) => {
+                return a.name.localeCompare(b.name)
+              }),
+          }
+          delete packData["line-rate"]
+          delete packData["branch-rate"]
+          return packData
+        })
+        packages.sort((a, b) => {
+          return a.name.localeCompare(b.name)
+        })
+
+        const newData: CoberturaFileFormat = {
+          coverage: {
+            ...result.coverage["$"],
+            sources: {
+              source: result.coverage.sources[0].source[0],
+            },
+            packages,
           },
         }
 
@@ -214,7 +249,7 @@ export class CoberturaCoverage {
           throw error
         }
 
-        this.updateMetrics(value)
+        CoberturaCoverage.updateMetrics(value)
 
         // value.coverage.packages.forEach((pack) => {
         //   if (pack.name === "src.containers.SubscriberSearch.common.Popup") {
@@ -229,7 +264,7 @@ export class CoberturaCoverage {
     })
   }
 
-  updateMetrics(coberturaFile: CoberturaFileFormat) {
+  static updateMetrics(coberturaFile: CoberturaFileFormat) {
     const createDefaultMetrics = (): Metrics => {
       return {
         elements: 0,
@@ -254,7 +289,7 @@ export class CoberturaCoverage {
 
     coberturaFile.coverage.packages.forEach((pack) => {
       // create intermediate packages
-      const parts = pack.name.split(".")
+      const parts = pack.name.includes(".") ? pack.name.split(".") : [pack.name]
       for (let i = 1; i < parts.length; i++) {
         const name = parts.slice(0, i).join(".")
 
@@ -264,8 +299,6 @@ export class CoberturaCoverage {
 
           coberturaFile.coverage.packages.push({
             name: name,
-            "line-rate": "0",
-            "branch-rate": "0",
             files: [],
             metrics: packageMetrics[name],
           })
@@ -273,17 +306,26 @@ export class CoberturaCoverage {
       }
     })
 
+    // sort again after adding intermediate packages for metrics
+    coberturaFile.coverage.packages.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    })
+
+    const results: any[] = []
+
     coberturaFile.coverage.packages.forEach((pack) => {
       const relevantPackages: Metrics[] = []
-      const parts = pack.name.split(".")
+      const relevantPackageNames: string[] = []
+      const parts = pack.name.includes(".") ? pack.name.split(".") : [pack.name]
       for (let i = 1; i < parts.length; i++) {
         const name = parts.slice(0, i).join(".")
-
+        relevantPackageNames.push(name)
         const m = packageMetrics[name]
         if (m) {
           relevantPackages.push(m)
         }
       }
+      relevantPackageNames.push(pack.name)
       const m = packageMetrics[pack.name]
       if (m) {
         relevantPackages.push(m)
@@ -292,6 +334,7 @@ export class CoberturaCoverage {
       pack.files.forEach((file) => {
         const fileMetrics = (file.metrics = createDefaultMetrics())
 
+        const original = packageMetrics["src"]?.elements
         file.lines?.forEach((line) => {
           ;[globalMetrics, ...relevantPackages, fileMetrics].forEach((metrics) => {
             if (line.branch) {
@@ -326,18 +369,41 @@ export class CoberturaCoverage {
             }
           })
         })
+        // if (pack.name + file.name === "src.utils.common_functionsuuid.ts") {
+        //   // console.log(
+        //   //   "elements",
+        //   //   file.functions.filter((l) => l.hits > 0),
+        //   //   file.lines.filter((l) => l.hits > 0)
+        //   // )
+        //   results.push({
+        //     name: pack.name + file.name,
+        //     funcs: file.functions,
+        //     lines: file.lines,
+        //   })
+        // }
+        // const after = packageMetrics["src"]?.elements
+        // results.push({
+        //   name: pack.name + "-" + file.name,
+        //   original,
+        //   after,
+        // })
       })
     })
 
-    return coberturaFile
+    return results
   }
 
-  public mergeCoverage(
+  public mergeCoverageString(
     packageName: string,
     fileName: string,
-    coverageData: string,
+    stringCoverageData: string,
     source?: string
   ) {
+    const coverageData = CoverageData.fromString(stringCoverageData, source)
+    this.mergeCoverage(packageName, fileName, coverageData)
+  }
+
+  public mergeCoverage(packageName: string, fileName: string, coverageData: CoverageData) {
     let pkg = this.data.coverage.packages.find((p) => p.name === packageName)
 
     if (!pkg) {
@@ -345,30 +411,59 @@ export class CoberturaCoverage {
         name: packageName,
         files: [],
       }
+
       this.data.coverage.packages.push(pkg)
+      this.data.coverage.packages.sort((a, b) => {
+        return a.name.localeCompare(b.name)
+      })
     }
 
     let file = pkg.files.find((f) => f.name === fileName)
     if (!file) {
+      // if file does not exist yet, we don't need to merge anything, just make a new file for the current coverage
+      // data
       file = {
         name: fileName,
         lines: [],
         functions: [],
+        coverageData: coverageData,
       }
       pkg.files.push(file)
+      pkg.files.sort((a, b) => {
+        return a.name.localeCompare(b.name)
+      })
+
+      const { functions, lines } = coverageData.toCoberturaFile()
+
+      file.lines = lines
+      file.functions = functions
+
+      // if (packageName === "src.utils.common_functions" && fileName === "uuid.ts") {
+      //   console.log("after create", coverageData.coverage[106])
+      // }
+    } else {
+      if (!file.coverageData) {
+        console.log("no coverage data")
+        throw new Error("No coverage data defined on file to merge")
+      }
+
+      const currentCoverage = file.coverageData
+      const newCoverage = coverageData
+
+      // if (packageName === "src.utils.common_functions" && fileName === "uuid.ts") {
+      //   console.log("current", currentCoverage.coverage[106], "new", newCoverage.coverage[106])
+      // }
+
+      currentCoverage.merge(newCoverage)
+
+      // if (packageName === "src.utils.common_functions" && fileName === "uuid.ts") {
+      //   console.log("after merge", currentCoverage.coverage[106])
+      // }
+
+      const { functions, lines } = currentCoverage.toCoberturaFile()
+
+      file.lines = lines
+      file.functions = functions
     }
-
-    const currentCoverage = file.coverageData
-      ? file.coverageData
-      : CoverageData.fromCoberturaFile(file)
-    const newCoverage = CoverageData.fromString(coverageData, source)
-
-    currentCoverage.merge(newCoverage)
-
-    const { functions, lines } = currentCoverage.toCoberturaFile()
-
-    file.lines = lines
-    file.functions = functions
-    file.coverageData = currentCoverage
   }
 }

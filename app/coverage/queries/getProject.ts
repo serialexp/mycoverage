@@ -25,6 +25,7 @@ export default async function getProject(args: { projectSlug?: string }, { sessi
         },
         take: 10,
       },
+      ExpectedResult: true,
     },
   })
 }
