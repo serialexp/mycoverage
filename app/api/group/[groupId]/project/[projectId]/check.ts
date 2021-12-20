@@ -4,6 +4,7 @@ import { coveredPercentage } from "app/library/coveredPercentage"
 import { format } from "app/library/format"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { getSetting } from "app/library/setting"
+import { slugify } from "app/library/slugify"
 import { uploadJob, uploadQueue } from "app/queues/UploadQueue"
 import { BlitzApiRequest, BlitzApiResponse } from "blitz"
 import db from "db"
@@ -64,7 +65,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       console.log("find branch")
       let branch = await mydb.branch.findFirst({
         where: {
-          name: query.branch,
+          slug: slugify(query.branch),
         },
       })
 
@@ -88,8 +89,10 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
             include: {
               Test: {
                 include: {
-                  _count: {
-                    select: { TestInstance: true },
+                  TestInstance: {
+                    select: {
+                      index: true,
+                    },
                   },
                 },
               },
@@ -111,7 +114,19 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           branchId: baseBranch?.id,
         },
         include: {
-          commit: true,
+          commit: {
+            include: {
+              Test: {
+                include: {
+                  TestInstance: {
+                    select: {
+                      index: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         orderBy: {
           commit: {
@@ -130,7 +145,14 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
 
         const failedStatus = project.requireCoverageIncrease ? 400 : 200
 
-        if (!satisfiesExpectedResults(commit, project.ExpectedResult)) {
+        if (!satisfiesExpectedResults(baseCommit, project.ExpectedResult).isOk) {
+          res.status(failedStatus).json({
+            code: "BASE_TEST_NOT_COMPLETED",
+            message: `The tests for the merge base commit of (${commit.ref.substr(0, 10)}) on ${
+              baseBranch?.name
+            } are not yet complete.`,
+          })
+        } else if (!satisfiesExpectedResults(commit, project.ExpectedResult).isOk) {
           res.status(failedStatus).json({
             code: "TEST_NOT_COMPLETED",
             message: `The tests for the latest commit (${commit.ref.substr(0, 10)}) on ${

@@ -13,8 +13,10 @@ export default async function getCommit(args: { commitRef?: string }, { session 
       },
       Test: {
         include: {
-          _count: {
-            select: { TestInstance: true },
+          TestInstance: {
+            select: {
+              index: true,
+            },
           },
         },
         orderBy: {

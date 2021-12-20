@@ -23,8 +23,10 @@ export default async function getRecentCommits(
     include: {
       Test: {
         include: {
-          _count: {
-            select: { TestInstance: true },
+          TestInstance: {
+            select: {
+              index: true,
+            },
           },
         },
       },

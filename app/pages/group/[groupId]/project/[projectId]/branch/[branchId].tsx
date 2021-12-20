@@ -1,6 +1,9 @@
+import { WarningIcon } from "@chakra-ui/icons"
 import combineCoverage from "app/coverage/mutations/combineCoverage"
 import getMergeBase from "app/coverage/queries/getMergeBase"
+import getRecentCommits from "app/coverage/queries/getRecentCommits"
 import { Actions } from "app/library/components/Actions"
+import { BuildStatus } from "app/library/components/BuildStatus"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Subheading } from "app/library/components/Subheading"
@@ -14,7 +17,7 @@ import { Alert, AlertIcon, AlertTitle, Box, Button, Link as ChakraLink, Th } fro
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
-import { FaClock } from "react-icons/fa"
+import { FaCheck, FaClock } from "react-icons/fa"
 
 const BranchPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
@@ -35,6 +38,10 @@ const BranchPage: BlitzPage = () => {
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
     branch: buildInfo?.branch?.baseBranch,
+  })
+  const [recentCommits] = useQuery(getRecentCommits, {
+    projectId: project?.id,
+    branch: buildInfo.branch?.name,
   })
   const [combineCoverageMutation] = useMutation(combineCoverage)
 
@@ -105,7 +112,7 @@ const BranchPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results
       </Subheading>
-      {!satisfiesExpectedResults(buildInfo?.lastCommit, project?.ExpectedResult || []) ? (
+      {!satisfiesExpectedResults(buildInfo?.lastCommit, project?.ExpectedResult || []).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />
@@ -113,19 +120,25 @@ const BranchPage: BlitzPage = () => {
           </Alert>
         </Box>
       ) : null}
-      <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
+      <TestResults
+        groupId={groupId}
+        projectId={projectId}
+        branchSlug={branchSlug}
+        commit={buildInfo?.lastCommit}
+      />
       <Subheading mt={4} size={"md"}>
         Recent Commits
       </Subheading>
       <Table>
         <Tr>
           <Th>Commit</Th>
+          <Th>Message</Th>
           <Th>Received Date</Th>
           <Th isNumeric>Tests</Th>
           <Th></Th>
           <Th isNumeric>Coverage</Th>
         </Tr>
-        {buildInfo?.commits?.map((commit) => {
+        {recentCommits?.map((commit) => {
           return (
             <Tr key={commit.id} _hover={{ bg: "primary.50" }}>
               <Td>
@@ -133,8 +146,11 @@ const BranchPage: BlitzPage = () => {
                   <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
                 </Link>
               </Td>
+              <Td>{commit.message}</Td>
               <Td>{commit.createdDate.toLocaleString()}</Td>
-              <Td isNumeric>{commit._count?.Test}</Td>
+              <Td isNumeric>
+                <BuildStatus commit={commit} expectedResults={project?.ExpectedResult} />
+              </Td>
               <Td isNumeric>
                 {format.format(commit.coveredElements)}/{format.format(commit.elements)}
               </Td>

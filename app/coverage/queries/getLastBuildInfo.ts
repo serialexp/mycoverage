@@ -33,8 +33,10 @@ export default async function getLastBuildInfo(
     include: {
       Test: {
         include: {
-          _count: {
-            select: { TestInstance: true },
+          TestInstance: {
+            select: {
+              index: true,
+            },
           },
         },
         orderBy: {

@@ -15,7 +15,7 @@ const RowItem = (props: Diff & { link?: (path?: string) => RouteUrlObject }) => 
       <Td wordBreak={"break-all"}>
         {props.link ? (
           <Link href={props.link(props.next?.name)} passHref={true}>
-            <ChakraLink>{props.next?.name}</ChakraLink>
+            <ChakraLink color="blue.500">{props.next?.name}</ChakraLink>
           </Link>
         ) : (
           props.next?.name
@@ -115,7 +115,7 @@ export const CoverageDifferences = (props: {
       <Subheading mt={4} size={"md"}>
         Coverage Increased
       </Subheading>
-      <Table>
+      <Table size={"sm"}>
         <Tr>
           <Th width={"60%"}>Filename</Th>
           <Th isNumeric colspan={3}>

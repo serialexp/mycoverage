@@ -8,10 +8,8 @@ import { Commit, Test } from "db"
 export const TestResults = (props: {
   groupId: string
   projectId: string
-  commit:
-    | (Commit & { Test: (Test & { _count: { TestInstance: number } | null })[] })
-    | null
-    | undefined
+  branchSlug: string
+  commit: (Commit & { Test: (Test & { TestInstance: { index: number }[] })[] }) | null | undefined
 }) => {
   return (
     <Table>
@@ -35,6 +33,7 @@ export const TestResults = (props: {
                   href={Routes.TestPage({
                     groupId: props.groupId,
                     projectId: props.projectId,
+                    branchId: props.branchSlug,
                     testId: test.id,
                   })}
                 >
@@ -42,7 +41,7 @@ export const TestResults = (props: {
                 </Link>
               </Td>
               <Td>{test.createdDate.toLocaleString()}</Td>
-              <Td isNumeric>{test._count?.TestInstance}</Td>
+              <Td isNumeric>{test.TestInstance.length}</Td>
               <Td isNumeric>
                 {format.format(test.coveredStatements)}/{format.format(test.statements)}
               </Td>

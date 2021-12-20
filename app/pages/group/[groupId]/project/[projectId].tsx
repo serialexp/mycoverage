@@ -1,5 +1,6 @@
 import getRecentCommits from "app/coverage/queries/getRecentCommits"
 import { Actions } from "app/library/components/Actions"
+import { BuildStatus } from "app/library/components/BuildStatus"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Minibar } from "app/library/components/Minbar"
@@ -74,7 +75,7 @@ const ProjectPage: BlitzPage = () => {
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
       <Subheading>Test results</Subheading>
-      {!satisfiesExpectedResults(buildInfo?.lastCommit, project.ExpectedResult) ? (
+      {!satisfiesExpectedResults(buildInfo?.lastCommit, project.ExpectedResult).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />
@@ -111,7 +112,7 @@ const ProjectPage: BlitzPage = () => {
                   <Tag key={b.branch.id} mr={2} mb={2}>
                     <Link
                       passHref={true}
-                      href={Routes.BranchPage({ groupId, projectId, branchId: b.branch.name })}
+                      href={Routes.BranchPage({ groupId, projectId, branchId: b.branch.slug })}
                     >
                       <ChakraLink color={"blue.500"}>{b.branch.name}</ChakraLink>
                     </Link>
@@ -120,13 +121,7 @@ const ProjectPage: BlitzPage = () => {
               </Td>
               <Td>{format.format(combineIssueCount(commit))}</Td>
               <Td>
-                {format.format(commit.Test.length)}&nbsp; [
-                {commit.Test.map((value) => value?._count?.TestInstance).join(",")}]
-                {!satisfiesExpectedResults(commit, project.ExpectedResult) ? (
-                  <Box display={"inline-block"} title={"Build not yet complete"} color={"red.500"}>
-                    <WarningIcon />
-                  </Box>
-                ) : null}
+                <BuildStatus commit={commit} expectedResults={project?.ExpectedResult} />
               </Td>
               <Td>
                 <Minibar progress={commit.coveredPercentage / 100} />

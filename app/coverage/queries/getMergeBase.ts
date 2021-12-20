@@ -9,7 +9,7 @@ export default async function getMergeBase(
   args: { groupName?: string; projectName?: string; branchName?: string; baseBranch?: string },
   { session }: Ctx
 ): Promise<string | null> {
-  if (!args.groupName || !args.projectName || !args.branchName) {
+  if (!args.groupName || !args.projectName || !args.branchName || !args.baseBranch) {
     return null
   }
 

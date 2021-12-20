@@ -56,7 +56,7 @@ const CommitPage: BlitzPage = () => {
           href={Routes.BranchPage({
             groupId,
             projectId,
-            branchId: commit.branches[0]?.branch.name || "",
+            branchId: commit.branches[0]?.branch.slug || "",
           })}
         >
           <Button>Back</Button>
@@ -108,7 +108,7 @@ const CommitPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results
       </Subheading>
-      {!satisfiesExpectedResults(commit, project.ExpectedResult) ? (
+      {!satisfiesExpectedResults(commit, project.ExpectedResult).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />
