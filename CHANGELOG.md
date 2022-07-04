@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/Aeolun/mycoverage/compare/v1.4.0...v1.4.1) (2022-07-04)
+
+
+### Bug Fixes
+
+* push to github when release is made ([b1e1f9e](https://github.com/Aeolun/mycoverage/commit/b1e1f9e134c15d5d8465f65913bb09f9cb33c8e4))
+
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
