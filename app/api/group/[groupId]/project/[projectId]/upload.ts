@@ -12,6 +12,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
   if (req.headers["content-type"] !== "application/xml") {
     return res.status(400).send("Content type must be application/xml")
   }
+  const startTime = new Date()
   console.log("serving upload")
   const query = fixQuery(req.query)
   if (query.projectId && query.branch && query.testName && query.ref) {
@@ -85,7 +86,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
 
       console.log("parse file")
       const coverageFile = new CoberturaCoverage()
-      await coverageFile.init(req.body)
+      await coverageFile.init(req.body, {})
 
       console.log("finding branch")
 
@@ -243,18 +244,29 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           branchId: branch.id,
         },
         include: {
-          commit: true,
+          Commit: true,
         },
         orderBy: {
-          commit: {
+          Commit: {
             createdDate: "desc",
           },
         },
       })
-      const baseCommit = firstCommit?.commit
+      const baseCommit = firstCommit?.Commit
 
       console.log("create uploadjob")
       uploadJob(coverageFile, commit, test, testInstance, group.slug, project.slug)
+
+      await db.jobLog.create({
+        data: {
+          name: "upload",
+          commitRef: query.ref,
+          namespace: query.groupId,
+          repository: query.projectId,
+          message: `Success uploading for ${query.testName}:${query.index}`,
+          timeTaken: new Date().getTime() - startTime.getTime(),
+        },
+      })
 
       if (baseBranch && baseCommit) {
         console.log("compare commits")
@@ -282,9 +294,11 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       await db.jobLog.create({
         data: {
           name: "upload",
+          commitRef: query.ref,
           namespace: query.groupId,
           repository: query.projectId,
           message: "Failure uploading " + error.message,
+          timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
       res.status(500).json({
@@ -299,7 +313,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     }
   } else {
     console.log("done")
-    res.status(400).send("Missing either branch, ref or testName parameter")
+    res.status(400).send({ message: "Missing either branch, ref or testName parameter", query })
   }
 }
 

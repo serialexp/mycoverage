@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import getFiles from "app/coverage/queries/getFiles"
 import getPackagesForCommit from "app/coverage/queries/getPackagesForCommit"
 import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
+import getPackagesForTestInstance from "app/coverage/queries/getPackagesForTestInstance"
 import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
@@ -24,13 +25,24 @@ export const DirectoryDisplay = (props: {
     testId: props.pack.testId ?? undefined,
     path: path?.join("."),
   })
+  const [packagesForTestInstance] = useQuery(getPackagesForTestInstance, {
+    testInstanceId: props.pack.testInstanceId ?? undefined,
+    path: path?.join("."),
+  })
   const [packagesForCommit] = useQuery(getPackagesForCommit, {
     commitId: props.pack.commitId ?? undefined,
     path: path?.join("."),
   })
   const [files] = useQuery(getFiles, { packageCoverageId: props.pack.id })
 
-  const packages = packagesForTest.length === 0 ? packagesForCommit : packagesForTest
+  console.log(packagesForCommit, packagesForTest, packagesForTestInstance)
+
+  const packages =
+    packagesForCommit.length > 0
+      ? packagesForCommit
+      : packagesForTest.length > 0
+      ? packagesForTest
+      : packagesForTestInstance
 
   return groupId && projectId && path ? (
     <>

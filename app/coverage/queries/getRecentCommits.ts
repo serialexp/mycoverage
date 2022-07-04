@@ -8,9 +8,9 @@ export default async function getRecentCommits(
   if (!args.projectId) return null
   return db.commit.findMany({
     where: {
-      branches: {
+      CommitOnBranch: {
         some: {
-          branch: {
+          Branch: {
             projectId: args.projectId,
             name: args.branch,
           },
@@ -30,9 +30,9 @@ export default async function getRecentCommits(
           },
         },
       },
-      branches: {
+      CommitOnBranch: {
         include: {
-          branch: true,
+          Branch: true,
         },
       },
     },

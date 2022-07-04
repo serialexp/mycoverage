@@ -1,5 +1,6 @@
 import { paginate, resolver } from "blitz"
-import db, { Prisma } from "db"
+import db from "db"
+import type { Prisma } from "db"
 
 interface GetBranchesInput
   extends Pick<Prisma.BranchFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}

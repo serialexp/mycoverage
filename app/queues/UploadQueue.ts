@@ -1,4 +1,5 @@
 import { CoberturaCoverage, CloverMetrics } from "app/library/CoberturaCoverage"
+import { SourceHits } from "app/library/types"
 import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
 import { Queue } from "bullmq"

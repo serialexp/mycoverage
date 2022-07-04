@@ -35,12 +35,17 @@ export const FileDisplay = (props: {
     path: (test?.repositoryRoot ?? "") + path?.join("/"),
   })
 
+  const [showRaw, setShowRaw] = useState(false)
+
   return groupId && projectId && packagePath ? (
     <>
       <Actions>
         <Link href={props.route(packagePath)}>
           <Button variantColor={"blue"}>Back</Button>
         </Link>
+        <Button ml={2} onClick={() => setShowRaw(!showRaw)}>
+          Show Raw
+        </Button>
       </Actions>
       <Box p={2}>
         <Input
@@ -59,7 +64,7 @@ export const FileDisplay = (props: {
           }}
         />
       </Box>
-      <FileCoverageDisplay isShowRaw={false} fileData={fileData} file={file} />
+      <FileCoverageDisplay isShowRaw={showRaw} fileData={fileData} file={file} />
     </>
   ) : (
     <>

@@ -6,16 +6,18 @@ export default async function getCommit(args: { commitRef?: string }, { session 
   return db.commit.findFirst({
     where: { ref: args.commitRef },
     include: {
-      branches: {
+      CommitOnBranch: {
         include: {
-          branch: true,
+          Branch: true,
         },
       },
       Test: {
         include: {
           TestInstance: {
             select: {
+              id: true,
               index: true,
+              createdDate: true,
             },
           },
         },

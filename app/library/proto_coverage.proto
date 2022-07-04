@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+message Coverage {
+  repeated string sources = 1;
+  repeated LineInformation line_info = 2;
+}
+
+message LineInformation {
+  enum LineType {
+    STATEMENT = 0;
+    BRANCH = 1;
+    FUNCTION = 2;
+  }
+  LineType type = 1;
+  int32 hits = 2;
+  int32 branches = 3;
+  int32 covered_branches = 4;
+  repeated HitsBySource hits_by_source = 5;
+  int32 line_number = 6;
+}
+
+message HitsBySource {
+  int32 source_index = 1;
+  repeated int32 hits = 2;
+}

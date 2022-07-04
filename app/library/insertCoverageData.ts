@@ -2,19 +2,33 @@ import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage, CoberturaFile } from "app/library/CoberturaCoverage"
 import { CoverageData } from "app/library/CoverageData"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { SourceHits } from "app/library/types"
 import db, { Commit, Test, TestInstance } from "db"
 
 export const insertCoverageData = async (
   covInfo: CoberturaCoverage["data"]["coverage"],
-  source: string | undefined,
   where: { commitId: number } | { testInstanceId: number } | { testId: number }
 ) => {
   const mydb: PrismaClient = db
 
   const packageDatas: any[] = []
-  const fileDatas: any[] = []
+  const fileDatas: {
+    name: string
+    statements: number
+    packageCoverageId?: number
+    conditionals: number
+    methods: number
+    hits: number
+    coveredStatements: number
+    coveredConditionals: number
+    coveredMethods: number
+    coveredElements: number
+    elements: number
+    coveredPercentage: number
+    coverageData: Buffer
+  }[] = []
 
-  covInfo.packages.forEach(async (pkg) => {
+  for (const pkg of covInfo.packages) {
     const depth = pkg.name.length - pkg.name.replace(/\./g, "").length
     const packageData = {
       ...where,
@@ -32,12 +46,13 @@ export const insertCoverageData = async (
       depth,
     }
     packageDatas.push(packageData)
-  })
+  }
   console.log("Creating all packages")
   const packageCoverage = await mydb.packageCoverage.createMany({
     data: packageDatas,
   })
-  console.log("Retrieving created package ids")
+  console.log("Retrieving created package ids", where)
+
   const packagesCoverages = await mydb.packageCoverage.findMany({
     select: {
       id: true,
@@ -51,10 +66,10 @@ export const insertCoverageData = async (
   packagesCoverages.forEach((coverage) => {
     packageCoverageIds[coverage.name] = coverage.id
   })
-  console.log("Creating file coverage data")
-  covInfo.packages.forEach(async (pkg) => {
-    pkg.files.forEach((file) => {
-      const coverageData = CoverageData.fromCoberturaFile(file, source)
+  console.log("Converting coverage data to insert format")
+  for (const pkg of covInfo.packages) {
+    for (const file of pkg.files) {
+      const coverageData = new CoverageData(file.coverageData.coverage)
       fileDatas.push({
         name: file.name,
         packageCoverageId: packageCoverageIds[pkg.name],
@@ -65,15 +80,35 @@ export const insertCoverageData = async (
         coveredStatements: file.metrics?.coveredstatements ?? 0,
         coveredConditionals: file.metrics?.coveredconditionals ?? 0,
         coveredMethods: file.metrics?.coveredmethods ?? 0,
-        coverageData: coverageData.toString(),
+        coverageData: Buffer.from(coverageData.toProtobuf()),
         coveredElements: file.metrics?.coveredelements ?? 0,
         elements: file.metrics?.elements ?? 0,
         coveredPercentage: coveredPercentage(file.metrics),
       })
-    })
-  })
+    }
+  }
   console.log("Inserting file coverage data")
-  const fileCoverage = await mydb.fileCoverage.createMany({
-    data: fileDatas,
+  // limit the amount of data per insert since mysql doesn't like too much data (binary coverage info is big) in one insert
+  const maxDataPerInsert = 3_000_000
+  let currentBatchSize = 0
+  let currentBatch: any[] = []
+  for (let i = 0; i < fileDatas.length; i++) {
+    const item = fileDatas[i]!
+    if (currentBatchSize + item.coverageData.byteLength < maxDataPerInsert) {
+      currentBatch.push(item)
+      currentBatchSize += item.coverageData.byteLength
+    } else {
+      await mydb.fileCoverage.createMany({
+        data: currentBatch,
+      })
+      console.log("Inserted coverage data for " + currentBatch.length + " items")
+      currentBatch = [item]
+      currentBatchSize = item.coverageData.byteLength
+    }
+  }
+  // make sure last items are inserted
+  await mydb.fileCoverage.createMany({
+    data: currentBatch,
   })
+  console.log("Inserted coverage data for " + currentBatch.length + " items")
 }

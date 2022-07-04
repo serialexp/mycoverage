@@ -110,7 +110,7 @@ const BranchPage: BlitzPage = () => {
         />
       ) : null}
       <Subheading mt={4} size={"md"}>
-        Test results
+        Test results ({buildInfo?.lastCommit?.Test.length})
       </Subheading>
       {!satisfiesExpectedResults(buildInfo?.lastCommit, project?.ExpectedResult || []).isOk ? (
         <Box p={2}>
@@ -125,6 +125,7 @@ const BranchPage: BlitzPage = () => {
         projectId={projectId}
         branchSlug={branchSlug}
         commit={buildInfo?.lastCommit}
+        baseCommit={baseBuildInfo?.lastCommit ?? undefined}
       />
       <Subheading mt={4} size={"md"}>
         Recent Commits

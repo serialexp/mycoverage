@@ -74,7 +74,7 @@ const ProjectPage: BlitzPage = () => {
       </Box>
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
-      <Subheading>Test results</Subheading>
+      <Subheading>Test results ({buildInfo?.lastCommit?.Test.length})</Subheading>
       {!satisfiesExpectedResults(buildInfo?.lastCommit, project.ExpectedResult).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
@@ -83,7 +83,12 @@ const ProjectPage: BlitzPage = () => {
           </Alert>
         </Box>
       ) : null}
-      <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
+      <TestResults
+        groupId={groupId}
+        projectId={projectId}
+        commit={buildInfo?.lastCommit}
+        branchSlug={buildInfo.branch?.slug}
+      />
       <Subheading>Coverage Map</Subheading>
       {buildInfo?.lastCommit?.id ? <TreeMap commitId={buildInfo?.lastCommit?.id} /> : null}
       <Subheading>Recent Commits</Subheading>
@@ -108,13 +113,13 @@ const ProjectPage: BlitzPage = () => {
                 </Link>
               </Td>
               <Td>
-                {commit.branches.map((b) => (
-                  <Tag key={b.branch.id} mr={2} mb={2}>
+                {commit.CommitOnBranch.map((b) => (
+                  <Tag key={b.Branch.id} mr={2} mb={2}>
                     <Link
                       passHref={true}
-                      href={Routes.BranchPage({ groupId, projectId, branchId: b.branch.slug })}
+                      href={Routes.BranchPage({ groupId, projectId, branchId: b.Branch.slug })}
                     >
-                      <ChakraLink color={"blue.500"}>{b.branch.name}</ChakraLink>
+                      <ChakraLink color={"blue.500"}>{b.Branch.name}</ChakraLink>
                     </Link>
                   </Tag>
                 ))}

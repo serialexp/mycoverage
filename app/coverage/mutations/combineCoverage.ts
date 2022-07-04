@@ -1,16 +1,19 @@
 import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { Ctx } from "blitz"
-import db from "db"
+import db, { TestInstance } from "db"
 
-export default async function combineCoverage(args: { commitId: number }, { session }: Ctx) {
+export default async function combineCoverage(
+  args: { commitId: number; testInstanceId?: number },
+  { session }: Ctx
+) {
   const commit = await db.commit.findFirst({
     where: {
       id: args.commitId,
     },
     include: {
-      branches: {
+      CommitOnBranch: {
         include: {
-          branch: {
+          Branch: {
             include: {
               project: {
                 include: {
@@ -24,11 +27,21 @@ export default async function combineCoverage(args: { commitId: number }, { sess
     },
   })
 
+  let testInstance: TestInstance | null | undefined = undefined
+  if (args.testInstanceId) {
+    testInstance = await db.testInstance.findFirst({
+      where: {
+        id: args.testInstanceId,
+      },
+    })
+  }
+
   if (commit) {
     combineCoverageJob(
       commit,
-      commit.branches[0]?.branch.project.group?.slug || "",
-      commit.branches[0]?.branch.project.slug || ""
+      commit.CommitOnBranch[0]?.Branch.project.group?.slug || "",
+      commit.CommitOnBranch[0]?.Branch.project.slug || "",
+      testInstance || undefined
     )
     console.log("starting coverage job")
   }

@@ -1,4 +1,5 @@
 import { CoverageData } from "app/library/CoverageData"
+import { SourceHits } from "app/library/types"
 import { parseString } from "xml2js"
 import Joi from "joi"
 
@@ -153,7 +154,7 @@ export class CoberturaCoverage {
     }
   }
 
-  async init(data: string, source?: string): Promise<void> {
+  async init(data: string, sourceHits: SourceHits = {}): Promise<void> {
     return new Promise((resolve, reject) => {
       parseString(data, (err, result) => {
         if (err) {
@@ -166,6 +167,7 @@ export class CoberturaCoverage {
             ...pack["$"],
             files: pack.classes[0]["class"]
               ?.map((file) => {
+                const filePath = pack["$"].name.replace(/\./g, "/") + "/" + file["$"].name
                 const fileData = {
                   ...file["$"],
                   lines:
@@ -218,7 +220,7 @@ export class CoberturaCoverage {
                 delete fileData["branch-rate"]
                 return {
                   ...fileData,
-                  coverageData: CoverageData.fromCoberturaFile(fileData, source),
+                  coverageData: CoverageData.fromCoberturaFile(fileData, sourceHits[filePath]),
                 }
               })
               .sort((a, b) => {
@@ -400,6 +402,11 @@ export class CoberturaCoverage {
     source?: string
   ) {
     const coverageData = CoverageData.fromString(stringCoverageData, source)
+    this.mergeCoverage(packageName, fileName, coverageData)
+  }
+
+  public mergeCoverageBuffer(packageName: string, fileName: string, buffer: Uint8Array) {
+    const coverageData = CoverageData.fromProtobuf(buffer)
     this.mergeCoverage(packageName, fileName, coverageData)
   }
 

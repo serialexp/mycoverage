@@ -1,4 +1,22 @@
-import { Badge, Box, Flex, Tooltip } from "@chakra-ui/react"
+import {
+  Badge,
+  Box,
+  Flex,
+  HStack,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+  Table,
+  Tag,
+  Td,
+  Tooltip,
+  Tr,
+} from "@chakra-ui/react"
+import getLineCoverageData from "app/coverage/queries/getLineCoverageData"
+import { format } from "app/library/format"
+import { LineData, LineInformation } from "app/library/getLineCoverageData"
+import { useQuery } from "blitz"
 import { ReactNode } from "react"
 import { FileCoverage, CodeIssueOnFileCoverage, CodeIssue } from "db"
 
@@ -8,14 +26,6 @@ const priorityColor = {
   MAJOR: "orange.500",
   CRITICAL: "red.500",
   BLOCKER: "red.600",
-}
-
-interface LineData {
-  type?: string
-  count?: number
-  covered?: string
-  total?: string
-  sourceData?: string
 }
 
 const typeToString = (line: LineData) => {
@@ -30,47 +40,24 @@ export const FileCoverageDisplay = (props: {
   fileData?: string | null
   file:
     | (FileCoverage & {
-        CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { codeIssue: CodeIssue })[]
+        CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { CodeIssue: CodeIssue })[]
       })
     | null
   isShowRaw: boolean
 }) => {
-  const lines = props.fileData?.split("\n")
-  const coverageData = props.file?.coverageData.split("\n")
-  const coveragePerLine: { [lineNr: number]: LineData | LineData[] } = {}
-  coverageData?.forEach((row) => {
-    const rowData = row.split(",")
-    const lineNr = rowData[1]
-    if (lineNr) {
-      const sourceData = rowData[0] == "stmt" ? rowData[3] : rowData[5]
-      const lineData: LineData = {
-        type: rowData[0],
-        count: rowData[2] ? parseInt(rowData[2]) : undefined,
-        covered: rowData[3] ? rowData[3] : undefined,
-        total: rowData[4] ? rowData[4] : undefined,
-        sourceData,
-      }
-      if (coveragePerLine[lineNr] && !Array.isArray(coveragePerLine[lineNr])) {
-        coveragePerLine[lineNr] = [coveragePerLine[lineNr]]
-        coveragePerLine[lineNr].push(lineData)
-      } else if (Array.isArray(coveragePerLine[lineNr])) {
-        coveragePerLine[lineNr].push(lineData)
-      } else {
-        coveragePerLine[lineNr] = lineData
-      }
-    }
-  })
-  const issueOnLine: { [lineNr: number]: any } = {}
-  props.file?.CodeIssueOnFileCoverage.forEach((issue) => {
-    issueOnLine[issue.codeIssue.line] = issue.codeIssue
+  const [data] = useQuery(getLineCoverageData, {
+    fileCoverageId: props.file?.id,
   })
 
+  const { issueOnLine, coveragePerLine, raw } = data || {}
+
+  const lines = props.fileData?.split("\n")
   const lineHeight = 5
 
   return (
     <Flex bg={"gray.50"} m={2}>
       {props.isShowRaw ? (
-        <pre>{props.file?.coverageData}</pre>
+        <pre>{raw}</pre>
       ) : (
         <>
           <Box
@@ -84,38 +71,21 @@ export const FileCoverageDisplay = (props: {
             {lines?.map((line, lineNr) => {
               let element: ReactNode = null
               const codeIssue = issueOnLine[lineNr + 1]
-              const lineData: any | undefined = coveragePerLine[lineNr + 1]
-              if (lineData) {
-                if (Array.isArray(lineData)) {
-                  element = (
-                    <Box
-                      fontFamily={"monospace"}
-                      whiteSpace={"pre"}
-                      h={lineHeight}
-                      lineHeight={lineHeight}
-                    >
-                      <Box display={"inline"} color={"gray.500"}>
-                        {lineNr + 1}
-                      </Box>{" "}
-                      {lineData?.map((l) => typeToString(l)).join(", ")}
-                    </Box>
-                  )
-                } else {
-                  const type = lineData.type
-                  element = (
-                    <Box
-                      fontFamily={"monospace"}
-                      whiteSpace={"pre"}
-                      h={lineHeight}
-                      lineHeight={lineHeight}
-                    >
-                      <Box display={"inline"} color={"gray.500"}>
-                        {lineNr + 1}
-                      </Box>{" "}
-                      {typeToString(lineData)}
-                    </Box>
-                  )
-                }
+              const lineData: LineInformation | undefined = coveragePerLine[lineNr + 1]
+              if (lineData?.coverageItems.length) {
+                element = (
+                  <Box
+                    fontFamily={"monospace"}
+                    whiteSpace={"pre"}
+                    h={lineHeight}
+                    lineHeight={lineHeight}
+                  >
+                    <Box display={"inline"} color={"gray.500"}>
+                      {lineNr + 1}
+                    </Box>{" "}
+                    {lineData?.coverageItems.map((l) => typeToString(l)).join(", ")}
+                  </Box>
+                )
               } else {
                 element = (
                   <Box
@@ -145,10 +115,14 @@ export const FileCoverageDisplay = (props: {
               let element: ReactNode = null
               const lineData = coveragePerLine[lineNr + 1]
               if (lineData) {
-                if (Array.isArray(lineData)) {
-                  if (lineData.filter((l) => l.count == 0).length == 0) {
+                if (lineData.coverageItems.length) {
+                  if (
+                    lineData.coverageItems.filter((l) =>
+                      l.type === "cond" ? l.covered < l.total : l.count == 0
+                    ).length == 0
+                  ) {
                     color = "green.200"
-                  } else if (lineData.some((l) => l.count && l.count > 0)) {
+                  } else if (lineData.coverageItems.some((l) => l.count && l.count > 0)) {
                     color = "yellow.200"
                   } else {
                     color = "red.200"
@@ -163,58 +137,51 @@ export const FileCoverageDisplay = (props: {
                       lineHeight={lineHeight}
                     >
                       {line ? line : <>&nbsp;</>}
-                      {lineData?.map((l, i) => (
-                        <Tooltip
-                          key={i}
-                          label={
-                            <>
-                              {l.sourceData?.split(";").map((l, i) => (
-                                <div key={i}>{l}</div>
-                              ))}
-                            </>
-                          }
-                          aria-label="A tooltip"
-                        >
-                          <Badge mr={1}>x{l.count || 0}</Badge>
-                        </Tooltip>
-                      ))}
-                    </Box>
-                  )
-                } else if (lineData.count && lineData.count > 0) {
-                  const type = lineData.type
-                  if (
-                    type == "cond" &&
-                    lineData.covered &&
-                    lineData.total &&
-                    lineData.covered < lineData.total
-                  ) {
-                    color = "yellow.200"
-                  } else {
-                    color = "green.200"
-                  }
+                      {lineData.coverageItems?.map((l, i) => (
+                        <Popover key={i} aria-label="A tooltip">
+                          <PopoverTrigger>
+                            <Badge
+                              cursor={"pointer"}
+                              mr={1}
+                              _hover={{
+                                background: "secondary.500",
+                              }}
+                            >
+                              x{l.count || 0}
+                            </Badge>
+                          </PopoverTrigger>
 
-                  element = (
-                    <Box
-                      bg={color}
-                      pl={2}
-                      fontFamily={"monospace"}
-                      whiteSpace={"pre"}
-                      h={lineHeight}
-                      lineHeight={lineHeight}
-                    >
-                      {line ? line : <>&nbsp;</>}
-                      <Tooltip
-                        label={
-                          <>
-                            {lineData.sourceData?.split(";").map((l, i) => (
-                              <div key={i}>{l}</div>
-                            ))}
-                          </>
-                        }
-                        aria-label="A tooltip"
-                      >
-                        <Badge>x{lineData.count}</Badge>
-                      </Tooltip>
+                          <PopoverContent width={"500px"}>
+                            {l.sourceData ? (
+                              <Box maxHeight={"200px"} overflow={"auto"}>
+                                <Table size={"sm"}>
+                                  {l.sourceData
+                                    ?.split(";")
+                                    .map((l, i) => {
+                                      const item = l.split("=")
+                                      if (item[1] && parseInt(item[1]) > 0) {
+                                        return (
+                                          <Tr key={i}>
+                                            <Td>{item[0]}</Td>
+                                            <Td isNumeric>
+                                              {item[1]
+                                                .split("|")
+                                                .map((i) => "x" + format.format(parseInt(i)))
+                                                .join(", ")}
+                                            </Td>
+                                          </Tr>
+                                        )
+                                      } else {
+                                        return undefined
+                                      }
+                                    })
+                                    .filter((i) => i)}
+                                </Table>
+                              </Box>
+                            ) : null}
+                          </PopoverContent>
+                        </Popover>
+                      ))}
                     </Box>
                   )
                 } else {

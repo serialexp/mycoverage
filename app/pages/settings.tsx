@@ -19,8 +19,10 @@ import { useState } from "react"
 
 const SettingsPage: BlitzPage = () => {
   const [baseUrlRow] = useQuery(getSetting, { name: "baseUrl" })
-  const [updateUrl] = useMutation(updateSetting)
+  const [maxCombineCoverage] = useQuery(getSetting, { name: "max-combine-coverage-size" })
+  const [updateSettingMutation] = useMutation(updateSetting)
   const [baseUrl, setBaseUrl] = useState(baseUrlRow?.value)
+  const [maxSize, setMaxSize] = useState(maxCombineCoverage?.value || "100")
 
   return (
     <>
@@ -36,12 +38,33 @@ const SettingsPage: BlitzPage = () => {
               setBaseUrl(e.target.value)
             }}
             onBlur={() => {
-              updateUrl({ name: "baseUrl", value: baseUrl || "" })
+              updateSettingMutation({ name: "baseUrl", value: baseUrl || "" })
             }}
           />
           <FormHelperText>
             Used as the base url of the system in locations where we cannot directly derive it from
             the browser.
+          </FormHelperText>
+        </FormControl>
+        <FormControl id="email" mt={4}>
+          <FormLabel>Maximum Combine Coverage Size</FormLabel>
+          <Input
+            type="text"
+            value={maxSize}
+            onChange={(e) => {
+              setMaxSize(e.target.value)
+            }}
+            onBlur={() => {
+              updateSettingMutation({
+                name: "max-combine-coverage-size",
+                value: maxSize || "100",
+              })
+            }}
+          />
+          <FormHelperText>
+            Used to determine if we want to try and combine all coverage information. If there is
+            too much information the combination process takes very long, so this is the maximum
+            size of the combined coverage we will combine (in megabytes).
           </FormHelperText>
         </FormControl>
       </Box>

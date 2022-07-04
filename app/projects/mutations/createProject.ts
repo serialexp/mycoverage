@@ -4,6 +4,7 @@ import { z } from "zod"
 
 const CreateProject = z.object({
   name: z.string(),
+  group: z.number(),
   defaultBaseBranch: z.string(),
 })
 

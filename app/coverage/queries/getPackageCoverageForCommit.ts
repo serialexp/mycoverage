@@ -1,7 +1,7 @@
 import { Ctx } from "blitz"
 import db from "db"
 
-export default async function getPackageCoverageForTest(
+export default async function getPackageCoverageForCommit(
   args: { commitId?: number; path?: string },
   { session }: Ctx
 ) {

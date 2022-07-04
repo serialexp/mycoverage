@@ -1,30 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-
-}
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["selectRelationCount", "orderByRelation"]
 }
 
-// --------------------------------------
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
 
 model User {
-  id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   name           String?
-  email          String   @unique
+  email          String    @unique(map: "User.email_unique")
   hashedPassword String?
-  role           String   @default("USER")
-
-  tokens   Token[]
-  sessions Session[]
+  role           String    @default("USER")
+  sessions       Session[]
+  tokens         Token[]
 }
 
 model Session {
@@ -32,14 +25,15 @@ model Session {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   expiresAt          DateTime?
-  handle             String    @unique
+  handle             String    @unique(map: "Session.handle_unique")
   hashedSessionToken String?
   antiCSRFToken      String?
   publicData         String?
   privateData        String?
+  userId             Int?
+  user               User?     @relation(fields: [userId], references: [id], map: "session_ibfk_1")
 
-  user   User? @relation(fields: [userId], references: [id])
-  userId Int?
+  @@index([userId], map: "userId")
 }
 
 model Token {
@@ -50,74 +44,69 @@ model Token {
   type        String
   expiresAt   DateTime
   sentTo      String
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "token_ibfk_1")
 
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-
-  @@unique([hashedToken, type])
+  @@unique([hashedToken, type], map: "Token.hashedToken_type_unique")
+  @@index([userId], map: "userId")
 }
 
 model Commit {
-  id                  Int      @id @default(autoincrement())
-  ref                 String
+  id                  Int                 @id @default(autoincrement())
+  ref                 String              @unique(map: "Commit.ref_unique")
+  createdDate         DateTime            @default(now())
+  updatedDate         DateTime            @updatedAt
+  conditionals        Int                 @default(0)
+  coveredConditionals Int                 @default(0)
+  coveredElements     Int                 @default(0)
+  coveredMethods      Int                 @default(0)
+  coveredPercentage   Float               @default(0)
+  coveredStatements   Int                 @default(0)
+  elements            Int                 @default(0)
+  methods             Int                 @default(0)
+  statements          Int                 @default(0)
+  hits                Int                 @default(0)
+  blockerSonarIssues  Int                 @default(0)
+  criticalSonarIssues Int                 @default(0)
+  infoSonarIssues     Int                 @default(0)
+  majorSonarIssues    Int                 @default(0)
+  minorSonarIssues    Int                 @default(0)
   message             String?
-  createdDate         DateTime @default(now())
-  updatedDate         DateTime @updatedAt
-  statements          Int      @default(0)
-  conditionals        Int      @default(0)
-  methods             Int      @default(0)
-  elements            Int      @default(0)
-  hits                Int      @default(0)
-  coveredElements     Int      @default(0)
-  coveredStatements   Int      @default(0)
-  coveredConditionals Int      @default(0)
-  coveredMethods      Int      @default(0)
-  coveredPercentage   Float    @default(0)
-
-  // things for sonarqube results
-  blockerSonarIssues  Int @default(0)
-  criticalSonarIssues Int @default(0)
-  majorSonarIssues    Int @default(0)
-  minorSonarIssues    Int @default(0)
-  infoSonarIssues     Int @default(0)
-
-  Test Test[]
-
-  branches        CommitOnBranch[]
-  codeIssues      CodeIssueOnCommit[]
-  PackageCoverage PackageCoverage[]
-  Project         Project[]
-  @@unique([ref])
+  codeIssues          CodeIssueOnCommit[]
+  CommitOnBranch      CommitOnBranch[]
+  PackageCoverage     PackageCoverage[]
+  Project             Project[]
+  Test                Test[]
 }
 
 model Test {
   id                  Int               @id @default(autoincrement())
-  commit              Commit            @relation(fields: [commitId], references: [id])
   commitId            Int
   testName            String
-  repositoryRoot      String?
   statements          Int
   conditionals        Int
   methods             Int
-  elements            Int               @default(0)
-  hits                Int               @default(0)
-  coveredElements     Int               @default(0)
   coveredStatements   Int
   coveredConditionals Int
   coveredMethods      Int
   coveredPercentage   Float             @default(0)
   createdDate         DateTime          @default(now())
   updatedDate         DateTime          @default(now()) @updatedAt
+  coveredElements     Int               @default(0)
+  elements            Int               @default(0)
+  hits                Int               @default(0)
+  repositoryRoot      String?
+  commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "test_ibfk_1")
   PackageCoverage     PackageCoverage[]
   TestInstance        TestInstance[]
 
-  @@unique([testName, commitId])
+  @@unique([testName, commitId], map: "Test.testName_commitId_unique")
+  @@index([commitId], map: "commitId")
 }
 
 model TestInstance {
   id                  Int               @id @default(autoincrement())
   index               Int
-  test                Test              @relation(fields: [testId], references: [id])
   testId              Int
   statements          Int
   conditionals        Int
@@ -131,174 +120,190 @@ model TestInstance {
   coveredPercentage   Float             @default(0)
   createdDate         DateTime          @default(now())
   updatedDate         DateTime          @default(now()) @updatedAt
-  PackageCoverage     PackageCoverage[]
   dataSize            Int               @default(0)
+  test                Test              @relation(fields: [testId], references: [id], onDelete: Cascade, map: "testinstance_ibfk_1")
+  PackageCoverage     PackageCoverage[]
+
+  @@index([testId], map: "testId")
 }
 
 model PackageCoverage {
   id                  Int            @id @default(autoincrement())
   name                String
-  depth               Int            @default(0)
-  test                Test?          @relation(fields: [testId], references: [id])
   testId              Int?
-  testInstance        TestInstance?  @relation(fields: [testInstanceId], references: [id])
-  testInstanceId      Int?
-  commit              Commit?        @relation(fields: [commitId], references: [id])
-  commitId            Int?
   createdDate         DateTime       @default(now())
   updatedDate         DateTime       @updatedAt
   statements          Int
   conditionals        Int
   methods             Int
-  elements            Int            @default(0)
-  hits                Int            @default(0)
-  coveredElements     Int            @default(0)
   coveredStatements   Int
   coveredConditionals Int
   coveredMethods      Int
   coveredPercentage   Float          @default(0)
+  depth               Int            @default(0)
+  coveredElements     Int            @default(0)
+  elements            Int            @default(0)
+  commitId            Int?
+  hits                Int            @default(0)
+  testInstanceId      Int?
   codeIssues          Int            @default(0)
-  changes             Int            @default(0)
   changeRatio         Float          @default(0)
+  changes             Int            @default(0)
+  commit              Commit?        @relation(fields: [commitId], references: [id], map: "packagecoverage_ibfk_2")
+  test                Test?          @relation(fields: [testId], references: [id], onDelete: Cascade, map: "packagecoverage_ibfk_1")
+  testInstance        TestInstance?  @relation(fields: [testInstanceId], references: [id], map: "packagecoverage_ibfk_3")
   FileCoverage        FileCoverage[]
+
+  @@index([commitId], map: "commitId")
+  @@index([testId], map: "testId")
+  @@index([testInstanceId], map: "testInstanceId")
 }
 
 model FileCoverage {
   id                      Int                       @id @default(autoincrement())
   name                    String
-  // cascaded delete, so this will actually never be null, but necessary to make prisma happy
-  packageCoverage         PackageCoverage?          @relation(fields: [packageCoverageId], references: [id])
   packageCoverageId       Int?
-  coverageData            String                    @db.LongText
   createdDate             DateTime                  @default(now())
   statements              Int
   conditionals            Int
   methods                 Int
-  elements                Int                       @default(0)
-  hits                    Int                       @default(0)
-  coveredElements         Int                       @default(0)
   coveredStatements       Int
   coveredConditionals     Int
   coveredMethods          Int
   coveredPercentage       Float                     @default(0)
-  codeIssues              Int                       @default(0)
-  changes                 Int                       @default(0)
-  changeRatio             Float                     @default(0)
   updatedDate             DateTime                  @updatedAt
+  coveredElements         Int                       @default(0)
+  elements                Int                       @default(0)
+  hits                    Int                       @default(0)
+  codeIssues              Int                       @default(0)
+  changeRatio             Float                     @default(0)
+  changes                 Int                       @default(0)
+  coverageData            Bytes
+  packageCoverage         PackageCoverage?          @relation(fields: [packageCoverageId], references: [id], onDelete: Cascade, map: "filecoverage_ibfk_1")
   CodeIssueOnFileCoverage CodeIssueOnFileCoverage[]
+
+  @@index([packageCoverageId], map: "packageCoverageId")
 }
 
 model Group {
   id          Int       @id @default(autoincrement())
   name        String
-  slug        String    @default("")
   createdDate DateTime  @default(now())
   updatedDate DateTime  @updatedAt
+  slug        String    @default("")
   Project     Project[]
 
-  @@index([slug])
+  @@index([slug], map: "Group.slug_index")
 }
 
 model JobLog {
   id          Int      @id @default(autoincrement())
   name        String
-  namespace   String   @default("")
-  repository  String   @default("")
-  message     String   @default("")
+  message     String   @default("") @db.VarChar(1000)
   createdDate DateTime @default(now())
   updatedDate DateTime @updatedAt
+  namespace   String   @default("")
+  repository  String   @default("")
+  timeTaken   Int      @default(0)
+  status      String   @default("")
+  commitRef   String   @default("")
 }
 
 model CodeIssue {
-  id          Int      @id @default(autoincrement())
-  hash        String
-  file        String
-  line        Int
-  message     String   @default("")
-  effort      String   @default("")
-  type        String
-  severity    String
-  tags        String
-  createdDate DateTime @default(now())
-  updatedDate DateTime @updatedAt
-
-  commits CodeIssueOnCommit[]
-
+  id                      Int                       @id @default(autoincrement())
+  hash                    String                    @unique(map: "CodeIssue.hash_unique")
+  file                    String
+  line                    Int
+  message                 String                    @default("")
+  effort                  String                    @default("")
+  type                    String
+  severity                String
+  tags                    String
+  createdDate             DateTime                  @default(now())
+  updatedDate             DateTime                  @updatedAt
+  commits                 CodeIssueOnCommit[]
   CodeIssueOnFileCoverage CodeIssueOnFileCoverage[]
-  @@unique([hash])
 }
 
 model CodeIssueOnCommit {
-  commit      Commit    @relation(fields: [commitId], references: [id])
   commitId    Int
-  codeIssue   CodeIssue @relation(fields: [codeIssueId], references: [id])
   codeIssueId Int
+  codeIssue   CodeIssue @relation(fields: [codeIssueId], references: [id], onDelete: Cascade, map: "codeissueoncommit_ibfk_2")
+  commit      Commit    @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "codeissueoncommit_ibfk_1")
 
   @@id([commitId, codeIssueId])
+  @@index([codeIssueId], map: "codeIssueId")
 }
 
 model CodeIssueOnFileCoverage {
-  fileCoverage   FileCoverage @relation(fields: [fileCoverageId], references: [id])
   fileCoverageId Int
-  codeIssue      CodeIssue    @relation(fields: [codeIssueId], references: [id])
   codeIssueId    Int
+  CodeIssue      CodeIssue    @relation(fields: [codeIssueId], references: [id], onDelete: Cascade, map: "codeissueonfilecoverage_ibfk_2")
+  FileCoverage   FileCoverage @relation(fields: [fileCoverageId], references: [id], onDelete: Cascade, map: "codeissueonfilecoverage_ibfk_1")
 
   @@id([fileCoverageId, codeIssueId])
+  @@index([codeIssueId], map: "codeIssueId")
 }
 
 model Project {
-  id                      Int      @id @default(autoincrement())
+  id                      Int              @id @default(autoincrement())
   name                    String
-  slug                    String   @default("")
-  group                   Group?   @relation(fields: [groupId], references: [id])
-  groupId                 Int
   defaultBaseBranch       String
-  lastCommit              Commit?  @relation(fields: [lastCommitId], references: [id])
+  createdDate             DateTime         @default(now())
+  updatedDate             DateTime         @updatedAt
+  slug                    String           @default("")
+  groupId                 Int
   lastCommitId            Int?
-  requireCoverageIncrease Boolean  @default(false)
-  createdDate             DateTime @default(now())
-  updatedDate             DateTime @updatedAt
+  requireCoverageIncrease Boolean          @default(false)
+  group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade, map: "project_ibfk_1")
+  lastCommit              Commit?          @relation(fields: [lastCommitId], references: [id], map: "project_ibfk_2")
   Branch                  Branch[]
+  ExpectedResult          ExpectedResult[]
 
-  ExpectedResult ExpectedResult[]
-  @@index([slug])
+  @@index([groupId], map: "groupId")
+  @@index([lastCommitId], map: "lastCommitId")
+  @@index([slug], map: "Project.slug_index")
 }
 
 model ExpectedResult {
   id          Int      @id @default(autoincrement())
   testName    String
-  project     Project  @relation(fields: [projectId], references: [id])
   projectId   Int
   count       Int
   createdDate DateTime @default(now())
   updatedDate DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade, map: "expectedresult_ibfk_1")
+
+  @@index([projectId], map: "projectId")
 }
 
 model Branch {
-  id          Int              @id @default(autoincrement())
-  name        String
-  slug        String           @default("")
-  project     Project          @relation(fields: [projectId], references: [id])
-  projectId   Int
-  baseBranch  String
-  createdDate DateTime         @default(now())
-  updatedDate DateTime         @updatedAt
-  commits     CommitOnBranch[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  projectId      Int
+  baseBranch     String
+  createdDate    DateTime         @default(now())
+  updatedDate    DateTime         @updatedAt
+  slug           String           @default("")
+  project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade, map: "branch_ibfk_1")
+  CommitOnBranch CommitOnBranch[]
 
-  @@unique([name, projectId])
+  @@unique([name, projectId], map: "Branch.name_projectId_unique")
+  @@index([projectId], map: "projectId")
 }
 
 model CommitOnBranch {
-  commit   Commit @relation(fields: [commitId], references: [id])
   commitId Int
-  branch   Branch @relation(fields: [branchId], references: [id])
   branchId Int
+  Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade, map: "commitonbranch_ibfk_2")
+  Commit   Commit @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "commitonbranch_ibfk_1")
 
   @@id([commitId, branchId])
+  @@index([branchId], map: "branchId")
 }
 
 model Setting {
   id    Int    @id @default(autoincrement())
-  name  String @unique
+  name  String @unique(map: "Setting.name_unique")
   value String @default("")
 }

@@ -32,6 +32,48 @@ describe("CoverturaCoverage", () => {
     expect(coberturaCoverage.data.coverage.packages[3]?.name).toEqual("src.super")
   })
 
+  it("merge coverage buffers", () => {
+    const coberturaCoverage = new CoberturaCoverage()
+    const coverage = CoverageData.fromString("stmt,2,1,stuff=1")
+    const coverage2 = CoverageData.fromString("stmt,2,2,stuff=2")
+    const coverage3 = CoverageData.fromString("stmt,2,2,")
+
+    coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage3.toProtobuf())
+    coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage.toProtobuf())
+    coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage2.toProtobuf())
+    coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage3.toProtobuf())
+    CoberturaCoverage.updateMetrics(coberturaCoverage.data)
+
+    const data =
+      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData.coverage["2"]?.[0]
+    const data2 = data?.hitsBySource["stuff"]
+
+    expect(data?.hits).toEqual(7)
+    expect(data2?.[0]).toEqual(3)
+  })
+
+  it("adds hits information during init", () => {
+    const coberturaCoverage = new CoberturaCoverage()
+    coberturaCoverage.init(
+      `<coverage><sources><source>src/</source></sources><packages><package name="super"><classes><class name="sexy"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
+      {
+        "super/sexy": [
+          {
+            source: "elegant",
+            s: { "2": 2 },
+            b: {},
+            f: {},
+          },
+        ],
+      }
+    )
+
+    const data =
+      coberturaCoverage.data.coverage.packages[0]?.files[0]?.coverageData.coverage["2"]?.[0]
+
+    expect(data?.hitsBySource["elegant"]).toEqual([2])
+  })
+
   it("joins coverage functions with the same name", () => {})
 
   it("does not count newly created coveragedata for files twice", () => {})

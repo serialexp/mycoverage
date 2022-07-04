@@ -44,6 +44,7 @@ function mapData(data: TreeMapInputData | undefined, maxDepth: number, currentDe
 
 const TreeMap = (props: { commitId: number }) => {
   const [data] = useQuery(getTree, { commitId: props.commitId })
+  console.log(data)
   const [path, setPath] = useState<string[]>([])
   console.log("render treemap")
   let mappedData = data
@@ -52,7 +53,7 @@ const TreeMap = (props: { commitId: number }) => {
       mappedData = mappedData?.children?.find((child) => child.title === pathSegment)
     })
   } else {
-    mappedData = mappedData?.children?.[0]
+    mappedData = mappedData
   }
   mappedData = mapData(mappedData, 2)
 
@@ -83,7 +84,7 @@ const TreeMap = (props: { commitId: number }) => {
       {/*  redrawOnResize={true}*/}
       {/*  theme={"generic.light"}*/}
       {/*/>*/}
-      {path.length > 1 ? (
+      {path.length > 0 ? (
         <Breadcrumb px={2} pt={2}>
           <BreadcrumbItem>
             <BreadcrumbLink
@@ -133,7 +134,10 @@ const TreeMap = (props: { commitId: number }) => {
             )
           }}
           onClick={(node) => {
-            setPath([...path.slice(0, -1), ...node.pathComponents])
+            setPath([
+              ...path.slice(0, -1),
+              ...(path.length == 0 ? node.pathComponents.slice(1) : node.pathComponents),
+            ])
           }}
           leavesOnly={false}
           nodeOpacity={1}

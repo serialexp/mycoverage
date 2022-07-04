@@ -1,3 +1,4 @@
+import { Box, Button } from "@chakra-ui/react"
 import Layout from "app/core/layouts/Layout"
 import getCommit from "app/coverage/queries/getCommit"
 import getPackageCoverageForCommit from "app/coverage/queries/getPackageCoverageForCommit"
@@ -30,6 +31,40 @@ const CommitFilesPage: BlitzPage = () => {
       <Heading m={2}>
         Browsing {path?.join("/")} for commit {commit?.ref.substr(0, 10)}
       </Heading>
+      <Box>
+        <Link
+          href={Routes.CommitFilesPage({
+            groupId,
+            projectId,
+            commitRef,
+            path: path || [],
+          })}
+        >
+          <Button ml={2} mt={2} colorScheme={"secondary"}>
+            Combined
+          </Button>
+        </Link>
+        {commit?.Test.map((test) => {
+          return test.TestInstance.map((instance) => {
+            return (
+              <Link
+                key={instance.id}
+                href={Routes.TestInstanceFilesPage({
+                  groupId,
+                  projectId,
+                  commitRef,
+                  testInstanceId: instance.id,
+                  path: path || [],
+                })}
+              >
+                <Button ml={2} mt={2}>
+                  {test.testName} {instance.index} ({instance.id})
+                </Button>
+              </Link>
+            )
+          })
+        })}
+      </Box>
       {pack ? (
         <DirectoryDisplay
           pack={pack}

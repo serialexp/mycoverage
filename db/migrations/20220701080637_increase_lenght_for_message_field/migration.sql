@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `JobLog` MODIFY `message` VARCHAR(1000) NOT NULL DEFAULT '';

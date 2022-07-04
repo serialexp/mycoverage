@@ -66,6 +66,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       let branch = await mydb.branch.findFirst({
         where: {
           slug: slugify(query.branch),
+          projectId: project.id,
         },
       })
 
@@ -79,13 +80,15 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      console.log("find latest commit on branch")
+      console.log(`Base branch for ${branch.name} is ${branch.baseBranch}`)
+
+      console.log(`find latest commit on branch ${branch.id} with base ${baseBranch?.id}`)
       const firstCommit = await mydb.commitOnBranch.findFirst({
         where: {
           branchId: branch.id,
         },
         include: {
-          commit: {
+          Commit: {
             include: {
               Test: {
                 include: {
@@ -100,21 +103,20 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           },
         },
         orderBy: {
-          commit: {
+          Commit: {
             createdDate: "desc",
           },
         },
       })
-      console.log("firstCommit", firstCommit)
 
-      const commit = firstCommit?.commit
+      const commit = firstCommit?.Commit
 
       const firstBaseCommit = await mydb.commitOnBranch.findFirst({
         where: {
           branchId: baseBranch?.id,
         },
         include: {
-          commit: {
+          Commit: {
             include: {
               Test: {
                 include: {
@@ -129,12 +131,12 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           },
         },
         orderBy: {
-          commit: {
+          Commit: {
             createdDate: "desc",
           },
         },
       })
-      const baseCommit = firstBaseCommit?.commit
+      const baseCommit = firstBaseCommit?.Commit
 
       const baseUrl = await getSetting("baseUrl")
 
@@ -145,7 +147,23 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
 
         const failedStatus = project.requireCoverageIncrease ? 400 : 200
 
-        if (!satisfiesExpectedResults(baseCommit, project.ExpectedResult).isOk) {
+        console.log(
+          "base test instances",
+          baseCommit.Test.map((test) => {
+            return {
+              name: test.testName,
+              instances: test.TestInstance.map((instance) => instance.index),
+            }
+          })
+        )
+
+        if (baseBranch?.id === branch.id) {
+          res.status(200).json({
+            code: "OK",
+            message:
+              "Comparing coverage on branch with itself, there will never be any difference.",
+          })
+        } else if (!satisfiesExpectedResults(baseCommit, project.ExpectedResult).isOk) {
           res.status(failedStatus).json({
             code: "BASE_TEST_NOT_COMPLETED",
             message: `The tests for the merge base commit of (${commit.ref.substr(0, 10)}) on ${

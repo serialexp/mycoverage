@@ -1,4 +1,4 @@
-import { Box, Table, Td, Tr, Link as ChakraLink, Input } from "@chakra-ui/react"
+import { Box, Table, Td, Tr, Thead, Th, Link as ChakraLink, Input } from "@chakra-ui/react"
 import getLogs from "app/coverage/queries/getLogs"
 import { Heading } from "app/library/components/Heading"
 import { Link, BlitzPage, useMutation, Routes, useQuery } from "blitz"
@@ -34,15 +34,32 @@ const Logs: BlitzPage = () => {
         />
       </Box>
       <Table size="sm">
+        <Thead>
+          <Tr>
+            <Th>Commit</Th>
+            <Th>Group</Th>
+            <Th>Repository</Th>
+            <Th>Kind</Th>
+            <Th>Message</Th>
+            <Th>Started</Th>
+            <Th>Time</Th>
+          </Tr>
+        </Thead>
         {logs.map((g) => {
           return (
             <Tr key={g.id} _hover={{ bg: "primary.50" }}>
-              <Td>{g.id}</Td>
+              <Td>
+                <Link href={Routes.Logs({ commitRef: g.commitRef })}>{g.commitRef}</Link>
+              </Td>
               <Td>{g.namespace}</Td>
               <Td>{g.repository}</Td>
               <Td>{g.name}</Td>
-              <Td>{g.message}</Td>
+              <Td>
+                {g.status ? g.status + ": " : null}
+                {g.message}
+              </Td>
               <Td>{g.createdDate.toLocaleString()}</Td>
+              <Td>{Math.round(g.timeTaken / 100) / 10}s</Td>
             </Tr>
           )
         })}

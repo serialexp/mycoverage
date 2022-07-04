@@ -15,7 +15,7 @@ export default async function getFileData(
     .replace("{project}", args.projectName)
     .replace("{branch}", args.branchName)
     .replace("{path}", args.path)
-  console.log(requestPath)
+
   return axios
     .get(requestPath, {
       httpsAgent: new https.Agent({

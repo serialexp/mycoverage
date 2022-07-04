@@ -14,15 +14,15 @@ describe("coverageData", () => {
       })
 
     const coverage = new CoberturaCoverage()
-    console.log("including " + 0)
-    await coverage.init(datas[0] || "", "file0")
+    //console.log("including " + 0)
+    await coverage.init(datas[0] || "")
 
     expect(coverage.data.coverage.packages.length).toBe(595)
 
     for (let i = 1; i < datas.length; i++) {
-      console.log("including " + i)
+      //console.log("including " + i)
       const newCoverage = new CoberturaCoverage()
-      await newCoverage.init(datas[i] || "", "file" + i)
+      await newCoverage.init(datas[i] || "")
 
       newCoverage.data.coverage.packages.forEach((pack) => {
         pack.files.forEach((file) => {
@@ -37,15 +37,15 @@ describe("coverageData", () => {
     expect(coverage.data.coverage.metrics?.elements).toBe(72647)
 
     const otherCoverage = new CoberturaCoverage()
-    console.log("including " + (datas.length - 1))
-    await otherCoverage.init(datas[datas.length - 1] || "", "file" + (datas.length - 1))
+    //console.log("including " + (datas.length - 1))
+    await otherCoverage.init(datas[datas.length - 1] || "")
 
     expect(otherCoverage.data.coverage.packages.length).toBe(504)
 
     for (let i = datas.length - 2; i >= 0; i--) {
-      console.log("including " + i)
+      //console.log("including " + i)
       const newCoverage = new CoberturaCoverage()
-      await newCoverage.init(datas[i] || "", "file" + i)
+      await newCoverage.init(datas[i] || "")
 
       newCoverage.data.coverage.packages.forEach((pack) => {
         pack.files.forEach((file) => {
@@ -59,7 +59,7 @@ describe("coverageData", () => {
 
     expect(coverageNumbers).toMatchObject(otherCoverageNumbers)
 
-    console.log("overall", coverage.data.coverage.metrics, otherCoverage.data.coverage.metrics)
+    //console.log("overall", coverage.data.coverage.metrics, otherCoverage.data.coverage.metrics)
 
     // const data1 = coverage.data.coverage.packages.find(
     //   (p) => p.name === "src.components.DMS.MemoPopup"
@@ -73,11 +73,11 @@ describe("coverageData", () => {
     // expect(data1).toMatchObject(data2)
 
     // output package order
-    console.log("coverage", JSON.stringify(coverage.data.coverage.packages.map((p) => p.name)))
-    console.log(
-      "otherCoverage",
-      JSON.stringify(otherCoverage.data.coverage.packages.map((p) => p.name))
-    )
+    // console.log("coverage", JSON.stringify(coverage.data.coverage.packages.map((p) => p.name)))
+    // console.log(
+    //   "otherCoverage",
+    //   JSON.stringify(otherCoverage.data.coverage.packages.map((p) => p.name))
+    // )
 
     // packages should be in the same order
     expect(coverage.data.coverage.packages.map((p) => p.name)).toMatchObject(

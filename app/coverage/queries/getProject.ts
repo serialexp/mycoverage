@@ -11,12 +11,12 @@ export default async function getProject(args: { projectSlug?: string }, { sessi
           createdDate: "desc",
         },
         include: {
-          commits: {
+          CommitOnBranch: {
             include: {
-              commit: true,
+              Commit: true,
             },
             orderBy: {
-              commit: {
+              Commit: {
                 createdDate: "desc",
               },
             },

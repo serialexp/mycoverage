@@ -4,11 +4,17 @@ import {
   CoberturaFunction,
   CoberturaLine,
 } from "app/library/CoberturaCoverage"
+import { SourceHit, SourceHits } from "app/library/types"
+import {
+  Coverage as ProtobufCoverage,
+  LineInformation,
+  LineInformation_LineType,
+} from "./proto_coverage"
 
 type CoverageInfo = {
   line: number
   hits: number
-  hitsBySource: Record<string, number>
+  hitsBySource: HitsBySource
 } & (
   | {
       type: "branch"
@@ -26,6 +32,8 @@ type CoverageInfo = {
     }
 )
 
+type HitsBySource = Record<string, number[]>
+
 export class CoverageData {
   coverage: {
     [lineNr: string]: CoverageInfo[]
@@ -36,8 +44,12 @@ export class CoverageData {
     function: "func",
   }
 
-  constructor() {
-    this.coverage = {}
+  constructor(
+    coverageData: {
+      [lineNr: string]: CoverageInfo[]
+    } = {}
+  ) {
+    this.coverage = coverageData
   }
 
   public addCoverage(lineNr: string, data: CoverageInfo) {
@@ -57,52 +69,67 @@ export class CoverageData {
     }
   }
 
-  static fromCoberturaFile(
-    file: Omit<CoberturaFile, "coverageData">,
-    source?: string
-  ): CoverageData {
+  public hasSourceHits() {
+    return Object.keys(this.coverage).some((lineNr) => {
+      const line = this.coverage[lineNr]
+      return line?.some((item) => {
+        return Object.keys(item.hitsBySource).length > 0
+      })
+    })
+  }
+
+  static fromCoberturaFile(file: Partial<CoberturaFile>, sources?: SourceHit[]): CoverageData {
+    if (file.coverageData) return file.coverageData
+
     const data = new CoverageData()
+
+    const pullHitInfo = (
+      sources: SourceHit[] | undefined,
+      type: "b" | "f" | "s",
+      lineNr: number
+    ) => {
+      const hitsBySource: HitsBySource = {}
+      sources?.forEach((source) => {
+        hitsBySource[source.source] =
+          (type === "b" ? source[type][lineNr]! : [source[type][lineNr]!]) || []
+      })
+      return hitsBySource
+    }
 
     file.lines?.forEach((line) => {
       if (line.branch) {
+        const hitsBySource = pullHitInfo(sources, "b", line.number)
+
         data.addCoverage(line.number.toString(), {
           type: "branch",
           line: line.number,
           hits: line.hits,
           conditionals: line.conditions ? line.conditions : 0,
           coveredConditionals: line.coveredConditions ? line.coveredConditions : 0,
-          hitsBySource: source
-            ? {
-                [source]: line.hits,
-              }
-            : {},
+          hitsBySource,
         })
       } else {
+        const hitsBySource = pullHitInfo(sources, "s", line.number)
+
         data.addCoverage(line.number.toString(), {
           type: "statement",
           line: line.number,
           hits: line.hits,
-          hitsBySource: source
-            ? {
-                [source]: line.hits,
-              }
-            : {},
+          hitsBySource,
         })
       }
     })
 
     file.functions?.forEach((func) => {
+      const hitsBySource = pullHitInfo(sources, "f", func.number)
+
       data.addCoverage(func.number.toString(), {
         type: "function",
         line: func.number,
         hits: func.hits,
         signature: func.signature,
         name: func.name,
-        hitsBySource: source
-          ? {
-              [source]: func.hits,
-            }
-          : {},
+        hitsBySource,
       })
     })
 
@@ -112,14 +139,18 @@ export class CoverageData {
   static fromString(str: string, defaultSource?: string) {
     const data = new CoverageData()
 
-    const getHitsBySource = (data?: string) => {
-      return data
-        ?.split(";")
-        .map((kv) => kv.split("="))
-        .reduce((map, current, index) => {
-          map[current[0] || ""] = current[1]
-          return map
-        }, {})
+    const getHitsBySource = (data?: string): HitsBySource => {
+      return (
+        data
+          ?.split(";")
+          .map((kv) => kv.split("="))
+          .reduce((map, current, index): HitsBySource => {
+            if (current[0] && current[1]) {
+              map[current[0]] = current[1]?.split("|")
+            }
+            return map
+          }, {}) || {}
+      )
     }
 
     const lines = str.split("\n")
@@ -136,7 +167,7 @@ export class CoverageData {
             hitsBySource: hitsBySource
               ? hitsBySource
               : defaultSource
-              ? { [defaultSource]: hits }
+              ? { [defaultSource]: [hits] }
               : {},
           })
           break
@@ -153,7 +184,7 @@ export class CoverageData {
             hitsBySource: hitsBySource
               ? hitsBySource
               : defaultSource
-              ? { [defaultSource]: hits }
+              ? { [defaultSource]: [hits] }
               : {},
           })
           break
@@ -170,7 +201,7 @@ export class CoverageData {
             hitsBySource: hitsBySource
               ? hitsBySource
               : defaultSource
-              ? { [defaultSource]: hits }
+              ? { [defaultSource]: [hits] }
               : {},
           })
           break
@@ -179,6 +210,129 @@ export class CoverageData {
     })
 
     return data
+  }
+
+  public addFunction(
+    line: number,
+    hits: number,
+    signature: string = "",
+    name: string = "",
+    hitsBySource: HitsBySource
+  ) {
+    this.addCoverage(line.toString(), {
+      type: "function",
+      line: line,
+      hits: hits,
+      signature,
+      name,
+      hitsBySource: hitsBySource,
+    })
+  }
+
+  public addStatement(line: number, hits: number, hitsBySource: HitsBySource) {
+    this.addCoverage(line.toString(), {
+      type: "statement",
+      line,
+      hits,
+      hitsBySource,
+    })
+  }
+
+  public addBranch(
+    line: number,
+    hits: number,
+    coveredBranches: number,
+    totalBranches: number,
+    hitsBySource: HitsBySource
+  ) {
+    this.addCoverage(line.toString(), {
+      type: "branch",
+      line,
+      hits,
+      coveredConditionals: coveredBranches,
+      conditionals: totalBranches,
+      hitsBySource: hitsBySource,
+    })
+  }
+
+  public static fromProtobuf(data: Uint8Array) {
+    const parsed = ProtobufCoverage.decode(data)
+
+    const coverage = new CoverageData()
+
+    parsed.lineInfo.forEach((line) => {
+      const newHits: HitsBySource = {}
+      line.hitsBySource.forEach((item) => {
+        const sourceName = parsed.sources[item.sourceIndex] || "?"
+        newHits[sourceName] = item.hits
+      })
+      if (line.type === LineInformation_LineType.BRANCH) {
+        coverage.addBranch(line.lineNumber, line.hits, line.coveredBranches, line.branches, newHits)
+      } else if (line.type === LineInformation_LineType.FUNCTION) {
+        coverage.addFunction(line.lineNumber, line.hits, "", "", newHits)
+      } else {
+        coverage.addStatement(line.lineNumber, line.hits, newHits)
+      }
+    })
+
+    return coverage
+  }
+
+  public toProtobuf() {
+    const allSources: string[] = []
+    Object.keys(this.coverage).forEach((lineNr) => {
+      this.coverage[lineNr]?.forEach((line) => {
+        Object.keys(line.hitsBySource).forEach((source) => {
+          if (!allSources.includes(source)) {
+            allSources.push(source)
+          }
+        })
+      })
+    })
+    const lineInfo: LineInformation[] = []
+    Object.keys(this.coverage).forEach((lineNr) => {
+      this.coverage[lineNr]?.forEach((line) => {
+        const hitsBySource = Object.keys(line.hitsBySource).map((source) => {
+          return {
+            sourceIndex: allSources.indexOf(source),
+            hits: line.hitsBySource[source] || [0],
+          }
+        })
+        if (line.type === "function") {
+          lineInfo.push({
+            type: LineInformation_LineType.FUNCTION,
+            hits: line.hits,
+            branches: 0,
+            coveredBranches: 0,
+            hitsBySource,
+            lineNumber: parseInt(lineNr),
+          })
+        } else if (line.type === "statement") {
+          lineInfo.push({
+            type: LineInformation_LineType.STATEMENT,
+            hits: line.hits,
+            branches: 0,
+            coveredBranches: 0,
+            hitsBySource,
+            lineNumber: parseInt(lineNr),
+          })
+        } else {
+          lineInfo.push({
+            type: LineInformation_LineType.BRANCH,
+            hits: line.hits,
+            branches: line.conditionals,
+            coveredBranches: line.coveredConditionals,
+            hitsBySource,
+            lineNumber: parseInt(lineNr),
+          })
+        }
+      })
+    })
+
+    return ProtobufCoverage.encode({
+      sources: allSources,
+      lineInfo: lineInfo,
+    }).finish()
   }
 
   public toCoberturaFile(): {
@@ -232,8 +386,13 @@ export class CoverageData {
         const hitsBySource = Object.keys(line.hitsBySource)
           .sort((a, b) => a.localeCompare(b))
           .map((k) => {
-            return k + "=" + line.hitsBySource[k]
+            if (line.hitsBySource[k]?.some((i) => i > 0)) {
+              return k + "=" + line.hitsBySource[k]?.join("|")
+            } else {
+              return undefined
+            }
           })
+          .filter((i) => i)
           .join(";")
         if (line.type === "statement") {
           lines.push(type + "," + line.line + "," + line.hits + "," + hitsBySource)
@@ -292,9 +451,16 @@ export class CoverageData {
 
           if (existingItem) {
             Object.keys(newItem.hitsBySource).forEach((key) => {
-              const val = newItem.hitsBySource[key]
-              if (val !== undefined) {
-                existingItem.hitsBySource[key] = (existingItem.hitsBySource[key] || 0) + val
+              const newVal = newItem.hitsBySource[key]
+              if (!existingItem.hitsBySource[key]) {
+                existingItem.hitsBySource[key] = newVal
+              } else if (
+                newVal !== undefined &&
+                newVal.length === existingItem.hitsBySource[key].length
+              ) {
+                existingItem.hitsBySource[key] = existingItem.hitsBySource[key].map(
+                  (val, index) => val + newVal[index]
+                )
               }
             })
             existingItem.hits = existingItem.hits + newItem.hits

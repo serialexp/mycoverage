@@ -13,7 +13,13 @@ const prisma = new EnhancedPrisma({
   ],
 })
 prisma.$on("query", async (e: any) => {
-  //console.log(`${e.query} ${e.params}`)
+  if (process.env.LOG_QUERIES) {
+    if (e.query.includes("SELECT")) {
+      console.log(`${e.query} ${e.params}`)
+    } else {
+      console.log(`${e.query}`)
+    }
+  }
 })
 
 export default prisma

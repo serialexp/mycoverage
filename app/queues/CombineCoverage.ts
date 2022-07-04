@@ -1,8 +1,10 @@
 import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
-import { Queue } from "bullmq"
+import { Queue, QueueScheduler } from "bullmq"
 
-export const combineCoverageQueue = new Queue("combinecoverage", { connection: queueConfig })
+export const combineCoverageQueue = new Queue("combinecoverage", {
+  connection: queueConfig,
+})
 
 export const combineCoverageJob = (
   commit: Commit,
@@ -21,7 +23,8 @@ export const combineCoverageJob = (
     },
     {
       removeOnComplete: true,
-      removeOnFail: 3,
+      removeOnFail: true,
+      timeout: 300 * 1000,
     }
   )
 }

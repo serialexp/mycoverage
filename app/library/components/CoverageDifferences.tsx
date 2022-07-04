@@ -22,17 +22,18 @@ const RowItem = (props: Diff & { link?: (path?: string) => RouteUrlObject }) => 
         )}
       </Td>
       <Td isNumeric>
-        {props.base ? format.format(props.base.coveredPercentage) : "?"}%<br />
+        {props.base ? format.format(props.base.coveredPercentage, true) : "?"}%<br />
         {props.base?.coveredElements} / {props.base?.elements}
       </Td>
       <Td>&raquo;</Td>
       <Td isNumeric>
-        {format.format(props.next?.coveredPercentage)}%<br />
+        {format.format(props.next?.coveredPercentage, true)}%<br />
         {props.next?.coveredElements} / {props.next?.elements}
       </Td>
       <Td isNumeric></Td>
       <Td isNumeric>
-        <StatArrow type={isIncrease ? "increase" : "decrease"} /> {format.format(difference)}
+        {difference !== 0 ? <StatArrow type={isIncrease ? "increase" : "decrease"} /> : null}
+        {format.format(difference, true)}
       </Td>
     </Tr>
   )
@@ -61,6 +62,10 @@ const calculateChange = (diff: Diff) => {
   )
 }
 
+const getDiff = (diff: Diff) => {
+  return (diff.next?.coveredPercentage || 0) - (diff.base?.coveredPercentage || 0)
+}
+
 export const CoverageDifferences = (props: {
   diff: CoverageDifference | null
   link?: (path?: string) => RouteUrlObject
@@ -84,7 +89,7 @@ export const CoverageDifferences = (props: {
                 Coverage
               </Th>
               <Th isNumeric colspan={2}>
-                Difference
+                Line Diff
               </Th>
             </Tr>
             {removedFiles?.map((file) => {
@@ -103,11 +108,11 @@ export const CoverageDifferences = (props: {
             Coverage
           </Th>
           <Th isNumeric colspan={2}>
-            Difference
+            Line Diff
           </Th>
         </Tr>
         {fileDifferences
-          ?.filter((diff) => diff.base && diff.next && calculateChange(diff) <= 0)
+          ?.filter((diff) => diff.base && diff.next && getDiff(diff) <= 0)
           .map((diff, i) => {
             return <RowItem key={i} base={diff.base} next={diff.next} link={props.link} />
           })}
@@ -122,11 +127,11 @@ export const CoverageDifferences = (props: {
             Coverage
           </Th>
           <Th isNumeric colspan={2}>
-            Difference
+            Line Diff
           </Th>
         </Tr>
         {fileDifferences
-          ?.filter((diff) => diff.next && calculateChange(diff) > 0)
+          ?.filter((diff) => diff.next && getDiff(diff) > 0)
           .map((diff, i) => {
             return <RowItem key={i} base={diff.base} next={diff.next} link={props.link} />
           })}

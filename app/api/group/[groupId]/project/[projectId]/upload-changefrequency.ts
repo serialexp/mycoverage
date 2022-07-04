@@ -1,13 +1,8 @@
-import { executeForEachSubpath } from "app/library/executeForEachSubpath"
-import { getPathToPackageFileIds } from "app/library/getPathToPackageFileIds"
+import { ChangeFrequencyData } from "app/library/types"
+import { changeFrequencyJob } from "app/queues/ChangeFrequencyQueue"
 import { BlitzApiRequest, BlitzApiResponse } from "blitz"
-import { fixQuery } from "../../../../../library/fixQuery"
 import db from "db"
-
-interface ChangeFrequence {
-  percentage: number
-  changes: number
-}
+import { fixQuery } from "../../../../../library/fixQuery"
 
 export default async function handler(req: BlitzApiRequest, res: BlitzApiResponse) {
   if (req.headers["content-type"] !== "application/json") {
@@ -55,7 +50,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     }
 
     if (!req.body) {
-      throw new Error("No sonarqube data posted")
+      throw new Error("No change frequency data posted")
     }
 
     const commit = await db["commit"].findFirst({
@@ -68,103 +63,12 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       throw new Error("Commit with this id does not exist")
     }
 
-    const postData: {
-      changes: Record<string, ChangeFrequence>
-      totalCommits: number
-    } = req.body
+    const postData: ChangeFrequencyData = req.body
 
-    console.log("changes", postData)
-
-    const { packagePathToId, pathToFileId, packageIdToPath } = await getPathToPackageFileIds({
-      commitId: commit.id,
-    })
-
-    const changesPerPackage: Record<number, number> = {}
-    let totalNumberOfChanges = 0
-    await Promise.all(
-      Object.keys(postData.changes).map((changePath) => {
-        const changeCount = postData.changes[changePath]?.changes || 0
-
-        if (!Number.isInteger(changeCount))
-          throw new Error(
-            `Invalid change count for ${changePath}: ${JSON.stringify(
-              postData.changes[changePath]
-            )}`
-          )
-
-        executeForEachSubpath(changePath, (stringPath) => {
-          const packageId = packagePathToId[stringPath]
-          if (packageId) {
-            if (!changesPerPackage[packageId]) {
-              changesPerPackage[packageId] = 0
-            }
-            changesPerPackage[packageId] += changeCount
-          }
-        })
-        totalNumberOfChanges += changeCount
-
-        const existingFile = pathToFileId[changePath]
-        if (existingFile) {
-          console.log(
-            `Found ${changeCount} ${postData.changes[changePath]?.percentage} for ${changePath} (id ${existingFile})`
-          )
-          return db.fileCoverage
-            .updateMany({
-              where: {
-                id: existingFile,
-              },
-              data: {
-                changes: changeCount,
-                changeRatio: postData.changes[changePath]?.percentage,
-              },
-            })
-            .then((result) => undefined)
-        } else {
-          return Promise.resolve()
-        }
-      })
-    )
-
-    await Promise.all(
-      Object.keys(changesPerPackage).map((packageId) => {
-        console.log(
-          `Updating packageCoverage ${packageIdToPath[packageId]} to ${
-            changesPerPackage[packageId]
-          } / ${(changesPerPackage[packageId] / totalNumberOfChanges) * 100}%`
-        )
-        return db.packageCoverage.update({
-          where: {
-            id: parseInt(packageId),
-          },
-          data: {
-            changes: changesPerPackage[packageId],
-            changeRatio: (changesPerPackage[packageId] / totalNumberOfChanges) * 100,
-          },
-        })
-      })
-    )
-
-    await db.jobLog.create({
-      data: {
-        name: "changefrequency",
-        namespace: query.groupId,
-        repository: query.projectId,
-        message: "Inserted change frequency information for commit " + query.ref,
-      },
-    })
-
-    console.log("Done")
+    changeFrequencyJob(postData, commit, group.slug, project.slug)
 
     return res.status(200).send("Thanks")
   } catch (error) {
-    await db.jobLog.create({
-      data: {
-        name: "changefrequency",
-        namespace: query.groupId,
-        repository: query.projectId,
-        message: "Failure inserting change frequency information " + error.message.substr(0, 100),
-      },
-    })
     return res.status(500).json({
       message: error.message,
     })

@@ -1,6 +1,7 @@
 import { Link as ChakraLink, Tbody, Thead } from "@chakra-ui/react"
-import { Table, Td, Th, Tr } from "@chakra-ui/react"
+import { Table, Td, Th, Tr, Tag } from "@chakra-ui/react"
 import { Minibar } from "app/library/components/Minbar"
+import { DiffHelper } from "app/library/components/DiffHelper"
 import { format } from "app/library/format"
 import { Link, Routes } from "blitz"
 import { Commit, Test } from "db"
@@ -8,8 +9,19 @@ import { Commit, Test } from "db"
 export const TestResults = (props: {
   groupId: string
   projectId: string
-  branchSlug: string
-  commit: (Commit & { Test: (Test & { TestInstance: { index: number }[] })[] }) | null | undefined
+  branchSlug?: string
+  commit:
+    | (Commit & {
+        Test: (Test & { TestInstance: { index: number; createdDate: Date; id: number }[] })[]
+      })
+    | null
+    | undefined
+  baseCommit?:
+    | (Commit & {
+        Test: (Test & { TestInstance: { index: number; createdDate: Date; id: number }[] })[]
+      })
+    | null
+    | undefined
 }) => {
   return (
     <Table>
@@ -18,43 +30,74 @@ export const TestResults = (props: {
           <Th>Test</Th>
           <Th>Result time</Th>
           <Th isNumeric>Instances</Th>
-          <Th isNumeric>Statements</Th>
-          <Th isNumeric>Conditions</Th>
-          <Th isNumeric>Methods</Th>
-          <Th isNumeric>Coverage</Th>
+          <Th isNumeric colSpan={2}>
+            Coverage
+          </Th>
         </Tr>
       </Thead>
       <Tbody>
         {props.commit?.Test.map((test) => {
+          const baseTest = props.baseCommit?.Test.find((base) => base.testName === test.testName)
           return (
-            <Tr key={test.id} _hover={{ bg: "primary.50" }}>
-              <Td>
-                <Link
-                  href={Routes.TestPage({
-                    groupId: props.groupId,
-                    projectId: props.projectId,
-                    branchId: props.branchSlug,
-                    testId: test.id,
+            <>
+              <Tr key={test.id} _hover={{ bg: "primary.50" }}>
+                <Td wordBreak={"break-all"}>
+                  {props.branchSlug ? (
+                    <Link
+                      href={Routes.TestPage({
+                        groupId: props.groupId,
+                        projectId: props.projectId,
+                        branchId: props.branchSlug,
+                        testId: test.id,
+                      })}
+                    >
+                      <ChakraLink color={"blue.500"}>{test.testName}</ChakraLink>
+                    </Link>
+                  ) : (
+                    test.testName
+                  )}
+                </Td>
+                <Td>{test.createdDate.toLocaleString()}</Td>
+                <Td isNumeric>{test.TestInstance.length}</Td>
+                <Td isNumeric>
+                  <DiffHelper
+                    from={baseTest ? baseTest.coveredElements - baseTest.elements : 0}
+                    to={test.coveredElements - test.elements}
+                    fromAbsolute={baseTest?.elements}
+                    isPercentage={false}
+                  />
+                </Td>
+                <Td isNumeric>
+                  <Minibar progress={test.coveredPercentage / 100} />
+                </Td>
+              </Tr>
+
+              <Tr>
+                <Td colspan={5}>
+                  {test.TestInstance.map((instance) => {
+                    return (
+                      <Tag key={instance.id} ml={2}>
+                        <Link
+                          href={Routes.TestInstancePage({
+                            groupId: props.groupId,
+                            projectId: props.projectId,
+                            commitRef: props.commit?.ref || "",
+                            testInstanceId: instance.id,
+                          })}
+                        >
+                          <ChakraLink
+                            title={instance.createdDate.toLocaleString()}
+                            color={"blue.500"}
+                          >
+                            {instance.index}
+                          </ChakraLink>
+                        </Link>
+                      </Tag>
+                    )
                   })}
-                >
-                  <ChakraLink color={"blue.500"}>{test.testName}</ChakraLink>
-                </Link>
-              </Td>
-              <Td>{test.createdDate.toLocaleString()}</Td>
-              <Td isNumeric>{test.TestInstance.length}</Td>
-              <Td isNumeric>
-                {format.format(test.coveredStatements)}/{format.format(test.statements)}
-              </Td>
-              <Td isNumeric>
-                {format.format(test.coveredConditionals)}/{format.format(test.conditionals)}
-              </Td>
-              <Td isNumeric>
-                {format.format(test.coveredMethods)}/{format.format(test.methods)}
-              </Td>
-              <Td isNumeric>
-                <Minibar progress={test.coveredPercentage / 100} />
-              </Td>
-            </Tr>
+                </Td>
+              </Tr>
+            </>
           )
         })}
       </Tbody>

@@ -13,8 +13,9 @@ export const DiffHelper = (props: {
       <StatArrow type={props.from < props.to ? "increase" : "decrease"} />
       {format.format(props.to - props.from)}
       {props.isPercentage ? "%" : null}
-      {props.fromAbsolute ? " from " + format.format(props.fromAbsolute) : ""}
-      {props.isPercentage ? "%" : null}
+      {props.fromAbsolute
+        ? " from " + format.format(props.fromAbsolute) + (props.isPercentage ? "%" : "")
+        : ""}
     </>
   )
 }

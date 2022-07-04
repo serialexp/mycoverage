@@ -14,7 +14,7 @@ export default async function getFile(
     include: {
       CodeIssueOnFileCoverage: {
         include: {
-          codeIssue: true,
+          CodeIssue: true,
         },
       },
     },

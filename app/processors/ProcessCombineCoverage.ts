@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
-import { CoverageData } from "app/library/CoverageData"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { insertCoverageData } from "app/library/insertCoverageData"
+import { getSetting } from "app/library/setting"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
@@ -15,6 +15,7 @@ export const combineCoverageWorker = new Worker<{
 }>(
   "combinecoverage",
   async (job) => {
+    const startTime = new Date()
     const { commit, testInstance, namespaceSlug, repositorySlug } = job.data
     let test: Test | null = null
     try {
@@ -42,16 +43,24 @@ export const combineCoverageWorker = new Worker<{
         })
 
         console.log(
-          "Total size of combinable data estimated at: " +
+          "test: Total size of combinable data estimated at: " +
             (instancesWithDatasize._sum.dataSize || 0) / 1024 / 1024 +
             "MB"
         )
+
+        const settingValue = await getSetting("max-combine-coverage-size")
+        const sizeInMegabytes = parseInt(settingValue || "100")
+
         if (
           instancesWithDatasize &&
           instancesWithDatasize._sum.dataSize &&
-          instancesWithDatasize._sum.dataSize > 100 * 1024 * 1024
+          instancesWithDatasize._sum.dataSize > sizeInMegabytes * 1024 * 1024
         ) {
-          throw new Error("Data to combine is inordinately big, cancelling.")
+          throw new Error(
+            `Data to combine is ${Math.ceil(
+              instancesWithDatasize._sum.dataSize / 1024 / 1024
+            )}, maximum is ${sizeInMegabytes}, cancelling.`
+          )
         }
 
         //Retrieve all the datas!
@@ -79,35 +88,35 @@ export const combineCoverageWorker = new Worker<{
 
         const testCoverage = new CoberturaCoverage()
 
-        console.log("Merging coverage information for all test instances")
+        console.log(
+          `test: Merging coverage information for ${instancesForTest.length} test instances`
+        )
 
-        let fileCounter = 0
         const start = new Date()
         instancesForTest.forEach((instance) => {
+          let packages = 0,
+            files = 0
           instance.PackageCoverage.forEach(async (pkg) => {
+            packages++
             pkg.FileCoverage?.forEach((file) => {
-              fileCounter++
-              testCoverage.mergeCoverageString(
-                pkg.name,
-                file.name,
-                file.coverageData,
-                test?.testName
-              )
+              files++
+              testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
             })
           })
+          console.log(
+            `test: Merged ${packages} packages and ${files} files for instance index ${instance.index} ${instance.id}`
+          )
         })
         CoberturaCoverage.updateMetrics(testCoverage.data)
 
         console.log(
-          "Combined coverage results for " +
-            fileCounter +
-            " files in " +
+          "test: Combined coverage results for files in " +
             (new Date().getTime() - start.getTime()) +
             "ms"
         )
 
         console.log(
-          "Test instance combination with previous test instances result: " +
+          "test: Test instance combination with previous test instances result: " +
             testCoverage.data.coverage.metrics?.coveredelements +
             "/" +
             testCoverage.data.coverage.metrics?.elements +
@@ -116,14 +125,14 @@ export const combineCoverageWorker = new Worker<{
             " instances"
         )
 
-        console.log("Deleting existing results for test")
+        console.log(`test: Deleting existing results for test ${test.testName}`)
         await mydb.packageCoverage.deleteMany({
           where: {
             testId: test.id,
           },
         })
 
-        console.log("Updating coverage summary data for test")
+        console.log(`test: Updating coverage summary data for test ${test.testName}`)
         await mydb.test.update({
           where: {
             id: test.id,
@@ -142,9 +151,9 @@ export const combineCoverageWorker = new Worker<{
           },
         })
 
-        console.log("Inserting new package and file coverage for test")
+        console.log(`test: Inserting new package and file coverage for test ${test.testName}`)
 
-        await insertCoverageData(testCoverage.data.coverage, undefined, {
+        await insertCoverageData(testCoverage.data.coverage, {
           testId: test.id,
         })
       }
@@ -152,7 +161,7 @@ export const combineCoverageWorker = new Worker<{
       //DO THE COMBINATION STUFF FOR THE COMMIT
       if (!commit) throw Error("Cannot combine coverage without a commit")
 
-      console.log("Combining test coverage results for commit")
+      console.log("commit: Combining test coverage results for commit")
 
       const latestTests = await mydb.test.findMany({
         where: {
@@ -175,7 +184,7 @@ export const combineCoverageWorker = new Worker<{
         lastOfEach[test.testName] = test
       })
 
-      console.log("Found " + Object.keys(lastOfEach).length + " tests to combine.")
+      console.log("commit: Found " + Object.keys(lastOfEach).length + " tests to combine.")
 
       const coverage = new CoberturaCoverage()
 
@@ -183,7 +192,7 @@ export const combineCoverageWorker = new Worker<{
       const start = new Date()
       Object.values(lastOfEach).forEach(async (test) => {
         console.log(
-          "Combining: " +
+          "commit: Combining: " +
             test.testName +
             " with " +
             test.coveredElements +
@@ -195,7 +204,7 @@ export const combineCoverageWorker = new Worker<{
         test.PackageCoverage.forEach(async (pkg) => {
           pkg.FileCoverage?.forEach((file) => {
             fileCounter++
-            coverage.mergeCoverageString(pkg.name, file.name, file.coverageData, test.testName)
+            coverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
           })
         })
       })
@@ -203,7 +212,7 @@ export const combineCoverageWorker = new Worker<{
       CoberturaCoverage.updateMetrics(coverage.data)
 
       console.log(
-        "Combined coverage results for " +
+        "commit: Combined coverage results for " +
           fileCounter +
           " files in " +
           (new Date().getTime() - start.getTime()) +
@@ -211,21 +220,21 @@ export const combineCoverageWorker = new Worker<{
       )
 
       console.log(
-        "All test combination result " +
+        "commit: All test combination result " +
           coverage.data.coverage.metrics?.coveredelements +
           "/" +
           coverage.data.coverage.metrics?.elements +
           " covered"
       )
 
-      console.log("Deleting existing results for commit")
+      console.log("commit: Deleting existing results for commit")
       await mydb.packageCoverage.deleteMany({
         where: {
           commitId: commit.id,
         },
       })
 
-      console.log("Updating coverage summary data for commit", commit.id)
+      console.log("commit: Updating coverage summary data for commit", commit.id)
       await mydb.commit.update({
         where: {
           id: commit.id,
@@ -244,14 +253,15 @@ export const combineCoverageWorker = new Worker<{
         },
       })
 
-      console.log("Inserting new package and file coverage for commit")
-      await insertCoverageData(coverage.data.coverage, undefined, {
+      console.log("commit: Inserting new package and file coverage for commit")
+      await insertCoverageData(coverage.data.coverage, {
         commitId: commit.id,
       })
 
       await mydb.jobLog.create({
         data: {
           name: "combinecoverage",
+          commitRef: commit.ref,
           namespace: namespaceSlug,
           repository: repositorySlug,
           message:
@@ -260,14 +270,17 @@ export const combineCoverageWorker = new Worker<{
             (testInstance
               ? " and test instance " + testInstance.id + " for test " + test?.testName
               : ""),
+          timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
 
       return true
     } catch (error) {
+      console.error("Failure processing test instance", error)
       await db.jobLog.create({
         data: {
           name: "combinecoverage",
+          commitRef: commit.ref,
           namespace: namespaceSlug,
           repository: repositorySlug,
           message:
@@ -278,12 +291,13 @@ export const combineCoverageWorker = new Worker<{
               : "") +
             ", error " +
             error.message,
+          timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
       return false
     }
   },
-  { connection: queueConfig }
+  { connection: queueConfig, lockDuration: 300 * 1000 }
 )
 
 combineCoverageWorker.on("completed", (job) => {

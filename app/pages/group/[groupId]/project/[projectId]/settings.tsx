@@ -123,6 +123,7 @@ const ProjectSettingsPage: BlitzPage = () => {
           <Td>
             <Input
               placeholder={"Test name"}
+              value={fields.testName}
               onChange={(e) => setFields((fields) => ({ ...fields, testName: e.target.value }))}
             />
           </Td>
@@ -130,6 +131,7 @@ const ProjectSettingsPage: BlitzPage = () => {
             <Input
               placeholder={"Instance count"}
               type={"number"}
+              value={fields.instanceCount}
               onChange={(e) =>
                 setFields((fields) => ({ ...fields, instanceCount: e.target.value }))
               }

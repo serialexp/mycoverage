@@ -56,7 +56,7 @@ const CommitPage: BlitzPage = () => {
           href={Routes.BranchPage({
             groupId,
             projectId,
-            branchId: commit.branches[0]?.branch.slug || "",
+            branchId: commit.CommitOnBranch[0]?.Branch.slug || "",
           })}
         >
           <Button>Back</Button>
@@ -91,9 +91,9 @@ const CommitPage: BlitzPage = () => {
       </Actions>
       <Subheading>Part of</Subheading>
       <Box p={4}>
-        {commit?.branches.map((b) => (
-          <Tag key={b.branch.id} mr={2} colorScheme={"secondary"}>
-            {b.branch.name}
+        {commit?.CommitOnBranch.map((b) => (
+          <Tag key={b.Branch.id} mr={2} colorScheme={"secondary"}>
+            {b.Branch.name}
           </Tag>
         ))}
       </Box>
@@ -106,7 +106,7 @@ const CommitPage: BlitzPage = () => {
       </Subheading>
       <IssueSummary commit={commit} projectId={projectId} groupId={groupId} />
       <Subheading mt={4} size={"md"}>
-        Test results
+        Test results ({commit.Test.length})
       </Subheading>
       {!satisfiesExpectedResults(commit, project.ExpectedResult).isOk ? (
         <Box p={2}>

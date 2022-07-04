@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "type": "command",
+      "name": "npm test:tsc",
+      "program": "/Users/bart.riepe/.nvm/versions/node/v14.19.1/bin/npm",
+      "args": ["run", "test:tsc"]
+    }
+  ]
+}
