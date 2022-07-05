@@ -196,6 +196,15 @@ model Group {
   @@index([slug], map: "Group.slug_index")
 }
 
+model PrHook {
+  id          Int      @id @default(autoincrement())
+  payload     String   @db.Text
+  createdDate DateTime @default(now())
+  updatedDate DateTime @updatedAt
+  Project     Project? @relation(references: [id], onDelete: Cascade, fields: [projectId])
+  projectId   Int?
+}
+
 model JobLog {
   id          Int      @id @default(autoincrement())
   name        String
@@ -263,6 +272,7 @@ model Project {
   @@index([groupId], map: "groupId")
   @@index([lastCommitId], map: "lastCommitId")
   @@index([slug], map: "Project.slug_index")
+  PrHook PrHook[]
 }
 
 model ExpectedResult {
