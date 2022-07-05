@@ -7,7 +7,7 @@ var argv = require("minimist")(process.argv)
 
 const workers = {
   upload: uploadWorker,
-  combineCoverage: combineCoverageWorker,
+  combinecoverage: combineCoverageWorker,
   sonarqube: sonarqubeWorker,
   changefrequency: changefrequencyWorker,
 }
@@ -15,7 +15,7 @@ const workers = {
 console.log(argv)
 
 Object.keys(workers).forEach((workerKey) => {
-  if (!argv.worker || argv.worker === workerKey) {
+  if (!argv.worker || argv.worker.toLowerCase() === workerKey.toLowerCase()) {
     console.log("starting worker", workerKey)
     const worker = workers[workerKey]
     worker.resume()
