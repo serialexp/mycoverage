@@ -7,10 +7,11 @@ import { Queue } from "bullmq"
 export const uploadQueue = new Queue("upload", { connection: queueConfig })
 
 export const uploadJob = (
-  coverageFile: CoberturaCoverage,
+  coverageFileKey: string,
   commit: Commit,
-  test: Test,
-  testInstance: TestInstance,
+  testName: string,
+  repositoryRoot: string | undefined,
+  testInstanceIndex: number,
   namespaceSlug: string,
   repositorySlug: string
 ) => {
@@ -18,10 +19,11 @@ export const uploadJob = (
   return uploadQueue.add(
     "upload",
     {
-      coverageFile,
+      coverageFileKey,
       commit,
-      test,
-      testInstance,
+      testName,
+      repositoryRoot,
+      testInstanceIndex,
       namespaceSlug,
       repositorySlug,
     },

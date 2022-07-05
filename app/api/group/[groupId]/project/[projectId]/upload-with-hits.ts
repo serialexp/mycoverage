@@ -32,11 +32,30 @@ interface RequestBody {
 export default async function handler(req: BlitzApiRequest, res: BlitzApiResponse) {
   const startTime = new Date()
 
+  let timeForLast = new Date()
+  let requestId = Math.round(Math.random() * 900000 + 100000)
+  const timeSinceLast = (...args: any[]) => {
+    let originalTime = timeForLast
+    timeForLast = new Date()
+    console.log(requestId, "[" + (timeForLast.getTime() - originalTime.getTime()) + "ms]", ...args)
+  }
+  const measure = async (what: string, fn: () => Promise<any>) => {
+    const startTime = new Date()
+    const result = await fn()
+    console.log(
+      requestId,
+      "measure",
+      "[" + (new Date().getTime() - startTime.getTime()) + "ms]",
+      what
+    )
+    return result
+  }
+
   if (req.headers["content-type"] !== "application/json") {
     return res.status(400).send("Content type must be application/json")
   }
 
-  console.log("serving upload-with-hits")
+  timeSinceLast("serving upload-with-hits")
   const query = fixQuery(req.query)
 
   const jobLog = await db.jobLog.create({
@@ -50,8 +69,9 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
   })
 
   try {
-    console.log("validating")
-    schema.parse(req.body)
+    await measure("parse schema", () => {
+      return schema.parseAsync(req.body)
+    })
   } catch (error) {
     res.status(400).json(error)
     return
@@ -67,12 +87,16 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     },
   })
 
+  const testInstanceIndex = query.index
+    ? parseInt(query.index)
+    : Math.floor(Math.random() * 1000000)
+
   const { hits, coverage } = req.body as RequestBody
   if (query.projectId && query.branch && query.testName && query.ref && query.index) {
     try {
       const mydb: PrismaClient = db
 
-      console.log("find group")
+      timeSinceLast("find group")
       const groupInteger = parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
@@ -91,7 +115,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("Specified group does not exist")
       }
 
-      console.log("find project")
+      timeSinceLast("find project")
       const projectInteger = parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
@@ -127,51 +151,51 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
-      console.log("uploading to s3")
+      timeSinceLast("uploading to s3")
+      // await new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     resolve(true)
+      //   }, Math.random() * 2000 + 1000)
+      // })
+
+      const s3FileKey =
+        process.env.S3_KEY_PREFIX +
+        group.slug +
+        "/" +
+        project.slug +
+        "/" +
+        query.ref +
+        "/instance-" +
+        query.testName +
+        "-" +
+        new Date().getTime() +
+        ".json"
+
       const s3 = new S3({})
-      await s3
-        .putObject({
-          Bucket: process.env.S3_BUCKET || "",
-          Key:
-            process.env.S3_KEY_PREFIX +
-            group.slug +
-            "/" +
-            project.slug +
-            "/" +
-            query.ref +
-            "/instance-" +
-            query.testName +
-            "-" +
-            new Date().getTime() +
-            ".json",
-          Body: JSON.stringify(req.body),
+      await measure("upload to s3", () => {
+        return s3
+          .putObject({
+            Bucket: process.env.S3_BUCKET || "",
+            Key: s3FileKey,
+            Body: JSON.stringify(req.body),
+          })
+          .promise()
+      })
+      timeSinceLast("uploaded")
+
+      await measure("update branch operations joblog", () => {
+        return db.jobLog.update({
+          where: {
+            id: jobLog.id,
+          },
+          data: {
+            status: "branch operations",
+            timeTaken: new Date().getTime() - startTime.getTime(),
+          },
         })
-        .promise()
-      console.log("uploaded")
-
-      console.log("parse file")
-      await db.jobLog.update({
-        where: {
-          id: jobLog.id,
-        },
-        data: {
-          status: "parsing",
-          timeTaken: new Date().getTime() - startTime.getTime(),
-        },
       })
-      const coverageFile = new CoberturaCoverage()
-      await coverageFile.init(coverage, hits)
 
-      await db.jobLog.update({
-        where: {
-          id: jobLog.id,
-        },
-        data: {
-          status: "branch operations",
-          timeTaken: new Date().getTime() - startTime.getTime(),
-        },
-      })
-      console.log("finding branch")
+      timeSinceLast("finding branch")
 
       let branch = await mydb.branch.findFirst({
         where: {
@@ -180,7 +204,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
       if (!branch) {
-        console.log("creating branch")
+        timeSinceLast("creating branch")
         branch = await mydb.branch.create({
           data: {
             name: query.branch,
@@ -191,15 +215,15 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         })
       }
 
-      console.log("find commit")
+      timeSinceLast("find commit")
       let commit = await mydb.commit.findFirst({
         where: {
           ref: query.ref,
         },
       })
-      console.log("commit is", commit)
+      timeSinceLast("commit is", commit)
       if (!commit) {
-        console.log("creating commit")
+        timeSinceLast("creating commit")
         commit = await mydb.commit.create({
           data: {
             ref: query.ref,
@@ -220,7 +244,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       if (!commit) throw new Error("Could not create commit for ref " + query.ref)
 
       try {
-        console.log("create commit on branch")
+        timeSinceLast("create commit on branch")
         const commitBranch = await mydb.commitOnBranch.create({
           data: {
             commitId: commit.id,
@@ -235,9 +259,9 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         }
       }
 
-      console.log("should update default?", project.defaultBaseBranch, branch.name)
+      timeSinceLast("should update default?", project.defaultBaseBranch, branch.name)
       if (project.defaultBaseBranch == branch.name) {
-        console.log("update last commit id")
+        timeSinceLast("update last commit id")
         await mydb.project.update({
           data: {
             lastCommitId: commit.id || null,
@@ -248,79 +272,14 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         })
       }
 
-      const covInfo = coverageFile.data.coverage
-
-      if (!covInfo) {
-        throw new Error("No coverage information in the input file, cannot read first project.")
-      }
-
-      if (!covInfo.metrics) {
-        throw new Error("Could not calculate metrics for input file.")
-      }
-
-      console.log("upsert test")
-      const test = await mydb.test.upsert({
-        where: {
-          testName_commitId: {
-            commitId: commit.id,
-            testName: query.testName,
-          },
-        },
-        update: {},
-        create: {
-          testName: query.testName,
-          repositoryRoot: query.repositoryRoot,
-          commitId: commit.id,
-          statements: covInfo.metrics.statements,
-          conditionals: covInfo.metrics.conditionals,
-          methods: covInfo.metrics.methods,
-          elements: covInfo.metrics.elements,
-          coveredStatements: covInfo.metrics.coveredstatements,
-          coveredConditionals: covInfo.metrics.coveredconditionals,
-          coveredMethods: covInfo.metrics.coveredmethods,
-          coveredElements: covInfo.metrics.coveredelements,
-          coveredPercentage: coveredPercentage(covInfo.metrics),
-        },
-      })
-
-      console.log("create test instance")
-
-      const testInstanceIndex = query.index
-        ? parseInt(query.index)
-        : Math.floor(Math.random() * 1000000)
-
-      // let testInstance = await mydb.testInstance.find({
-      //   where: {
-      //     testId: test.id,
-      //     index: testInstanceIndex
-      //   }
-      // })
-
-      const testInstance = await mydb.testInstance.create({
-        data: {
-          index: testInstanceIndex,
-          testId: test.id,
-          statements: covInfo.metrics.statements,
-          conditionals: covInfo.metrics.conditionals,
-          methods: covInfo.metrics.methods,
-          elements: covInfo.metrics.elements,
-          coveredStatements: covInfo.metrics.coveredstatements,
-          coveredConditionals: covInfo.metrics.coveredconditionals,
-          coveredMethods: covInfo.metrics.coveredmethods,
-          coveredElements: covInfo.metrics.coveredelements,
-          coveredPercentage: coveredPercentage(covInfo.metrics),
-          dataSize: parseInt(req.headers["content-length"] || "0"),
-        },
-      })
-
-      console.log("find first branch")
+      timeSinceLast("find first branch")
       const baseBranch = await mydb.branch.findFirst({
         where: {
           name: branch.baseBranch,
           projectId: project.id,
         },
       })
-      console.log("find commit on branch")
+      timeSinceLast("find commit on branch")
       const firstCommit = await mydb.commitOnBranch.findFirst({
         where: {
           branchId: branch.id,
@@ -336,7 +295,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       })
       const baseCommit = firstCommit?.Commit
 
-      console.log("create uploadjob")
+      timeSinceLast("create uploadjob")
       await db.jobLog.update({
         where: {
           id: jobLog.id,
@@ -347,7 +306,15 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      uploadJob(coverageFile, commit, test, testInstance, group.slug, project.slug)
+      uploadJob(
+        s3FileKey,
+        commit,
+        query.testName,
+        query.repositoryRoot,
+        testInstanceIndex,
+        group.slug,
+        project.slug
+      )
 
       await db.jobLog.update({
         where: {
@@ -360,27 +327,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      if (baseBranch && baseCommit) {
-        console.log("compare commits")
-        const baseBranchTest = await mydb.test.findFirst({
-          where: {
-            testName: query.testName,
-            commitId: baseCommit.id,
-          },
-        })
+      res.status(200).json({ code: "OK", message: "Ok" })
 
-        console.log("done")
-        if (baseBranchTest && baseBranchTest.coveredPercentage > test.coveredPercentage) {
-          res.status(200).json({
-            code: "COVERAGE_TOO_LOW",
-            message: `Coverage percentage for this test on base branch (${baseBranch.name}, ${baseBranchTest.coveredPercentage}) is higher than on tested branch (${branch.name}, ${test.coveredPercentage}).`,
-          })
-        } else {
-          res.status(200).json({ code: "OK", message: "Ok" })
-        }
-      } else {
-        res.status(200).json({ code: "OK", message: "Ok" })
-      }
       console.log("Took ", new Date().getTime() - startTime.getTime(), "ms")
     } catch (error) {
       console.error(error)

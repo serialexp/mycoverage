@@ -53,3 +53,5 @@ lib-cov
 .vscode-test
 .idea
 .blitz.config.compiled.js
+performance
+dist

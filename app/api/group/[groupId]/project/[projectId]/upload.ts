@@ -20,6 +20,10 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       const mydb: PrismaClient = db
 
       console.log("find group")
+      const testInstanceIndex = query.index
+        ? parseInt(query.index)
+        : Math.floor(Math.random() * 1000000)
+
       const groupInteger = parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
@@ -62,31 +66,29 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         throw new Error("No coverage data posted")
       }
 
+      const coverageFileKey =
+        process.env.S3_KEY_PREFIX +
+        group.slug +
+        "/" +
+        project.slug +
+        "/" +
+        query.ref +
+        "/instance-" +
+        query.testName +
+        "-" +
+        new Date().getTime() +
+        ".xml"
+
       console.log("uploading to s3")
       const s3 = new S3({})
       await s3
         .putObject({
           Bucket: process.env.S3_BUCKET || "",
-          Key:
-            process.env.S3_KEY_PREFIX +
-            group.slug +
-            "/" +
-            project.slug +
-            "/" +
-            query.ref +
-            "/instance-" +
-            query.testName +
-            "-" +
-            new Date().getTime() +
-            ".xml",
+          Key: coverageFileKey,
           Body: req.body,
         })
         .promise()
       console.log("uploaded")
-
-      console.log("parse file")
-      const coverageFile = new CoberturaCoverage()
-      await coverageFile.init(req.body, {})
 
       console.log("finding branch")
 
@@ -165,97 +167,16 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         })
       }
 
-      const covInfo = coverageFile.data.coverage
-
-      if (!covInfo) {
-        throw new Error("No coverage information in the input file, cannot read first project.")
-      }
-
-      if (!covInfo.metrics) {
-        throw new Error("Could not calculate metrics for input file.")
-      }
-
-      console.log("upsert test")
-      const test = await mydb.test.upsert({
-        where: {
-          testName_commitId: {
-            commitId: commit.id,
-            testName: query.testName,
-          },
-        },
-        update: {},
-        create: {
-          testName: query.testName,
-          repositoryRoot: query.repositoryRoot,
-          commitId: commit.id,
-          statements: covInfo.metrics.statements,
-          conditionals: covInfo.metrics.conditionals,
-          methods: covInfo.metrics.methods,
-          elements: covInfo.metrics.elements,
-          coveredStatements: covInfo.metrics.coveredstatements,
-          coveredConditionals: covInfo.metrics.coveredconditionals,
-          coveredMethods: covInfo.metrics.coveredmethods,
-          coveredElements: covInfo.metrics.coveredelements,
-          coveredPercentage: coveredPercentage(covInfo.metrics),
-        },
-      })
-
-      console.log(req.headers)
-      console.log("create test instance")
-
-      const testInstanceIndex = query.index
-        ? parseInt(query.index)
-        : Math.floor(Math.random() * 1000000)
-
-      // let testInstance = await mydb.testInstance.find({
-      //   where: {
-      //     testId: test.id,
-      //     index: testInstanceIndex
-      //   }
-      // })
-
-      const testInstance = await mydb.testInstance.create({
-        data: {
-          index: testInstanceIndex,
-          testId: test.id,
-          statements: covInfo.metrics.statements,
-          conditionals: covInfo.metrics.conditionals,
-          methods: covInfo.metrics.methods,
-          elements: covInfo.metrics.elements,
-          coveredStatements: covInfo.metrics.coveredstatements,
-          coveredConditionals: covInfo.metrics.coveredconditionals,
-          coveredMethods: covInfo.metrics.coveredmethods,
-          coveredElements: covInfo.metrics.coveredelements,
-          coveredPercentage: coveredPercentage(covInfo.metrics),
-          dataSize: parseInt(req.headers["content-length"] || "0"),
-        },
-      })
-
-      console.log("find first branch")
-      const baseBranch = await mydb.branch.findFirst({
-        where: {
-          name: branch.baseBranch,
-          projectId: project.id,
-        },
-      })
-      console.log("find commit on branch")
-      const firstCommit = await mydb.commitOnBranch.findFirst({
-        where: {
-          branchId: branch.id,
-        },
-        include: {
-          Commit: true,
-        },
-        orderBy: {
-          Commit: {
-            createdDate: "desc",
-          },
-        },
-      })
-      const baseCommit = firstCommit?.Commit
-
       console.log("create uploadjob")
-      uploadJob(coverageFile, commit, test, testInstance, group.slug, project.slug)
+      uploadJob(
+        coverageFileKey,
+        commit,
+        query.testName,
+        query.repositoryRoot,
+        testInstanceIndex,
+        group.slug,
+        project.slug
+      )
 
       await db.jobLog.create({
         data: {
@@ -268,27 +189,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      if (baseBranch && baseCommit) {
-        console.log("compare commits")
-        const baseBranchTest = await mydb.test.findFirst({
-          where: {
-            testName: query.testName,
-            commitId: baseCommit.id,
-          },
-        })
-
-        console.log("done")
-        if (baseBranchTest && baseBranchTest.coveredPercentage > test.coveredPercentage) {
-          res.status(200).json({
-            code: "COVERAGE_TOO_LOW",
-            message: `Coverage percentage for this test on base branch (${baseBranch.name}, ${baseBranchTest.coveredPercentage}) is higher than on tested branch (${branch.name}, ${test.coveredPercentage}).`,
-          })
-        } else {
-          res.status(200).json({ code: "OK", message: "Ok" })
-        }
-      } else {
-        res.status(200).json({ code: "OK", message: "Ok" })
-      }
+      res.status(200).json({ code: "OK", message: "Ok" })
     } catch (error) {
       console.error(error)
       await db.jobLog.create({
