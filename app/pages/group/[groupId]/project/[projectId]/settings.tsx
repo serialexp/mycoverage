@@ -19,6 +19,8 @@ import {
   FormLabel,
   FormHelperText,
   Checkbox,
+  Thead,
+  Th,
 } from "@chakra-ui/react"
 import { useState } from "react"
 
@@ -28,10 +30,14 @@ const ProjectSettingsPage: BlitzPage = () => {
 
   const [fields, setFields] = useState<{
     testName: string
+    branchPattern: string
     instanceCount: string
+    requireIncrease: boolean
   }>({
     testName: "",
+    branchPattern: "",
     instanceCount: "",
+    requireIncrease: true,
   })
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
@@ -97,11 +103,22 @@ const ProjectSettingsPage: BlitzPage = () => {
       </Box>
       <Subheading>Expected Test Instances</Subheading>
       <Table>
+        <Thead>
+          <Tr>
+            <Th>Test name</Th>
+            <Th>Branch Pattern</Th>
+            <Th>Count</Th>
+            <Th>Require increase</Th>
+            <Th>Actions</Th>
+          </Tr>
+        </Thead>
         {result.expectedResults.map((result) => {
           return (
             <Tr key={result.id}>
               <Td>{result.testName}</Td>
+              <Td>{result.branchPattern}</Td>
               <Td>{result.count}</Td>
+              <Td>{result.requireIncrease ? "Yes" : 0}</Td>
               <Td>
                 <Button
                   colorScheme={"red"}
@@ -129,6 +146,15 @@ const ProjectSettingsPage: BlitzPage = () => {
           </Td>
           <Td>
             <Input
+              placeholder={"Branch pattern (regular expression)"}
+              value={fields.branchPattern}
+              onChange={(e) =>
+                setFields((fields) => ({ ...fields, branchPattern: e.target.value }))
+              }
+            />
+          </Td>
+          <Td>
+            <Input
               placeholder={"Instance count"}
               type={"number"}
               value={fields.instanceCount}
@@ -138,17 +164,31 @@ const ProjectSettingsPage: BlitzPage = () => {
             />
           </Td>
           <Td>
+            <Checkbox
+              isChecked={fields.requireIncrease}
+              onChange={(e) => {
+                setFields((fields) => ({ ...fields, requireIncrease: e.target.checked }))
+              }}
+            >
+              Require Increase
+            </Checkbox>
+          </Td>
+          <Td>
             <Button
               onClick={() => {
                 createExpected({
                   projectId: project.id,
+                  branchPattern: fields.branchPattern,
+                  requireIncrease: fields.requireIncrease,
                   testName: fields.testName,
                   count: parseInt(fields.instanceCount),
                 })
                   .then(() => {
                     setFields({
                       testName: "",
+                      branchPattern: "",
                       instanceCount: "",
+                      requireIncrease: true,
                     })
                     fieldMeta.refetch()
                   })

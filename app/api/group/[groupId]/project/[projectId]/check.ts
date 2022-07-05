@@ -3,6 +3,7 @@ import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { format } from "app/library/format"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
+import { satisfiesIncreaseConditions } from "app/library/satisfiesIncreaseConditions"
 import { getSetting } from "app/library/setting"
 import { slugify } from "app/library/slugify"
 import { uploadJob, uploadQueue } from "app/queues/UploadQueue"
@@ -79,6 +80,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           projectId: project.id,
         },
       })
+
+      if (!baseBranch) throw new Error("Could not find base branch for " + query.branch)
 
       console.log(`Base branch for ${branch.name} is ${branch.baseBranch}`)
 
@@ -163,33 +166,45 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
             message:
               "Comparing coverage on branch with itself, there will never be any difference.",
           })
-        } else if (!satisfiesExpectedResults(baseCommit, project.ExpectedResult).isOk) {
+        } else if (
+          !satisfiesExpectedResults(baseCommit, project.ExpectedResult, baseBranch?.name).isOk
+        ) {
           res.status(failedStatus).json({
             code: "BASE_TEST_NOT_COMPLETED",
             message: `The tests for the merge base commit of (${commit.ref.substr(0, 10)}) on ${
               baseBranch?.name
             } are not yet complete.`,
           })
-        } else if (!satisfiesExpectedResults(commit, project.ExpectedResult).isOk) {
+        } else if (
+          !satisfiesExpectedResults(commit, project.ExpectedResult, baseBranch?.name).isOk
+        ) {
           res.status(failedStatus).json({
             code: "TEST_NOT_COMPLETED",
             message: `The tests for the latest commit (${commit.ref.substr(0, 10)}) on ${
               branch.name
             } are not yet complete.`,
           })
-        } else if (commit.coveredPercentage < baseCommit.coveredPercentage) {
-          res.status(failedStatus).json({
-            code: "COVERAGE_TOO_LOW",
-            message: `Coverage percentage for tested branch (${branch.name}, ${format.format(
-              commit.coveredPercentage
-            )}%) is lower than the base branch (${baseBranch?.name}, ${format.format(
-              baseCommit.coveredPercentage
-            )}%). Please modify your commit so that it meets or exceed the coverage percentage of the parent branch. To check out the differences, navigate to ${baseUrl}group/${
-              group.slug
-            }/project/${project.slug}/branch/${branch.name}/compare/${baseBranch?.name}`,
-          })
         } else {
-          res.status(200).json({ code: "OK", message: "Ok" })
+          const increaseConditions = satisfiesIncreaseConditions(
+            commit,
+            baseCommit,
+            project.ExpectedResult,
+            baseBranch?.name
+          )
+          if (!increaseConditions.isOk) {
+            res.status(failedStatus).json({
+              code: "COVERAGE_TOO_LOW",
+              message: `Coverage percentage for tested branch (${branch.name}, ${format.format(
+                commit.coveredPercentage
+              )}%) is lower than the base branch (${baseBranch?.name}, ${format.format(
+                baseCommit.coveredPercentage
+              )}%). Please modify your commit so that it meets or exceed the coverage percentage of the parent branch. To check out the differences, navigate to ${baseUrl}group/${
+                group.slug
+              }/project/${project.slug}/branch/${branch.name}/compare/${baseBranch?.name}`,
+            })
+          } else {
+            res.status(200).json({ code: "OK", message: "Ok" })
+          }
         }
       } else {
         res.status(200).json({ code: "OK", message: "Ok" })

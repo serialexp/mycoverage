@@ -2,7 +2,8 @@ import { Commit, Test, ExpectedResult } from "db"
 
 export const satisfiesExpectedResults = (
   commit: (Commit & { Test: (Test & { TestInstance: { index: number }[] })[] }) | null | undefined,
-  expectedResults: ExpectedResult[]
+  expectedResults: ExpectedResult[],
+  baseBranchName: string
 ) => {
   let isOk = true
   const missing: { test: string; count: number }[] = []
