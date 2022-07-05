@@ -2,6 +2,8 @@ import { executeForEachSubpath } from "app/library/executeForEachSubpath"
 import { getPathToPackageFileIds } from "app/library/getPathToPackageFileIds"
 
 import { ChangeFrequencyData } from "app/library/types"
+import { addEventListeners } from "app/processors/addEventListeners"
+import { uploadWorker } from "app/processors/ProcessUpload"
 import { queueConfig } from "app/queues/config"
 import db, { Commit } from "db"
 import { Worker } from "bullmq"
@@ -122,10 +124,4 @@ export const changefrequencyWorker = new Worker<{
   { connection: queueConfig, concurrency: 1 }
 )
 
-changefrequencyWorker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`)
-})
-
-changefrequencyWorker.on("failed", (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
-})
+addEventListeners(changefrequencyWorker)

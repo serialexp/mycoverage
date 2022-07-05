@@ -4,6 +4,8 @@ import { CoverageData } from "app/library/CoverageData"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { SourceHits } from "app/library/types"
+import { addEventListeners } from "app/processors/addEventListeners"
+import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
 import { combineCoverageWorker } from "app/processors/ProcessCombineCoverage"
 import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { queueConfig } from "app/queues/config"
@@ -172,13 +174,7 @@ export const uploadWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, concurrency: 4 }
+  { connection: queueConfig, concurrency: 1 }
 )
 
-uploadWorker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`)
-})
-
-uploadWorker.on("failed", (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
-})
+addEventListeners(uploadWorker)

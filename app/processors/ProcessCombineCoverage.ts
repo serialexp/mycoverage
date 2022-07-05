@@ -3,6 +3,9 @@ import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { getSetting } from "app/library/setting"
+import { addEventListeners } from "app/processors/addEventListeners"
+import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
+import { uploadWorker } from "app/processors/ProcessUpload"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
@@ -297,13 +300,7 @@ export const combineCoverageWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, lockDuration: 300 * 1000 }
+  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 1 }
 )
 
-combineCoverageWorker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`)
-})
-
-combineCoverageWorker.on("failed", (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
-})
+addEventListeners(combineCoverageWorker)

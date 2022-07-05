@@ -14,8 +14,20 @@ let commands = [
 if (process.env.WORKER) {
   commands = [
     {
-      name: "worker",
-      command: "npm:start:worker",
+      name: "worker:changefrequency",
+      command: "npm:start:worker -- --worker=changefrequency",
+    },
+    {
+      name: "worker:combinecoverage",
+      command: "npm:start:worker -- --worker=combinecoverage",
+    },
+    {
+      name: "worker:sonarqube",
+      command: "npm:start:worker -- --worker=sonarqube",
+    },
+    {
+      name: "worker:upload",
+      command: "npm:start:worker -- --worker=upload",
     },
   ]
 }

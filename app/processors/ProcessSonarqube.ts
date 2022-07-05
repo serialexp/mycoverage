@@ -1,6 +1,9 @@
 import { executeForEachSubpath } from "app/library/executeForEachSubpath"
 import { getPathToPackageFileIds } from "app/library/getPathToPackageFileIds"
 import { SonarIssue } from "app/library/types"
+import { addEventListeners } from "app/processors/addEventListeners"
+import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
+import { uploadWorker } from "app/processors/ProcessUpload"
 import { queueConfig } from "app/queues/config"
 import db, { CodeIssueOnFileCoverage, Commit } from "db"
 import { Worker } from "bullmq"
@@ -300,10 +303,4 @@ export const sonarqubeWorker = new Worker<{
   { connection: queueConfig, concurrency: 1 }
 )
 
-sonarqubeWorker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`)
-})
-
-sonarqubeWorker.on("failed", (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`)
-})
+addEventListeners(sonarqubeWorker)
