@@ -108,7 +108,7 @@ const CommitPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results ({commit.Test.length})
       </Subheading>
-      {!satisfiesExpectedResults(commit, project.ExpectedResult).isOk ? (
+      {!satisfiesExpectedResults(commit, project.ExpectedResult, project.defaultBaseBranch).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />

@@ -112,7 +112,11 @@ const BranchPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results ({buildInfo?.lastCommit?.Test.length})
       </Subheading>
-      {!satisfiesExpectedResults(buildInfo?.lastCommit, project?.ExpectedResult || []).isOk ? (
+      {!satisfiesExpectedResults(
+        buildInfo?.lastCommit,
+        project?.ExpectedResult || [],
+        buildInfo?.branch?.baseBranch || ""
+      ).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />
@@ -150,7 +154,11 @@ const BranchPage: BlitzPage = () => {
               <Td>{commit.message}</Td>
               <Td>{commit.createdDate.toLocaleString()}</Td>
               <Td isNumeric>
-                <BuildStatus commit={commit} expectedResults={project?.ExpectedResult} />
+                <BuildStatus
+                  commit={commit}
+                  expectedResults={project?.ExpectedResult}
+                  targetBranch={buildInfo?.branch?.baseBranch || ""}
+                />
               </Td>
               <Td isNumeric>
                 {format.format(commit.coveredElements)}/{format.format(commit.elements)}

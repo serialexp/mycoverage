@@ -75,7 +75,11 @@ const ProjectPage: BlitzPage = () => {
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
       <Subheading>Test results ({buildInfo?.lastCommit?.Test.length})</Subheading>
-      {!satisfiesExpectedResults(buildInfo?.lastCommit, project.ExpectedResult).isOk ? (
+      {!satisfiesExpectedResults(
+        buildInfo?.lastCommit,
+        project.ExpectedResult,
+        buildInfo?.branch?.baseBranch || ""
+      ).isOk ? (
         <Box p={2}>
           <Alert status={"error"}>
             <AlertIcon />
@@ -126,7 +130,11 @@ const ProjectPage: BlitzPage = () => {
               </Td>
               <Td>{format.format(combineIssueCount(commit))}</Td>
               <Td>
-                <BuildStatus commit={commit} expectedResults={project?.ExpectedResult} />
+                <BuildStatus
+                  commit={commit}
+                  expectedResults={project?.ExpectedResult}
+                  targetBranch={buildInfo?.branch?.baseBranch || ""}
+                />
               </Td>
               <Td>
                 <Minibar progress={commit.coveredPercentage / 100} />

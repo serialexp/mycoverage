@@ -7,8 +7,13 @@ import { FaCheck } from "react-icons/fa"
 export const BuildStatus = (props: {
   commit: (Commit & { Test: (Test & { TestInstance: { index: number }[] })[] }) | null | undefined
   expectedResults?: ExpectedResult[]
+  targetBranch: string
 }) => {
-  const result = satisfiesExpectedResults(props.commit, props.expectedResults || [])
+  const result = satisfiesExpectedResults(
+    props.commit,
+    props.expectedResults || [],
+    props.targetBranch
+  )
 
   return !result.isOk ? (
     <Box
