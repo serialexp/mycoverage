@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/Aeolun/mycoverage/compare/v1.6.0...v1.6.1) (2022-07-05)
+
+
+### Bug Fixes
+
+* do not fail to start combinecoverage on a typo ([fd3eb18](https://github.com/Aeolun/mycoverage/commit/fd3eb18d9f12d16c97b4ffc7d69c0529ba95b013))
+
 # [1.6.0](https://github.com/Aeolun/mycoverage/compare/v1.5.0...v1.6.0) (2022-07-05)
 
 
