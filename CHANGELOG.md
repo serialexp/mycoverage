@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/Aeolun/mycoverage/compare/v1.5.0...v1.6.0) (2022-07-05)
+
+
+### Features
+
+* run workers individually ([0e20375](https://github.com/Aeolun/mycoverage/commit/0e20375bd750e5058ab301b5cda63b2c54f429dd))
+
 # [1.5.0](https://github.com/Aeolun/mycoverage/compare/v1.4.1...v1.5.0) (2022-07-05)
 
 
