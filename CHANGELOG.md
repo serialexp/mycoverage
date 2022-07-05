@@ -1,3 +1,16 @@
+# [1.5.0](https://github.com/Aeolun/mycoverage/compare/v1.4.1...v1.5.0) (2022-07-05)
+
+
+### Bug Fixes
+
+* make sure package.json is updated too ([986ceba](https://github.com/Aeolun/mycoverage/commit/986ceba793693fb99da92b5bbaf0725a0233796d))
+
+
+### Features
+
+* allow starting either frontend or worker separately ([cfb9f90](https://github.com/Aeolun/mycoverage/commit/cfb9f90866e24f44fcc06d03d69f6314070bda48))
+* upload coverage information to s3 first, and process everything later ([5ad410a](https://github.com/Aeolun/mycoverage/commit/5ad410af076c349b50ce7df74287c3289e748619))
+
 ## [1.4.1](https://github.com/Aeolun/mycoverage/compare/v1.4.0...v1.4.1) (2022-07-04)
 
 
