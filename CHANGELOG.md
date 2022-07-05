@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/Aeolun/mycoverage/compare/v1.6.1...v1.7.0) (2022-07-05)
+
+
+### Features
+
+* allow posting github PR webhook ([5021674](https://github.com/Aeolun/mycoverage/commit/502167496040a5a12582d234d211626f45ba42f8))
+
 ## [1.6.1](https://github.com/Aeolun/mycoverage/compare/v1.6.0...v1.6.1) (2022-07-05)
 
 
