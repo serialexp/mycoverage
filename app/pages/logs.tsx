@@ -1,6 +1,24 @@
-import { Box, Table, Td, Tr, Thead, Th, Link as ChakraLink, Input } from "@chakra-ui/react"
+import {
+  Box,
+  Table,
+  Td,
+  Tr,
+  Thead,
+  Th,
+  Link as ChakraLink,
+  Input,
+  StatGroup,
+  Stat,
+  StatLabel,
+  StatHelpText,
+  StatArrow,
+  StatNumber,
+} from "@chakra-ui/react"
 import getLogs from "app/coverage/queries/getLogs"
+import getQueues from "app/coverage/queries/getQueues"
 import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
+import { Subsubheading } from "app/library/components/Subsubheading"
 import { Link, BlitzPage, useMutation, Routes, useQuery } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import { useState } from "react"
@@ -49,7 +67,9 @@ const Logs: BlitzPage = () => {
           return (
             <Tr key={g.id} _hover={{ bg: "primary.50" }}>
               <Td>
-                <Link href={Routes.Logs({ commitRef: g.commitRef })}>{g.commitRef}</Link>
+                <Link href={Routes.Logs({ commitRef: g.commitRef })}>
+                  <ChakraLink color={"blue.500"}>{g.commitRef.substr(0, 10)}</ChakraLink>
+                </Link>
               </Td>
               <Td>{g.namespace}</Td>
               <Td>{g.repository}</Td>

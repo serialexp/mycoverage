@@ -15,19 +15,19 @@ if (process.env.WORKER) {
   commands = [
     {
       name: "worker:changefrequency",
-      command: "npm:start:worker -- --worker=changefrequency",
+      command: "npm run start:worker -- --worker=changefrequency",
     },
     {
       name: "worker:combinecoverage",
-      command: "npm:start:worker -- --worker=combinecoverage",
+      command: "npm run start:worker -- --worker=combinecoverage",
     },
     {
       name: "worker:sonarqube",
-      command: "npm:start:worker -- --worker=sonarqube",
+      command: "npm run start:worker -- --worker=sonarqube",
     },
     {
       name: "worker:upload",
-      command: "npm:start:worker -- --worker=upload",
+      command: "npm run start:worker -- --worker=upload",
     },
   ]
 }
