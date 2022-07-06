@@ -2306,6 +2306,11 @@
   "resolved" "https://registry.npmjs.org/@oclif/screen/-/screen-1.0.4.tgz"
   "version" "1.0.4"
 
+"@octokit/webhooks-types@6.2.0":
+  "integrity" "sha512-1YOSIrdb7WwLXHfCwa+7+VKcsZZ0sRsCiqvYvBwzstF4xg0qZ0w2K5Y8OkNvd7NtzKPP7KKgP9hSQZUccbPg0Q=="
+  "resolved" "https://registry.npmjs.org/@octokit/webhooks-types/-/webhooks-types-6.2.0.tgz"
+  "version" "6.2.0"
+
 "@popperjs/core@2.4.4":
   "integrity" "sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg=="
   "resolved" "https://registry.npmjs.org/@popperjs/core/-/core-2.4.4.tgz"

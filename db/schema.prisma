@@ -13,7 +13,7 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   name           String?
-  email          String    @unique(map: "User.email_unique")
+  email          String    @unique
   hashedPassword String?
   role           String    @default("USER")
   sessions       Session[]
@@ -25,15 +25,15 @@ model Session {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   expiresAt          DateTime?
-  handle             String    @unique(map: "Session.handle_unique")
+  handle             String    @unique
   hashedSessionToken String?
   antiCSRFToken      String?
   publicData         String?
   privateData        String?
   userId             Int?
-  user               User?     @relation(fields: [userId], references: [id], map: "session_ibfk_1")
+  user               User?     @relation(fields: [userId], references: [id])
 
-  @@index([userId], map: "userId")
+  @@index([userId])
 }
 
 model Token {
@@ -45,15 +45,15 @@ model Token {
   expiresAt   DateTime
   sentTo      String
   userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "token_ibfk_1")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([hashedToken, type], map: "Token.hashedToken_type_unique")
-  @@index([userId], map: "userId")
+  @@unique([hashedToken, type])
+  @@index([userId])
 }
 
 model Commit {
   id                  Int                 @id @default(autoincrement())
-  ref                 String              @unique(map: "Commit.ref_unique")
+  ref                 String              @unique
   createdDate         DateTime            @default(now())
   updatedDate         DateTime            @updatedAt
   conditionals        Int                 @default(0)
@@ -77,6 +77,7 @@ model Commit {
   PackageCoverage     PackageCoverage[]
   Project             Project[]
   Test                Test[]
+  PullRequest         PullRequest[]
 }
 
 model Test {
@@ -96,12 +97,12 @@ model Test {
   elements            Int               @default(0)
   hits                Int               @default(0)
   repositoryRoot      String?
-  commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "test_ibfk_1")
+  commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade)
   PackageCoverage     PackageCoverage[]
   TestInstance        TestInstance[]
 
-  @@unique([testName, commitId], map: "Test.testName_commitId_unique")
-  @@index([commitId], map: "commitId")
+  @@unique([testName, commitId])
+  @@index([commitId])
 }
 
 model TestInstance {
@@ -121,10 +122,10 @@ model TestInstance {
   createdDate         DateTime          @default(now())
   updatedDate         DateTime          @default(now()) @updatedAt
   dataSize            Int               @default(0)
-  test                Test              @relation(fields: [testId], references: [id], onDelete: Cascade, map: "testinstance_ibfk_1")
+  test                Test              @relation(fields: [testId], references: [id], onDelete: Cascade)
   PackageCoverage     PackageCoverage[]
 
-  @@index([testId], map: "testId")
+  @@index([testId])
 }
 
 model PackageCoverage {
@@ -149,14 +150,14 @@ model PackageCoverage {
   codeIssues          Int            @default(0)
   changeRatio         Float          @default(0)
   changes             Int            @default(0)
-  commit              Commit?        @relation(fields: [commitId], references: [id], map: "packagecoverage_ibfk_2")
-  test                Test?          @relation(fields: [testId], references: [id], onDelete: Cascade, map: "packagecoverage_ibfk_1")
-  testInstance        TestInstance?  @relation(fields: [testInstanceId], references: [id], map: "packagecoverage_ibfk_3")
+  commit              Commit?        @relation(fields: [commitId], references: [id])
+  test                Test?          @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testInstance        TestInstance?  @relation(fields: [testInstanceId], references: [id])
   FileCoverage        FileCoverage[]
 
-  @@index([commitId], map: "commitId")
-  @@index([testId], map: "testId")
-  @@index([testInstanceId], map: "testInstanceId")
+  @@index([commitId])
+  @@index([testId])
+  @@index([testInstanceId])
 }
 
 model FileCoverage {
@@ -179,10 +180,10 @@ model FileCoverage {
   changeRatio             Float                     @default(0)
   changes                 Int                       @default(0)
   coverageData            Bytes
-  packageCoverage         PackageCoverage?          @relation(fields: [packageCoverageId], references: [id], onDelete: Cascade, map: "filecoverage_ibfk_1")
+  packageCoverage         PackageCoverage?          @relation(fields: [packageCoverageId], references: [id], onDelete: Cascade)
   CodeIssueOnFileCoverage CodeIssueOnFileCoverage[]
 
-  @@index([packageCoverageId], map: "packageCoverageId")
+  @@index([packageCoverageId])
 }
 
 model Group {
@@ -191,9 +192,10 @@ model Group {
   createdDate DateTime  @default(now())
   updatedDate DateTime  @updatedAt
   slug        String    @default("")
+  githubName  String    @default("")
   Project     Project[]
 
-  @@index([slug], map: "Group.slug_index")
+  @@index([slug])
 }
 
 model PrHook {
@@ -220,7 +222,7 @@ model JobLog {
 
 model CodeIssue {
   id                      Int                       @id @default(autoincrement())
-  hash                    String                    @unique(map: "CodeIssue.hash_unique")
+  hash                    String                    @unique
   file                    String
   line                    Int
   message                 String                    @default("")
@@ -237,21 +239,21 @@ model CodeIssue {
 model CodeIssueOnCommit {
   commitId    Int
   codeIssueId Int
-  codeIssue   CodeIssue @relation(fields: [codeIssueId], references: [id], onDelete: Cascade, map: "codeissueoncommit_ibfk_2")
-  commit      Commit    @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "codeissueoncommit_ibfk_1")
+  codeIssue   CodeIssue @relation(fields: [codeIssueId], references: [id], onDelete: Cascade)
+  commit      Commit    @relation(fields: [commitId], references: [id], onDelete: Cascade)
 
   @@id([commitId, codeIssueId])
-  @@index([codeIssueId], map: "codeIssueId")
+  @@index([codeIssueId])
 }
 
 model CodeIssueOnFileCoverage {
   fileCoverageId Int
   codeIssueId    Int
-  CodeIssue      CodeIssue    @relation(fields: [codeIssueId], references: [id], onDelete: Cascade, map: "codeissueonfilecoverage_ibfk_2")
-  FileCoverage   FileCoverage @relation(fields: [fileCoverageId], references: [id], onDelete: Cascade, map: "codeissueonfilecoverage_ibfk_1")
+  CodeIssue      CodeIssue    @relation(fields: [codeIssueId], references: [id], onDelete: Cascade)
+  FileCoverage   FileCoverage @relation(fields: [fileCoverageId], references: [id], onDelete: Cascade)
 
   @@id([fileCoverageId, codeIssueId])
-  @@index([codeIssueId], map: "codeIssueId")
+  @@index([codeIssueId])
 }
 
 model Project {
@@ -264,15 +266,16 @@ model Project {
   groupId                 Int
   lastCommitId            Int?
   requireCoverageIncrease Boolean          @default(false)
-  group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade, map: "project_ibfk_1")
-  lastCommit              Commit?          @relation(fields: [lastCommitId], references: [id], map: "project_ibfk_2")
+  group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  lastCommit              Commit?          @relation(fields: [lastCommitId], references: [id])
   Branch                  Branch[]
   ExpectedResult          ExpectedResult[]
 
-  PrHook PrHook[]
-  @@index([groupId], map: "groupId")
-  @@index([lastCommitId], map: "lastCommitId")
-  @@index([slug], map: "Project.slug_index")
+  PrHook      PrHook[]
+  PullRequest PullRequest[]
+  @@index([groupId])
+  @@index([lastCommitId])
+  @@index([slug])
 }
 
 model ExpectedResult {
@@ -284,9 +287,25 @@ model ExpectedResult {
   count           Int
   createdDate     DateTime @default(now())
   updatedDate     DateTime @updatedAt
-  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade, map: "expectedresult_ibfk_1")
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([projectId], map: "projectId")
+  @@index([projectId])
+}
+
+model PullRequest {
+  id          Int      @id @default(autoincrement())
+  name        String
+  baseBranch  String
+  branch      String
+  commit      Commit   @relation(references: [id], onDelete: Cascade, fields: [commitId])
+  createdDate DateTime @default(now())
+  updatedDate DateTime @updatedAt
+  state       String   @default("open")
+  url         String   @default("")
+
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  commitId  Int
 }
 
 model Branch {
@@ -297,25 +316,25 @@ model Branch {
   createdDate    DateTime         @default(now())
   updatedDate    DateTime         @updatedAt
   slug           String           @default("")
-  project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade, map: "branch_ibfk_1")
+  project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   CommitOnBranch CommitOnBranch[]
 
-  @@unique([name, projectId], map: "Branch.name_projectId_unique")
-  @@index([projectId], map: "projectId")
+  @@unique([name, projectId])
+  @@index([projectId])
 }
 
 model CommitOnBranch {
   commitId Int
   branchId Int
-  Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade, map: "commitonbranch_ibfk_2")
-  Commit   Commit @relation(fields: [commitId], references: [id], onDelete: Cascade, map: "commitonbranch_ibfk_1")
+  Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  Commit   Commit @relation(fields: [commitId], references: [id], onDelete: Cascade)
 
   @@id([commitId, branchId])
-  @@index([branchId], map: "branchId")
+  @@index([branchId])
 }
 
 model Setting {
   id    Int    @id @default(autoincrement())
-  name  String @unique(map: "Setting.name_unique")
+  name  String @unique
   value String @default("")
 }

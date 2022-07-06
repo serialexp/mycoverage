@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE `Group` ADD COLUMN `slug` VARCHAR(191) NOT NULL DEFAULT '';
-
--- AlterTable
-ALTER TABLE `Project` ADD COLUMN `slug` VARCHAR(191) NOT NULL DEFAULT '';

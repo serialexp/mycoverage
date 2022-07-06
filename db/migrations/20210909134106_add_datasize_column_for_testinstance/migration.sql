@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `TestInstance` ADD COLUMN `dataSize` INTEGER NOT NULL DEFAULT 0;

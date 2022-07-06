@@ -2,7 +2,12 @@ import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
 import { Queue, QueueScheduler } from "bullmq"
 
-export const combineCoverageQueue = new Queue("combinecoverage", {
+export const combineCoverageQueue = new Queue<{
+  commit: Commit
+  namespaceSlug: string
+  repositorySlug: string
+  testInstance?: TestInstance
+}>("combinecoverage", {
   connection: queueConfig,
 })
 

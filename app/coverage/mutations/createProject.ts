@@ -4,8 +4,9 @@ import { z } from "zod"
 
 const CreateProject = z.object({
   name: z.string(),
-  group: z.number(),
+  slug: z.string(),
   defaultBaseBranch: z.string(),
+  groupId: z.number(),
 })
 
 export default resolver.pipe(resolver.zod(CreateProject), async (input) => {

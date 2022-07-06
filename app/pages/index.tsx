@@ -1,8 +1,22 @@
-import { Box, Table, Td, Tr, Link as ChakraLink } from "@chakra-ui/react"
+import {
+  Box,
+  Table,
+  Td,
+  Tr,
+  Link as ChakraLink,
+  FormLabel,
+  Input,
+  FormHelperText,
+  FormControl,
+  Button,
+} from "@chakra-ui/react"
 import { Heading } from "app/library/components/Heading"
+import { Subheading } from "app/library/components/Subheading"
 import { Link, BlitzPage, useMutation, Routes, useQuery } from "blitz"
 import Layout from "app/core/layouts/Layout"
+import { useState } from "react"
 import getGroups from "../coverage/queries/getGroups"
+import createGroupMutation from "../coverage/mutations/createGroup"
 import packageConfig from "../../package.json"
 
 /*
@@ -11,7 +25,14 @@ import packageConfig from "../../package.json"
  */
 
 const Home: BlitzPage = () => {
-  const [groups] = useQuery(getGroups, null)
+  const [groups, groupsMeta] = useQuery(getGroups, null)
+  const [createGroup] = useMutation(createGroupMutation)
+
+  const [formFields, setFormFields] = useState({
+    name: "",
+    slug: "",
+    githubName: "",
+  })
 
   return (
     <>
@@ -30,6 +51,64 @@ const Home: BlitzPage = () => {
           )
         })}
       </Table>
+      <Subheading>Add namespace</Subheading>
+      <Box p={4}>
+        <FormControl id="name">
+          <FormLabel>Name</FormLabel>
+          <Input
+            type="text"
+            value={formFields.name}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, name: e.target.value }))
+            }}
+          />
+          <FormHelperText>The name of the namespace</FormHelperText>
+        </FormControl>
+        <FormControl id="slug">
+          <FormLabel>Slug</FormLabel>
+          <Input
+            type="text"
+            value={formFields.slug}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, slug: e.target.value }))
+            }}
+          />
+          <FormHelperText>Slug used for the URL</FormHelperText>
+        </FormControl>
+        <FormControl id="githubName">
+          <FormLabel>Github Name</FormLabel>
+          <Input
+            type="text"
+            value={formFields.githubName}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, githubName: e.target.value }))
+            }}
+          />
+          <FormHelperText>
+            The name of the github organisation/user this namespace corresponds to
+          </FormHelperText>
+        </FormControl>
+        <Button
+          mt={2}
+          colorScheme={"green"}
+          onClick={() => {
+            createGroup(formFields)
+              .then(() => {
+                setFormFields({
+                  name: "",
+                  slug: "",
+                  githubName: "",
+                })
+                groupsMeta.refetch()
+              })
+              .catch((error) => {
+                console.error(error)
+              })
+          }}
+        >
+          Create
+        </Button>
+      </Box>
       <Box p={2}>Version: {packageConfig.version}</Box>
     </>
   )

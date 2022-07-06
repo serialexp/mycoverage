@@ -6,6 +6,7 @@ import { getSetting } from "app/library/setting"
 import { addEventListeners } from "app/processors/addEventListeners"
 import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
 import { uploadWorker } from "app/processors/ProcessUpload"
+import { combineCoverageQueue } from "app/queues/CombineCoverage"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
@@ -20,11 +21,19 @@ export const combineCoverageWorker = new Worker<{
   async (job) => {
     const startTime = new Date()
     const { commit, testInstance, namespaceSlug, repositorySlug } = job.data
+
+    console.log("Executing combine coverage job")
+    const mydb: PrismaClient = db
+
+    // do not run two jobs for the same commit at a time, since the job will be removing coverage data
+    const activeJobs = await combineCoverageQueue.getActive()
+    if (activeJobs.find((j) => j.data.commit.ref === commit.ref)) {
+      // delay by 10s
+      return job.moveToDelayed(new Date().getTime() + 10 * 1000)
+    }
+
     let test: Test | null = null
     try {
-      console.log("Executing combine coverage job")
-      const mydb: PrismaClient = db
-
       if (testInstance) {
         test = await mydb.test.findFirst({
           where: {
@@ -67,6 +76,7 @@ export const combineCoverageWorker = new Worker<{
         }
 
         //Retrieve all the datas!
+        console.log("Retrieving file coverage from database")
         const instancesForTest = await mydb.testInstance.findMany({
           where: {
             testId: test.id,

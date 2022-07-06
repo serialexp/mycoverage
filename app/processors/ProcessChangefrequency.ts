@@ -53,9 +53,9 @@ export const changefrequencyWorker = new Worker<{
 
           const existingFile = pathToFileId[changePath]
           if (existingFile) {
-            console.log(
-              `Found ${changeCount} ${postData.changes[changePath]?.percentage} for ${changePath} (id ${existingFile})`
-            )
+            // console.log(
+            //   `Found ${changeCount} ${postData.changes[changePath]?.percentage} for ${changePath} (id ${existingFile})`
+            // )
             return db.fileCoverage
               .updateMany({
                 where: {
@@ -75,11 +75,11 @@ export const changefrequencyWorker = new Worker<{
 
       await Promise.all(
         Object.keys(changesPerPackage).map((packageId) => {
-          console.log(
-            `Updating packageCoverage ${packageIdToPath[packageId]} to ${
-              changesPerPackage[packageId]
-            } / ${(changesPerPackage[packageId] / totalNumberOfChanges) * 100}%`
-          )
+          // console.log(
+          //   `Updating packageCoverage ${packageIdToPath[packageId]} to ${
+          //     changesPerPackage[packageId]
+          //   } / ${(changesPerPackage[packageId] / totalNumberOfChanges) * 100}%`
+          // )
           return db.packageCoverage.update({
             where: {
               id: parseInt(packageId),
