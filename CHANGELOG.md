@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/Aeolun/mycoverage/compare/v1.8.2...v1.9.0) (2022-07-06)
+
+
+### Features
+
+* allow creating groups and projects ([531b32a](https://github.com/Aeolun/mycoverage/commit/531b32a72f3e185b053f87b9220e2756e31b5731))
+
 ## [1.8.2](https://github.com/Aeolun/mycoverage/compare/v1.8.1...v1.8.2) (2022-07-06)
 
 
