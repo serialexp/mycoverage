@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/Aeolun/mycoverage/compare/v1.7.0...v1.8.0) (2022-07-06)
+
+
+### Bug Fixes
+
+* allow webhook without xml type header ([667f884](https://github.com/Aeolun/mycoverage/commit/667f884ceee6ee05c3d583b4cc04af34639b6fbb))
+
+
+### Features
+
+* extra fields for check ([7071ea2](https://github.com/Aeolun/mycoverage/commit/7071ea2f8c51bc602d1a51b3e2b95cfa3c655a6b))
+
 # [1.7.0](https://github.com/Aeolun/mycoverage/compare/v1.6.1...v1.7.0) (2022-07-05)
 
 
