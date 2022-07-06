@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/Aeolun/mycoverage/compare/v1.8.1...v1.8.2) (2022-07-06)
+
+
+### Bug Fixes
+
+* do not autostart workers ([9a8abdd](https://github.com/Aeolun/mycoverage/commit/9a8abdd8ed60ffe8baeb85f6a1e148a6cf06e188))
+
 ## [1.8.1](https://github.com/Aeolun/mycoverage/compare/v1.8.0...v1.8.1) (2022-07-06)
 
 
