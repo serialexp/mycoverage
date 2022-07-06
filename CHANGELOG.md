@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/Aeolun/mycoverage/compare/v1.8.0...v1.8.1) (2022-07-06)
+
+
+### Bug Fixes
+
+* add queue page and correctly boot workers ([13f5ba1](https://github.com/Aeolun/mycoverage/commit/13f5ba173190a5fef510218af44dfe021c89cc42))
+
 # [1.8.0](https://github.com/Aeolun/mycoverage/compare/v1.7.0...v1.8.0) (2022-07-06)
 
 
