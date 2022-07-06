@@ -6,7 +6,7 @@ import { getSetting } from "app/library/setting"
 import { addEventListeners } from "app/processors/addEventListeners"
 import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
 import { uploadWorker } from "app/processors/ProcessUpload"
-import { combineCoverageQueue } from "app/queues/CombineCoverage"
+import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
@@ -16,20 +16,41 @@ export const combineCoverageWorker = new Worker<{
   testInstance?: TestInstance
   namespaceSlug: string
   repositorySlug: string
+  delay: number
 }>(
   "combinecoverage",
   async (job) => {
     const startTime = new Date()
-    const { commit, testInstance, namespaceSlug, repositorySlug } = job.data
+    const { commit, testInstance, namespaceSlug, repositorySlug, delay } = job.data
 
     console.log("Executing combine coverage job")
     const mydb: PrismaClient = db
 
     // do not run two jobs for the same commit at a time, since the job will be removing coverage data
     const activeJobs = await combineCoverageQueue.getActive()
-    if (activeJobs.find((j) => j.data.commit.ref === commit.ref)) {
+    console.log({
+      id: job.id,
+      ref: commit.ref,
+      otherJobs: activeJobs.map((j) => ({
+        id: j.id,
+        ref: j.data.commit.ref,
+      })),
+    })
+    if (activeJobs.find((j) => j.data.commit.ref === commit.ref && j.id !== job.id)) {
       // delay by 10s
-      return job.moveToDelayed(new Date().getTime() + 10 * 1000)
+      console.log(
+        'Delaying combine coverage job for commit "' +
+          commit.ref +
+          '" because it is already running'
+      )
+      try {
+        // stick in a new job since we cannot delay the existing one, exponentially increasing delay if it has to be delayed multiple times
+        combineCoverageJob(commit, namespaceSlug, repositorySlug, testInstance, delay + 10 * 1000)
+        console.log("Delayed successfully")
+      } catch (error) {
+        console.error("Error moving combine coverage job to delayed: ", error)
+      }
+      return true
     }
 
     let test: Test | null = null
@@ -59,6 +80,8 @@ export const combineCoverageWorker = new Worker<{
             (instancesWithDatasize._sum.dataSize || 0) / 1024 / 1024 +
             "MB"
         )
+
+        await job.updateProgress(10)
 
         const settingValue = await getSetting("max-combine-coverage-size")
         const sizeInMegabytes = parseInt(settingValue || "100")
@@ -99,6 +122,8 @@ export const combineCoverageWorker = new Worker<{
           },
         })
 
+        await job.updateProgress(20)
+
         const testCoverage = new CoberturaCoverage()
 
         console.log(
@@ -121,6 +146,8 @@ export const combineCoverageWorker = new Worker<{
           )
         })
         CoberturaCoverage.updateMetrics(testCoverage.data)
+
+        await job.updateProgress(40)
 
         console.log(
           "test: Combined coverage results for files in " +
@@ -169,7 +196,11 @@ export const combineCoverageWorker = new Worker<{
         await insertCoverageData(testCoverage.data.coverage, {
           testId: test.id,
         })
+
+        await job.updateProgress(45)
       }
+
+      await job.updateProgress(50)
 
       //DO THE COMBINATION STUFF FOR THE COMMIT
       if (!commit) throw Error("Cannot combine coverage without a commit")
@@ -191,6 +222,8 @@ export const combineCoverageWorker = new Worker<{
           },
         },
       })
+
+      await job.updateProgress(60)
 
       const lastOfEach: { [test: string]: typeof latestTests[0] } = {}
       latestTests.forEach((test) => {
@@ -223,7 +256,7 @@ export const combineCoverageWorker = new Worker<{
       })
 
       CoberturaCoverage.updateMetrics(coverage.data)
-
+      await job.updateProgress(70)
       console.log(
         "commit: Combined coverage results for " +
           fileCounter +
@@ -266,10 +299,14 @@ export const combineCoverageWorker = new Worker<{
         },
       })
 
+      await job.updateProgress(80)
+
       console.log("commit: Inserting new package and file coverage for commit")
       await insertCoverageData(coverage.data.coverage, {
         commitId: commit.id,
       })
+
+      await job.updateProgress(90)
 
       await mydb.jobLog.create({
         data: {

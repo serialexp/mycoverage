@@ -7,7 +7,11 @@ export const combineCoverageQueue = new Queue<{
   namespaceSlug: string
   repositorySlug: string
   testInstance?: TestInstance
+  delay: number
 }>("combinecoverage", {
+  connection: queueConfig,
+})
+export const combineCoverageQueueScheduler = new QueueScheduler("combinecoverage", {
   connection: queueConfig,
 })
 
@@ -15,7 +19,8 @@ export const combineCoverageJob = (
   commit: Commit,
   namespaceSlug: string,
   repositorySlug: string,
-  testInstance?: TestInstance
+  testInstance?: TestInstance,
+  delay = 0
 ) => {
   console.log("Adding new combine coverage job for " + commit.ref)
   return combineCoverageQueue.add(
@@ -25,11 +30,13 @@ export const combineCoverageJob = (
       testInstance,
       namespaceSlug,
       repositorySlug,
+      delay,
     },
     {
       removeOnComplete: true,
       removeOnFail: true,
       timeout: 300 * 1000,
+      delay: delay,
     }
   )
 }

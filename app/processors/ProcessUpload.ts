@@ -46,6 +46,8 @@ export const uploadWorker = new Worker<{
         })
         .promise()
 
+      await job.updateProgress(10)
+
       let hits, coverage
       if (coverageFileKey.includes(".xml")) {
         console.log("Base data xml without hits")
@@ -62,8 +64,12 @@ export const uploadWorker = new Worker<{
         coverage = parsed.coverage
       }
 
+      await job.updateProgress(20)
+
       const coverageFile = new CoberturaCoverage()
       await coverageFile.init(coverage, hits)
+
+      await job.updateProgress(40)
 
       const covInfo = coverageFile.data.coverage
 
@@ -129,9 +135,13 @@ export const uploadWorker = new Worker<{
 
       console.log("Creating package and file information for test instance")
 
+      await job.updateProgress(50)
+
       await insertCoverageData(covInfo, {
         testInstanceId: testInstance.id,
       })
+
+      await job.updateProgress(80)
 
       console.log("Inserted all package and file information")
 
@@ -174,7 +184,7 @@ export const uploadWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, concurrency: 1, autorun: false }
+  { connection: queueConfig, concurrency: 2, autorun: false }
 )
 
 addEventListeners(uploadWorker)
