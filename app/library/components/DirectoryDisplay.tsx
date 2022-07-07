@@ -57,7 +57,7 @@ export const DirectoryDisplay = (props: {
               <Button>Back to top</Button>
             </Link>
             <Link href={props.route(path.slice(0, path.length - 1))}>
-              <Button ml={2} variantColor={"blue"}>
+              <Button ml={2} colorScheme={"blue"}>
                 Back
               </Button>
             </Link>

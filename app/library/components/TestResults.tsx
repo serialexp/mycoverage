@@ -73,7 +73,7 @@ export const TestResults = (props: {
               </Tr>
 
               <Tr>
-                <Td colspan={5}>
+                <Td colSpan={5}>
                   {test.TestInstance.map((instance) => {
                     return (
                       <Tag key={instance.id} ml={2}>

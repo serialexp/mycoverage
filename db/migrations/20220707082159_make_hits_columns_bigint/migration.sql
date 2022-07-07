@@ -1,0 +1,14 @@
+-- AlterTable
+ALTER TABLE `Commit` MODIFY `hits` BIGINT NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `FileCoverage` MODIFY `hits` BIGINT NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `PackageCoverage` MODIFY `hits` BIGINT NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `Test` MODIFY `hits` BIGINT NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE `TestInstance` MODIFY `hits` BIGINT NOT NULL DEFAULT 0;

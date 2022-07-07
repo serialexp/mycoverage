@@ -85,10 +85,10 @@ export const CoverageDifferences = (props: {
           <Table size={"sm"}>
             <Tr>
               <Th width={"60%"}>Filename</Th>
-              <Th isNumeric colspan={3}>
+              <Th isNumeric colSpan={3}>
                 Coverage
               </Th>
-              <Th isNumeric colspan={2}>
+              <Th isNumeric colSpan={2}>
                 Line Diff
               </Th>
             </Tr>
@@ -104,10 +104,10 @@ export const CoverageDifferences = (props: {
       <Table size={"sm"}>
         <Tr>
           <Th width={"60%"}>Filename</Th>
-          <Th isNumeric colspan={3}>
+          <Th isNumeric colSpan={3}>
             Coverage
           </Th>
-          <Th isNumeric colspan={2}>
+          <Th isNumeric colSpan={2}>
             Line Diff
           </Th>
         </Tr>
@@ -123,10 +123,10 @@ export const CoverageDifferences = (props: {
       <Table size={"sm"}>
         <Tr>
           <Th width={"60%"}>Filename</Th>
-          <Th isNumeric colspan={3}>
+          <Th isNumeric colSpan={3}>
             Coverage
           </Th>
-          <Th isNumeric colspan={2}>
+          <Th isNumeric colSpan={2}>
             Line Diff
           </Th>
         </Tr>

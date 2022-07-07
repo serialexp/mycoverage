@@ -41,7 +41,7 @@ export const FileDisplay = (props: {
     <>
       <Actions>
         <Link href={props.route(packagePath)}>
-          <Button variantColor={"blue"}>Back</Button>
+          <Button colorScheme={"blue"}>Back</Button>
         </Link>
         <Button ml={2} onClick={() => setShowRaw(!showRaw)}>
           Show Raw
@@ -71,7 +71,7 @@ export const FileDisplay = (props: {
       <Actions>
         {packagePath ? (
           <Link href={props.route(packagePath)}>
-            <Button variantColor={"blue"}>Back</Button>
+            <Button colorScheme={"blue"}>Back</Button>
           </Link>
         ) : null}
       </Actions>

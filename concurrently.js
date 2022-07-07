@@ -3,8 +3,20 @@ const concurrently = require("concurrently")
 
 let commands = [
   {
-    name: "worker",
-    command: "npm:start:worker",
+    name: "worker:changefrequency",
+    command: "npm run start:worker -- --worker=changefrequency",
+  },
+  {
+    name: "worker:combinecoverage",
+    command: "npm run start:worker -- --worker=combinecoverage",
+  },
+  {
+    name: "worker:sonarqube",
+    command: "npm run start:worker -- --worker=sonarqube",
+  },
+  {
+    name: "worker:upload",
+    command: "npm run start:worker -- --worker=upload",
   },
   {
     name: "frontend",
