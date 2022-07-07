@@ -1,3 +1,15 @@
+# [1.10.0](https://github.com/Aeolun/mycoverage/compare/v1.9.0...v1.10.0) (2022-07-07)
+
+
+### Bug Fixes
+
+* fix combinecoverage for same commit running at the same time ([44186d1](https://github.com/Aeolun/mycoverage/commit/44186d17b6e60d6a72826f070f07f770594cbd7c))
+
+
+### Features
+
+* update hits column to bigint ([c8b0edc](https://github.com/Aeolun/mycoverage/commit/c8b0edc475adfe636eb47d1a342983dd6fced017))
+
 # [1.9.0](https://github.com/Aeolun/mycoverage/compare/v1.8.2...v1.9.0) (2022-07-06)
 
 
