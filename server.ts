@@ -21,6 +21,8 @@ app
         await handle(req, res, parsedUrl)
       } catch (error) {
         console.error("Error while handling request", error)
+
+        res.end("Internal server error")
       }
     })
     server.keepAliveTimeout = 65000

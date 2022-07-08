@@ -65,7 +65,7 @@ model Commit {
   elements            Int                 @default(0)
   methods             Int                 @default(0)
   statements          Int                 @default(0)
-  hits                BigInt              @default(0) @db.BigInt
+  hits                Int                 @default(0)
   blockerSonarIssues  Int                 @default(0)
   criticalSonarIssues Int                 @default(0)
   infoSonarIssues     Int                 @default(0)
@@ -95,7 +95,7 @@ model Test {
   updatedDate         DateTime          @default(now()) @updatedAt
   coveredElements     Int               @default(0)
   elements            Int               @default(0)
-  hits                BigInt            @default(0) @db.BigInt
+  hits                Int               @default(0)
   repositoryRoot      String?
   commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade)
   PackageCoverage     PackageCoverage[]
@@ -113,7 +113,7 @@ model TestInstance {
   conditionals        Int
   methods             Int
   elements            Int               @default(0)
-  hits                BigInt            @default(0) @db.BigInt
+  hits                Int               @default(0)
   coveredElements     Int               @default(0)
   coveredStatements   Int
   coveredConditionals Int
@@ -145,7 +145,7 @@ model PackageCoverage {
   coveredElements     Int            @default(0)
   elements            Int            @default(0)
   commitId            Int?
-  hits                BigInt         @default(0) @db.BigInt
+  hits                Int            @default(0)
   testInstanceId      Int?
   codeIssues          Int            @default(0)
   changeRatio         Float          @default(0)
@@ -175,7 +175,7 @@ model FileCoverage {
   updatedDate             DateTime                  @updatedAt
   coveredElements         Int                       @default(0)
   elements                Int                       @default(0)
-  hits                    BigInt                    @default(0) @db.BigInt
+  hits                    Int                       @default(0)
   codeIssues              Int                       @default(0)
   changeRatio             Float                     @default(0)
   changes                 Int                       @default(0)

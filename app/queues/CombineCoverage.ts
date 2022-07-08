@@ -35,7 +35,6 @@ export const combineCoverageJob = (
     {
       removeOnComplete: true,
       removeOnFail: true,
-      timeout: 300 * 1000,
       delay: delay,
     }
   )

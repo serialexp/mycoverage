@@ -6,7 +6,7 @@ import { Queue } from "bullmq"
 
 export const uploadQueue = new Queue("upload", { connection: queueConfig })
 
-export const uploadJob = (
+export const uploadJob = async (
   coverageFileKey: string,
   commit: Commit,
   testName: string,
@@ -15,8 +15,18 @@ export const uploadJob = (
   namespaceSlug: string,
   repositorySlug: string
 ) => {
-  console.log("Adding upload job to queue")
-  return uploadQueue.add(
+  console.log("Adding upload job to queue", {
+    coverageFileKey,
+    commit,
+    testName,
+    repositoryRoot,
+    testInstanceIndex,
+    namespaceSlug,
+    repositorySlug,
+  })
+  const activeJobs = await uploadQueue.getActive()
+  console.log("Active jobs", activeJobs)
+  const res = await uploadQueue.add(
     "upload",
     {
       coverageFileKey,
@@ -32,4 +42,6 @@ export const uploadJob = (
       removeOnFail: 3,
     }
   )
+  console.log("Added upload job to queue", res)
+  return res
 }
