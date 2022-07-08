@@ -6,6 +6,7 @@ export default async function getProject(args: { projectSlug?: string }, { sessi
   return db.project.findFirst({
     where: { slug: args.projectSlug },
     include: {
+      group: true,
       Branch: {
         orderBy: {
           createdDate: "desc",

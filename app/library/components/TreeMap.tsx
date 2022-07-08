@@ -117,7 +117,7 @@ const TreeMap = (props: { commitId: number }) => {
         </Breadcrumb>
       ) : null}
       <Box height={"300px"} p={2}>
-        <ResponsiveTreeMapHtml<TreeMapInputData>
+        <ResponsiveTreeMapHtml
           data={mappedData || { title: "Root" }}
           identity="title"
           outerPadding={2}

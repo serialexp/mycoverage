@@ -2,6 +2,7 @@ import combineCoverage from "app/coverage/mutations/combineCoverage"
 import getPackagesForCommit from "app/coverage/queries/getPackagesForCommit"
 import getProject from "app/coverage/queries/getProject"
 import { Actions } from "app/library/components/Actions"
+import { Breadcrumbs } from "app/library/components/Breadcrumbs"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { IssueSummary } from "app/library/components/IssueSummary"
@@ -51,12 +52,12 @@ const CommitPage: BlitzPage = () => {
   return commit && commitRef && projectId && groupId && project ? (
     <>
       <Heading color={"blue.500"}>Commit {commit.ref.substr(0, 10)}</Heading>
+      <Breadcrumbs project={project} group={project?.group} commit={commit} />
       <Actions>
         <Link
-          href={Routes.BranchPage({
+          href={Routes.ProjectPage({
             groupId,
             projectId,
-            branchId: commit.CommitOnBranch[0]?.Branch.slug || "",
           })}
         >
           <Button>Back</Button>

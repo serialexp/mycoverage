@@ -1,5 +1,7 @@
 import getRecentCommits from "app/coverage/queries/getRecentCommits"
+import getRecentPullRequests from "app/coverage/queries/getRecentPullRequests"
 import { Actions } from "app/library/components/Actions"
+import { Breadcrumbs } from "app/library/components/Breadcrumbs"
 import { BuildStatus } from "app/library/components/BuildStatus"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
@@ -41,11 +43,13 @@ const ProjectPage: BlitzPage = () => {
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [recentCommits] = useQuery(getRecentCommits, { projectId: project?.id || 0 })
+  const [recentPullRequests] = useQuery(getRecentPullRequests, { projectId: project?.id || 0 })
   const [buildInfo] = useQuery(getLastBuildInfo, { projectId: project?.id || 0 })
 
   return groupId && projectId && project ? (
     <>
       <Heading>{project?.name}</Heading>
+      <Breadcrumbs project={project} group={project?.group} />
       <Actions>
         <Link href={Routes.GroupPage({ groupId: groupId || 0 })}>
           <Button>Back</Button>
@@ -95,6 +99,55 @@ const ProjectPage: BlitzPage = () => {
       />
       <Subheading>Coverage Map</Subheading>
       {buildInfo?.lastCommit?.id ? <TreeMap commitId={buildInfo?.lastCommit?.id} /> : null}
+      <Subheading>Pull requests</Subheading>
+      <Table>
+        <Tr>
+          <Th>Pull Request</Th>
+          <Th>Target</Th>
+          <Th>Origin</Th>
+          <Th width={"10%"}>Issues</Th>
+          <Th width={"10%"}>Tests</Th>
+          <Th width={"15%"}>Coverage</Th>
+          <Th width={"25%"}>Created</Th>
+        </Tr>
+        {recentPullRequests?.map((pullRequest) => {
+          const commit = pullRequest.commit
+          return (
+            <Tr key={pullRequest.id}>
+              <Td>
+                <Link
+                  passHref={true}
+                  href={Routes.PullRequestPage({ groupId, projectId, prId: pullRequest.id })}
+                >
+                  <ChakraLink color={"blue.500"}>{pullRequest.id}</ChakraLink>
+                </Link>
+              </Td>
+              <Td>
+                <Tag mr={2} mb={2}>
+                  {pullRequest.baseBranch}
+                </Tag>
+              </Td>
+              <Td>
+                <Tag mr={2} mb={2}>
+                  {pullRequest.branch}
+                </Tag>
+              </Td>
+              <Td>{format.format(combineIssueCount(commit))}</Td>
+              <Td>
+                <BuildStatus
+                  commit={commit}
+                  expectedResults={project?.ExpectedResult}
+                  targetBranch={buildInfo?.branch?.baseBranch || ""}
+                />
+              </Td>
+              <Td>
+                <Minibar progress={commit.coveredPercentage / 100} />
+              </Td>
+              <Td>{commit.createdDate.toLocaleString()}</Td>
+            </Tr>
+          )
+        })}
+      </Table>
       <Subheading>Recent Commits</Subheading>
       <Table>
         <Tr>

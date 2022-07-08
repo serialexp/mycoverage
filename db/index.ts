@@ -22,4 +22,6 @@ prisma.$on("query", async (e: any) => {
   }
 })
 
-export default prisma
+const prismaExport: PrismaClient = prisma
+
+export default prismaExport

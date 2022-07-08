@@ -10,7 +10,7 @@ import getPackageCoverageForTest from "app/coverage/queries/getPackageCoverageFo
 import getProject from "app/coverage/queries/getProject"
 import getTest from "app/coverage/queries/getTest"
 import { Actions } from "app/library/components/Actions"
-import ReactDiffViewer, { DiffMethod, LineNumberPrefix } from "app/library/components/DiffViewer"
+import ReactDiffViewer, { DiffMethod, LineNumberPrefix } from "react-diff-viewer-continued"
 import { FileCoverageDisplay } from "app/library/components/FileCoverageDisplay"
 import { Heading } from "app/library/components/Heading"
 import { CoverageStatus, LineInformation } from "app/library/getLineCoverageData"

@@ -1,6 +1,7 @@
 import { WarningIcon } from "@chakra-ui/icons"
 import combineCoverage from "app/coverage/mutations/combineCoverage"
 import getMergeBase from "app/coverage/queries/getMergeBase"
+import getPullRequest from "app/coverage/queries/getPullRequest"
 import getRecentCommits from "app/coverage/queries/getRecentCommits"
 import { Actions } from "app/library/components/Actions"
 import { Breadcrumbs } from "app/library/components/Breadcrumbs"
@@ -20,30 +21,32 @@ import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaCheck, FaClock } from "react-icons/fa"
 
-const BranchPage: BlitzPage = () => {
+const PullRequestPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
-  const branchSlug = useParam("branchId", "string")
+  const prId = useParam("prId", "number")
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
+  const [pullRequest] = useQuery(getPullRequest, { pullRequestId: prId })
+
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: branchSlug,
+    branch: pullRequest?.branch,
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: buildInfo?.branch?.baseBranch,
+    branch: pullRequest?.baseBranch,
   })
   const [recentCommits] = useQuery(getRecentCommits, {
     projectId: project?.id,
-    branch: buildInfo.branch?.name,
+    branch: pullRequest?.branch,
   })
   const [combineCoverageMutation] = useMutation(combineCoverage)
 
-  return groupId && projectId && branchSlug ? (
+  return groupId && projectId && prId ? (
     <>
-      <Heading>{buildInfo?.branch?.name}</Heading>
-      <Breadcrumbs project={project} group={project?.group} branch={buildInfo.branch} />
+      <Heading>PR: {pullRequest?.name}</Heading>
+      <Breadcrumbs project={project} group={project?.group} pullRequest={pullRequest} />
       <Actions>
         <Link href={Routes.ProjectPage({ groupId, projectId })}>
           <Button>Back</Button>
@@ -59,6 +62,17 @@ const BranchPage: BlitzPage = () => {
           <Button colorScheme={"secondary"} ml={2}>
             Browse file coverage
           </Button>
+        </Link>
+
+        <Link
+          href={Routes.CompareBranchPage({
+            groupId,
+            projectId,
+            branchId: prId,
+            baseCommitRef: pullRequest?.baseBranch || "",
+          })}
+        >
+          <Button ml={2}>Compare</Button>
         </Link>
 
         <Button
@@ -110,7 +124,6 @@ const BranchPage: BlitzPage = () => {
       <TestResults
         groupId={groupId}
         projectId={projectId}
-        branchSlug={branchSlug}
         commit={buildInfo?.lastCommit}
         baseCommit={baseBuildInfo?.lastCommit ?? undefined}
       />
@@ -155,7 +168,7 @@ const BranchPage: BlitzPage = () => {
   ) : null
 }
 
-BranchPage.suppressFirstRenderFlicker = true
-BranchPage.getLayout = (page) => <Layout title="Project">{page}</Layout>
+PullRequestPage.suppressFirstRenderFlicker = true
+PullRequestPage.getLayout = (page) => <Layout title="Project">{page}</Layout>
 
-export default BranchPage
+export default PullRequestPage
