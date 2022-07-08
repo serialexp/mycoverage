@@ -9,7 +9,7 @@ import { BlitzPage, Link, Routes, useParam, useParams, useQuery } from "blitz"
 const TestFilesPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
-  const branchSlug = useParam("branchId", "string")
+  const commitRef = useParam("commitRef", "string")
   const testId = useParam("testId", "number")
   const path = useParam("path", "array")
 
@@ -24,7 +24,7 @@ const TestFilesPage: BlitzPage = () => {
     path: path?.slice(0, path.length - 1).join("."),
   })
 
-  return groupId && projectId && branchSlug && testId ? (
+  return groupId && projectId && commitRef && testId ? (
     <>
       <Heading>
         Browsing {test?.repositoryRoot ?? ""}
@@ -37,7 +37,7 @@ const TestFilesPage: BlitzPage = () => {
             return Routes.TestFilesPage({
               groupId,
               projectId,
-              branchId: branchSlug,
+              commitRef: commitRef,
               testId,
               path,
             })
@@ -46,7 +46,7 @@ const TestFilesPage: BlitzPage = () => {
             return Routes.TestPage({
               groupId,
               projectId,
-              branchId: branchSlug,
+              commitRef: commitRef,
               testId,
             })
           }}
@@ -58,7 +58,7 @@ const TestFilesPage: BlitzPage = () => {
             return Routes.TestFilesPage({
               groupId,
               projectId,
-              branchId: branchSlug,
+              commitRef: commitRef,
               testId,
               path,
             })

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { createCoverageFromS3 } from "app/library/createCoverageFromS3"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { getSetting } from "app/library/setting"
 import { addEventListeners } from "app/processors/addEventListeners"
@@ -53,56 +54,20 @@ export const combineCoverageWorker = new Worker<{
       return true
     }
 
-    let test: Test | null = null
+    let test:
+      | (Test & {
+          PackageCoverage: {
+            name: string
+            FileCoverage: { name: string; coverageData: Buffer }[]
+          }[]
+        })
+      | null = null
     try {
       if (testInstance) {
+        console.log("Retrieving file coverage for test from database")
         test = await mydb.test.findFirst({
           where: {
             id: testInstance.testId ?? undefined,
-          },
-        })
-
-        if (!test) throw new Error("Cannot combine coverage for testInstance without a test")
-
-        //DO THE COMBINATION FOR THE TEST RESULTS
-        //Check if we can actually combine this much data
-        const instancesWithDatasize = await mydb.testInstance.aggregate({
-          _sum: {
-            dataSize: true,
-          },
-          where: {
-            testId: test.id,
-          },
-        })
-
-        console.log(
-          "test: Total size of combinable data estimated at: " +
-            (instancesWithDatasize._sum.dataSize || 0) / 1024 / 1024 +
-            "MB"
-        )
-
-        await job.updateProgress(10)
-
-        const settingValue = await getSetting("max-combine-coverage-size")
-        const sizeInMegabytes = parseInt(settingValue || "100")
-
-        if (
-          instancesWithDatasize &&
-          instancesWithDatasize._sum.dataSize &&
-          instancesWithDatasize._sum.dataSize > sizeInMegabytes * 1024 * 1024
-        ) {
-          throw new Error(
-            `Data to combine is ${Math.ceil(
-              instancesWithDatasize._sum.dataSize / 1024 / 1024
-            )}, maximum is ${sizeInMegabytes}, cancelling.`
-          )
-        }
-
-        //Retrieve all the datas!
-        console.log("Retrieving file coverage from database")
-        const instancesForTest = await mydb.testInstance.findMany({
-          where: {
-            testId: test.id,
           },
           orderBy: {
             createdDate: "desc",
@@ -122,29 +87,62 @@ export const combineCoverageWorker = new Worker<{
           },
         })
 
+        if (!test) throw new Error("Cannot combine coverage for testInstance without a test")
+
+        await job.updateProgress(10)
+
+        // const settingValue = await getSetting("max-combine-coverage-size")
+        // const sizeInMegabytes = parseInt(settingValue || "100")
+        //
+        // if (
+        //   instancesWithDatasize &&
+        //   instancesWithDatasize._sum.dataSize &&
+        //   instancesWithDatasize._sum.dataSize > sizeInMegabytes * 1024 * 1024
+        // ) {
+        //   throw new Error(
+        //     `Data to combine is ${Math.ceil(
+        //       instancesWithDatasize._sum.dataSize / 1024 / 1024
+        //     )}, maximum is ${sizeInMegabytes}, cancelling.`
+        //   )
+        // }
+
         await job.updateProgress(20)
 
-        const testCoverage = new CoberturaCoverage()
+        if (!testInstance.coverageFileKey)
+          throw new Error("Cannot combine coverage for a testInstance without a coverageFileKey")
 
-        console.log(
-          `test: Merging coverage information for ${instancesForTest.length} test instances`
+        const { coverageFile: testInstanceCoverageFile } = await createCoverageFromS3(
+          testInstance.coverageFileKey
         )
 
+        console.log(`test: Merging coverage information for for instance into test`)
+
         const start = new Date()
-        instancesForTest.forEach((instance) => {
-          let packages = 0,
-            files = 0
-          instance.PackageCoverage.forEach(async (pkg) => {
-            packages++
-            pkg.FileCoverage?.forEach((file) => {
-              files++
-              testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
-            })
+
+        const testCoverage = new CoberturaCoverage()
+        let packages = 0,
+          files = 0
+        // fill new testCoverage object with values in test
+        test.PackageCoverage.forEach((pkg) => {
+          packages++
+          pkg.FileCoverage?.forEach((file) => {
+            files++
+            testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
           })
-          console.log(
-            `test: Merged ${packages} packages and ${files} files for instance index ${instance.index} ${instance.id}`
-          )
         })
+        // add new testCoverage object values from this testinstance, this is icky if we accidentally
+        // process twice, but much faster when there are many testinstances
+        testInstanceCoverageFile.data.coverage.packages.forEach((pkg) => {
+          packages++
+          pkg.files.forEach((file) => {
+            files++
+            testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData)
+          })
+        })
+        console.log(
+          `test: Merged ${packages} packages and ${files} files for instance index ${testInstance.index} id ${testInstance.id}`
+        )
+
         CoberturaCoverage.updateMetrics(testCoverage.data)
 
         await job.updateProgress(40)
@@ -159,10 +157,7 @@ export const combineCoverageWorker = new Worker<{
           "test: Test instance combination with previous test instances result: " +
             testCoverage.data.coverage.metrics?.coveredelements +
             "/" +
-            testCoverage.data.coverage.metrics?.elements +
-            " covered based on " +
-            instancesForTest.length +
-            " instances"
+            testCoverage.data.coverage.metrics?.elements
         )
 
         console.log(`test: Deleting existing results for test ${test.testName}`)

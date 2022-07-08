@@ -45,24 +45,22 @@ const CommitFilesPage: BlitzPage = () => {
           </Button>
         </Link>
         {commit?.Test.map((test) => {
-          return test.TestInstance.map((instance) => {
-            return (
-              <Link
-                key={instance.id}
-                href={Routes.TestInstanceFilesPage({
-                  groupId,
-                  projectId,
-                  commitRef,
-                  testInstanceId: instance.id,
-                  path: path || [],
-                })}
-              >
-                <Button ml={2} mt={2}>
-                  {test.testName} {instance.index} ({instance.id})
-                </Button>
-              </Link>
-            )
-          })
+          return (
+            <Link
+              key={test.id}
+              href={Routes.TestFilesPage({
+                groupId,
+                projectId,
+                commitRef,
+                testId: test.id,
+                path: path || [],
+              })}
+            >
+              <Button ml={2} mt={2}>
+                {test.testName}
+              </Button>
+            </Link>
+          )
         })}
       </Box>
       {pack ? (

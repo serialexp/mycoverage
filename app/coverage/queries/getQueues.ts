@@ -31,6 +31,7 @@ export default async function getQueues(args: {}, { session }: Ctx) {
     if (queue.name === "combinecoverage") {
       const waiting = await queue.getWaiting()
       waiting.forEach((job) => {
+        if (!job) return
         const ref = job.data.commit.ref.substr(0, 10)
         if (!uniqueCommits[ref]) {
           uniqueCommits[ref] = 0

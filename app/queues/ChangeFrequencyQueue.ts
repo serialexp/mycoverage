@@ -2,9 +2,13 @@ import { CoberturaCoverage, CloverMetrics } from "app/library/CoberturaCoverage"
 import { ChangeFrequencyData } from "app/library/types"
 import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
-import { Queue } from "bullmq"
+import { Queue, QueueScheduler } from "bullmq"
 
 export const changeFrequencyQueue = new Queue("changefrequency", { connection: queueConfig })
+export const changeFrequencyQueueScheduler = new QueueScheduler("changefrequency", {
+  connection: queueConfig,
+  stalledInterval: 60 * 1000,
+})
 
 export const changeFrequencyJob = (
   postData: ChangeFrequencyData,

@@ -8,7 +8,7 @@ import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
 import { Subheading } from "app/library/components/Subheading"
-import CompareTestPage from "app/pages/group/[groupId]/project/[projectId]/branch/[branchId]/test/[testId]/compare/[baseTestId]"
+import CompareTestPage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/test/[testId]/compare/[baseTestId]"
 import { Suspense } from "react"
 import {
   Link,
@@ -40,57 +40,32 @@ const TestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
-  const branchSlug = useParam("branchId", "string")
+  const commitRef = useParam("commitRef", "string")
 
   const [test] = useQuery(getTest, { testId: testId || 0 })
   const [project] = useQuery(getProject, { projectSlug: projectId })
-  const [branch] = useQuery(getBranch, { projectId: project?.id, branchSlug: branchSlug })
   const [packages] = useQuery(getPackagesForTest, { testId: testId || 0, path: undefined })
 
-  const [mergeBase] = useQuery(getMergeBase, {
-    groupName: groupId,
-    projectName: projectId,
-    baseBranch: branch?.baseBranch,
-    branchName: branch?.name,
-  })
-  const [baseCommit] = useQuery(getCommit, {
-    commitRef: mergeBase || "",
-  })
-
-  return test && testId && projectId && groupId && branchSlug ? (
+  return test && testId && projectId && groupId && commitRef ? (
     <>
       <Heading color={"blue.500"}>
         Test result &apos;{test?.testName}&apos; for {test?.commit.ref.substr(0, 10)}
       </Heading>
       <Actions>
         <Link
-          href={Routes.BranchPage({
+          href={Routes.CommitPage({
             groupId,
             projectId,
-            branchId: branchSlug,
+            commitRef,
           })}
         >
           <Button>Back</Button>
-        </Link>
-        <Link
-          href={Routes.CompareTestPage({
-            groupId,
-            projectId,
-            branchId: branchSlug,
-            testId,
-            baseTestId: baseCommit?.Test.find((t) => t.testName == test.testName)?.id || 0,
-          })}
-        >
-          <Button ml={2}>Compare</Button>
         </Link>
       </Actions>
       <Subheading mt={4} size={"md"}>
         Current Coverage
       </Subheading>
-      <CoverageSummary
-        metrics={test}
-        baseMetrics={baseCommit?.Test.find((t) => t.testName == test.testName) ?? undefined}
-      />
+      <CoverageSummary metrics={test} />
       <Subheading size={"md"}>Files</Subheading>
       <PackageFileTable
         packages={packages}
@@ -99,7 +74,7 @@ const TestPage: BlitzPage = () => {
           Routes.TestFilesPage({
             groupId,
             projectId,
-            branchId: branchSlug,
+            commitRef: commitRef,
             testId,
             path: parts,
           })
@@ -108,7 +83,7 @@ const TestPage: BlitzPage = () => {
           Routes.TestFilesPage({
             groupId,
             projectId,
-            branchId: branchSlug,
+            commitRef: commitRef,
             testId,
             path: parts,
           })

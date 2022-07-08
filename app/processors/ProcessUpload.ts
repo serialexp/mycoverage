@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { CoverageData } from "app/library/CoverageData"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { createCoverageFromS3 } from "app/library/createCoverageFromS3"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { SourceHits } from "app/library/types"
 import { addEventListeners } from "app/processors/addEventListeners"
@@ -38,36 +39,9 @@ export const uploadWorker = new Worker<{
       console.log("Executing process upload job")
       const mydb: PrismaClient = db
 
-      const s3 = new S3({})
-      const data = await s3
-        .getObject({
-          Bucket: process.env.S3_BUCKET || "",
-          Key: coverageFileKey,
-        })
-        .promise()
-
       await job.updateProgress(10)
 
-      let hits, coverage
-      if (coverageFileKey.includes(".xml")) {
-        console.log("Base data xml without hits")
-        coverage = data.Body?.toString()
-        hits = {}
-      } else {
-        console.log("Base data json with hits")
-        if (!data.Body) {
-          throw new Error("No body data")
-        }
-
-        const parsed = JSON.parse(data.Body.toString())
-        hits = parsed.hits
-        coverage = parsed.coverage
-      }
-
-      await job.updateProgress(20)
-
-      const coverageFile = new CoberturaCoverage()
-      await coverageFile.init(coverage, hits)
+      const { coverageFile, contentLength } = await createCoverageFromS3(coverageFileKey)
 
       await job.updateProgress(40)
 
@@ -125,7 +99,8 @@ export const uploadWorker = new Worker<{
           coveredMethods: covInfo.metrics.coveredmethods,
           coveredElements: covInfo.metrics.coveredelements,
           coveredPercentage: coveredPercentage(covInfo.metrics),
-          dataSize: data.ContentLength,
+          dataSize: contentLength,
+          coverageFileKey: coverageFileKey,
         },
       })
 
@@ -136,10 +111,6 @@ export const uploadWorker = new Worker<{
       console.log("Creating package and file information for test instance")
 
       await job.updateProgress(50)
-
-      await insertCoverageData(covInfo, {
-        testInstanceId: testInstance.id,
-      })
 
       await job.updateProgress(80)
 

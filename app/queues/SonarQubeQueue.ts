@@ -1,9 +1,13 @@
 import { SonarIssue } from "app/library/types"
 import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
-import { Queue } from "bullmq"
+import { Queue, QueueScheduler } from "bullmq"
 
 export const sonarqubeQueue = new Queue("sonarqube", { connection: queueConfig })
+export const sonarqubeQueueScheduler = new QueueScheduler("sonarqube", {
+  connection: queueConfig,
+  stalledInterval: 60 * 1000,
+})
 
 export const sonarqubeJob = (
   issues: SonarIssue[],

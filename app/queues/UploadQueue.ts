@@ -2,9 +2,13 @@ import { CoberturaCoverage, CloverMetrics } from "app/library/CoberturaCoverage"
 import { SourceHits } from "app/library/types"
 import { queueConfig } from "app/queues/config"
 import db, { Test, Commit, TestInstance } from "db"
-import { Queue } from "bullmq"
+import { Queue, QueueScheduler } from "bullmq"
 
 export const uploadQueue = new Queue("upload", { connection: queueConfig })
+export const uploadQueueScheduler = new QueueScheduler("upload", {
+  connection: queueConfig,
+  stalledInterval: 60 * 1000,
+})
 
 export const uploadJob = async (
   coverageFileKey: string,

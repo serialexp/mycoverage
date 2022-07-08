@@ -7,7 +7,7 @@ import db, { Commit, Test, TestInstance } from "db"
 
 export const insertCoverageData = async (
   covInfo: CoberturaCoverage["data"]["coverage"],
-  where: { commitId: number } | { testInstanceId: number } | { testId: number }
+  where: { commitId: number } | { testId: number }
 ) => {
   const mydb: PrismaClient = db
 

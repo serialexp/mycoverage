@@ -1,6 +1,5 @@
 import combineCoverage from "app/coverage/mutations/combineCoverage"
 import getPackagesForCommit from "app/coverage/queries/getPackagesForCommit"
-import getPackagesForTestInstance from "app/coverage/queries/getPackagesForTestInstance"
 import getProject from "app/coverage/queries/getProject"
 import getTestInstance from "app/coverage/queries/getTestInstance"
 import { Actions } from "app/library/components/Actions"
@@ -47,10 +46,6 @@ const TestInstancePage: BlitzPage = () => {
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
   const [testInstance] = useQuery(getTestInstance, { testInstanceId: testInstanceId })
-  const [packages] = useQuery(getPackagesForTestInstance, {
-    testInstanceId: testInstanceId || 0,
-    path: undefined,
-  })
 
   const [combineCoverageMutation] = useMutation(combineCoverage)
   console.log("renderpage")
@@ -84,29 +79,6 @@ const TestInstancePage: BlitzPage = () => {
         Combined coverage
       </Subheading>
       <CoverageSummary metrics={testInstance} />
-      <Subheading mt={4} size={"md"}>
-        Files
-      </Subheading>
-      <PackageFileTable
-        packages={packages}
-        files={[]}
-        fileRoute={(parts) =>
-          Routes.CommitFilesPage({
-            groupId,
-            projectId,
-            commitRef,
-            path: parts,
-          })
-        }
-        dirRoute={(parts) =>
-          Routes.CommitFilesPage({
-            groupId,
-            projectId,
-            commitRef,
-            path: parts,
-          })
-        }
-      />
     </>
   ) : null
 }

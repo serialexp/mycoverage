@@ -38,6 +38,10 @@ export const TestResults = (props: {
       <Tbody>
         {props.commit?.Test.map((test) => {
           const baseTest = props.baseCommit?.Test.find((base) => base.testName === test.testName)
+          let uniqueInstances = {}
+          test.TestInstance.forEach((instance) => {
+            uniqueInstances[instance.index] = true
+          })
           return (
             <>
               <Tr key={test.id} _hover={{ bg: "primary.50" }}>
@@ -58,7 +62,9 @@ export const TestResults = (props: {
                   )}
                 </Td>
                 <Td>{test.createdDate.toLocaleString()}</Td>
-                <Td isNumeric>{test.TestInstance.length}</Td>
+                <Td isNumeric>
+                  {test.TestInstance.length} ({Object.keys(uniqueInstances).length})
+                </Td>
                 <Td isNumeric>
                   <DiffHelper
                     from={baseTest ? baseTest.coveredElements - baseTest.elements : 0}
