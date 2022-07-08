@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/Aeolun/mycoverage/compare/v1.11.2...v1.12.0) (2022-07-08)
+
+
+### Features
+
+* increase number of combinecoverage workers per instance ([ce446cf](https://github.com/Aeolun/mycoverage/commit/ce446cf1f4ebefe4161168cc47b75e7519d21f4c))
+
 ## [1.11.2](https://github.com/Aeolun/mycoverage/compare/v1.11.1...v1.11.2) (2022-07-08)
 
 
