@@ -20,9 +20,12 @@ export const changefrequencyWorker = new Worker<{
   async (job) => {
     const startTime = new Date()
     const { postData, commit, namespaceSlug, repositorySlug } = job.data
-    try {
-      console.log("changes", postData)
 
+    console.log(
+      "Start processing change frequency for " + Object.keys(postData.changes).length + " files"
+    )
+
+    try {
       const { packagePathToId, pathToFileId, packageIdToPath } = await getPathToPackageFileIds({
         commitId: commit.id,
       })
