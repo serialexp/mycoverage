@@ -1,3 +1,15 @@
+# [1.11.0](https://github.com/Aeolun/mycoverage/compare/v1.10.0...v1.11.0) (2022-07-08)
+
+
+### Bug Fixes
+
+* prevent huge changefrequency worker output ([252313f](https://github.com/Aeolun/mycoverage/commit/252313fc502b17afc2a2b06744049936cc34696f))
+
+
+### Features
+
+* create and display pull requests on project ([c9e9424](https://github.com/Aeolun/mycoverage/commit/c9e942471eabbffa884d26b8b8e9c27344f9352c))
+
 # [1.10.0](https://github.com/Aeolun/mycoverage/compare/v1.9.0...v1.10.0) (2022-07-07)
 
 
