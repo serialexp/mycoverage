@@ -347,7 +347,7 @@ export const combineCoverageWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 1, autorun: false }
+  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 4, autorun: false }
 )
 
 addEventListeners(combineCoverageWorker)

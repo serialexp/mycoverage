@@ -64,7 +64,9 @@ const Queues: BlitzPage = () => {
               </Stat>
               <Stat>
                 <StatLabel>Pending</StatLabel>
-                <StatNumber>{queue.queued}</StatNumber>
+                <StatNumber>
+                  {queue.queued} ({queue.uniqueQueued})
+                </StatNumber>
               </Stat>
             </StatGroup>
             <Table>

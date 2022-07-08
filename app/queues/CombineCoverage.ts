@@ -13,6 +13,7 @@ export const combineCoverageQueue = new Queue<{
 })
 export const combineCoverageQueueScheduler = new QueueScheduler("combinecoverage", {
   connection: queueConfig,
+  stalledInterval: 300 * 1000,
 })
 
 export const combineCoverageJob = (

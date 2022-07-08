@@ -15,6 +15,8 @@ export default async function getQueues(args: {}, { session }: Ctx) {
     failed: number
     queued: number
     delayed: number
+    uniqueQueued: number
+    details: any
   }[] = []
   for (let i = 0; i < queues.length; i++) {
     const queue = queues[i]
@@ -25,6 +27,18 @@ export default async function getQueues(args: {}, { session }: Ctx) {
     const queuedCount = await queue.getWaitingCount()
     const delayedCount = await queue.getDelayedCount()
 
+    let uniqueCommits = {}
+    if (queue.name === "combinecoverage") {
+      const waiting = await queue.getWaiting()
+      waiting.forEach((job) => {
+        const ref = job.data.commit.ref.substr(0, 10)
+        if (!uniqueCommits[ref]) {
+          uniqueCommits[ref] = 0
+        }
+        uniqueCommits[ref]++
+      })
+    }
+
     jobs.push({
       name: queue.name,
       jobs: active,
@@ -32,6 +46,8 @@ export default async function getQueues(args: {}, { session }: Ctx) {
       failed: failedCount,
       queued: queuedCount,
       delayed: delayedCount,
+      uniqueQueued: Object.keys(uniqueCommits).length,
+      details: uniqueCommits,
     })
   }
 
