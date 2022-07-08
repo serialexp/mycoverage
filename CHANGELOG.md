@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/Aeolun/mycoverage/compare/v1.11.0...v1.11.1) (2022-07-08)
+
+
+### Bug Fixes
+
+* catch errors while handling custom server requets ([bb03b10](https://github.com/Aeolun/mycoverage/commit/bb03b10f9762b2df3ac2c83d1f9c3e5f7f760a2b))
+
 # [1.11.0](https://github.com/Aeolun/mycoverage/compare/v1.10.0...v1.11.0) (2022-07-08)
 
 
