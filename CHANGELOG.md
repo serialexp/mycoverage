@@ -1,3 +1,11 @@
+## [1.12.1](https://github.com/Aeolun/mycoverage/compare/v1.12.0...v1.12.1) (2022-07-11)
+
+
+### Bug Fixes
+
+* coverage only per test now ([1067e06](https://github.com/Aeolun/mycoverage/commit/1067e06dffdc1425cec0cb98d9a56ab04555609e))
+* fix the issue with treemap ([636d71c](https://github.com/Aeolun/mycoverage/commit/636d71c3643e8cf7034142b8eb0e1c6ba7b1a65e))
+
 # [1.12.0](https://github.com/Aeolun/mycoverage/compare/v1.11.2...v1.12.0) (2022-07-08)
 
 
