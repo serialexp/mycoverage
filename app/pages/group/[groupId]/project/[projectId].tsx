@@ -91,12 +91,7 @@ const ProjectPage: BlitzPage = () => {
           </Alert>
         </Box>
       ) : null}
-      <TestResults
-        groupId={groupId}
-        projectId={projectId}
-        commit={buildInfo?.lastCommit}
-        branchSlug={buildInfo.branch?.slug}
-      />
+      <TestResults groupId={groupId} projectId={projectId} commit={buildInfo?.lastCommit} />
       <Subheading>Coverage Map</Subheading>
       {buildInfo?.lastCommit?.id ? <TreeMap commitId={buildInfo?.lastCommit?.id} /> : null}
       <Subheading>Pull requests</Subheading>

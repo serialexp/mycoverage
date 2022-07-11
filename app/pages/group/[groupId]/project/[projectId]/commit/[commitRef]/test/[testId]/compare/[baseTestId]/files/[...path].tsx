@@ -79,6 +79,9 @@ const TestFileDifferencePage: BlitzPage = () => {
 
   console.log(coverageData)
 
+  //TODO: This is really borked. Need to make dependent on comparing two commit id's using a test name
+  const commitRef = latestCommit?.ref || ""
+
   return groupId && projectId && testId && baseTestId && latestCommit && branchId && baseTest ? (
     <>
       <Heading m={2}>
@@ -89,7 +92,7 @@ const TestFileDifferencePage: BlitzPage = () => {
           href={Routes.CompareTestPage({
             groupId,
             projectId,
-            branchId,
+            commitRef,
             testId,
             baseTestId,
           })}
@@ -108,7 +111,7 @@ const TestFileDifferencePage: BlitzPage = () => {
                 href={Routes.TestFileDifferencePage({
                   groupId,
                   projectId,
-                  branchId,
+                  commitRef,
                   testId: test.id,
                   baseTestId: baseTest.id,
                   path: path || [],

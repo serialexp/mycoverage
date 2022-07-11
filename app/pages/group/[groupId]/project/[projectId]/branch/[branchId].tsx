@@ -110,7 +110,6 @@ const BranchPage: BlitzPage = () => {
       <TestResults
         groupId={groupId}
         projectId={projectId}
-        branchSlug={branchSlug}
         commit={buildInfo?.lastCommit}
         baseCommit={baseBuildInfo?.lastCommit ?? undefined}
       />

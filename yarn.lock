@@ -2564,53 +2564,56 @@
   "resolved" "https://registry.npmjs.org/@next/react-refresh-utils/-/react-refresh-utils-11.1.0.tgz"
   "version" "11.1.0"
 
-"@nivo/colors@0.79.1":
-  "integrity" "sha512-45huBmz46OoQtfqzHrnqDJ9msebOBX84fTijyOBi8mn8iTDOK2xWgzT7cCYP3hKE58IclkibkzVyWCeJ+rUlqg=="
-  "resolved" "https://registry.npmjs.org/@nivo/colors/-/colors-0.79.1.tgz"
-  "version" "0.79.1"
+"@nivo/colors@0.74.1":
+  "integrity" "sha512-QS8++QPBC1eQoGVfVy4DHjeAzpWMAkRLfSSTQ9cDDZtzM5Y4AE6AD1P9iXX9987lY080+vEqIu9hgqkoey4V3g=="
+  "resolved" "https://registry.npmjs.org/@nivo/colors/-/colors-0.74.1.tgz"
+  "version" "0.74.1"
   dependencies:
     "d3-color" "^2.0.0"
     "d3-scale" "^3.2.3"
     "d3-scale-chromatic" "^2.0.0"
     "lodash" "^4.17.21"
+    "react-motion" "^0.5.2"
 
-"@nivo/core@^0.79.0":
-  "integrity" "sha512-e1iGodmGuXkF+QWAjhHVFc+lUnfBoUwaWqVcBXBfebzNc50tTJrTTMHyQczjgOIfTc8gEu23lAY4mVZCDKscig=="
-  "resolved" "https://registry.npmjs.org/@nivo/core/-/core-0.79.0.tgz"
-  "version" "0.79.0"
+"@nivo/core@^0.74.1":
+  "integrity" "sha512-uwSxCSky95Yc3FLZIqwm27ZHXII25osQGIlSFgehsed/5Zl3RRsQYzffzA+QOcFxLJTQcUx1oUmof0zxbUIbtA=="
+  "resolved" "https://registry.npmjs.org/@nivo/core/-/core-0.74.1.tgz"
+  "version" "0.74.1"
   dependencies:
-    "@nivo/recompose" "0.79.0"
+    "@nivo/recompose" "0.74.0"
     "@react-spring/web" "9.3.1"
     "d3-color" "^2.0.0"
     "d3-format" "^1.4.4"
+    "d3-hierarchy" "^1.1.8"
     "d3-interpolate" "^2.0.1"
     "d3-scale" "^3.2.3"
     "d3-scale-chromatic" "^2.0.0"
     "d3-shape" "^1.3.5"
     "d3-time-format" "^3.0.0"
     "lodash" "^4.17.21"
+    "resize-observer-polyfill" "^1.5.1"
 
-"@nivo/recompose@0.79.0":
-  "integrity" "sha512-2GFnOHfA2jzTOA5mdKMwJ6myCRGoXQQbQvFFQ7B/+hnHfU/yrOVpiGt6TPAn3qReC4dyDYrzy1hr9UeQh677ig=="
-  "resolved" "https://registry.npmjs.org/@nivo/recompose/-/recompose-0.79.0.tgz"
-  "version" "0.79.0"
+"@nivo/recompose@0.74.0":
+  "integrity" "sha512-qC9gzGvDIxocrJoozDjqqffOwDpuEZijeMV59KExnztCwIpQbIYVBsDdpvL+tXfWausigSlnGILGfereXJTLUQ=="
+  "resolved" "https://registry.npmjs.org/@nivo/recompose/-/recompose-0.74.0.tgz"
+  "version" "0.74.0"
   dependencies:
     "react-lifecycles-compat" "^3.0.4"
 
-"@nivo/tooltip@^0.79.0", "@nivo/tooltip@0.79.0":
-  "integrity" "sha512-hsJsvhDVR9P/QqIEDIttaA6aslR3tU9So1s/k2jMdppL7J9ZH/IrVx9TbIP7jDKmnU5AMIP5uSstXj9JiKLhQA=="
-  "resolved" "https://registry.npmjs.org/@nivo/tooltip/-/tooltip-0.79.0.tgz"
-  "version" "0.79.0"
+"@nivo/tooltip@^0.74.1", "@nivo/tooltip@0.74.1":
+  "integrity" "sha512-7Z/uHB+u1srlXaQnnywSVY8LOG6TiZpZUu+KRkV5UaOv0RcUqjgAz7vSSoJQIg19s6gOw8YDqm5sgHRtliQ3Wg=="
+  "resolved" "https://registry.npmjs.org/@nivo/tooltip/-/tooltip-0.74.1.tgz"
+  "version" "0.74.1"
   dependencies:
     "@react-spring/web" "9.3.1"
 
-"@nivo/treemap@^0.79.1":
-  "integrity" "sha512-cLN+MeXTuVyw0bnuOCkTVJ+HyX4Q6hiXWbarMiy2lUhhFUrzU0VzVxXz9NaZ/h7Xe1Ooy77wTZCp73bzQC2xhg=="
-  "resolved" "https://registry.npmjs.org/@nivo/treemap/-/treemap-0.79.1.tgz"
-  "version" "0.79.1"
+"@nivo/treemap@^0.74.1":
+  "integrity" "sha512-rcr9NPDbGagRUmpY0OJyQTey81y2yNLcJ0BG77O5Xv6Wgm9haYC9QCWN8wURLnLhOAY44+Cr2pQ5CcgNcZCyJg=="
+  "resolved" "https://registry.npmjs.org/@nivo/treemap/-/treemap-0.74.1.tgz"
+  "version" "0.74.1"
   dependencies:
-    "@nivo/colors" "0.79.1"
-    "@nivo/tooltip" "0.79.0"
+    "@nivo/colors" "0.74.1"
+    "@nivo/tooltip" "0.74.1"
     "@react-spring/web" "9.3.1"
     "d3-hierarchy" "^1.1.8"
     "lodash" "^4.17.21"
@@ -12843,6 +12846,16 @@
     "safe-buffer" "^5.0.1"
     "sha.js" "^2.4.8"
 
+"performance-now@^0.2.0":
+  "integrity" "sha512-YHk5ez1hmMR5LOkb9iJkLKqoBlL7WD5M8ljC75ZfzXriuBIVNuecaXuU7e+hOwyqf24Wxhh7Vxgt7Hnw9288Tg=="
+  "resolved" "https://registry.npmjs.org/performance-now/-/performance-now-0.2.0.tgz"
+  "version" "0.2.0"
+
+"performance-now@^2.1.0":
+  "integrity" "sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow=="
+  "resolved" "https://registry.npmjs.org/performance-now/-/performance-now-2.1.0.tgz"
+  "version" "2.1.0"
+
 "picocolors@^1.0.0":
   "integrity" "sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ=="
   "resolved" "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
@@ -13111,7 +13124,7 @@
   dependencies:
     "read" "1"
 
-"prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@^15.8.1":
+"prop-types@^15.5.8", "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@^15.8.1":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
   "resolved" "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   "version" "15.8.1"
@@ -13334,6 +13347,13 @@
   "resolved" "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz"
   "version" "5.1.1"
 
+"raf@^3.1.0":
+  "integrity" "sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA=="
+  "resolved" "https://registry.npmjs.org/raf/-/raf-3.4.1.tgz"
+  "version" "3.4.1"
+  dependencies:
+    "performance-now" "^2.1.0"
+
 "railroad-diagrams@^1.0.0":
   "integrity" "sha1-635iZ1SN3t+4mcG5Dlc3RVnN234="
   "resolved" "https://registry.npmjs.org/railroad-diagrams/-/railroad-diagrams-1.0.0.tgz"
@@ -13499,6 +13519,15 @@
   "integrity" "sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA=="
   "resolved" "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
   "version" "3.0.4"
+
+"react-motion@^0.5.2":
+  "integrity" "sha512-9q3YAvHoUiWlP3cK0v+w1N5Z23HXMj4IF4YuvjvWegWqNPfLXsOBE/V7UvQGpXxHFKRQQcNcVQE31g9SB/6qgQ=="
+  "resolved" "https://registry.npmjs.org/react-motion/-/react-motion-0.5.2.tgz"
+  "version" "0.5.2"
+  dependencies:
+    "performance-now" "^0.2.0"
+    "prop-types" "^15.5.8"
+    "raf" "^3.1.0"
 
 "react-query@3.21.1":
   "integrity" "sha512-aKFLfNJc/m21JBXJk7sR9tDUYPjotWA4EHAKvbZ++GgxaY+eI0tqBxXmGBuJo0Pisis1W4pZWlZgoRv9yE8yjA=="

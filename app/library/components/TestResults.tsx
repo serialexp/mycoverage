@@ -9,7 +9,6 @@ import { Commit, Test } from "db"
 export const TestResults = (props: {
   groupId: string
   projectId: string
-  branchSlug?: string
   commit:
     | (Commit & {
         Test: (Test & { TestInstance: { index: number; createdDate: Date; id: number }[] })[]
@@ -33,6 +32,7 @@ export const TestResults = (props: {
           <Th isNumeric colSpan={2}>
             Coverage
           </Th>
+          ß
         </Tr>
       </Thead>
       <Tbody>
@@ -46,12 +46,12 @@ export const TestResults = (props: {
             <>
               <Tr key={test.id} _hover={{ bg: "primary.50" }}>
                 <Td wordBreak={"break-all"}>
-                  {props.branchSlug ? (
+                  {props.commit?.ref ? (
                     <Link
                       href={Routes.TestPage({
                         groupId: props.groupId,
                         projectId: props.projectId,
-                        branchId: props.branchSlug,
+                        commitRef: props.commit.ref,
                         testId: test.id,
                       })}
                     >

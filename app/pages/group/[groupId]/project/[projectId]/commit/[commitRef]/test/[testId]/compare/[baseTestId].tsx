@@ -36,7 +36,7 @@ const CompareTestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
   const baseTestId = useParam("baseTestId", "number")
   const groupId = useParam("groupId", "string")
-  const branchSlug = useParam("branchId", "string")
+  const commitRef = useParam("commitRefId", "string")
   const projectId = useParam("projectId", "string")
 
   const [test] = useQuery(getTest, {
@@ -47,11 +47,11 @@ const CompareTestPage: BlitzPage = () => {
     testId: testId,
   })
 
-  return groupId && projectId && testId && branchSlug && baseTestId ? (
+  return groupId && projectId && testId && commitRef && baseTestId ? (
     <>
       <Heading>Comparing differences in {test?.testName}</Heading>
       <Actions>
-        <Link href={Routes.TestPage({ groupId, projectId, branchId: branchSlug, testId })}>
+        <Link href={Routes.TestPage({ groupId, projectId, commitRef, testId })}>
           <Button>Back</Button>
         </Link>
       </Actions>
@@ -63,7 +63,7 @@ const CompareTestPage: BlitzPage = () => {
             projectId,
             testId,
             baseTestId,
-            branchId: branchSlug,
+            commitRef,
             path: path?.split("/") || [],
           })
         }}

@@ -8,7 +8,16 @@ import { format, shortFormat } from "app/library/format"
 
 export const PackageFileTable = (props: {
   packages: PackageCoverage[]
-  files: FileCoverage[]
+  files: {
+    id: number
+    name: string
+    coveredPercentage: number
+    elements: number
+    coveredElements: number
+    hits: number
+    codeIssues: number
+    changeRatio: number
+  }[]
   fileRoute: (parts: string[]) => RouteUrlObject
   dirRoute: (parts: string[]) => RouteUrlObject
 }) => {
