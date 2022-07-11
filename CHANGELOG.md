@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/Aeolun/mycoverage/compare/v1.12.1...v1.12.2) (2022-07-11)
+
+
+### Bug Fixes
+
+* do not timeout redis commands ([83ce363](https://github.com/Aeolun/mycoverage/commit/83ce363b119e1e3a2262710c38e1454baf07da8a))
+
 ## [1.12.1](https://github.com/Aeolun/mycoverage/compare/v1.12.0...v1.12.1) (2022-07-11)
 
 
