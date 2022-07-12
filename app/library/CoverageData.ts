@@ -86,19 +86,35 @@ export class CoverageData {
     const pullHitInfo = (
       sources: SourceHit[] | undefined,
       type: "b" | "f" | "s",
-      lineNr: number
+      lineNr: number,
+      instance: number
     ) => {
       const hitsBySource: HitsBySource = {}
+
       sources?.forEach((source) => {
-        hitsBySource[source.source] =
-          (type === "b" ? source[type][lineNr]! : [source[type][lineNr]!]) || []
+        if (type === "b") {
+          const lineData = source[type][lineNr]!
+
+          if (!lineData) return
+          // @ts-expect-error typescript doesn't narrow this down correctly
+          hitsBySource[source.source] = Array.isArray(lineData[0]) ? lineData[instance] : lineData
+        } else {
+          hitsBySource[source.source] = Array.isArray(source[type][lineNr])
+            ? [source[type][lineNr]![instance]]
+            : [source[type][lineNr]!]
+        }
       })
       return hitsBySource
     }
 
+    const branchLineIndex: Record<number, number> = {}
+    const statementLineIndex: Record<number, number> = {}
+    const functionLineIndex: Record<number, number> = {}
     file.lines?.forEach((line) => {
       if (line.branch) {
-        const hitsBySource = pullHitInfo(sources, "b", line.number)
+        branchLineIndex[line.number] =
+          typeof branchLineIndex[line.number] === "number" ? branchLineIndex[line.number]! + 1 : 0
+        const hitsBySource = pullHitInfo(sources, "b", line.number, branchLineIndex[line.number]!)
 
         data.addCoverage(line.number.toString(), {
           type: "branch",
@@ -109,7 +125,16 @@ export class CoverageData {
           hitsBySource,
         })
       } else {
-        const hitsBySource = pullHitInfo(sources, "s", line.number)
+        statementLineIndex[line.number] =
+          typeof statementLineIndex[line.number] === "number"
+            ? statementLineIndex[line.number]! + 1
+            : 0
+        const hitsBySource = pullHitInfo(
+          sources,
+          "s",
+          line.number,
+          statementLineIndex[line.number]!
+        )
 
         data.addCoverage(line.number.toString(), {
           type: "statement",
@@ -121,7 +146,9 @@ export class CoverageData {
     })
 
     file.functions?.forEach((func) => {
-      const hitsBySource = pullHitInfo(sources, "f", func.number)
+      functionLineIndex[func.number] =
+        typeof functionLineIndex[func.number] === "number" ? functionLineIndex[func.number]! + 1 : 0
+      const hitsBySource = pullHitInfo(sources, "f", func.number, functionLineIndex[func.number]!)
 
       data.addCoverage(func.number.toString(), {
         type: "function",
@@ -437,12 +464,13 @@ export class CoverageData {
       const newItems = data.coverage[lineNr]
 
       if (newItems && existingItems) {
-        newItems?.forEach((newItem) => {
+        newItems?.forEach((newItem, index) => {
           let existingItem
-          if (newItem.type === "function" && newItem.name) {
-            existingItem = existingItems.find(
-              (i) => i.type === newItem.type && i.name === newItem.name
-            )
+          if (newItem.type === "function" && existingItems[index]?.type === "function") {
+            // see if there is a function with the same name, otherwise take the item at the same index
+            existingItem =
+              existingItems.find((i) => i.type === newItem.type && i.name === newItem.name) ??
+              existingItems[index]
           } else if (newItem.type === "function") {
             existingItem = existingItems.find((i) => i.type === newItem.type)
           } else {

@@ -21,9 +21,9 @@ export interface SonarIssue {
 
 export interface SourceHit {
   source: string
-  b: { [lineNr: string]: number[] }
-  f: { [lineNr: string]: number }
-  s: { [lineNr: string]: number }
+  b: { [lineNr: string]: number[] | number[][] }
+  f: { [lineNr: string]: number | number[] }
+  s: { [lineNr: string]: number | number[] }
 }
 
 export interface SourceHits {

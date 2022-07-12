@@ -11,7 +11,9 @@ export default async function getFile(
       packageCoverageId: args.packageCoverageId,
       name: args.fileName,
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
       CodeIssueOnFileCoverage: {
         include: {
           CodeIssue: true,

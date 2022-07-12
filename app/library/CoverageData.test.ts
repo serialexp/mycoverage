@@ -167,6 +167,121 @@ describe("coverageData", () => {
     expect(data.toString()).toEqual("stmt,1,2,base=1;base2=1")
   })
 
+  it("add coveragedata to cobertura format when multiple items on the same line", () => {
+    const data = CoverageData.fromCoberturaFile(
+      {
+        name: "sexy.json",
+        filename: "sexy.json",
+        functions: [
+          {
+            number: 2,
+            hits: 4,
+            name: "",
+            signature: "",
+          },
+          {
+            number: 2,
+            hits: 6,
+            name: "",
+            signature: "",
+          },
+        ],
+        lines: [
+          {
+            number: 1,
+            hits: 2,
+            branch: false,
+          },
+          {
+            number: 1,
+            hits: 6,
+            conditions: 2,
+            coveredConditions: 1,
+            branch: true,
+          },
+        ],
+      },
+      [
+        {
+          source: "base",
+          s: {
+            "1": 1,
+          },
+          b: {
+            "1": [[6, 0]],
+          },
+          f: {
+            "2": [1, 2],
+          },
+        },
+        {
+          source: "base2",
+          s: {
+            "1": 1,
+          },
+          b: {},
+          f: {
+            "2": [3, 4],
+          },
+        },
+      ]
+    )
+
+    expect(data.toString()).toEqual(`cond,1,6,1,2,base=6|0
+stmt,1,2,base=1;base2=1
+func,2,4,,,base=1;base2=3
+func,2,6,,,base=2;base2=4`)
+  })
+
+  it("doesn't break when no coveragedata for items is specified", () => {
+    const data = CoverageData.fromCoberturaFile(
+      {
+        name: "sexy.json",
+        filename: "sexy.json",
+        functions: [
+          {
+            number: 2,
+            hits: 4,
+            name: "",
+            signature: "",
+          },
+        ],
+        lines: [
+          {
+            number: 1,
+            hits: 2,
+            branch: false,
+          },
+          {
+            number: 1,
+            hits: 6,
+            conditions: 2,
+            coveredConditions: 1,
+            branch: true,
+          },
+        ],
+      },
+      [
+        {
+          source: "base",
+          s: {},
+          b: {},
+          f: {},
+        },
+        {
+          source: "base2",
+          s: {},
+          b: {},
+          f: {},
+        },
+      ]
+    )
+
+    expect(data.toString()).toEqual(`cond,1,6,1,2,
+stmt,1,2,
+func,2,4,,,`)
+  })
+
   it("can detect whether it has source hit information", () => {
     const version1 = CoverageData.fromString("func,7,0,,,base=0")
     const version2 = CoverageData.fromString("func,7,0,,,")

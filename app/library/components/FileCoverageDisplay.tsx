@@ -39,7 +39,7 @@ const typeToString = (line: LineData) => {
 export const FileCoverageDisplay = (props: {
   fileData?: string | null
   file:
-    | (FileCoverage & {
+    | ({ id: number; name: string } & {
         CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { CodeIssue: CodeIssue })[]
       })
     | null
@@ -64,6 +64,8 @@ export const FileCoverageDisplay = (props: {
             px={2}
             id={"meta"}
             background={"secondary.100"}
+            maxWidth={"40%"}
+            overflow={"auto"}
             borderRightWidth={1}
             borderRightStyle={"solid"}
             borderRightColor={"gray.400"}
@@ -163,10 +165,17 @@ export const FileCoverageDisplay = (props: {
                                         return (
                                           <Tr key={i}>
                                             <Td>{item[0]}</Td>
+                                            <Td isNumeric>{item[1]}</Td>
+                                          </Tr>
+                                        )
+                                      } else if (item[1] && item[1].includes("|")) {
+                                        return (
+                                          <Tr key={i}>
+                                            <Td>{item[0]}</Td>
                                             <Td isNumeric>
                                               {item[1]
                                                 .split("|")
-                                                .map((i) => "x" + format.format(parseInt(i)))
+                                                .map((i) => "x" + format.format(parseInt(i), true))
                                                 .join(", ")}
                                             </Td>
                                           </Tr>
