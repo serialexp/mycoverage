@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/Aeolun/mycoverage/compare/v1.13.0...v1.13.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* switch validation from zod to ajv ([a1f3d9c](https://github.com/Aeolun/mycoverage/commit/a1f3d9ca355a96531c63ad41d2d071dd65538c13))
+
 # [1.13.0](https://github.com/Aeolun/mycoverage/compare/v1.12.2...v1.13.0) (2022-07-12)
 
 
