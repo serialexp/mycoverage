@@ -300,7 +300,7 @@ export const sonarqubeWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, concurrency: 1, autorun: false }
+  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 1, autorun: false }
 )
 
 addEventListeners(sonarqubeWorker)

@@ -4,7 +4,7 @@ import { Minibar } from "app/library/components/Minbar"
 import { DiffHelper } from "app/library/components/DiffHelper"
 import { format } from "app/library/format"
 import { Link, Routes } from "blitz"
-import { Commit, Test } from "db"
+import { Commit, Test, ExpectedResult } from "db"
 
 export const TestResults = (props: {
   groupId: string
@@ -21,6 +21,7 @@ export const TestResults = (props: {
       })
     | null
     | undefined
+  expectedResult?: ExpectedResult[]
 }) => {
   return (
     <Table>
@@ -32,7 +33,6 @@ export const TestResults = (props: {
           <Th isNumeric colSpan={2}>
             Coverage
           </Th>
-          ß
         </Tr>
       </Thead>
       <Tbody>
@@ -42,6 +42,9 @@ export const TestResults = (props: {
           test.TestInstance.forEach((instance) => {
             uniqueInstances[instance.index] = true
           })
+          const expectedInstances = props.expectedResult?.find(
+            (er) => er.testName === test.testName
+          )?.count
           return (
             <>
               <Tr key={test.id} _hover={{ bg: "primary.50" }}>
@@ -80,7 +83,38 @@ export const TestResults = (props: {
 
               <Tr>
                 <Td colSpan={5}>
+                  {Array.from(Array(expectedInstances).keys())
+                    .map((i) => i + 1)
+                    .map((index) => {
+                      const instance = test.TestInstance.find((i) => i.index === index)
+                      return (
+                        <Tag key={index} ml={2} colorScheme={instance ? undefined : "red"}>
+                          {instance ? (
+                            <Link
+                              href={Routes.TestInstancePage({
+                                groupId: props.groupId,
+                                projectId: props.projectId,
+                                commitRef: props.commit?.ref || "",
+                                testInstanceId: instance.id,
+                              })}
+                            >
+                              <ChakraLink
+                                title={instance.createdDate.toLocaleString()}
+                                color={"blue.500"}
+                              >
+                                {instance.index}
+                              </ChakraLink>
+                            </Link>
+                          ) : (
+                            <>{index}</>
+                          )}
+                        </Tag>
+                      )
+                    })}
                   {test.TestInstance.map((instance) => {
+                    if (instance.index < (expectedInstances || 0)) {
+                      return
+                    }
                     return (
                       <Tag key={instance.id} ml={2}>
                         <Link

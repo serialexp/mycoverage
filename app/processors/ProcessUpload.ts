@@ -155,7 +155,7 @@ export const uploadWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, concurrency: 2, autorun: false }
+  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 2, autorun: false }
 )
 
 addEventListeners(uploadWorker)

@@ -32,10 +32,12 @@ export const combineCoverageWorker = new Worker<{
     console.log({
       id: job.id,
       ref: commit.ref,
-      otherJobs: activeJobs.map((j) => ({
-        id: j.id,
-        ref: j.data.commit.ref,
-      })),
+      otherJobs: activeJobs
+        .filter((j) => j)
+        .map((j) => ({
+          id: j.id,
+          ref: j.data.commit.ref,
+        })),
     })
     if (activeJobs.find((j) => j.data.commit.ref === commit.ref && j.id !== job.id)) {
       // delay by 10s

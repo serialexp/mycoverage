@@ -78,8 +78,8 @@ const Queues: BlitzPage = () => {
                   <Th width={"33%"}>Added</Th>
                 </Tr>
               </Thead>
-              {queue.jobs.map((job) => {
-                return (
+              {queue.jobs.map((job, index) => {
+                return job ? (
                   <Tr key={job.id}>
                     <Td>{job.id}</Td>
                     <Td>{job.name}</Td>
@@ -90,6 +90,10 @@ const Queues: BlitzPage = () => {
                       />
                     </Td>
                     <Td>{new Date(job.timestamp).toLocaleString()}</Td>
+                  </Tr>
+                ) : (
+                  <Tr key={index}>
+                    <Td colSpan={3}>Empty job</Td>
                   </Tr>
                 )
               })}

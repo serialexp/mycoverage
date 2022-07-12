@@ -16,9 +16,9 @@ const schema = z.object({
     z.array(
       z.object({
         source: z.string(),
-        b: z.object({}).catchall(z.array(z.number())),
-        f: z.object({}).catchall(z.number()),
-        s: z.object({}).catchall(z.number()),
+        b: z.object({}).catchall(z.union([z.array(z.number()), z.array(z.array(z.number()))])),
+        f: z.object({}).catchall(z.union([z.number(), z.array(z.number())])),
+        s: z.object({}).catchall(z.union([z.number(), z.array(z.number())])),
       })
     )
   ),
