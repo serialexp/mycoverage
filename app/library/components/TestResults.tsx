@@ -112,7 +112,7 @@ export const TestResults = (props: {
                       )
                     })}
                   {test.TestInstance.map((instance) => {
-                    if (instance.index < (expectedInstances || 0)) {
+                    if (instance.index <= (expectedInstances || 1)) {
                       return
                     }
                     return (

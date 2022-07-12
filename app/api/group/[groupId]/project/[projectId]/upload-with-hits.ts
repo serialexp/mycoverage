@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
+import { hitsJsonSchema } from "app/library/HitsJsonSchema"
 import { slugify } from "app/library/slugify"
 import { SourceHits } from "app/library/types"
 import { uploadJob, uploadQueue } from "app/queues/UploadQueue"
@@ -68,14 +69,19 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     },
   })
 
+  timeSinceLast("joblog created")
+
   try {
     await measure("parse schema", () => {
-      return schema.parseAsync(req.body)
+      const result = hitsJsonSchema(req.body)
+      console.log("valid", result)
+      return Promise.resolve(result)
     })
   } catch (error) {
     res.status(400).json(error)
     return
   }
+  timeSinceLast("parsed")
 
   await db.jobLog.update({
     where: {

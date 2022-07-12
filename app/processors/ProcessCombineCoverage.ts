@@ -29,17 +29,16 @@ export const combineCoverageWorker = new Worker<{
 
     // do not run two jobs for the same commit at a time, since the job will be removing coverage data
     const activeJobs = await combineCoverageQueue.getActive()
+    const nonNullJobs = activeJobs.filter((j) => j)
     console.log({
       id: job.id,
       ref: commit.ref,
-      otherJobs: activeJobs
-        .filter((j) => j)
-        .map((j) => ({
-          id: j.id,
-          ref: j.data.commit.ref,
-        })),
+      otherJobs: nonNullJobs.map((j) => ({
+        id: j.id,
+        ref: j.data.commit.ref,
+      })),
     })
-    if (activeJobs.find((j) => j.data.commit.ref === commit.ref && j.id !== job.id)) {
+    if (nonNullJobs.find((j) => j.data.commit.ref === commit.ref && j.id !== job.id)) {
       // delay by 10s
       console.log(
         'Delaying combine coverage job for commit "' +
@@ -344,7 +343,7 @@ export const combineCoverageWorker = new Worker<{
       return false
     }
   },
-  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 4, autorun: false }
+  { connection: queueConfig, lockDuration: 300 * 1000, concurrency: 1, autorun: false }
 )
 
 addEventListeners(combineCoverageWorker)

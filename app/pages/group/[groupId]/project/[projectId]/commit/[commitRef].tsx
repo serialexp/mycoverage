@@ -117,7 +117,12 @@ const CommitPage: BlitzPage = () => {
           </Alert>
         </Box>
       ) : null}
-      <TestResults groupId={groupId} projectId={projectId} commit={commit} />
+      <TestResults
+        groupId={groupId}
+        projectId={projectId}
+        commit={commit}
+        expectedResult={project.ExpectedResult}
+      />
       <Subheading>Coverage Map</Subheading>
       <TreeMap commitId={commit.id} />
       <Subheading mt={4} size={"md"}>
