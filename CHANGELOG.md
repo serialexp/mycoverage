@@ -1,3 +1,15 @@
+# [1.13.0](https://github.com/Aeolun/mycoverage/compare/v1.12.2...v1.13.0) (2022-07-12)
+
+
+### Bug Fixes
+
+* allow upload with hits to receive arrays ([7f6de14](https://github.com/Aeolun/mycoverage/commit/7f6de1419e748f5c3ea86757a81083743ad963e7))
+
+
+### Features
+
+* allow sending of multiple coverage items per line in hits section ([ad9912d](https://github.com/Aeolun/mycoverage/commit/ad9912d8824e8fcdcf1343f41a1269eb22fcb894))
+
 ## [1.12.2](https://github.com/Aeolun/mycoverage/compare/v1.12.1...v1.12.2) (2022-07-11)
 
 
