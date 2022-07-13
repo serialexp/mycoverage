@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/Aeolun/mycoverage/compare/v1.13.1...v1.14.0) (2022-07-13)
+
+
+### Features
+
+* coverage processing status for test instances ([6de70a6](https://github.com/Aeolun/mycoverage/commit/6de70a6a00352b5da0a88afb8f023849bbcb44e8))
+
 ## [1.13.1](https://github.com/Aeolun/mycoverage/compare/v1.13.0...v1.13.1) (2022-07-12)
 
 
