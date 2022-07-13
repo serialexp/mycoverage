@@ -17,7 +17,7 @@ import { BlitzPage, Link, Routes, useParam, useQuery } from "blitz"
 import { useState } from "react"
 
 const BranchFileDifferencePage: BlitzPage = () => {
-  const branchId = useParam("branchId", "string")
+  const commitRef = useParam("commitRef", "string")
   const baseCommitRef = useParam("baseCommitRef", "string")
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
@@ -26,12 +26,8 @@ const BranchFileDifferencePage: BlitzPage = () => {
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [group] = useQuery(getGroup, { groupSlug: groupId })
   const [baseCommit] = useQuery(getCommit, { commitRef: baseCommitRef })
-  const [buildInfo] = useQuery(getLastBuildInfo, {
-    projectId: project?.id,
-    branch: branchId,
-  })
+  const [commit] = useQuery(getCommit, { commitRef: commitRef })
 
-  const latestCommit = buildInfo?.lastCommit
   const packagePath = path?.slice(0, path.length - 1).join(".")
   const fileName = path?.slice(path?.length - 1).join("")
 
@@ -40,7 +36,7 @@ const BranchFileDifferencePage: BlitzPage = () => {
     path: packagePath,
   })
   const [packForFile] = useQuery(getPackageCoverageForCommit, {
-    commitId: latestCommit?.id,
+    commitId: commit?.id,
     path: packagePath,
   })
 
@@ -59,24 +55,24 @@ const BranchFileDifferencePage: BlitzPage = () => {
   const [fileData] = useQuery(getFileData, {
     groupName: group?.name,
     projectName: project?.name,
-    branchName: latestCommit?.ref,
+    branchName: commit?.ref,
     path: path?.join("/"),
   })
 
   const [showRaw, setShowRaw] = useState(false)
 
-  return groupId && projectId && baseCommit && latestCommit && branchId ? (
+  return groupId && projectId && baseCommit && commit ? (
     <>
       <Heading m={2}>
         Browsing differences in {path?.join("/")} between commit {baseCommit?.ref.substr(0, 10)} and{" "}
-        {latestCommit?.ref.substr(0, 10)}
+        {commit?.ref.substr(0, 10)}
       </Heading>
       <Actions>
         <Link
           href={Routes.CompareBranchPage({
             groupId,
             projectId,
-            branchId,
+            commitRef: commit.ref,
             baseCommitRef: baseCommit.ref,
           })}
         >

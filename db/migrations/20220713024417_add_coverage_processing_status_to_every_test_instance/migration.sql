@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `TestInstance` ADD COLUMN `coverageProcessStatus` ENUM('PENDING', 'PROCESSING', 'FINISHED') NULL DEFAULT 'PENDING';

@@ -4,20 +4,34 @@ import { Minibar } from "app/library/components/Minbar"
 import { DiffHelper } from "app/library/components/DiffHelper"
 import { format } from "app/library/format"
 import { Link, Routes } from "blitz"
-import { Commit, Test, ExpectedResult } from "db"
+import { Commit, Test, ExpectedResult, CoverageProcessStatus } from "db"
 
 export const TestResults = (props: {
   groupId: string
   projectId: string
   commit:
     | (Commit & {
-        Test: (Test & { TestInstance: { index: number; createdDate: Date; id: number }[] })[]
+        Test: (Test & {
+          TestInstance: {
+            index: number
+            coverageProcessStatus: CoverageProcessStatus
+            createdDate: Date
+            id: number
+          }[]
+        })[]
       })
     | null
     | undefined
   baseCommit?:
     | (Commit & {
-        Test: (Test & { TestInstance: { index: number; createdDate: Date; id: number }[] })[]
+        Test: (Test & {
+          TestInstance: {
+            index: number
+            coverageProcessStatus: CoverageProcessStatus
+            createdDate: Date
+            id: number
+          }[]
+        })[]
       })
     | null
     | undefined
@@ -88,7 +102,17 @@ export const TestResults = (props: {
                     .map((index) => {
                       const instance = test.TestInstance.find((i) => i.index === index)
                       return (
-                        <Tag key={index} ml={2} colorScheme={instance ? undefined : "red"}>
+                        <Tag
+                          key={index}
+                          ml={2}
+                          colorScheme={
+                            instance
+                              ? instance.coverageProcessStatus === CoverageProcessStatus.FINISHED
+                                ? "green"
+                                : undefined
+                              : "red"
+                          }
+                        >
                           {instance ? (
                             <Link
                               href={Routes.TestInstancePage({

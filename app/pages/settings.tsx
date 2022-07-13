@@ -73,6 +73,6 @@ const SettingsPage: BlitzPage = () => {
 }
 
 SettingsPage.suppressFirstRenderFlicker = true
-SettingsPage.getLayout = (page) => <Layout title="Settings">{page}</Layout>
+SettingsPage.getLayout = (page) => <Layout title="System Settings">{page}</Layout>
 
 export default SettingsPage

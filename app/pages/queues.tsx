@@ -106,6 +106,6 @@ const Queues: BlitzPage = () => {
 }
 
 Queues.suppressFirstRenderFlicker = true
-Queues.getLayout = (page) => <Layout title="Logs">{page}</Layout>
+Queues.getLayout = (page) => <Layout title="Queues">{page}</Layout>
 
 export default Queues

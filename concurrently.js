@@ -34,6 +34,18 @@ if (process.env.WORKER) {
       command: "npm run start:worker -- --worker=combinecoverage",
     },
     {
+      name: "worker:combinecoverage",
+      command: "npm run start:worker -- --worker=combinecoverage",
+    },
+    {
+      name: "worker:combinecoverage",
+      command: "npm run start:worker -- --worker=combinecoverage",
+    },
+    {
+      name: "worker:combinecoverage",
+      command: "npm run start:worker -- --worker=combinecoverage",
+    },
+    {
       name: "worker:sonarqube",
       command: "npm run start:worker -- --worker=sonarqube",
     },

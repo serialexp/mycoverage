@@ -25,7 +25,10 @@ export default async function getLastBuildInfo(
     where: {
       CommitOnBranch: {
         some: {
-          branchId: branch?.id,
+          Branch: {
+            name: branchSlug,
+            projectId: args.projectId,
+          },
         },
       },
     },
@@ -37,6 +40,7 @@ export default async function getLastBuildInfo(
             select: {
               index: true,
               id: true,
+              coverageProcessStatus: true,
               createdDate: true,
             },
           },
@@ -52,7 +56,10 @@ export default async function getLastBuildInfo(
     where: {
       CommitOnBranch: {
         some: {
-          branchId: branch?.id,
+          Branch: {
+            name: branchSlug,
+            projectId: args.projectId,
+          },
         },
       },
     },

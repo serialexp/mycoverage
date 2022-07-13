@@ -65,6 +65,15 @@ export const combineCoverageWorker = new Worker<{
       | null = null
     try {
       if (testInstance) {
+        await db.testInstance.update({
+          where: {
+            id: testInstance.id,
+          },
+          data: {
+            coverageProcessStatus: "PROCESSING",
+          },
+        })
+
         console.log("Retrieving file coverage for test from database")
         test = await mydb.test.findFirst({
           where: {
@@ -191,6 +200,15 @@ export const combineCoverageWorker = new Worker<{
 
         await insertCoverageData(testCoverage.data.coverage, {
           testId: test.id,
+        })
+
+        await db.testInstance.update({
+          where: {
+            id: testInstance.id,
+          },
+          data: {
+            coverageProcessStatus: "FINISHED",
+          },
         })
 
         await job.updateProgress(45)

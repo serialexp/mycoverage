@@ -15,7 +15,17 @@ import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { Suspense } from "react"
 import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import { Alert, AlertIcon, AlertTitle, Box, Button, Link as ChakraLink, Th } from "@chakra-ui/react"
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Flex,
+  Link as ChakraLink,
+  Tag,
+  Th,
+} from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
@@ -68,8 +78,8 @@ const PullRequestPage: BlitzPage = () => {
           href={Routes.CompareBranchPage({
             groupId,
             projectId,
-            branchId: prId,
-            baseCommitRef: pullRequest?.baseBranch || "",
+            commitRef: buildInfo.lastCommit?.ref || "",
+            baseCommitRef: baseBuildInfo?.lastCommit?.ref || "",
           })}
         >
           <Button ml={2}>Compare</Button>
@@ -87,6 +97,22 @@ const PullRequestPage: BlitzPage = () => {
           Combine Coverage
         </Button>
       </Actions>
+      <Subheading mt={4} size={"md"}>
+        Pull Request
+      </Subheading>
+      <Flex m={4} justifyContent={"space-between"}>
+        <Box>
+          <ChakraLink target={"_blank"} href={pullRequest?.url} color={"blue.500"}>
+            #{pullRequest?.sourceIdentifier}
+          </ChakraLink>
+        </Box>
+        <Box>
+          <Tag>{pullRequest?.baseBranch}</Tag> &laquo; <Tag>{pullRequest?.branch}</Tag>
+        </Box>
+        <Tag colorScheme={pullRequest?.state === "open" ? "green" : "red"}>
+          {pullRequest?.state}
+        </Tag>
+      </Flex>
       <Subheading mt={4} size={"md"}>
         Last Commit
       </Subheading>

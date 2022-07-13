@@ -33,6 +33,7 @@ import {
   Link as ChakraLink,
   Tag,
 } from "@chakra-ui/react"
+import { useToast } from "@chakra-ui/react"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import getCommit from "app/coverage/queries/getCommit"
 import { FaClock } from "react-icons/fa"
@@ -46,6 +47,7 @@ const CommitPage: BlitzPage = () => {
   const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
   const [packages] = useQuery(getPackagesForCommit, { commitId: commit?.id || 0, path: undefined })
 
+  const toast = useToast()
   const [combineCoverageMutation] = useMutation(combineCoverage)
   console.log("renderpage")
 
@@ -63,15 +65,6 @@ const CommitPage: BlitzPage = () => {
           <Button>Back</Button>
         </Link>
         <Link
-          href={Routes.CommitDifferencesPage({
-            groupId,
-            projectId,
-            commitRef: commitRef,
-          })}
-        >
-          <Button ml={2}>Differences</Button>
-        </Link>
-        <Link
           href={Routes.IssuesPage({
             groupId,
             projectId,
@@ -84,10 +77,18 @@ const CommitPage: BlitzPage = () => {
           ml={2}
           leftIcon={<FaClock />}
           onClick={() => {
-            combineCoverageMutation({ commitId: commit.id })
+            combineCoverageMutation({ commitId: commit.id }).then((result) => {
+              toast({
+                title: "Recombination started",
+                description: "The workers will pick up recombination of this commit soon.",
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+              })
+            })
           }}
         >
-          Combine Coverage
+          Re-combine Coverage
         </Button>
       </Actions>
       <Subheading>Part of</Subheading>

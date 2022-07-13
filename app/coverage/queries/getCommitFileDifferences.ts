@@ -58,5 +58,7 @@ export default async function getCommitFileDifferences(
     },
   })
 
+  console.log("differences", base.length, next.length)
+
   return generateDifferences(base, next)
 }

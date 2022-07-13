@@ -17,6 +17,7 @@ export default async function getCommit(args: { commitRef?: string }, { session 
             select: {
               id: true,
               index: true,
+              coverageProcessStatus: true,
               createdDate: true,
             },
           },

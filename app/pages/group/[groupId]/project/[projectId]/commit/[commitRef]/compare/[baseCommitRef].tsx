@@ -26,27 +26,27 @@ import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
 
 const CompareBranchPage: BlitzPage = () => {
-  const branchId = useParam("branchId", "string")
+  const commitRef = useParam("commitRef", "string")
   const baseCommitRef = useParam("baseCommitRef", "string")
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [baseCommit] = useQuery(getCommit, { commitRef: baseCommitRef })
-  const [buildInfo] = useQuery(getLastBuildInfo, {
-    projectId: project?.id,
-    branch: branchId,
-  })
+  const [commit] = useQuery(getCommit, { commitRef: commitRef })
+
   const [fileDifferences] = useQuery(getCommitFileDifferences, {
     baseCommitId: baseCommit?.id,
-    commitId: buildInfo.lastCommit?.id,
+    commitId: commit?.id,
   })
 
-  return groupId && projectId && branchId ? (
+  return groupId && projectId && commitRef && baseCommitRef ? (
     <>
-      <Heading>Comparing differences in {buildInfo.branch?.name}</Heading>
+      <Heading>
+        Comparing differences from {baseCommitRef.substr(0, 10)} to {commitRef.substr(0, 10)}
+      </Heading>
       <Actions>
-        <Link href={Routes.BranchPage({ groupId, projectId, branchId })}>
+        <Link href={Routes.CommitPage({ groupId, projectId, commitRef })}>
           <Button>Back</Button>
         </Link>
       </Actions>
@@ -54,7 +54,7 @@ const CompareBranchPage: BlitzPage = () => {
         diff={fileDifferences}
         link={(path: string) => {
           const result = Routes.BranchFileDifferencePage({
-            branchId,
+            commitRef,
             groupId,
             projectId,
             baseCommitRef: baseCommit?.ref || "",

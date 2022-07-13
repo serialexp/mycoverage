@@ -65,15 +65,6 @@ const TestInstancePage: BlitzPage = () => {
         >
           <Button>Back</Button>
         </Link>
-        <Button
-          ml={2}
-          leftIcon={<FaClock />}
-          onClick={() => {
-            combineCoverageMutation({ commitId: commit.id, testInstanceId: testInstance.id })
-          }}
-        >
-          Combine Coverage for {testInstance.test.testName}
-        </Button>
       </Actions>
       <Subheading mt={4} size={"md"}>
         Combined coverage

@@ -93,6 +93,7 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
           commitId: commit.id,
           projectId: baseProject.id,
           sourceId: payload.pull_request.id,
+          sourceIdentifier: payload.pull_request.number.toString(),
           state: payload.pull_request.state,
           url: payload.pull_request.html_url,
         },

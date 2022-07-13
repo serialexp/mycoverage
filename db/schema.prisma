@@ -105,25 +105,32 @@ model Test {
   @@index([commitId])
 }
 
+enum CoverageProcessStatus {
+  PENDING
+  PROCESSING
+  FINISHED
+}
+
 model TestInstance {
-  id                  Int      @id @default(autoincrement())
-  index               Int
-  testId              Int
-  statements          Int
-  conditionals        Int
-  methods             Int
-  elements            Int      @default(0)
-  hits                Int      @default(0)
-  coveredElements     Int      @default(0)
-  coveredStatements   Int
-  coveredConditionals Int
-  coveredMethods      Int
-  coveredPercentage   Float    @default(0)
-  createdDate         DateTime @default(now())
-  updatedDate         DateTime @default(now()) @updatedAt
-  dataSize            Int      @default(0)
-  test                Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
-  coverageFileKey     String?
+  id                    Int                   @id @default(autoincrement())
+  index                 Int
+  testId                Int
+  statements            Int
+  conditionals          Int
+  methods               Int
+  elements              Int                   @default(0)
+  hits                  Int                   @default(0)
+  coveredElements       Int                   @default(0)
+  coveredStatements     Int
+  coveredConditionals   Int
+  coveredMethods        Int
+  coveredPercentage     Float                 @default(0)
+  createdDate           DateTime              @default(now())
+  updatedDate           DateTime              @default(now()) @updatedAt
+  dataSize              Int                   @default(0)
+  test                  Test                  @relation(fields: [testId], references: [id], onDelete: Cascade)
+  coverageFileKey       String?
+  coverageProcessStatus CoverageProcessStatus @default(PENDING)
 
   @@index([testId])
 }
@@ -290,17 +297,18 @@ model ExpectedResult {
 }
 
 model PullRequest {
-  id          Int      @id @default(autoincrement())
-  description String   @default("")
-  sourceId    Int      @unique @default(0)
-  name        String
-  baseBranch  String
-  branch      String
-  commit      Commit   @relation(references: [id], onDelete: Cascade, fields: [commitId])
-  createdDate DateTime @default(now())
-  updatedDate DateTime @updatedAt
-  state       String   @default("open")
-  url         String   @default("")
+  id               Int      @id @default(autoincrement())
+  description      String   @default("")
+  sourceId         Int      @unique @default(0)
+  sourceIdentifier String   @default("")
+  name             String
+  baseBranch       String
+  branch           String
+  commit           Commit   @relation(references: [id], onDelete: Cascade, fields: [commitId])
+  createdDate      DateTime @default(now())
+  updatedDate      DateTime @updatedAt
+  state            String   @default("open")
+  url              String   @default("")
 
   projectId Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

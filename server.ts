@@ -26,6 +26,7 @@ app
       }
     })
     server.keepAliveTimeout = 65000
+    server.headersTimeout = 70000
     server.listen(PORT, () => {
       log.success(`Ready on http://localhost:${PORT}`)
     })

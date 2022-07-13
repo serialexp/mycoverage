@@ -2,7 +2,7 @@ import { Box, StatArrow, Link as ChakraLink, Table, Td, Th, Tr } from "@chakra-u
 import { CoverageDifference, Diff } from "app/coverage/generateDifferences"
 import { Subheading } from "app/library/components/Subheading"
 import { format } from "app/library/format"
-import CommitFileDifferencePage from "app/pages/group/[groupId]/project/[projectId]/branch/[branchId]/compare/[baseCommitRef]/files/[...path]"
+import CommitFileDifferencePage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/compare/[baseCommitRef]/files/[...path]"
 import { Routes, RouteUrlObject, Link } from "blitz"
 
 const RowItem = (props: Diff & { link?: (path?: string) => RouteUrlObject }) => {
