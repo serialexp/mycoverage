@@ -12,15 +12,15 @@ const prisma = new EnhancedPrisma({
     },
   ],
 })
-prisma.$on("query", async (e: any) => {
-  if (process.env.LOG_QUERIES) {
-    if (e.query.includes("SELECT")) {
-      console.log(`${e.query} ${e.params}`)
-    } else {
-      console.log(`${e.query}`)
-    }
-  }
-})
+// prisma.$on("query", async (e: any) => {
+//   if (process.env.LOG_QUERIES) {
+//     if (e.query.includes("SELECT")) {
+//       console.log(`${e.query} ${e.params}`)
+//     } else {
+//       console.log(`${e.query}`)
+//     }
+//   }
+// })
 
 const prismaExport: PrismaClient = prisma
 

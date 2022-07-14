@@ -1,60 +1,56 @@
+import getCommit from "app/coverage/queries/getCommit"
 import getTestFileDifferences from "app/coverage/queries/getTestFileDifferences"
 import getTest from "app/coverage/queries/getTest"
 import { Actions } from "app/library/components/Actions"
+import { Breadcrumbs } from "app/library/components/Breadcrumbs"
+import { CoverageDifferencesSummary } from "app/library/components/CoverageDifferencesSummary"
 import { Heading } from "app/library/components/Heading"
 import { CoverageDifferences } from "app/library/components/CoverageDifferences"
-import { Subheading } from "app/library/components/Subheading"
-import TestFileDifferencePage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/test/[testId]/compare/[baseTestId]/files/[...path]"
-import { Test, FileCoverage } from "db"
-import { Suspense } from "react"
-import { Link, BlitzPage, useMutation, Routes, useQuery, useParams, useParam } from "blitz"
+import { Link, BlitzPage, Routes, useQuery, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import {
-  Box,
-  Button,
-  Link as ChakraLink,
-  Stat,
-  StatArrow,
-  StatGroup,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
-  Th,
-} from "@chakra-ui/react"
+import { Button } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
-import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
-import { Table, Td, Tr } from "@chakra-ui/react"
-
-const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
-
-interface Diff {
-  base?: FileCoverage
-  next: FileCoverage
-}
 
 const CompareTestPage: BlitzPage = () => {
   const testId = useParam("testId", "number")
-  const baseTestId = useParam("baseTestId", "number")
+  const baseCommitRef = useParam("baseCommitRef", "string")
   const groupId = useParam("groupId", "string")
-  const commitRef = useParam("commitRefId", "string")
+  const commitRef = useParam("commitRef", "string")
   const projectId = useParam("projectId", "string")
 
+  const [project] = useQuery(getProject, { projectSlug: projectId })
   const [test] = useQuery(getTest, {
     testId: testId,
   })
+
+  const [commit] = useQuery(getCommit, {
+    commitRef: commitRef,
+  })
+  const [baseCommit] = useQuery(getCommit, {
+    commitRef: baseCommitRef,
+  })
+
   const [fileDifferences] = useQuery(getTestFileDifferences, {
-    baseTestId: baseTestId,
+    baseTestId: baseCommit?.Test.find((t) => t.testName === test?.testName)?.id,
     testId: testId,
   })
 
-  return groupId && projectId && testId && commitRef && baseTestId ? (
+  return groupId && projectId && testId && commitRef && baseCommitRef ? (
     <>
       <Heading>Comparing differences in {test?.testName}</Heading>
+      <Breadcrumbs
+        project={project}
+        group={project?.group}
+        commit={commit}
+        baseCommit={baseCommit}
+        test={test}
+      />
       <Actions>
         <Link href={Routes.TestPage({ groupId, projectId, commitRef, testId })}>
           <Button>Back</Button>
         </Link>
       </Actions>
+      <CoverageDifferencesSummary diff={fileDifferences} />
       <CoverageDifferences
         diff={fileDifferences}
         link={(path) => {
@@ -62,7 +58,7 @@ const CompareTestPage: BlitzPage = () => {
             groupId,
             projectId,
             testId,
-            baseTestId,
+            baseCommitRef,
             commitRef,
             path: path?.split("/") || [],
           })

@@ -5,46 +5,44 @@ import { format } from "app/library/format"
 import CommitFileDifferencePage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/compare/[baseCommitRef]/files/[...path]"
 import { Routes, RouteUrlObject, Link } from "blitz"
 
-const RowItem = (props: Diff & { link?: (path?: string) => RouteUrlObject }) => {
-  const difference = calculateChange(props)
-
-  const isIncrease = difference > 0
+const RowItem = (props: { diff: Diff } & { link?: (path?: string) => RouteUrlObject }) => {
+  const isIncrease = props.diff.change > 0
 
   return (
     <Tr>
       <Td wordBreak={"break-all"}>
         {props.link ? (
-          <Link href={props.link(props.next?.name)} passHref={true}>
-            <ChakraLink color="blue.500">{props.next?.name}</ChakraLink>
+          <Link href={props.link(props.diff.next?.name)} passHref={true}>
+            <ChakraLink color="blue.500">{props.diff.next?.name}</ChakraLink>
           </Link>
         ) : (
-          props.next?.name
+          props.diff.next?.name
         )}
       </Td>
       <Td isNumeric>
-        {props.base ? format.format(props.base.coveredPercentage, true) : "?"}%<br />
-        {props.base?.coveredElements} / {props.base?.elements}
+        {props.diff.base ? format.format(props.diff.base.coveredPercentage, true) : "?"}%<br />
+        {props.diff.base?.coveredElements} / {props.diff.base?.elements}
       </Td>
       <Td>&raquo;</Td>
       <Td isNumeric>
-        {format.format(props.next?.coveredPercentage, true)}%<br />
-        {props.next?.coveredElements} / {props.next?.elements}
+        {format.format(props.diff.next?.coveredPercentage, true)}%<br />
+        {props.diff.next?.coveredElements} / {props.diff.next?.elements}
       </Td>
       <Td isNumeric></Td>
       <Td isNumeric>
-        {difference !== 0 ? <StatArrow type={isIncrease ? "increase" : "decrease"} /> : null}
-        {format.format(difference, true)}
+        {props.diff.change !== 0 ? <StatArrow type={isIncrease ? "increase" : "decrease"} /> : null}
+        {format.format(props.diff.change, true)}
       </Td>
     </Tr>
   )
 }
 
-const DeleteRowItem = (diff: Diff) => {
+const DeleteRowItem = (props: { diff: Diff }) => {
   return (
     <Tr>
-      <Td wordBreak={"break-all"}>{diff.base?.name}</Td>
+      <Td wordBreak={"break-all"}>{props.diff.base?.name}</Td>
       <Td isNumeric>
-        {diff.base?.coveredElements} / {diff.base?.elements}
+        {props.diff.base?.coveredElements} / {props.diff.base?.elements}
       </Td>
       <Td>&raquo;</Td>
       <Td isNumeric>-</Td>
@@ -52,18 +50,6 @@ const DeleteRowItem = (diff: Diff) => {
       <Td isNumeric>0%</Td>
     </Tr>
   )
-}
-
-const calculateChange = (diff: Diff) => {
-  return (
-    (diff.base?.elements || 0) -
-    (diff.next?.elements || 0) +
-    ((diff.next?.coveredElements || 0) - (diff.base?.coveredElements || 0))
-  )
-}
-
-const getDiff = (diff: Diff) => {
-  return (diff.next?.coveredPercentage || 0) - (diff.base?.coveredPercentage || 0)
 }
 
 export const CoverageDifferences = (props: {
@@ -93,7 +79,7 @@ export const CoverageDifferences = (props: {
               </Th>
             </Tr>
             {removedFiles?.map((file) => {
-              return <DeleteRowItem key={file.base?.name} base={file.base} next={file.next} />
+              return <DeleteRowItem key={file.base?.name} diff={file} />
             })}
           </Table>
         </>
@@ -112,9 +98,9 @@ export const CoverageDifferences = (props: {
           </Th>
         </Tr>
         {fileDifferences
-          ?.filter((diff) => diff.base && diff.next && getDiff(diff) <= 0)
+          ?.filter((diff) => diff.base && diff.next && diff.percentageChange <= 0)
           .map((diff, i) => {
-            return <RowItem key={i} base={diff.base} next={diff.next} link={props.link} />
+            return <RowItem key={i} diff={diff} />
           })}
       </Table>
       <Subheading mt={4} size={"md"}>
@@ -131,9 +117,9 @@ export const CoverageDifferences = (props: {
           </Th>
         </Tr>
         {fileDifferences
-          ?.filter((diff) => diff.next && getDiff(diff) > 0)
+          ?.filter((diff) => diff.next && diff.percentageChange > 0)
           .map((diff, i) => {
-            return <RowItem key={i} base={diff.base} next={diff.next} link={props.link} />
+            return <RowItem key={i} diff={diff} />
           })}
       </Table>
     </>

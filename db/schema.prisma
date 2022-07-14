@@ -52,32 +52,34 @@ model Token {
 }
 
 model Commit {
-  id                  Int                 @id @default(autoincrement())
-  ref                 String              @unique
-  createdDate         DateTime            @default(now())
-  updatedDate         DateTime            @updatedAt
-  conditionals        Int                 @default(0)
-  coveredConditionals Int                 @default(0)
-  coveredElements     Int                 @default(0)
-  coveredMethods      Int                 @default(0)
-  coveredPercentage   Float               @default(0)
-  coveredStatements   Int                 @default(0)
-  elements            Int                 @default(0)
-  methods             Int                 @default(0)
-  statements          Int                 @default(0)
-  hits                Int                 @default(0)
-  blockerSonarIssues  Int                 @default(0)
-  criticalSonarIssues Int                 @default(0)
-  infoSonarIssues     Int                 @default(0)
-  majorSonarIssues    Int                 @default(0)
-  minorSonarIssues    Int                 @default(0)
-  message             String?
-  codeIssues          CodeIssueOnCommit[]
-  CommitOnBranch      CommitOnBranch[]
-  PackageCoverage     PackageCoverage[]
-  Project             Project[]
-  Test                Test[]
-  PullRequest         PullRequest[]
+  id                    Int                   @id @default(autoincrement())
+  ref                   String                @unique
+  createdDate           DateTime              @default(now())
+  updatedDate           DateTime              @updatedAt
+  conditionals          Int                   @default(0)
+  coveredConditionals   Int                   @default(0)
+  coveredElements       Int                   @default(0)
+  coveredMethods        Int                   @default(0)
+  coveredPercentage     Float                 @default(0)
+  coveredStatements     Int                   @default(0)
+  elements              Int                   @default(0)
+  methods               Int                   @default(0)
+  statements            Int                   @default(0)
+  hits                  Int                   @default(0)
+  blockerSonarIssues    Int                   @default(0)
+  criticalSonarIssues   Int                   @default(0)
+  infoSonarIssues       Int                   @default(0)
+  majorSonarIssues      Int                   @default(0)
+  minorSonarIssues      Int                   @default(0)
+  message               String?
+  coverageProcessStatus CoverageProcessStatus @default(PENDING)
+
+  codeIssues      CodeIssueOnCommit[]
+  CommitOnBranch  CommitOnBranch[]
+  PackageCoverage PackageCoverage[]
+  Project         Project[]
+  Test            Test[]
+  PullRequest     PullRequest[]
 }
 
 model Test {

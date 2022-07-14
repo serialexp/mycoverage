@@ -3,6 +3,7 @@ import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { createCoverageFromS3 } from "app/library/createCoverageFromS3"
 import { insertCoverageData } from "app/library/insertCoverageData"
+import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { getSetting } from "app/library/setting"
 import { addEventListeners } from "app/processors/addEventListeners"
 import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
@@ -64,6 +65,15 @@ export const combineCoverageWorker = new Worker<{
         })
       | null = null
     try {
+      await mydb.commit.update({
+        where: {
+          id: commit.id,
+        },
+        data: {
+          coverageProcessStatus: "PROCESSING",
+        },
+      })
+
       if (testInstance) {
         await db.testInstance.update({
           where: {
@@ -74,7 +84,7 @@ export const combineCoverageWorker = new Worker<{
           },
         })
 
-        console.log("Retrieving file coverage for test from database")
+        console.log("common: Retrieving file coverage for test from database")
         test = await mydb.test.findFirst({
           where: {
             id: testInstance.testId ?? undefined,
@@ -321,6 +331,64 @@ export const combineCoverageWorker = new Worker<{
       })
 
       await job.updateProgress(90)
+
+      // check that all test instances are finished processing, so we can mark the commit as finished
+      const allTestInstancesProcessed = await mydb.commit.findFirst({
+        where: {
+          id: commit.id,
+        },
+        include: {
+          Test: {
+            include: {
+              TestInstance: {
+                select: {
+                  index: true,
+                  coverageProcessStatus: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      const group = await mydb.group.findFirst({
+        where: {
+          slug: namespaceSlug,
+        },
+      })
+      const project = await mydb.project.findFirst({
+        where: {
+          slug: repositorySlug,
+          groupId: group?.id,
+        },
+        include: {
+          ExpectedResult: true,
+        },
+      })
+      if (group && project) {
+        const satisfied = satisfiesExpectedResults(
+          allTestInstancesProcessed,
+          project.ExpectedResult,
+          project.defaultBaseBranch
+        )
+        let allFinished = true
+        allTestInstancesProcessed?.Test.forEach((test) => {
+          test.TestInstance.forEach((testInstance) => {
+            if (testInstance.coverageProcessStatus !== "FINISHED") {
+              allFinished = false
+            }
+          })
+        })
+        if (satisfied.isOk && allFinished) {
+          await mydb.commit.update({
+            where: {
+              id: commit.id,
+            },
+            data: {
+              coverageProcessStatus: "FINISHED",
+            },
+          })
+        }
+      }
 
       await mydb.jobLog.create({
         data: {

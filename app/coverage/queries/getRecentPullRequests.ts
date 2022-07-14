@@ -9,6 +9,7 @@ export default async function getRecentCommits(
   return db.pullRequest.findMany({
     where: {
       projectId: args.projectId,
+      state: "open",
     },
     orderBy: {
       createdDate: "desc",

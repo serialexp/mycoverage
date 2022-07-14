@@ -8,6 +8,7 @@ import { Heading } from "app/library/components/Heading"
 import { Minibar } from "app/library/components/Minbar"
 import { Subheading } from "app/library/components/Subheading"
 import { TestResults } from "app/library/components/TestResults"
+import { TestResultStatus } from "app/library/components/TestResultStatus"
 import TreeMap from "app/library/components/TreeMap"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { Suspense } from "react"
@@ -79,18 +80,7 @@ const ProjectPage: BlitzPage = () => {
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
       <Subheading>Test results ({buildInfo?.lastCommit?.Test.length})</Subheading>
-      {!satisfiesExpectedResults(
-        buildInfo?.lastCommit,
-        project.ExpectedResult,
-        buildInfo?.branch?.baseBranch || ""
-      ).isOk ? (
-        <Box p={2}>
-          <Alert status={"error"}>
-            <AlertIcon />
-            <AlertTitle>Build not yet complete</AlertTitle>
-          </Alert>
-        </Box>
-      ) : null}
+      <TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />
       <TestResults
         groupId={groupId}
         projectId={projectId}
@@ -103,6 +93,7 @@ const ProjectPage: BlitzPage = () => {
       <Table>
         <Tr>
           <Th>Pull Request</Th>
+          <Th>State</Th>
           <Th>Target</Th>
           <Th>Origin</Th>
           <Th width={"10%"}>Issues</Th>
@@ -119,9 +110,12 @@ const ProjectPage: BlitzPage = () => {
                   passHref={true}
                   href={Routes.PullRequestPage({ groupId, projectId, prId: pullRequest.id })}
                 >
-                  <ChakraLink color={"blue.500"}>{pullRequest.id}</ChakraLink>
+                  <ChakraLink color={"blue.500"}>
+                    #{pullRequest.sourceIdentifier || pullRequest.id}
+                  </ChakraLink>
                 </Link>
               </Td>
+              <Td>{pullRequest.state}</Td>
               <Td>
                 <Tag mr={2} mb={2}>
                   {pullRequest.baseBranch}

@@ -3,11 +3,25 @@ import { FileCoverage } from "db"
 export interface Diff {
   base?: FileCoverage
   next?: FileCoverage
+  change: number
+  percentageChange: number
 }
 export type CoverageDifference = Diff[]
 
 export function fixName(name: string) {
   return name.replace(/\./g, "/")
+}
+
+const calculateChange = (base?: FileCoverage, next?: FileCoverage) => {
+  return (
+    (base?.elements || 0) -
+    (next?.elements || 0) +
+    ((next?.coveredElements || 0) - (base?.coveredElements || 0))
+  )
+}
+
+const getPercentageChange = (base?: FileCoverage, next?: FileCoverage) => {
+  return (next?.coveredPercentage || 0) - (base?.coveredPercentage || 0)
 }
 
 export function generateDifferences(base: any, next: any) {
@@ -26,17 +40,24 @@ export function generateDifferences(base: any, next: any) {
       basePackage.FileCoverage.forEach((baseFile) => {
         const nextFile = nextPackage?.FileCoverage.find((p) => p.name === baseFile.name)
         if (nextFile && baseFile.coveredPercentage !== nextFile.coveredPercentage) {
+          const base = { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name }
+          const next = { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name }
           changedFiles.push({
-            base: { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name },
-            next: { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name },
+            base,
+            next,
+            change: calculateChange(base, next),
+            percentageChange: getPercentageChange(base, next),
           })
         } else if (!nextFile) {
           console.log(
             `cannot find ${baseFile.name} in ${basePackage.name}`,
             nextPackage?.FileCoverage.map((i) => i.name)
           )
+          const base = { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name }
           changedFiles.push({
-            base: { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name },
+            base,
+            change: calculateChange(base, undefined),
+            percentageChange: getPercentageChange(base, undefined),
           })
         }
       })
@@ -49,20 +70,14 @@ export function generateDifferences(base: any, next: any) {
       nextPackage.FileCoverage.forEach((nextFile) => {
         const baseFile = basePackage?.FileCoverage.find((p) => p.name === nextFile.name)
         //console.log("next", nextFile.name, "base", baseFile?.name)
-        if (
-          baseFile &&
-          (baseFile.coveredPercentage !== nextFile.coveredPercentage ||
-            baseFile.elements !== nextFile.elements)
-        ) {
-          changedFiles.push({
-            base: { ...baseFile, name: fixName(basePackage?.name) + "/" + baseFile.name },
-            next: { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name },
-          })
-        } else if (!baseFile) {
+        if (!baseFile) {
           nextFile.name = nextPackage.name + "/" + nextFile.name
+          const next = { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name }
           changedFiles.push({
             base: undefined,
-            next: { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name },
+            next,
+            change: calculateChange(undefined, next),
+            percentageChange: getPercentageChange(undefined, next),
           })
         }
       })

@@ -47,11 +47,11 @@ export const insertCoverageData = async (
     }
     packageDatas.push(packageData)
   }
-  console.log("Creating all packages")
+  console.log("  Creating all packages")
   const packageCoverage = await mydb.packageCoverage.createMany({
     data: packageDatas,
   })
-  console.log("Retrieving created package ids", where)
+  console.log("  Retrieving created package ids", where)
 
   const packagesCoverages = await mydb.packageCoverage.findMany({
     select: {
@@ -66,7 +66,7 @@ export const insertCoverageData = async (
   packagesCoverages.forEach((coverage) => {
     packageCoverageIds[coverage.name] = coverage.id
   })
-  console.log("Converting coverage data to insert format")
+  console.log("  Converting coverage data to insert format")
   for (const pkg of covInfo.packages) {
     for (const file of pkg.files) {
       const coverageData = new CoverageData(file.coverageData.coverage)
@@ -87,28 +87,33 @@ export const insertCoverageData = async (
       })
     }
   }
-  console.log("Inserting file coverage data")
+  console.log("  Inserting file coverage data")
   // limit the amount of data per insert since mysql doesn't like too much data (binary coverage info is big) in one insert
   const maxDataPerInsert = 3_000_000
   let currentBatchSize = 0
   let currentBatch: any[] = []
+  const batches: any[] = []
   for (let i = 0; i < fileDatas.length; i++) {
     const item = fileDatas[i]!
     if (currentBatchSize + item.coverageData.byteLength < maxDataPerInsert) {
       currentBatch.push(item)
       currentBatchSize += item.coverageData.byteLength
     } else {
-      await mydb.fileCoverage.createMany({
-        data: currentBatch,
-      })
-      console.log("Inserted coverage data for " + currentBatch.length + " items")
+      batches.push(currentBatch)
       currentBatch = [item]
       currentBatchSize = item.coverageData.byteLength
     }
   }
-  // make sure last items are inserted
-  await mydb.fileCoverage.createMany({
-    data: currentBatch,
-  })
-  console.log("Inserted coverage data for " + currentBatch.length + " items")
+  batches.push(currentBatch)
+
+  const startTime = new Date().getTime()
+  console.log("  Inserting coverage data in " + batches.length + " batches")
+  await Promise.all(
+    batches.map((batch) => {
+      return mydb.fileCoverage.createMany({
+        data: batch,
+      })
+    })
+  )
+  console.log(`  Inserted in ${Math.round(new Date().getTime() - startTime)}ms!`)
 }

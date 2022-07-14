@@ -7,7 +7,8 @@ export const DiffHelper = (props: {
   fromAbsolute?: number
   isPercentage?: boolean
 }) => {
-  if (!props.from || !props.to || props.from == props.to) return null
+  if (!props.from || !props.to) return null
+  if (props.from === props.to) return <>No change</>
   return (
     <>
       <StatArrow type={props.from < props.to ? "increase" : "decrease"} />

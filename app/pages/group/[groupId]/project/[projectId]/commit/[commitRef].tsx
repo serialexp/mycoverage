@@ -9,6 +9,7 @@ import { IssueSummary } from "app/library/components/IssueSummary"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
 import { Subheading } from "app/library/components/Subheading"
 import { TestResults } from "app/library/components/TestResults"
+import { TestResultStatus } from "app/library/components/TestResultStatus"
 import TreeMap from "app/library/components/TreeMap"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { Suspense } from "react"
@@ -110,14 +111,7 @@ const CommitPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results ({commit.Test.length})
       </Subheading>
-      {!satisfiesExpectedResults(commit, project.ExpectedResult, project.defaultBaseBranch).isOk ? (
-        <Box p={2}>
-          <Alert status={"error"}>
-            <AlertIcon />
-            <AlertTitle>Build not yet complete</AlertTitle>
-          </Alert>
-        </Box>
-      ) : null}
+      <TestResultStatus status={commit.coverageProcessStatus} />
       <TestResults
         groupId={groupId}
         projectId={projectId}

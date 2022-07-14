@@ -1,38 +1,12 @@
-import getBranch from "app/coverage/queries/getBranch"
-import getCommit from "app/coverage/queries/getCommit"
-import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
-import getMergeBase from "app/coverage/queries/getMergeBase"
 import getProject from "app/coverage/queries/getProject"
 import { Actions } from "app/library/components/Actions"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { PackageFileTable } from "app/library/components/PackageFileTable"
 import { Subheading } from "app/library/components/Subheading"
-import CompareTestPage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/test/[testId]/compare/[baseTestId]"
-import { Suspense } from "react"
-import {
-  Link,
-  BlitzPage,
-  useMutation,
-  Routes,
-  useQuery,
-  useParams,
-  useParam,
-  useRouterQuery,
-} from "blitz"
+import { Link, BlitzPage, Routes, useQuery, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import {
-  Box,
-  Button,
-  Flex,
-  Link as ChakraLink,
-  Stat,
-  StatArrow,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
-} from "@chakra-ui/react"
-import { Table, Td, Tr } from "@chakra-ui/react"
+import { Button } from "@chakra-ui/react"
 import getTest from "app/coverage/queries/getTest"
 import getPackagesForTest from "app/coverage/queries/getPackagesForTest"
 

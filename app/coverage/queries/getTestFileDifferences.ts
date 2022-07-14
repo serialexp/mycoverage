@@ -32,7 +32,6 @@ export default async function getTestFileDifferences(
       },
     },
   })
-  console.log("base", base)
 
   const next = await db.packageCoverage.findMany({
     where: { testId: args.testId },

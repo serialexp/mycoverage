@@ -10,6 +10,7 @@ import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Subheading } from "app/library/components/Subheading"
 import { TestResults } from "app/library/components/TestResults"
+import { TestResultStatus } from "app/library/components/TestResultStatus"
 import { format } from "app/library/format"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { Suspense } from "react"
@@ -84,18 +85,6 @@ const PullRequestPage: BlitzPage = () => {
         >
           <Button ml={2}>Compare</Button>
         </Link>
-
-        <Button
-          ml={2}
-          leftIcon={<FaClock />}
-          onClick={() => {
-            if (buildInfo?.lastCommit?.id) {
-              combineCoverageMutation({ commitId: buildInfo.lastCommit.id })
-            }
-          }}
-        >
-          Combine Coverage
-        </Button>
       </Actions>
       <Subheading mt={4} size={"md"}>
         Pull Request
@@ -135,23 +124,13 @@ const PullRequestPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Test results ({buildInfo?.lastCommit?.Test.length})
       </Subheading>
-      {!satisfiesExpectedResults(
-        buildInfo?.lastCommit,
-        project?.ExpectedResult || [],
-        buildInfo?.branch?.baseBranch || ""
-      ).isOk ? (
-        <Box p={2}>
-          <Alert status={"error"}>
-            <AlertIcon />
-            <AlertTitle>Build not yet complete</AlertTitle>
-          </Alert>
-        </Box>
-      ) : null}
+      <TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />
       <TestResults
         groupId={groupId}
         projectId={projectId}
         commit={buildInfo?.lastCommit}
         baseCommit={baseBuildInfo?.lastCommit ?? undefined}
+        expectedResult={project?.ExpectedResult}
       />
       <Subheading mt={4} size={"md"}>
         Recent Commits

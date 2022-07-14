@@ -7,6 +7,7 @@ export default async function getCommitFileDifferences(
   { session }: Ctx
 ) {
   if (!args.baseCommitId || !args.commitId) return null
+  console.log(args)
 
   const base = await db.packageCoverage.findMany({
     where: { commitId: args.baseCommitId },

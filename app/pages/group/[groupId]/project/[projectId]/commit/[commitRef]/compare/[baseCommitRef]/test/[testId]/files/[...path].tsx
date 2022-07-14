@@ -20,8 +20,8 @@ import { css } from "emotion"
 import { useState } from "react"
 
 const TestFileDifferencePage: BlitzPage = () => {
-  const branchId = useParam("branchId", "string")
-  const baseTestId = useParam("baseTestId", "number")
+  const baseCommitRef = useParam("baseCommitRef", "string")
+  const commitRef = useParam("commitRef", "string")
   const testId = useParam("testId", "number")
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
@@ -29,20 +29,20 @@ const TestFileDifferencePage: BlitzPage = () => {
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [group] = useQuery(getGroup, { groupSlug: groupId })
-  const [baseTest] = useQuery(getTest, { testId: baseTestId || 0 })
-  const [baseCommit] = useQuery(getCommit, { commitRef: baseTest?.commit.ref || "" })
-
-  const [buildInfo] = useQuery(getLastBuildInfo, {
-    projectId: project?.id,
-    branch: branchId,
+  const [baseCommit] = useQuery(getCommit, { commitRef: baseCommitRef })
+  const [test] = useQuery(getTest, {
+    testId: testId,
   })
 
-  const latestCommit = buildInfo?.lastCommit
+  const [latestCommit] = useQuery(getCommit, {
+    commitRef: commitRef,
+  })
+
   const packagePath = path?.slice(0, path.length - 1).join(".")
   const fileName = path?.slice(path?.length - 1).join("")
 
   const [packForBaseFile] = useQuery(getPackageCoverageForTest, {
-    testId: baseTestId,
+    testId: baseCommit?.Test.find((t) => t.testName === test?.testName)?.id,
     path: packagePath,
   })
   const [packForFile] = useQuery(getPackageCoverageForTest, {
@@ -80,12 +80,19 @@ const TestFileDifferencePage: BlitzPage = () => {
   console.log(coverageData)
 
   //TODO: This is really borked. Need to make dependent on comparing two commit id's using a test name
-  const commitRef = latestCommit?.ref || ""
 
-  return groupId && projectId && testId && baseTestId && latestCommit && branchId && baseTest ? (
+  console.log({
+    groupId,
+    projectId,
+    testId,
+    commitRef,
+    baseCommitRef,
+  })
+
+  return groupId && projectId && testId && baseCommitRef && latestCommit && commitRef && test ? (
     <>
       <Heading m={2}>
-        Browsing differences in {path?.join("/")} in test {baseTest.testName}
+        Browsing differences in {path?.join("/")} in test {test.testName}
       </Heading>
       <Actions>
         <Link
@@ -94,7 +101,7 @@ const TestFileDifferencePage: BlitzPage = () => {
             projectId,
             commitRef,
             testId,
-            baseTestId,
+            baseCommitRef,
           })}
         >
           <Button>Back</Button>
@@ -113,7 +120,7 @@ const TestFileDifferencePage: BlitzPage = () => {
                   projectId,
                   commitRef,
                   testId: test.id,
-                  baseTestId: baseTest.id,
+                  baseCommitRef: baseCommitRef,
                   path: path || [],
                 })}
               >
@@ -136,8 +143,8 @@ const TestFileDifferencePage: BlitzPage = () => {
           </Flex>
         ) : (
           <ReactDiffViewer
-            leftTitle={buildInfo.branch?.baseBranch + ` (${baseCommit?.ref.substr(0, 10)})`}
-            rightTitle={buildInfo.branch?.name + ` (${latestCommit.ref.substr(0, 10)})`}
+            leftTitle={`${baseCommit?.ref.substr(0, 10)}`}
+            rightTitle={`${latestCommit.ref.substr(0, 10)}`}
             disableWordDiff={true}
             showDiffOnly={true}
             renderGutter={(diffData) => {

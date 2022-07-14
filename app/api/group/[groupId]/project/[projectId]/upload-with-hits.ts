@@ -6,7 +6,7 @@ import { slugify } from "app/library/slugify"
 import { SourceHits } from "app/library/types"
 import { uploadJob, uploadQueue } from "app/queues/UploadQueue"
 import { BlitzApiRequest, BlitzApiResponse } from "blitz"
-import db from "db"
+import db, { CoverageProcessStatus } from "db"
 import { fixQuery } from "../../../../../library/fixQuery"
 import { S3 } from "aws-sdk"
 import { z } from "zod"
@@ -236,12 +236,13 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
             message: query.message,
           },
         })
-      } else if (query.message) {
+      } else {
         await mydb.commit.update({
           where: {
             id: commit.id,
           },
           data: {
+            coverageProcessStatus: CoverageProcessStatus.PENDING,
             message: query.message,
           },
         })
