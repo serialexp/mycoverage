@@ -6,6 +6,7 @@ import { BuildStatus } from "app/library/components/BuildStatus"
 import { CoverageSummary } from "app/library/components/CoverageSummary"
 import { Heading } from "app/library/components/Heading"
 import { Minibar } from "app/library/components/Minbar"
+import { RecentCommitTable } from "app/library/components/RecentCommitTable"
 import { Subheading } from "app/library/components/Subheading"
 import { TestResults } from "app/library/components/TestResults"
 import { TestResultStatus } from "app/library/components/TestResultStatus"
@@ -58,6 +59,9 @@ const ProjectPage: BlitzPage = () => {
         <Link href={Routes.ProjectBranchesPage({ groupId, projectId })}>
           <Button ml={2}>Branches</Button>
         </Link>
+        <Link href={Routes.ProjectCommitsPage({ groupId, projectId })}>
+          <Button ml={2}>Commits</Button>
+        </Link>
         <Link href={Routes.ProjectSettingsPage({ groupId, projectId })}>
           <Button ml={2}>Settings</Button>
         </Link>
@@ -78,7 +82,12 @@ const ProjectPage: BlitzPage = () => {
         </strong>
       </Box>
       <Subheading>Current coverage</Subheading>
-      {buildInfo.lastCommit ? <CoverageSummary metrics={buildInfo.lastCommit} /> : null}
+      {buildInfo.lastCommit ? (
+        <CoverageSummary
+          metrics={buildInfo.lastCommit}
+          processing={buildInfo.lastCommit.coverageProcessStatus !== "FINISHED"}
+        />
+      ) : null}
       <Subheading>Test results ({buildInfo?.lastCommit?.Test.length})</Subheading>
       <TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />
       <TestResults
@@ -88,7 +97,12 @@ const ProjectPage: BlitzPage = () => {
         expectedResult={project.ExpectedResult}
       />
       <Subheading>Coverage Map</Subheading>
-      {buildInfo?.lastCommit?.id ? <TreeMap commitId={buildInfo?.lastCommit?.id} /> : null}
+      {buildInfo?.lastCommit?.id ? (
+        <TreeMap
+          processing={buildInfo.lastCommit.coverageProcessStatus !== "FINISHED"}
+          commitId={buildInfo?.lastCommit?.id}
+        />
+      ) : null}
       <Subheading>Pull requests</Subheading>
       <Table>
         <Tr>
@@ -97,7 +111,7 @@ const ProjectPage: BlitzPage = () => {
           <Th>Target</Th>
           <Th>Origin</Th>
           <Th width={"10%"}>Issues</Th>
-          <Th width={"10%"}>Tests</Th>
+          <Th width={"10%"}>Status</Th>
           <Th width={"15%"}>Coverage</Th>
           <Th width={"25%"}>Created</Th>
         </Tr>
@@ -143,54 +157,7 @@ const ProjectPage: BlitzPage = () => {
         })}
       </Table>
       <Subheading>Recent Commits</Subheading>
-      <Table>
-        <Tr>
-          <Th>Commit Sha</Th>
-          <Th>Branch</Th>
-          <Th width={"10%"}>Issues</Th>
-          <Th width={"10%"}>Tests</Th>
-          <Th width={"15%"}>Coverage</Th>
-          <Th width={"25%"}>Created</Th>
-        </Tr>
-        {recentCommits?.map((commit) => {
-          return (
-            <Tr key={commit.id}>
-              <Td>
-                <Link
-                  passHref={true}
-                  href={Routes.CommitPage({ groupId, projectId, commitRef: commit.ref })}
-                >
-                  <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
-                </Link>
-              </Td>
-              <Td>
-                {commit.CommitOnBranch.map((b) => (
-                  <Tag key={b.Branch.id} mr={2} mb={2}>
-                    <Link
-                      passHref={true}
-                      href={Routes.BranchPage({ groupId, projectId, branchId: b.Branch.slug })}
-                    >
-                      <ChakraLink color={"blue.500"}>{b.Branch.name}</ChakraLink>
-                    </Link>
-                  </Tag>
-                ))}
-              </Td>
-              <Td>{format.format(combineIssueCount(commit))}</Td>
-              <Td>
-                <BuildStatus
-                  commit={commit}
-                  expectedResults={project?.ExpectedResult}
-                  targetBranch={buildInfo?.branch?.baseBranch || ""}
-                />
-              </Td>
-              <Td>
-                <Minibar progress={commit.coveredPercentage / 100} />
-              </Td>
-              <Td>{commit.createdDate.toLocaleString()}</Td>
-            </Tr>
-          )
-        })}
-      </Table>
+      <RecentCommitTable groupId={groupId} project={project} commits={recentCommits} />
     </>
   ) : null
 }

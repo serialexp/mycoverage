@@ -69,11 +69,12 @@ export const DirectoryDisplay = (props: {
           <Subheading mt={4} size={"md"}>
             Combined coverage
           </Subheading>
-          <CoverageSummary metrics={props.pack} />
+          <CoverageSummary metrics={props.pack} processing={false} />
         </>
       ) : null}
       <Subheading size={"md"}>Files</Subheading>
       <PackageFileTable
+        processing={false}
         packages={packages}
         files={files}
         fileRoute={(parts) => props.route([...props.pack.name.split("."), ...parts])}

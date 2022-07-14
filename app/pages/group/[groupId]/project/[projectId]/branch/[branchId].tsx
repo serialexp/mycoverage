@@ -86,8 +86,9 @@ const BranchPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Combined coverage
       </Subheading>
-      {buildInfo?.lastCommit ? (
+      {buildInfo.lastCommit ? (
         <CoverageSummary
+          processing={buildInfo?.lastCommit?.coverageProcessStatus !== "FINISHED"}
           metrics={buildInfo?.lastCommit}
           baseMetrics={baseBuildInfo?.lastCommit ?? undefined}
         />

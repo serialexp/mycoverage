@@ -39,9 +39,10 @@ const TestPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Current Coverage
       </Subheading>
-      <CoverageSummary metrics={test} />
+      <CoverageSummary processing={false} metrics={test} />
       <Subheading size={"md"}>Files</Subheading>
       <PackageFileTable
+        processing={false}
         packages={packages}
         files={[]}
         fileRoute={(parts) =>

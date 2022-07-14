@@ -69,7 +69,7 @@ const TestInstancePage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Combined coverage
       </Subheading>
-      <CoverageSummary metrics={testInstance} />
+      <CoverageSummary metrics={testInstance} processing={false} />
     </>
   ) : null
 }

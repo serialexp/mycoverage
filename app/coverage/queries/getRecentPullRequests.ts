@@ -22,6 +22,7 @@ export default async function getRecentCommits(
               TestInstance: {
                 select: {
                   index: true,
+                  coverageProcessStatus: true,
                 },
               },
             },

@@ -103,7 +103,7 @@ const CommitPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Combined coverage
       </Subheading>
-      <CoverageSummary metrics={commit} />
+      <CoverageSummary metrics={commit} processing={commit.coverageProcessStatus !== "FINISHED"} />
       <Subheading mt={4} size={"md"}>
         Issues
       </Subheading>
@@ -119,11 +119,12 @@ const CommitPage: BlitzPage = () => {
         expectedResult={project.ExpectedResult}
       />
       <Subheading>Coverage Map</Subheading>
-      <TreeMap commitId={commit.id} />
+      <TreeMap commitId={commit.id} processing={commit.coverageProcessStatus !== "FINISHED"} />
       <Subheading mt={4} size={"md"}>
         Files
       </Subheading>
       <PackageFileTable
+        processing={commit.coverageProcessStatus !== "FINISHED"}
         packages={packages}
         files={[]}
         fileRoute={(parts) =>

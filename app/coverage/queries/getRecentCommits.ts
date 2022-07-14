@@ -2,7 +2,7 @@ import { Ctx } from "blitz"
 import db from "db"
 
 export default async function getRecentCommits(
-  args: { projectId?: number; branch?: string },
+  args: { projectId?: number; branch?: string; take?: number },
   { session }: Ctx
 ) {
   if (!args.projectId) return null
@@ -26,6 +26,7 @@ export default async function getRecentCommits(
           TestInstance: {
             select: {
               index: true,
+              coverageProcessStatus: true,
             },
           },
         },
@@ -36,6 +37,6 @@ export default async function getRecentCommits(
         },
       },
     },
-    take: 10,
+    take: args.take ?? 10,
   })
 }

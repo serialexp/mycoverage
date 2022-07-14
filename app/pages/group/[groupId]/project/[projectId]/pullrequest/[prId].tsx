@@ -117,6 +117,7 @@ const PullRequestPage: BlitzPage = () => {
       </Subheading>
       {buildInfo?.lastCommit ? (
         <CoverageSummary
+          processing={buildInfo.lastCommit.coverageProcessStatus !== "FINISHED"}
           metrics={buildInfo?.lastCommit}
           baseMetrics={baseBuildInfo?.lastCommit ?? undefined}
         />

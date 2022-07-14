@@ -6,7 +6,7 @@ export const satisfiesExpectedResults = (
   baseBranchName: string
 ) => {
   let isOk = true
-  const missing: { test: string; count: number }[] = []
+  const missing: { test: string; count: number; expected: number }[] = []
   expectedResults.forEach((result) => {
     let uniqueForTest: number[] = []
     commit?.Test.find((t) => t.testName === result.testName)?.TestInstance?.forEach((i) => {
@@ -20,6 +20,7 @@ export const satisfiesExpectedResults = (
       missing.push({
         test: result.testName,
         count: result.count - uniqueForTest.length,
+        expected: result.count,
       })
     }
   })

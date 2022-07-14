@@ -1,4 +1,4 @@
-import { Link as ChakraLink, Th } from "@chakra-ui/react"
+import { Flex, Link as ChakraLink, Th } from "@chakra-ui/react"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Minibar } from "app/library/components/Minbar"
@@ -20,8 +20,11 @@ export const PackageFileTable = (props: {
   }[]
   fileRoute: (parts: string[]) => RouteUrlObject
   dirRoute: (parts: string[]) => RouteUrlObject
+  processing: boolean
 }) => {
-  return (
+  return props.processing ? (
+    <Flex m={4}>Not visible until processing for commit finishes</Flex>
+  ) : (
     <Table>
       <Tr>
         <Th width={"50%"}>File</Th>

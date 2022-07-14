@@ -21,8 +21,14 @@ interface Metrics {
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
-export const CoverageSummary = (props: { metrics: Metrics; baseMetrics?: Metrics }) => {
-  return (
+export const CoverageSummary = (props: {
+  metrics: Metrics
+  baseMetrics?: Metrics
+  processing: boolean
+}) => {
+  return props.processing ? (
+    <Flex m={4}>Not visible until processing for commit finishes</Flex>
+  ) : (
     <>
       <Flex m={4}>
         <Stat>

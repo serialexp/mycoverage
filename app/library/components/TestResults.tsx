@@ -105,6 +105,13 @@ export const TestResults = (props: {
                         <Tag
                           key={index}
                           ml={2}
+                          title={
+                            instance
+                              ? instance.coverageProcessStatus === CoverageProcessStatus.FINISHED
+                                ? "Processing Finished"
+                                : "Coverage received, but not processed yet"
+                              : "Coverage for instance not received yet"
+                          }
                           colorScheme={
                             instance
                               ? instance.coverageProcessStatus === CoverageProcessStatus.FINISHED
@@ -122,12 +129,7 @@ export const TestResults = (props: {
                                 testInstanceId: instance.id,
                               })}
                             >
-                              <ChakraLink
-                                title={instance.createdDate.toLocaleString()}
-                                color={"blue.500"}
-                              >
-                                {instance.index}
-                              </ChakraLink>
+                              <ChakraLink color={"blue.500"}>{instance.index}</ChakraLink>
                             </Link>
                           ) : (
                             <>{index}</>
@@ -149,12 +151,7 @@ export const TestResults = (props: {
                             testInstanceId: instance.id,
                           })}
                         >
-                          <ChakraLink
-                            title={instance.createdDate.toLocaleString()}
-                            color={"blue.500"}
-                          >
-                            {instance.index}
-                          </ChakraLink>
+                          <ChakraLink color={"blue.500"}>{instance.index}</ChakraLink>
                         </Link>
                       </Tag>
                     )

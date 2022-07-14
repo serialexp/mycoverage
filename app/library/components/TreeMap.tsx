@@ -1,4 +1,4 @@
-import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button } from "@chakra-ui/react"
+import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Flex } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getTree from "app/coverage/queries/getTree"
 import NodeComponent from "app/library/components/NodeComponent"
@@ -42,7 +42,7 @@ function mapData(data: TreeMapInputData | undefined, maxDepth: number, currentDe
   }
 }
 
-const TreeMap = (props: { commitId: number }) => {
+const TreeMap = (props: { commitId: number; processing: boolean }) => {
   const [data] = useQuery(getTree, { commitId: props.commitId })
   console.log(data)
   const [path, setPath] = useState<string[]>([])
@@ -57,33 +57,10 @@ const TreeMap = (props: { commitId: number }) => {
   }
   mappedData = mapData(mappedData, 2)
 
-  return (
+  return props.processing ? (
+    <Flex m={4}>Not visible until processing for commit finishes</Flex>
+  ) : (
     <Suspense fallback={"Loading"}>
-      {/*<DxTreeMap*/}
-      {/*  ref={treemapRef}*/}
-      {/*  childrenField={"children"}*/}
-      {/*  labelField={"title"}*/}
-      {/*  valueField={"size"}*/}
-      {/*  colorField={"color"}*/}
-      {/*  maxDepth={3}*/}
-      {/*  onClick={function (e) {*/}
-      {/*    e.node.drillDown()*/}
-      {/*  }}*/}
-      {/*  dataSource={data?.children}*/}
-      {/*  tooltip={{*/}
-      {/*    enabled: true,*/}
-      {/*    contentTemplate: (node) => {*/}
-      {/*      return (*/}
-      {/*        node.node?.data.fullPath +*/}
-      {/*        " - " +*/}
-      {/*        Math.round(node.node?.data.coverage * 100) / 100 +*/}
-      {/*        "%"*/}
-      {/*      )*/}
-      {/*    },*/}
-      {/*  }}*/}
-      {/*  redrawOnResize={true}*/}
-      {/*  theme={"generic.light"}*/}
-      {/*/>*/}
       {path.length > 0 ? (
         <Breadcrumb px={2} pt={2}>
           <BreadcrumbItem>
