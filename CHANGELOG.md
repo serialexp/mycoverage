@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/Aeolun/mycoverage/compare/v1.15.0...v1.16.0) (2022-07-14)
+
+
+### Features
+
+* display build and processing status ([86c25c2](https://github.com/Aeolun/mycoverage/commit/86c25c26c87b52fe68ce2cac4ac7971c751388e3))
+
 # [1.15.0](https://github.com/Aeolun/mycoverage/compare/v1.14.0...v1.15.0) (2022-07-14)
 
 
