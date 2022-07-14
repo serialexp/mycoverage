@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/Aeolun/mycoverage/compare/v1.14.0...v1.15.0) (2022-07-14)
+
+
+### Features
+
+* keep track of coverage processing status per commit ([ee479c4](https://github.com/Aeolun/mycoverage/commit/ee479c4dcb074d2efdceccc5c623ff1057e155ef))
+
 # [1.14.0](https://github.com/Aeolun/mycoverage/compare/v1.13.1...v1.14.0) (2022-07-13)
 
 
