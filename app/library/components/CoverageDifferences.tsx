@@ -100,7 +100,7 @@ export const CoverageDifferences = (props: {
         {fileDifferences
           ?.filter((diff) => diff.base && diff.next && diff.percentageChange <= 0)
           .map((diff, i) => {
-            return <RowItem key={i} diff={diff} />
+            return <RowItem key={i} diff={diff} link={props.link} />
           })}
       </Table>
       <Subheading mt={4} size={"md"}>
@@ -119,7 +119,7 @@ export const CoverageDifferences = (props: {
         {fileDifferences
           ?.filter((diff) => diff.next && diff.percentageChange > 0)
           .map((diff, i) => {
-            return <RowItem key={i} diff={diff} />
+            return <RowItem key={i} diff={diff} link={props.link} />
           })}
       </Table>
     </>

@@ -43,13 +43,22 @@ export const FileCoverageDisplay = (props: {
         CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { CodeIssue: CodeIssue })[]
       })
     | null
+  baseFile?:
+    | ({ id: number; name: string } & {
+        CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { CodeIssue: CodeIssue })[]
+      })
+    | null
   isShowRaw: boolean
 }) => {
   const [data] = useQuery(getLineCoverageData, {
     fileCoverageId: props.file?.id,
   })
+  const [baseCoverageData] = useQuery(getLineCoverageData, {
+    fileCoverageId: props.baseFile?.id,
+  })
 
   const { issueOnLine, coveragePerLine, raw } = data || {}
+  const { coveragePerLine: baseCoveragePerLine } = baseCoverageData || {}
 
   const lines = props.fileData?.split("\n")
   const lineHeight = 5
@@ -116,6 +125,7 @@ export const FileCoverageDisplay = (props: {
               const codeIssue = issueOnLine[lineNr + 1]
               let element: ReactNode = null
               const lineData = coveragePerLine[lineNr + 1]
+              const baseLineData = baseCoveragePerLine[lineNr + 1]
               if (lineData) {
                 if (lineData.coverageItems.length) {
                   if (
@@ -161,7 +171,7 @@ export const FileCoverageDisplay = (props: {
                                     ?.split(";")
                                     .map((l, i) => {
                                       const item = l.split("=")
-                                      if (item[1] && parseInt(item[1]) > 0) {
+                                      if (item[1] && !item[1].includes("|")) {
                                         return (
                                           <Tr key={i}>
                                             <Td>{item[0]}</Td>

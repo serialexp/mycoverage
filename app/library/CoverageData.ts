@@ -78,6 +78,20 @@ export class CoverageData {
     })
   }
 
+  static getConditionalCoverageFromSourceHits(hitsBySource: HitsBySource) {
+    const totalHits: Record<number, number> = {}
+    Object.values(hitsBySource).forEach((source) => {
+      source.forEach((hit, index) => {
+        if (!totalHits[index]) totalHits[index] = 0
+        totalHits[index] += hit
+      })
+    })
+    return {
+      total: Object.values(totalHits).length,
+      covered: Object.values(totalHits).filter((hit) => hit > 0).length,
+    }
+  }
+
   static fromCoberturaFile(file: Partial<CoberturaFile>, sources?: SourceHit[]): CoverageData {
     if (file.coverageData) return file.coverageData
 
@@ -116,12 +130,22 @@ export class CoverageData {
           typeof branchLineIndex[line.number] === "number" ? branchLineIndex[line.number]! + 1 : 0
         const hitsBySource = pullHitInfo(sources, "b", line.number, branchLineIndex[line.number]!)
 
+        let conditionals = line.conditions ? line.conditions : 0
+        let coveredConditionals = line.coveredConditions ? line.coveredConditions : 0
+
+        // pull info from hitsBySource if possible
+        if (hitsBySource) {
+          const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
+          conditionals = updated.total
+          coveredConditionals = updated.covered
+        }
+
         data.addCoverage(line.number.toString(), {
           type: "branch",
           line: line.number,
           hits: line.hits,
-          conditionals: line.conditions ? line.conditions : 0,
-          coveredConditionals: line.coveredConditions ? line.coveredConditions : 0,
+          conditionals,
+          coveredConditionals,
           hitsBySource,
         })
       } else {
@@ -202,12 +226,23 @@ export class CoverageData {
         case "cond": {
           const hitsBySource = getHitsBySource(fields[5])
           const hits = parseInt(fields[2] || "")
+
+          let conditionals = parseInt(fields[4] || "")
+          let coveredConditionals = parseInt(fields[3] || "")
+
+          // pull info from hitsBySource if possible
+          if (hitsBySource) {
+            const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
+            conditionals = updated.total
+            coveredConditionals = updated.covered
+          }
+
           data.addCoverage(fields[1] || "", {
             type: "branch",
             line: parseInt(fields[1] || ""),
             hits: parseInt(fields[2] || ""),
-            coveredConditionals: parseInt(fields[3] || ""),
-            conditionals: parseInt(fields[4] || ""),
+            coveredConditionals,
+            conditionals,
             hitsBySource: hitsBySource
               ? hitsBySource
               : defaultSource
@@ -272,6 +307,12 @@ export class CoverageData {
     totalBranches: number,
     hitsBySource: HitsBySource
   ) {
+    // pull info from hitsBySource if possible
+    if (hitsBySource) {
+      const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
+      totalBranches = updated.total
+      coveredBranches = updated.covered
+    }
     this.addCoverage(line.toString(), {
       type: "branch",
       line,

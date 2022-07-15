@@ -83,14 +83,33 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
-      await db.pullRequest.upsert({
+      const baseCommit = await db.commit.upsert({
         update: {},
+        create: {
+          ref: payload.pull_request.base.sha,
+        },
+        where: {
+          ref: payload.pull_request.base.sha,
+        },
+      })
+
+      await db.pullRequest.upsert({
+        update: {
+          name: payload.pull_request.title,
+          branch: payload.pull_request.head.ref,
+          baseBranch: payload.pull_request.base.ref,
+          state: payload.pull_request.state,
+          commitId: commit.id,
+          baseCommitId: baseCommit.id,
+          description: payload.pull_request.body || undefined,
+        },
         create: {
           name: payload.pull_request.title,
           description: payload.pull_request.body || undefined,
           branch: payload.pull_request.head.ref,
           baseBranch: payload.pull_request.base.ref,
           commitId: commit.id,
+          baseCommitId: baseCommit.id,
           projectId: baseProject.id,
           sourceId: payload.pull_request.id,
           sourceIdentifier: payload.pull_request.number.toString(),

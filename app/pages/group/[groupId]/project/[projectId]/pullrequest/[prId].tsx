@@ -1,5 +1,6 @@
 import { WarningIcon } from "@chakra-ui/icons"
 import combineCoverage from "app/coverage/mutations/combineCoverage"
+import updatePrComment from "app/coverage/mutations/updatePrComment"
 import getMergeBase from "app/coverage/queries/getMergeBase"
 import getPullRequest from "app/coverage/queries/getPullRequest"
 import getRecentCommits from "app/coverage/queries/getRecentCommits"
@@ -26,6 +27,7 @@ import {
   Link as ChakraLink,
   Tag,
   Th,
+  useToast,
 } from "@chakra-ui/react"
 import getProject from "app/coverage/queries/getProject"
 import getLastBuildInfo from "app/coverage/queries/getLastBuildInfo"
@@ -40,6 +42,8 @@ const PullRequestPage: BlitzPage = () => {
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [pullRequest] = useQuery(getPullRequest, { pullRequestId: prId })
 
+  const toast = useToast()
+
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
     branch: pullRequest?.branch,
@@ -52,9 +56,9 @@ const PullRequestPage: BlitzPage = () => {
     projectId: project?.id,
     branch: pullRequest?.branch,
   })
-  const [combineCoverageMutation] = useMutation(combineCoverage)
+  const [updatePrCommentMutation] = useMutation(updatePrComment)
 
-  return groupId && projectId && prId ? (
+  return groupId && projectId && prId && pullRequest ? (
     <>
       <Heading>PR: {pullRequest?.name}</Heading>
       <Breadcrumbs project={project} group={project?.group} pullRequest={pullRequest} />
@@ -75,12 +79,30 @@ const PullRequestPage: BlitzPage = () => {
           </Button>
         </Link>
 
+        <Button
+          ml={2}
+          leftIcon={<FaClock />}
+          onClick={() => {
+            updatePrCommentMutation({ prId: pullRequest?.id }).then((result) => {
+              toast({
+                title: "PR comment updated",
+                description: "Check your PR on Github.",
+                status: "success",
+                duration: 2000,
+                isClosable: true,
+              })
+            })
+          }}
+        >
+          Update PR Comment
+        </Button>
+
         <Link
           href={Routes.CompareBranchPage({
             groupId,
             projectId,
-            commitRef: buildInfo.lastCommit?.ref || "",
-            baseCommitRef: baseBuildInfo?.lastCommit?.ref || "",
+            commitRef: pullRequest.commit.ref,
+            baseCommitRef: pullRequest.baseCommit?.ref || "",
           })}
         >
           <Button ml={2}>Compare</Button>
@@ -96,7 +118,13 @@ const PullRequestPage: BlitzPage = () => {
           </ChakraLink>
         </Box>
         <Box>
-          <Tag>{pullRequest?.baseBranch}</Tag> &laquo; <Tag>{pullRequest?.branch}</Tag>
+          <Tag>
+            {pullRequest?.baseBranch} ({pullRequest?.baseCommit?.ref.substr(0, 10)})
+          </Tag>{" "}
+          &laquo;{" "}
+          <Tag>
+            {pullRequest?.branch} ({pullRequest?.commit?.ref.substr(0, 10)})
+          </Tag>
         </Box>
         <Tag colorScheme={pullRequest?.state === "open" ? "green" : "red"}>
           {pullRequest?.state}
@@ -108,18 +136,18 @@ const PullRequestPage: BlitzPage = () => {
       <Box m={4}>
         Last commit:{" "}
         <strong>
-          {buildInfo.lastCommit?.createdDate.toLocaleString()}{" "}
-          {buildInfo.lastCommit?.ref.substr(0, 10)} ({buildInfo.lastCommit?.id})
+          {pullRequest.commit?.createdDate.toLocaleString()} {pullRequest.commit?.ref.substr(0, 10)}{" "}
+          ({pullRequest.commit?.id})
         </strong>
       </Box>
       <Subheading mt={4} size={"md"}>
         Combined coverage
       </Subheading>
-      {buildInfo?.lastCommit ? (
+      {pullRequest.commit ? (
         <CoverageSummary
-          processing={buildInfo.lastCommit.coverageProcessStatus !== "FINISHED"}
-          metrics={buildInfo?.lastCommit}
-          baseMetrics={baseBuildInfo?.lastCommit ?? undefined}
+          processing={pullRequest.commit.coverageProcessStatus !== "FINISHED"}
+          metrics={pullRequest.commit}
+          baseMetrics={pullRequest.baseCommit ?? undefined}
         />
       ) : null}
       <Subheading mt={4} size={"md"}>
@@ -175,6 +203,6 @@ const PullRequestPage: BlitzPage = () => {
 }
 
 PullRequestPage.suppressFirstRenderFlicker = true
-PullRequestPage.getLayout = (page) => <Layout title="Project">{page}</Layout>
+PullRequestPage.getLayout = (page) => <Layout title="Pull Request">{page}</Layout>
 
 export default PullRequestPage

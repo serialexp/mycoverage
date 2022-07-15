@@ -87,7 +87,12 @@ const BranchFileDifferencePage: BlitzPage = () => {
           <FileCoverageDisplay isShowRaw={showRaw} file={baseFile} fileData={baseFileData} />
         </Box>
         <Box w={"50%"}>
-          <FileCoverageDisplay isShowRaw={showRaw} file={file} fileData={fileData} />
+          <FileCoverageDisplay
+            isShowRaw={showRaw}
+            file={file}
+            fileData={fileData}
+            baseFile={baseFile}
+          />
         </Box>
       </Flex>
     </>

@@ -92,6 +92,12 @@ describe("coverageData", () => {
     expect(coverage.toString()).toEqual("stmt,1,6,source2=3")
   })
 
+  it("uses source hit information to update covered conditional branches", () => {
+    const coverage = CoverageData.fromString("cond,17,4,0,2,file0=2|0;file1=0|2")
+
+    expect(coverage.toString()).toEqual("cond,17,4,2,2,file0=2|0;file1=0|2")
+  })
+
   it("merges coverage with if no source on last item", () => {
     const coverage = CoverageData.fromString("stmt,1,3,source=3")
     const otherCoverage = CoverageData.fromString("stmt,1,3,")

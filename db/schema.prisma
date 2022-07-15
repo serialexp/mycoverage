@@ -79,7 +79,8 @@ model Commit {
   PackageCoverage PackageCoverage[]
   Project         Project[]
   Test            Test[]
-  PullRequest     PullRequest[]
+  PullRequest     PullRequest[]       @relation("commit")
+  BasePullRequest PullRequest[]       @relation("baseCommit")
 }
 
 model Test {
@@ -306,7 +307,10 @@ model PullRequest {
   name             String
   baseBranch       String
   branch           String
-  commit           Commit   @relation(references: [id], onDelete: Cascade, fields: [commitId])
+  commitId         Int
+  commit           Commit   @relation(name: "commit", map: "commit", references: [id], onDelete: Cascade, fields: [commitId])
+  baseCommitId     Int?
+  baseCommit       Commit?  @relation(name: "baseCommit", map: "baseCommit", references: [id], onDelete: Cascade, fields: [baseCommitId])
   createdDate      DateTime @default(now())
   updatedDate      DateTime @updatedAt
   state            String   @default("open")
@@ -314,7 +318,7 @@ model PullRequest {
 
   projectId Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  commitId  Int
+
 }
 
 model Branch {
