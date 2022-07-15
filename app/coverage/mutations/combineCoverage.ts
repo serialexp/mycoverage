@@ -67,6 +67,15 @@ export default async function combineCoverage(args: { commitId: number }, { sess
     }
   }
 
+  await db.commit.update({
+    where: {
+      id: commit.id,
+    },
+    data: {
+      coverageProcessStatus: "PENDING",
+    },
+  })
+
   commit.Test.forEach((test) => {
     test.TestInstance.forEach((instance, index) => {
       combineCoverageJob(
