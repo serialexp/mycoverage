@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/Aeolun/mycoverage/compare/v1.17.0...v1.18.0) (2022-07-15)
+
+
+### Features
+
+* combine all instances in a single job ([41e55c8](https://github.com/Aeolun/mycoverage/commit/41e55c8c57e56a64ea4e2b04788d726a4cfc89e9))
+
 # [1.17.0](https://github.com/Aeolun/mycoverage/compare/v1.16.0...v1.17.0) (2022-07-15)
 
 
