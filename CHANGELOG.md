@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/Aeolun/mycoverage/compare/v1.16.0...v1.17.0) (2022-07-15)
+
+
+### Bug Fixes
+
+* reset commit coverage processing status on recalculate ([0011cfd](https://github.com/Aeolun/mycoverage/commit/0011cfd73b0d5ef06576295dfb941e779464b3fa))
+
+
+### Features
+
+* reconstruct correct branch coverage from sourcehits ([356c7d4](https://github.com/Aeolun/mycoverage/commit/356c7d4afe69e36529ce0dc723ab1914ade12747))
+
 # [1.16.0](https://github.com/Aeolun/mycoverage/compare/v1.15.0...v1.16.0) (2022-07-14)
 
 
