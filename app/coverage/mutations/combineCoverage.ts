@@ -76,16 +76,15 @@ export default async function combineCoverage(args: { commitId: number }, { sess
     },
   })
 
-  commit.Test.forEach((test) => {
-    test.TestInstance.forEach((instance, index) => {
-      combineCoverageJob(
-        commit,
-        commit.CommitOnBranch[0]?.Branch.project.group?.slug || "",
-        commit.CommitOnBranch[0]?.Branch.project.slug || "",
-        instance,
-        index * 1000 * 10
-      )
-    })
+  // process all the testinstances for this commit in one go
+  combineCoverageJob({
+    commit,
+    namespaceSlug: commit.CommitOnBranch[0]?.Branch.project.group?.slug || "",
+    repositorySlug: commit.CommitOnBranch[0]?.Branch.project.slug || "",
+    delay: 0,
+    options: {
+      full: true,
+    },
   })
 
   console.log("Recombining coverage for commit", commit.ref)

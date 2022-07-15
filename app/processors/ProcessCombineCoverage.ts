@@ -7,23 +7,29 @@ import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { getSetting } from "app/library/setting"
 import { addEventListeners } from "app/processors/addEventListeners"
 import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
+import { processAllInstances } from "app/processors/ProcessCombineCoverage/processAllInstances"
+import { processTestInstance } from "app/processors/ProcessCombineCoverage/processTestInstance"
 import { uploadWorker } from "app/processors/ProcessUpload"
 import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
 import db, { Commit, Test, TestInstance } from "db"
 
-export const combineCoverageWorker = new Worker<{
+export interface ProcessCombineCoveragePayload {
   commit: Commit
   testInstance?: TestInstance
   namespaceSlug: string
   repositorySlug: string
   delay: number
-}>(
+  options?: {
+    full?: boolean
+  }
+}
+export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
   "combinecoverage",
   async (job) => {
     const startTime = new Date()
-    const { commit, testInstance, namespaceSlug, repositorySlug, delay } = job.data
+    const { commit, testInstance, namespaceSlug, repositorySlug, delay, options } = job.data
 
     console.log("Executing combine coverage job")
     const mydb: PrismaClient = db
@@ -47,8 +53,13 @@ export const combineCoverageWorker = new Worker<{
           '" because it is already running'
       )
       try {
-        // stick in a new job since we cannot delay the existing one, exponentially increasing delay if it has to be delayed multiple times
-        combineCoverageJob(commit, namespaceSlug, repositorySlug, testInstance, delay + 10 * 1000)
+        // stick in a new job since we cannot delay the existing one, exponentially increasing delay if it has to be
+        // delayed multiple times
+        // Maximum delay is set at one minute, to prevent truly endless timeouts
+        combineCoverageJob({
+          ...job.data,
+          delay: Math.min(delay + 10 * 1000, 60000),
+        })
         console.log("Delayed successfully")
       } catch (error) {
         console.error("Error moving combine coverage job to delayed: ", error)
@@ -56,14 +67,6 @@ export const combineCoverageWorker = new Worker<{
       return true
     }
 
-    let test:
-      | (Test & {
-          PackageCoverage: {
-            name: string
-            FileCoverage: { name: string; coverageData: Buffer }[]
-          }[]
-        })
-      | null = null
     try {
       await mydb.commit.update({
         where: {
@@ -75,156 +78,12 @@ export const combineCoverageWorker = new Worker<{
       })
 
       if (testInstance) {
-        await db.testInstance.update({
-          where: {
-            id: testInstance.id,
-          },
-          data: {
-            coverageProcessStatus: "PROCESSING",
-          },
-        })
-
-        console.log("common: Retrieving file coverage for test from database")
-        test = await mydb.test.findFirst({
-          where: {
-            id: testInstance.testId ?? undefined,
-          },
-          orderBy: {
-            createdDate: "desc",
-          },
-          include: {
-            PackageCoverage: {
-              select: {
-                name: true,
-                FileCoverage: {
-                  select: {
-                    name: true,
-                    coverageData: true,
-                  },
-                },
-              },
-            },
-          },
-        })
-
-        if (!test) throw new Error("Cannot combine coverage for testInstance without a test")
-
-        await job.updateProgress(10)
-
-        // const settingValue = await getSetting("max-combine-coverage-size")
-        // const sizeInMegabytes = parseInt(settingValue || "100")
-        //
-        // if (
-        //   instancesWithDatasize &&
-        //   instancesWithDatasize._sum.dataSize &&
-        //   instancesWithDatasize._sum.dataSize > sizeInMegabytes * 1024 * 1024
-        // ) {
-        //   throw new Error(
-        //     `Data to combine is ${Math.ceil(
-        //       instancesWithDatasize._sum.dataSize / 1024 / 1024
-        //     )}, maximum is ${sizeInMegabytes}, cancelling.`
-        //   )
-        // }
-
-        await job.updateProgress(20)
-
-        if (!testInstance.coverageFileKey)
-          throw new Error("Cannot combine coverage for a testInstance without a coverageFileKey")
-
-        const { coverageFile: testInstanceCoverageFile } = await createCoverageFromS3(
-          testInstance.coverageFileKey
-        )
-
-        console.log(`test: Merging coverage information for for instance into test`)
-
-        const start = new Date()
-
-        const testCoverage = new CoberturaCoverage()
-        let packages = 0,
-          files = 0
-        // fill new testCoverage object with values in test
-        test.PackageCoverage.forEach((pkg) => {
-          packages++
-          pkg.FileCoverage?.forEach((file) => {
-            files++
-            testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
-          })
-        })
-        // add new testCoverage object values from this testinstance, this is icky if we accidentally
-        // process twice, but much faster when there are many testinstances
-        testInstanceCoverageFile.data.coverage.packages.forEach((pkg) => {
-          packages++
-          pkg.files.forEach((file) => {
-            files++
-            testCoverage.mergeCoverage(pkg.name, file.name, file.coverageData)
-          })
-        })
-        console.log(
-          `test: Merged ${packages} packages and ${files} files for instance index ${testInstance.index} id ${testInstance.id}`
-        )
-
-        CoberturaCoverage.updateMetrics(testCoverage.data)
-
-        await job.updateProgress(40)
-
-        console.log(
-          "test: Combined coverage results for files in " +
-            (new Date().getTime() - start.getTime()) +
-            "ms"
-        )
-
-        console.log(
-          "test: Test instance combination with previous test instances result: " +
-            testCoverage.data.coverage.metrics?.coveredelements +
-            "/" +
-            testCoverage.data.coverage.metrics?.elements
-        )
-
-        console.log(`test: Deleting existing results for test ${test.testName}`)
-        await mydb.packageCoverage.deleteMany({
-          where: {
-            testId: test.id,
-          },
-        })
-
-        console.log(`test: Updating coverage summary data for test ${test.testName}`)
-        await mydb.test.update({
-          where: {
-            id: test.id,
-          },
-          data: {
-            statements: testCoverage.data.coverage.metrics?.statements ?? 0,
-            conditionals: testCoverage.data.coverage.metrics?.conditionals ?? 0,
-            methods: testCoverage.data.coverage.metrics?.methods ?? 0,
-            elements: testCoverage.data.coverage.metrics?.elements ?? 0,
-            hits: testCoverage.data.coverage.metrics?.hits ?? 0,
-            coveredStatements: testCoverage.data.coverage.metrics?.coveredstatements ?? 0,
-            coveredConditionals: testCoverage.data.coverage.metrics?.coveredconditionals ?? 0,
-            coveredMethods: testCoverage.data.coverage.metrics?.coveredmethods ?? 0,
-            coveredElements: testCoverage.data.coverage.metrics?.coveredelements ?? 0,
-            coveredPercentage: coveredPercentage(testCoverage.data.coverage.metrics),
-          },
-        })
-
-        console.log(`test: Inserting new package and file coverage for test ${test.testName}`)
-
-        await insertCoverageData(testCoverage.data.coverage, {
-          testId: test.id,
-        })
-
-        await db.testInstance.update({
-          where: {
-            id: testInstance.id,
-          },
-          data: {
-            coverageProcessStatus: "FINISHED",
-          },
-        })
-
-        await job.updateProgress(45)
+        await processTestInstance(job, testInstance)
+      } else if (options?.full) {
+        await processAllInstances(job)
       }
 
-      await job.updateProgress(50)
+      await job.updateProgress(60)
 
       // check that all test instances are finished processing, so we can mark the commit as finished
       const allTestInstancesProcessed = await mydb.commit.findFirst({
@@ -284,7 +143,7 @@ export const combineCoverageWorker = new Worker<{
         if (satisfied.isOk && allFinished) {
           // ONCE ALL THE TEST INSTANCES HAVE BEEN PROCESSED
           // DO THE COMBINATION STUFF FOR THE COMMIT
-          if (!commit) throw Error("Cannot combine coverage without a commit")
+          if (!commit) throw new Error("Cannot combine coverage without a commit")
 
           console.log("commit: Combining test coverage results for commit")
 
@@ -304,7 +163,7 @@ export const combineCoverageWorker = new Worker<{
             },
           })
 
-          await job.updateProgress(60)
+          await job.updateProgress(70)
 
           const lastOfEach: { [test: string]: typeof latestTests[0] } = {}
           latestTests.forEach((test) => {
@@ -337,7 +196,7 @@ export const combineCoverageWorker = new Worker<{
           })
 
           CoberturaCoverage.updateMetrics(coverage.data)
-          await job.updateProgress(70)
+          await job.updateProgress(75)
           console.log(
             "commit: Combined coverage results for " +
               fileCounter +
@@ -409,9 +268,7 @@ export const combineCoverageWorker = new Worker<{
           message:
             "Combined coverage for commit " +
             commit.ref.substr(0, 10) +
-            (testInstance
-              ? " and test instance " + testInstance.id + " for test " + test?.testName
-              : ""),
+            (testInstance ? " and test instance " + testInstance.id : ""),
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
@@ -426,11 +283,9 @@ export const combineCoverageWorker = new Worker<{
           namespace: namespaceSlug,
           repository: repositorySlug,
           message:
-            "Failure processing test instance " +
+            "Failure processing commit " +
             commit.ref.substr(0, 10) +
-            (testInstance
-              ? " and test instance " + testInstance.id + " for test " + test?.testName
-              : "") +
+            (testInstance ? " and test instance " + testInstance.id : "") +
             ", error " +
             error.message,
           timeTaken: new Date().getTime() - startTime.getTime(),

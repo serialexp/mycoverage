@@ -1,5 +1,4 @@
 import { updatePR } from "app/library/updatePR"
-import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { Ctx } from "blitz"
 import db, { TestInstance } from "db"
 

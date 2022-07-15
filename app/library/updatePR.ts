@@ -78,37 +78,47 @@ ${
 
     const baseUrl = await getSetting("baseUrl")
 
-    const check = await octokit.checks.create({
+    const checkSuite = await octokit.checks.listForRef({
       owner: pullRequest.project.group.githubName,
       repo: pullRequest.project.name,
-      head_sha: commitStatus.commit.ref,
-      status: "completed",
-      name: "Coverage",
-      details_url: "",
-      conclusion: isSuccess ? "success" : "failure",
-      completed_at: new Date().toISOString(),
-      output: {
-        title: "Coverage",
-        summary: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-        text: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-        annotations: [
-          // {
-          //   path: "",
-          //   start_line: 0,
-          //   end_line: 0,
-          //   annotation_level: isSuccess ? "notice" : "failure",
-          //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-          // }
-        ],
-        images: [
-          {
-            alt: "coverage",
-            caption: "Image",
-            image_url: path.join(baseUrl || "", "Logo.png"),
-          },
-        ],
-      },
+      ref: commitStatus.commit.ref,
     })
+
+    console.log(checkSuite.data.check_runs)
+
+    // const check = await octokit.checks.create({
+    //   owner: pullRequest.project.group.githubName,
+    //   repo: pullRequest.project.name,
+    //   head_sha: commitStatus.commit.ref,
+    //   status: "completed",
+    //   name: "Coverage",
+    //   details_url: path.join(baseUrl || "", "group", pullRequest.project.group.slug, "project", pullRequest.project.slug, "pullrequest", pullRequest.id.toString()),
+    //   conclusion: isSuccess ? "success" : "failure",
+    //   completed_at: new Date().toISOString(),
+    //   output: {
+    //     title: "Coverage",
+    //     summary: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+    //     text: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+    //     annotations: [
+    //       // {
+    //       //   path: "",
+    //       //   start_line: 0,
+    //       //   end_line: 0,
+    //       //   annotation_level: isSuccess ? "notice" : "failure",
+    //       //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+    //       // }
+    //     ],
+    //     images: [
+    //       {
+    //         alt: "coverage",
+    //         caption: "Image",
+    //         image_url: path.join(baseUrl || "", "Logo.png"),
+    //       },
+    //     ],
+    //   },
+    // })
+
+    // console.log('check', check)
   } catch (e) {
     console.log("could not create comment", e)
   }

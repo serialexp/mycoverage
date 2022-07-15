@@ -108,12 +108,16 @@ export const insertCoverageData = async (
 
   const startTime = new Date().getTime()
   console.log("  Inserting coverage data in " + batches.length + " batches")
-  await Promise.all(
-    batches.map((batch) => {
-      return mydb.fileCoverage.createMany({
-        data: batch,
+  const batchSize = 5
+  for (let i = 0; i < batches.length; i += batchSize) {
+    await Promise.all(
+      batches.slice(i, i + batchSize).map((batch) => {
+        return mydb.fileCoverage.createMany({
+          data: batch,
+        })
       })
-    })
-  )
+    )
+    console.log("  Finished batch " + i + " to " + (i + batchSize) + "of " + batches.length)
+  }
   console.log(`  Inserted in ${Math.round(new Date().getTime() - startTime)}ms!`)
 }

@@ -119,11 +119,33 @@ const PullRequestPage: BlitzPage = () => {
         </Box>
         <Box>
           <Tag>
-            {pullRequest?.baseBranch} ({pullRequest?.baseCommit?.ref.substr(0, 10)})
+            {pullRequest?.baseBranch} (
+            <Link
+              href={Routes.CommitPage({
+                groupId,
+                projectId,
+                commitRef: pullRequest?.baseCommit?.ref || "",
+              })}
+            >
+              <ChakraLink color={"blue.500"}>
+                {pullRequest?.baseCommit?.ref.substr(0, 10)}
+              </ChakraLink>
+            </Link>
+            )
           </Tag>{" "}
           &laquo;{" "}
           <Tag>
-            {pullRequest?.branch} ({pullRequest?.commit?.ref.substr(0, 10)})
+            {pullRequest?.branch} (
+            <Link
+              href={Routes.CommitPage({
+                groupId,
+                projectId,
+                commitRef: pullRequest?.commit?.ref || "",
+              })}
+            >
+              <ChakraLink color={"blue.500"}>{pullRequest?.commit?.ref.substr(0, 10)}</ChakraLink>
+            </Link>
+            )
           </Tag>
         </Box>
         <Tag colorScheme={pullRequest?.state === "open" ? "green" : "red"}>

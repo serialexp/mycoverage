@@ -74,8 +74,9 @@ const Queues: BlitzPage = () => {
                 <Tr>
                   <Th width={"12%"}>Id</Th>
                   <Th width={"18%"}>Name</Th>
-                  <Th width={"33%"}>Progress</Th>
-                  <Th width={"33%"}>Added</Th>
+                  <Th width={"23%"}>Progress</Th>
+                  <Th width={"20%"}>Commit</Th>
+                  <Th width={"23%"}>Added</Th>
                 </Tr>
               </Thead>
               {queue.jobs.map((job, index) => {
@@ -89,6 +90,7 @@ const Queues: BlitzPage = () => {
                         isIndeterminate={typeof job.progress !== "number"}
                       />
                     </Td>
+                    <Td>{job.data.commit.ref.substr(0, 10)}</Td>
                     <Td>{new Date(job.timestamp).toLocaleString()}</Td>
                   </Tr>
                 ) : (

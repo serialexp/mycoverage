@@ -132,7 +132,13 @@ export const uploadWorker = new Worker<{
         },
       })
 
-      combineCoverageJob(commit, namespaceSlug, repositorySlug, testInstance)
+      combineCoverageJob({
+        commit,
+        namespaceSlug,
+        repositorySlug,
+        testInstance,
+        delay: 0,
+      })
     } catch (error) {
       console.error(error)
       if (error.message.includes("Timed out fetching a new connection from the connection pool")) {
