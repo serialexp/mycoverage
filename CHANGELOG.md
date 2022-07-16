@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/Aeolun/mycoverage/compare/v1.18.0...v1.19.0) (2022-07-16)
+
+
+### Features
+
+* run migrations when booting image ([8f3cf77](https://github.com/Aeolun/mycoverage/commit/8f3cf77f7e4142e0676a7ec65dc6b78a50bfd104))
+
 # [1.18.0](https://github.com/Aeolun/mycoverage/compare/v1.17.0...v1.18.0) (2022-07-15)
 
 
