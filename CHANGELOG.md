@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/Aeolun/mycoverage/compare/v1.19.0...v1.20.0) (2022-07-19)
+
+
+### Features
+
+* automatically post a message to Github with results ([854809e](https://github.com/Aeolun/mycoverage/commit/854809e75cd66d4512a3d467d5b1cea661f5a713))
+
 # [1.19.0](https://github.com/Aeolun/mycoverage/compare/v1.18.0...v1.19.0) (2022-07-16)
 
 
