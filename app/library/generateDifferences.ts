@@ -6,7 +6,13 @@ export interface Diff {
   change: number
   percentageChange: number
 }
-export type CoverageDifference = Diff[]
+export type CoverageDifference = {
+  increase: Diff[]
+  decrease: Diff[]
+  add: Diff[]
+  remove: Diff[]
+  totalCount: number
+}
 
 export function fixName(name: string) {
   return name.replace(/\./g, "/")
@@ -25,7 +31,7 @@ const getPercentageChange = (base?: FileCoverage, next?: FileCoverage) => {
 }
 
 export function generateDifferences(base: any, next: any) {
-  const changedFiles: CoverageDifference = []
+  const changedFiles: Diff[] = []
 
   console.log(base.length, next.length)
 
@@ -95,5 +101,11 @@ export function generateDifferences(base: any, next: any) {
     return a.next.coveredPercentage > b.next.coveredPercentage ? -1 : 1
   })
 
-  return changedFiles
+  return {
+    increase: changedFiles.filter((diff) => diff.base && diff.next && diff.percentageChange > 0),
+    decrease: changedFiles.filter((diff) => diff.base && diff.next && diff.percentageChange <= 0),
+    add: changedFiles.filter((diff) => diff.next && !diff.base),
+    remove: changedFiles.filter((diff) => !diff.next && diff.base),
+    totalCount: changedFiles.length,
+  }
 }

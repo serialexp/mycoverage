@@ -86,7 +86,7 @@ export const TestResults = (props: {
                   <DiffHelper
                     from={baseTest ? baseTest.coveredElements - baseTest.elements : 0}
                     to={test.coveredElements - test.elements}
-                    fromAbsolute={baseTest?.elements}
+                    fromAbsolute={baseTest?.coveredElements}
                     isPercentage={false}
                   />
                 </Td>

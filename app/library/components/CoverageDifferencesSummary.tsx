@@ -12,7 +12,7 @@ import {
   StatHelpText,
   Flex,
 } from "@chakra-ui/react"
-import { CoverageDifference, Diff } from "app/coverage/generateDifferences"
+import { CoverageDifference, Diff } from "app/library/generateDifferences"
 import { DiffHelper } from "app/library/components/DiffHelper"
 import { Subheading } from "app/library/components/Subheading"
 import { format } from "app/library/format"
@@ -26,21 +26,11 @@ export const CoverageDifferencesSummary = (props: { diff: CoverageDifference | n
     <Flex m={4}>
       <Stat>
         <StatLabel>Increased</StatLabel>
-        <StatNumber>
-          {format.format(fileDifferences?.filter((d) => d.percentageChange > 0).length, true)}
-        </StatNumber>
-      </Stat>
-      <Stat>
-        <StatLabel>Similar</StatLabel>
-        <StatNumber>
-          {format.format(fileDifferences?.filter((d) => d.percentageChange == 0).length, true)}
-        </StatNumber>
+        <StatNumber>{format.format(fileDifferences?.increase.length, true)}</StatNumber>
       </Stat>
       <Stat>
         <StatLabel>Decreased</StatLabel>
-        <StatNumber>
-          {format.format(fileDifferences?.filter((d) => d.percentageChange < 0).length, true)}
-        </StatNumber>
+        <StatNumber>{format.format(fileDifferences?.decrease.length, true)}</StatNumber>
       </Stat>
     </Flex>
   )

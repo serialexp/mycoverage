@@ -103,9 +103,25 @@ model Test {
   commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade)
   PackageCoverage     PackageCoverage[]
   TestInstance        TestInstance[]
+  CoverageSource      CoverageSource[]
 
   @@unique([testName, commitId])
   @@index([commitId])
+}
+
+model CoverageSource {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  testId              Int
+  hits                Int      @default(0)
+  coveredElements     Int      @default(0)
+  coveredStatements   Int
+  coveredConditionals Int
+  coveredMethods      Int
+  coveredPercentage   Float    @default(0)
+  createdDate         DateTime @default(now())
+  updatedDate         DateTime @default(now()) @updatedAt
+  test                Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
 }
 
 enum CoverageProcessStatus {

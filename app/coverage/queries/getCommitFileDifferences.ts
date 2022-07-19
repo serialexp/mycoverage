@@ -1,6 +1,5 @@
-import { generateDifferences } from "app/coverage/generateDifferences"
+import { getDifferences } from "app/library/getDifferences"
 import { Ctx } from "blitz"
-import db from "db"
 
 export default async function getCommitFileDifferences(
   args: { baseCommitId?: number; commitId?: number },
@@ -9,57 +8,5 @@ export default async function getCommitFileDifferences(
   if (!args.baseCommitId || !args.commitId) return null
   console.log(args)
 
-  const base = await db.packageCoverage.findMany({
-    where: { commitId: args.baseCommitId },
-    include: {
-      FileCoverage: {
-        select: {
-          id: true,
-          name: true,
-          statements: true,
-          conditionals: true,
-          methods: true,
-          elements: true,
-          hits: true,
-          coveredElements: true,
-          coveredStatements: true,
-          coveredConditionals: true,
-          coveredMethods: true,
-          coveredPercentage: true,
-          codeIssues: true,
-          changes: true,
-          changeRatio: true,
-        },
-      },
-    },
-  })
-
-  const next = await db.packageCoverage.findMany({
-    where: { commitId: args.commitId },
-    include: {
-      FileCoverage: {
-        select: {
-          id: true,
-          name: true,
-          statements: true,
-          conditionals: true,
-          methods: true,
-          elements: true,
-          hits: true,
-          coveredElements: true,
-          coveredStatements: true,
-          coveredConditionals: true,
-          coveredMethods: true,
-          coveredPercentage: true,
-          codeIssues: true,
-          changes: true,
-          changeRatio: true,
-        },
-      },
-    },
-  })
-
-  console.log("differences", base.length, next.length)
-
-  return generateDifferences(base, next)
+  return getDifferences(args.baseCommitId, args.commitId)
 }

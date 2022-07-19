@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client"
+import updatePrComment from "app/coverage/mutations/updatePrComment"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
 import { createCoverageFromS3 } from "app/library/createCoverageFromS3"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
 import { getSetting } from "app/library/setting"
+import { updatePR } from "app/library/updatePR"
 import { addEventListeners } from "app/processors/addEventListeners"
 import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
 import { processAllInstances } from "app/processors/ProcessCombineCoverage/processAllInstances"
@@ -256,6 +258,24 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
               coverageProcessStatus: "FINISHED",
             },
           })
+
+          // Stick a comment on a PR if we have a PR
+          const prWithLatestCommit = await db.pullRequest.findFirst({
+            where: {
+              commitId: commit.id,
+            },
+            include: {
+              project: {
+                include: {
+                  group: true,
+                },
+              },
+            },
+          })
+
+          if (prWithLatestCommit) {
+            await updatePR(prWithLatestCommit)
+          }
         }
       }
 

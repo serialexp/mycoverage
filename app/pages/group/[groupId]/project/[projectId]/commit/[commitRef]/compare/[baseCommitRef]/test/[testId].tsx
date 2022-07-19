@@ -6,6 +6,7 @@ import { Breadcrumbs } from "app/library/components/Breadcrumbs"
 import { CoverageDifferencesSummary } from "app/library/components/CoverageDifferencesSummary"
 import { Heading } from "app/library/components/Heading"
 import { CoverageDifferences } from "app/library/components/CoverageDifferences"
+import { SpecificTestLinks } from "app/library/components/SpecificTestLinks"
 import { Link, BlitzPage, Routes, useQuery, useParam } from "blitz"
 import Layout from "app/core/layouts/Layout"
 import { Button } from "@chakra-ui/react"
@@ -50,6 +51,13 @@ const CompareTestPage: BlitzPage = () => {
           <Button>Back</Button>
         </Link>
       </Actions>
+      <SpecificTestLinks
+        groupId={groupId}
+        projectId={projectId}
+        commit={commit}
+        baseCommitRef={baseCommitRef}
+        testId={testId}
+      />
       <CoverageDifferencesSummary diff={fileDifferences} />
       <CoverageDifferences
         diff={fileDifferences}

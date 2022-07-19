@@ -1,5 +1,6 @@
 import { format } from "app/library/format"
 import { getAccessToken } from "app/library/getAccessToken"
+import { getDifferences } from "app/library/getDifferences"
 import { getSetting } from "app/library/setting"
 import db, { PullRequest, Project, Group } from "db"
 import { Octokit } from "@octokit/rest"
@@ -22,8 +23,6 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
     repo: pullRequest.project.name,
     issue_number: parseInt(pullRequest.sourceIdentifier),
   })
-
-  console.log(JSON.stringify(comments, null, 2))
 
   const coverageComment = comments.data.find((comment) => {
     return comment.body?.includes("**Coverage quality gate**") && comment.user?.type === "Bot"
@@ -51,8 +50,25 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
       throw new Error("Could not find commit status")
     }
 
+    const baseUrl = await getSetting("baseUrl")
+
+    const differencesUrl =
+      baseUrl +
+      path.join(
+        "group",
+        pullRequest.project.group.slug,
+        "project",
+        pullRequest.project.slug,
+        "commit",
+        commitStatus.commit.ref,
+        "compare",
+        commitStatus.baseCommit.ref
+      )
+
     const isSuccess =
       commitStatus.commit.coveredPercentage > commitStatus.baseCommit.coveredPercentage
+
+    const differences = await getDifferences(commitStatus.baseCommit.id, commitStatus.commit.id)
 
     const newComment = await octokit.issues.createComment({
       owner: pullRequest.project.group.githubName,
@@ -71,12 +87,12 @@ ${
   isSuccess
     ? `New Commit is **better** than Base Commit`
     : `New Commit is **worse** than Base Commit`
-}`,
+}
+
+[${differences.totalCount} differences](${differencesUrl})`,
     })
 
     console.log("newcomment", newComment)
-
-    const baseUrl = await getSetting("baseUrl")
 
     const checkSuite = await octokit.checks.listForRef({
       owner: pullRequest.project.group.githubName,
@@ -86,37 +102,58 @@ ${
 
     console.log(checkSuite.data.check_runs)
 
-    // const check = await octokit.checks.create({
-    //   owner: pullRequest.project.group.githubName,
-    //   repo: pullRequest.project.name,
-    //   head_sha: commitStatus.commit.ref,
-    //   status: "completed",
-    //   name: "Coverage",
-    //   details_url: path.join(baseUrl || "", "group", pullRequest.project.group.slug, "project", pullRequest.project.slug, "pullrequest", pullRequest.id.toString()),
-    //   conclusion: isSuccess ? "success" : "failure",
-    //   completed_at: new Date().toISOString(),
-    //   output: {
-    //     title: "Coverage",
-    //     summary: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-    //     text: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-    //     annotations: [
-    //       // {
-    //       //   path: "",
-    //       //   start_line: 0,
-    //       //   end_line: 0,
-    //       //   annotation_level: isSuccess ? "notice" : "failure",
-    //       //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-    //       // }
-    //     ],
-    //     images: [
-    //       {
-    //         alt: "coverage",
-    //         caption: "Image",
-    //         image_url: path.join(baseUrl || "", "Logo.png"),
-    //       },
-    //     ],
-    //   },
-    // })
+    const detailsUrl =
+      (baseUrl || "") +
+      path.join(
+        "group",
+        pullRequest.project.group.slug,
+        "project",
+        pullRequest.project.slug,
+        "pullrequest",
+        pullRequest.id.toString()
+      )
+    console.log(detailsUrl)
+
+    const addedFilesText = `### New files
+${differences.add.map((diff) => `- ${diff.base?.name}`).join("\n")}`
+    const removedFilesText = `### Removed files
+${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
+
+    const check = await octokit.checks.create({
+      owner: pullRequest.project.group.githubName,
+      repo: pullRequest.project.name,
+      head_sha: commitStatus.commit.ref,
+      status: "completed",
+      name: "Coverage",
+      details_url: detailsUrl,
+      conclusion: isSuccess ? "success" : "failure",
+      completed_at: new Date().toISOString(),
+      output: {
+        title: "Coverage",
+        summary: `${format.format(commitStatus.baseCommit.coveredPercentage)}% -> ${format.format(
+          commitStatus.commit.coveredPercentage
+        )}%`,
+        text: `### Coverage increase
+
+${differences.increase.map((diff) => `- ${diff.base?.name}: +${diff.change}`).join("\n")}
+
+### Coverage decrease
+${differences.decrease.map((diff) => `- ${diff.base?.name}: ${diff.change}`).join("\n")}
+
+${differences.add.length > 0 ? addedFilesText : ""}
+${differences.remove.length > 0 ? removedFilesText : ""}
+`,
+        annotations: [
+          // {
+          //   path: "",
+          //   start_line: 0,
+          //   end_line: 0,
+          //   annotation_level: isSuccess ? "notice" : "failure",
+          //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+          // }
+        ],
+      },
+    })
 
     // console.log('check', check)
   } catch (e) {

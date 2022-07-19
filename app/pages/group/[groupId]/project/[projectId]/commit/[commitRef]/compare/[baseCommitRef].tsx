@@ -4,7 +4,9 @@ import getTest from "app/coverage/queries/getTest"
 import { Actions } from "app/library/components/Actions"
 import { Breadcrumbs } from "app/library/components/Breadcrumbs"
 import { CoverageDifferences } from "app/library/components/CoverageDifferences"
+import { CoverageDifferencesSummary } from "app/library/components/CoverageDifferencesSummary"
 import { Heading } from "app/library/components/Heading"
+import { SpecificTestLinks } from "app/library/components/SpecificTestLinks"
 import { Subheading } from "app/library/components/Subheading"
 import { Test, FileCoverage } from "db"
 import { Suspense } from "react"
@@ -56,25 +58,14 @@ const CompareBranchPage: BlitzPage = () => {
         <Link href={Routes.CommitPage({ groupId, projectId, commitRef })}>
           <Button>Back</Button>
         </Link>
-        {commit?.Test.map((test) => {
-          return (
-            <Link
-              key={test.id}
-              href={Routes.CompareTestPage({
-                groupId,
-                projectId,
-                commitRef,
-                testId: test.id,
-                baseCommitRef: baseCommitRef,
-              })}
-            >
-              <Button ml={2} mt={2}>
-                {test.testName}
-              </Button>
-            </Link>
-          )
-        })}
       </Actions>
+      <SpecificTestLinks
+        groupId={groupId}
+        projectId={projectId}
+        commit={commit}
+        baseCommitRef={baseCommitRef}
+      />
+      <CoverageDifferencesSummary diff={fileDifferences} />
       <CoverageDifferences
         diff={fileDifferences}
         link={(path: string) => {

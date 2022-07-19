@@ -1,15 +1,9 @@
 import { generateDifferences } from "app/library/generateDifferences"
-import { Ctx } from "blitz"
 import db from "db"
 
-export default async function getTestFileDifferences(
-  args: { baseTestId?: number; testId?: number },
-  { session }: Ctx
-) {
-  if (!args.baseTestId || !args.testId) return null
-
+export const getDifferences = async (baseCommitId: number, commitId: number) => {
   const base = await db.packageCoverage.findMany({
-    where: { testId: args.baseTestId },
+    where: { commitId: baseCommitId },
     include: {
       FileCoverage: {
         select: {
@@ -34,7 +28,7 @@ export default async function getTestFileDifferences(
   })
 
   const next = await db.packageCoverage.findMany({
-    where: { testId: args.testId },
+    where: { commitId: commitId },
     include: {
       FileCoverage: {
         select: {
@@ -57,6 +51,8 @@ export default async function getTestFileDifferences(
       },
     },
   })
+
+  console.log("differences", base.length, next.length)
 
   return generateDifferences(base, next)
 }

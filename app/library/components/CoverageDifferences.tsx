@@ -1,5 +1,5 @@
 import { Box, StatArrow, Link as ChakraLink, Table, Td, Th, Tr } from "@chakra-ui/react"
-import { CoverageDifference, Diff } from "app/coverage/generateDifferences"
+import { CoverageDifference, Diff } from "app/library/generateDifferences"
 import { Subheading } from "app/library/components/Subheading"
 import { format } from "app/library/format"
 import CommitFileDifferencePage from "app/pages/group/[groupId]/project/[projectId]/commit/[commitRef]/compare/[baseCommitRef]/files/[...path]"
@@ -52,21 +52,37 @@ const DeleteRowItem = (props: { diff: Diff }) => {
   )
 }
 
+const AddRowItem = (props: { diff: Diff }) => {
+  return (
+    <Tr>
+      <Td wordBreak={"break-all"}>{props.diff.base?.name}</Td>
+
+      <Td isNumeric>-</Td>
+      <Td>&raquo;</Td>
+      <Td isNumeric>
+        {props.diff.base?.coveredElements} / {props.diff.base?.elements}
+      </Td>
+      <Td isNumeric></Td>
+      <Td isNumeric>
+        <StatArrow type={"increase"} /> {format.format(props.diff.next?.coveredPercentage, true)}%
+      </Td>
+    </Tr>
+  )
+}
+
 export const CoverageDifferences = (props: {
   diff: CoverageDifference | null
   link?: (path?: string) => RouteUrlObject
 }) => {
   const fileDifferences = props.diff
 
-  const removedFiles = fileDifferences?.filter((diff) => !diff.next && diff.base)
-
   return (
     <>
-      <Box m={4}>Found {fileDifferences?.length} file differences.</Box>
-      {removedFiles && removedFiles.length > 0 ? (
+      <Box m={4}>Found {fileDifferences?.totalCount} file differences.</Box>
+      {fileDifferences?.remove && fileDifferences?.remove.length > 0 ? (
         <>
           <Subheading mt={4} size={"md"}>
-            Files removed ({removedFiles?.length})
+            Files removed ({fileDifferences?.remove.length})
           </Subheading>
           <Table size={"sm"}>
             <Tr>
@@ -78,8 +94,29 @@ export const CoverageDifferences = (props: {
                 Line Diff
               </Th>
             </Tr>
-            {removedFiles?.map((file) => {
+            {fileDifferences?.remove.map((file) => {
               return <DeleteRowItem key={file.base?.name} diff={file} />
+            })}
+          </Table>
+        </>
+      ) : null}
+      {fileDifferences?.add && fileDifferences?.add.length > 0 ? (
+        <>
+          <Subheading mt={4} size={"md"}>
+            Files removed ({fileDifferences?.add.length})
+          </Subheading>
+          <Table size={"sm"}>
+            <Tr>
+              <Th width={"60%"}>Filename</Th>
+              <Th isNumeric colSpan={3}>
+                Coverage
+              </Th>
+              <Th isNumeric colSpan={2}>
+                Line Diff
+              </Th>
+            </Tr>
+            {fileDifferences?.add.map((file) => {
+              return <AddRowItem key={file.base?.name} diff={file} />
             })}
           </Table>
         </>
@@ -97,11 +134,9 @@ export const CoverageDifferences = (props: {
             Line Diff
           </Th>
         </Tr>
-        {fileDifferences
-          ?.filter((diff) => diff.base && diff.next && diff.percentageChange <= 0)
-          .map((diff, i) => {
-            return <RowItem key={i} diff={diff} link={props.link} />
-          })}
+        {fileDifferences?.decrease.map((diff, i) => {
+          return <RowItem key={i} diff={diff} link={props.link} />
+        })}
       </Table>
       <Subheading mt={4} size={"md"}>
         Coverage Increased
@@ -116,11 +151,9 @@ export const CoverageDifferences = (props: {
             Line Diff
           </Th>
         </Tr>
-        {fileDifferences
-          ?.filter((diff) => diff.next && diff.percentageChange > 0)
-          .map((diff, i) => {
-            return <RowItem key={i} diff={diff} link={props.link} />
-          })}
+        {fileDifferences?.increase.map((diff, i) => {
+          return <RowItem key={i} diff={diff} link={props.link} />
+        })}
       </Table>
     </>
   )

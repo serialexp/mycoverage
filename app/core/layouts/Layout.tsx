@@ -1,4 +1,4 @@
-import { Button, Container, Link as ChakraLink } from "@chakra-ui/react"
+import { Box, Button, Container, Flex, Link as ChakraLink } from "@chakra-ui/react"
 import { ReactNode } from "react"
 import { Head, Link, Routes } from "blitz"
 import { library, config, dom } from "@fortawesome/fontawesome-svg-core"
@@ -16,26 +16,29 @@ const Layout = ({ title, children }: LayoutProps) => {
         <link rel="icon" href="/favicon.png" />
         <style>{dom.css()}</style>
       </Head>
-
-      <Container maxW={"container.lg"} textAlign={"right"}>
-        <Link href={Routes.Home()}>
-          <ChakraLink mr={4} color={"secondary"}>
-            Home
-          </ChakraLink>
-        </Link>
-        <Link href={Routes.Logs()}>
-          <ChakraLink mr={4} color={"secondary"}>
-            Logs
-          </ChakraLink>
-        </Link>
-        <Link href={Routes.Queues()}>
-          <ChakraLink mr={4} color={"secondary"}>
-            Queues
-          </ChakraLink>
-        </Link>
-        <Link href={Routes.SettingsPage()}>
-          <ChakraLink color={"secondary"}>System Settings</ChakraLink>
-        </Link>
+      <Container maxW={"container.lg"}>
+        <Flex justifyContent={"space-between"} alignItems={"center"}>
+          <Box textAlign={"right"} flex={1}>
+            <Link href={Routes.Home()}>
+              <ChakraLink mr={4} color={"secondary"}>
+                Home
+              </ChakraLink>
+            </Link>
+            <Link href={Routes.Logs()}>
+              <ChakraLink mr={4} color={"secondary"}>
+                Logs
+              </ChakraLink>
+            </Link>
+            <Link href={Routes.Queues()}>
+              <ChakraLink mr={4} color={"secondary"}>
+                Queues
+              </ChakraLink>
+            </Link>
+            <Link href={Routes.SettingsPage()}>
+              <ChakraLink color={"secondary"}>System Settings</ChakraLink>
+            </Link>
+          </Box>
+        </Flex>
       </Container>
       <Container p={0} bg={"white"} maxW={"container.lg"}>
         {children}
