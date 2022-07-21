@@ -41,8 +41,16 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
     const commitStatus = await db.pullRequest.findFirst({
       where: { id: pullRequest.id },
       include: {
-        commit: true,
-        baseCommit: true,
+        commit: {
+          include: {
+            Test: true,
+          },
+        },
+        baseCommit: {
+          include: {
+            Test: true,
+          },
+        },
       },
     })
 
@@ -70,18 +78,47 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
 
     const differences = await getDifferences(commitStatus.baseCommit.id, commitStatus.commit.id)
 
+    const testResults: {
+      name: string
+      before: number
+      after: number
+      difference: number
+    }[] = []
+    for (const test of commitStatus.commit.Test) {
+      const baseCoverage =
+        commitStatus.baseCommit.Test.find((t) => t.testName === test.testName)?.coveredPercentage ||
+        0
+      testResults.push({
+        name: test.testName,
+        before: baseCoverage,
+        after: test.coveredPercentage,
+        difference: (test.coveredPercentage - baseCoverage) / baseCoverage,
+      })
+    }
+
     const newComment = await octokit.issues.createComment({
       owner: pullRequest.project.group.githubName,
       repo: pullRequest.project.name,
       issue_number: parseInt(pullRequest.sourceIdentifier),
       body: `**Coverage quality gate**
 
-Base Commit Coverage: ${format.format(commitStatus.baseCommit.coveredPercentage)}%
-New Commit Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%
+Commit Coverage:
+
+- Base: ${format.format(commitStatus.baseCommit.coveredPercentage)}%
+- New: ${format.format(commitStatus.commit.coveredPercentage)}%
 
 Difference: ${format.format(
         commitStatus.commit.coveredPercentage - commitStatus.baseCommit.coveredPercentage
       )}%
+
+${testResults
+  .map((result) => {
+    return `- *${result.name}*: ${format.format(result.before, true)}% -> ${format.format(
+      result.after,
+      true
+    )}% (${format.format(result.difference * 100, true)}%)`
+  })
+  .join("\n")}
 
 ${
   isSuccess

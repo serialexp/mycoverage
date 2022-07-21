@@ -24,36 +24,50 @@ let commands = [
   },
 ]
 if (process.env.WORKER) {
-  commands = [
-    {
-      name: "worker:changefrequency",
-      command: "npm run start:worker -- --worker=changefrequency",
-    },
-    {
-      name: "worker:combinecoverage",
-      command: "npm run start:worker -- --worker=combinecoverage",
-    },
-    {
-      name: "worker:combinecoverage",
-      command: "npm run start:worker -- --worker=combinecoverage",
-    },
-    {
-      name: "worker:combinecoverage",
-      command: "npm run start:worker -- --worker=combinecoverage",
-    },
-    {
-      name: "worker:combinecoverage",
-      command: "npm run start:worker -- --worker=combinecoverage",
-    },
-    {
-      name: "worker:sonarqube",
-      command: "npm run start:worker -- --worker=sonarqube",
-    },
-    {
-      name: "worker:upload",
-      command: "npm run start:worker -- --worker=upload",
-    },
-  ]
+  if (typeof process.env.WORKER === "string" && process.env.WORKER.includes(";")) {
+    commands = []
+    process.env.WORKER.split(";").forEach((worker) => {
+      const workerName = worker.split(":")[0]
+      const workerCount = worker.split(":")[1]
+      for (let i = 0; i < workerCount; i++) {
+        commands.push({
+          name: workerName + ":" + i,
+          command: "npm run start:worker -- --worker=" + workerName,
+        })
+      }
+    })
+  } else {
+    commands = [
+      {
+        name: "worker:changefrequency",
+        command: "npm run start:worker -- --worker=changefrequency",
+      },
+      {
+        name: "worker:combinecoverage",
+        command: "npm run start:worker -- --worker=combinecoverage",
+      },
+      {
+        name: "worker:combinecoverage",
+        command: "npm run start:worker -- --worker=combinecoverage",
+      },
+      {
+        name: "worker:combinecoverage",
+        command: "npm run start:worker -- --worker=combinecoverage",
+      },
+      {
+        name: "worker:combinecoverage",
+        command: "npm run start:worker -- --worker=combinecoverage",
+      },
+      {
+        name: "worker:sonarqube",
+        command: "npm run start:worker -- --worker=sonarqube",
+      },
+      {
+        name: "worker:upload",
+        command: "npm run start:worker -- --worker=upload",
+      },
+    ]
+  }
 }
 if (process.env.FRONTEND) {
   commands = [

@@ -1,17 +1,12 @@
 import { PrismaClient } from "@prisma/client"
-import updatePrComment from "app/coverage/mutations/updatePrComment"
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
 import { coveredPercentage } from "app/library/coveredPercentage"
-import { createCoverageFromS3 } from "app/library/createCoverageFromS3"
 import { insertCoverageData } from "app/library/insertCoverageData"
 import { satisfiesExpectedResults } from "app/library/satisfiesExpectedResults"
-import { getSetting } from "app/library/setting"
 import { updatePR } from "app/library/updatePR"
 import { addEventListeners } from "app/processors/addEventListeners"
-import { changefrequencyWorker } from "app/processors/ProcessChangefrequency"
 import { processAllInstances } from "app/processors/ProcessCombineCoverage/processAllInstances"
 import { processTestInstance } from "app/processors/ProcessCombineCoverage/processTestInstance"
-import { uploadWorker } from "app/processors/ProcessUpload"
 import { combineCoverageJob, combineCoverageQueue } from "app/queues/CombineCoverage"
 import { queueConfig } from "app/queues/config"
 import { Worker } from "bullmq"
@@ -30,6 +25,12 @@ export interface ProcessCombineCoveragePayload {
 export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
   "combinecoverage",
   async (job) => {
+    // if we don't finish in 5 minutes, we'll kill the process
+    const timeout = setTimeout(async () => {
+      console.log("worker timed out, killing this process")
+      process.exit(1)
+    }, 300 * 1000)
+
     const startTime = new Date()
     const { commit, testInstance, namespaceSlug, repositorySlug, delay, options } = job.data
 
@@ -66,6 +67,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
       } catch (error) {
         console.error("Error moving combine coverage job to delayed: ", error)
       }
+      clearTimeout(timeout)
       return true
     }
 
@@ -293,6 +295,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
         },
       })
 
+      clearTimeout(timeout)
       return true
     } catch (error) {
       console.error("Failure processing test instance", error)
@@ -311,6 +314,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
+      clearTimeout(timeout)
       return false
     }
   },

@@ -107,9 +107,7 @@ const ProjectPage: BlitzPage = () => {
       <Table>
         <Tr>
           <Th>Pull Request</Th>
-          <Th>State</Th>
           <Th>Target</Th>
-          <Th>Origin</Th>
           <Th width={"10%"}>Issues</Th>
           <Th width={"10%"}>Status</Th>
           <Th width={"15%"}>Coverage</Th>
@@ -129,15 +127,13 @@ const ProjectPage: BlitzPage = () => {
                   </ChakraLink>
                 </Link>
               </Td>
-              <Td>{pullRequest.state}</Td>
               <Td>
+                <Tag mr={2} mb={2} wordBreak={"break-all"}>
+                  {pullRequest.branch}
+                </Tag>
+                <br />
                 <Tag mr={2} mb={2}>
                   {pullRequest.baseBranch}
-                </Tag>
-              </Td>
-              <Td>
-                <Tag mr={2} mb={2}>
-                  {pullRequest.branch}
                 </Tag>
               </Td>
               <Td>{format.format(combineIssueCount(commit))}</Td>
