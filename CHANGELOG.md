@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/Aeolun/mycoverage/compare/v1.20.0...v1.20.1) (2022-07-21)
+
+
+### Bug Fixes
+
+* kill coverage worker if takes too long ([ed6a2b5](https://github.com/Aeolun/mycoverage/commit/ed6a2b558da4709968b34231c3b52091107e227c))
+
 # [1.20.0](https://github.com/Aeolun/mycoverage/compare/v1.19.0...v1.20.0) (2022-07-19)
 
 
