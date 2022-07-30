@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/Aeolun/mycoverage/compare/v1.20.1...v1.20.2) (2022-07-30)
+
+
+### Bug Fixes
+
+* detect pull_request events that come directly from a github app integration ([151d16e](https://github.com/Aeolun/mycoverage/commit/151d16ecbc9a3b731fc7a2200087d71d902aa12f))
+
 ## [1.20.1](https://github.com/Aeolun/mycoverage/compare/v1.20.0...v1.20.1) (2022-07-21)
 
 
