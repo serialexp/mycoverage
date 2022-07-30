@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/Aeolun/mycoverage/compare/v1.20.2...v1.20.3) (2022-07-30)
+
+
+### Bug Fixes
+
+* deal with different event body format ([ef6dece](https://github.com/Aeolun/mycoverage/commit/ef6dece9d7e0e378bd350e4833e2d95630606991))
+
 ## [1.20.2](https://github.com/Aeolun/mycoverage/compare/v1.20.1...v1.20.2) (2022-07-30)
 
 
