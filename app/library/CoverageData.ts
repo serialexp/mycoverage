@@ -134,7 +134,7 @@ export class CoverageData {
         let coveredConditionals = line.coveredConditions ? line.coveredConditions : 0
 
         // pull info from hitsBySource if possible
-        if (hitsBySource) {
+        if (hitsBySource && Object.keys(hitsBySource).length > 0) {
           const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
           conditionals = updated.total
           coveredConditionals = updated.covered
@@ -231,7 +231,7 @@ export class CoverageData {
           let coveredConditionals = parseInt(fields[3] || "")
 
           // pull info from hitsBySource if possible
-          if (hitsBySource) {
+          if (hitsBySource && Object.keys(hitsBySource).length > 0) {
             const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
             conditionals = updated.total
             coveredConditionals = updated.covered
@@ -308,7 +308,7 @@ export class CoverageData {
     hitsBySource: HitsBySource
   ) {
     // pull info from hitsBySource if possible
-    if (hitsBySource) {
+    if (hitsBySource && Object.keys(hitsBySource).length > 0) {
       const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
       totalBranches = updated.total
       coveredBranches = updated.covered

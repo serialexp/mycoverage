@@ -17,6 +17,7 @@
     "test:tsc": "tsc --noEmit",
     "pretty": "prettier .",
     "test": "jest",
+    "test:coverage": "jest --coverage --collectCoverageFrom=app/**/*.{ts,tsx} --coverageReporters=cobertura --coverageReporters=lcov --coverageReporters=text-summary",
     "test:watch": "jest --watch",
     "release": "standard-version",
     "prepare": "husky install"
