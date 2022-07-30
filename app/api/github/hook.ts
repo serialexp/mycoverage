@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client"
 import { BlitzApiRequest, BlitzApiResponse } from "blitz"
 import db from "db"
 import { PullRequestEvent } from "@octokit/webhooks-types"
@@ -15,7 +14,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
       },
     })
 
-    if (event.event_name === "pull_request") {
+    // if you pull the information from the context in an action, this payload has 'event_name', if you get it through a github app integration as a webhook, it's missing, but has a header value
+    if (event.event_name === "pull_request" || req.headers["x-github-event"] === "pull_request") {
       const payload = event.event
       console.log("pull request", payload)
 
