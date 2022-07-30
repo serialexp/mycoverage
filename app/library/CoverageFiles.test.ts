@@ -1,10 +1,11 @@
 import { CoberturaCoverage } from "app/library/CoberturaCoverage"
-import { CoverageData } from "app/library/CoverageData"
 import fs from "fs"
 
 describe("coverageData", () => {
   it("merges coverage with source defined", async () => {
     const coveragePath = "/Users/bart.riepe/Projects/coverage/"
+    if (!fs.existsSync(coveragePath)) return
+
     const files = fs.readdirSync(coveragePath)
 
     const datas: string[] = files

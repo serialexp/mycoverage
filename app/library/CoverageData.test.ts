@@ -39,7 +39,7 @@ func,11,0,()V,(anonymous_1),base=0
 stmt,11,195,base=195
 stmt,12,0,base=0
 stmt,13,0,base=0
-cond,17,0,0,2,base=0
+cond,17,0,0,2,base=0|0
 func,17,0,()V,(anonymous_2),base=0
 func,24,0,()V,(anonymous_3),base=0
 stmt,24,195,base=195
@@ -133,7 +133,8 @@ describe("coverageData", () => {
   it("can store coverage data as a protobuf", () => {
     const data = CoverageData.fromString(data2)
 
-    expect(data.toProtobuf()).toHaveLength(378)
+    expect(Buffer.from(data2).byteLength).toBe(854)
+    expect(data.toProtobuf()).toHaveLength(379)
   })
 
   it("add coveragedata to cobertura format", () => {
