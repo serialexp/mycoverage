@@ -6,7 +6,13 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
   console.log("serving github hook")
 
   try {
-    const event: { event_name: "pull_request"; event: PullRequestEvent } = req.body
+    let event: PullRequestEvent
+    if (req.body.event_name) {
+      const bodyPayload: { event_name: "pull_request"; event: PullRequestEvent } = req.body
+      event = bodyPayload.event
+    } else {
+      event = req.body
+    }
 
     await db.prHook.create({
       data: {
@@ -15,8 +21,8 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
     })
 
     // if you pull the information from the context in an action, this payload has 'event_name', if you get it through a github app integration as a webhook, it's missing, but has a header value
-    if (event.event_name === "pull_request" || req.headers["x-github-event"] === "pull_request") {
-      const payload = event.event
+    if (event) {
+      const payload = event
       console.log("pull request", payload)
 
       // get target group
