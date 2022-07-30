@@ -78,6 +78,7 @@ if (process.env.FRONTEND) {
   ]
 }
 
+// start concurrently
 const { result, commands: spawnedCommands } = concurrently(commands, {
   restartDelay: 5000,
   restartTries: -1,
