@@ -127,8 +127,10 @@ export default async function handler(req: BlitzApiRequest, res: BlitzApiRespons
         },
       })
 
+      console.log("pull request created")
       res.status(200).send("OK")
     } else {
+      console.log("no event, not creating anything")
       res.status(200).send("OK")
     }
   } catch (error) {
