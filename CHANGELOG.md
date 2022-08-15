@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/Aeolun/mycoverage/compare/v1.20.3...v1.21.0) (2022-08-15)
+
+
+### Features
+
+* use housekeeping to try and prevent disk space overflow ([643098c](https://github.com/Aeolun/mycoverage/commit/643098c8df46c94abc64008ee343eb71b21fc172))
+
 ## [1.20.3](https://github.com/Aeolun/mycoverage/compare/v1.20.2...v1.20.3) (2022-07-30)
 
 
