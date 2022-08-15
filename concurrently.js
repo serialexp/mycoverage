@@ -22,10 +22,19 @@ let commands = [
     name: "frontend",
     command: "npm:start:frontend",
   },
+  {
+    name: "housekeeping",
+    command: "npm run housekeeping",
+  },
 ]
 if (process.env.WORKER) {
   if (typeof process.env.WORKER === "string" && process.env.WORKER.includes(";")) {
-    commands = []
+    commands = [
+      {
+        name: "housekeeping",
+        command: "npm run housekeeping",
+      },
+    ]
     process.env.WORKER.split(";").forEach((worker) => {
       const workerName = worker.split(":")[0]
       const workerCount = worker.split(":")[1]
@@ -65,6 +74,10 @@ if (process.env.WORKER) {
       {
         name: "worker:upload",
         command: "npm run start:worker -- --worker=upload",
+      },
+      {
+        name: "housekeeping",
+        command: "npm run housekeeping",
       },
     ]
   }

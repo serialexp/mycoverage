@@ -19,6 +19,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage --collectCoverageFrom=app/**/*.{ts,tsx} --coverageReporters=cobertura --coverageReporters=lcov --coverageReporters=text-summary",
     "test:watch": "jest --watch",
+    "housekeeping": "node housekeeping.mjs",
     "release": "standard-version",
     "prepare": "husky install"
   },
