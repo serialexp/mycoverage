@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/Aeolun/mycoverage/compare/v1.21.0...v1.22.0) (2022-08-15)
+
+
+### Features
+
+* healthchecks for workers to confirm they are up ([2b435af](https://github.com/Aeolun/mycoverage/commit/2b435af2f8be7e34515debca96f1f4bf2be97d7c))
+
 # [1.21.0](https://github.com/Aeolun/mycoverage/compare/v1.20.3...v1.21.0) (2022-08-15)
 
 
