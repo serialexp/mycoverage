@@ -21,12 +21,12 @@ jobs:
         with:
           version: latest
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
       - name: Build application
-        run: node_modules/.bin/blitz prisma generate && npm run build
+        run: node_modules/.bin/prisma generate && pnpm run build
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-        run: npx semantic-release
+        run: pnpx semantic-release

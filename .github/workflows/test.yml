@@ -21,6 +21,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run unit tests
-        run: npm run test:coverage
+        run: pnpm run test:coverage
       - name: Post coverage results to mycoverage
-        run: npx mycoverage-cli upload-coverage -t unit_test coverage/cobertura-coverage.xml
+        run: pnpx mycoverage-cli upload-coverage -t unit_test coverage/cobertura-coverage.xml
