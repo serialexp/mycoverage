@@ -33,7 +33,10 @@
     "printWidth": 100
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": []
+    "*.{js,ts,tsx}": [
+      "rome check",
+      "rome format"
+    ]
   },
   "dependencies": {
     "@blitzjs/auth": "2.0.0-beta.27",
