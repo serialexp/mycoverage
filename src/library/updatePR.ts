@@ -202,6 +202,9 @@ ${differences.add.map((diff) => `- ${diff.base?.name}`).join("\n")}`
     const removedFilesText = `### Removed files
 ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
 
+    // since we are making a check, we can still require successful coverage completion before allowing a merge
+    const requireIncrease = pullRequest.project.requireCoverageIncrease
+
     const check = await octokit.checks.create({
       owner: pullRequest.project.group.githubName,
       repo: pullRequest.project.name,
@@ -209,7 +212,7 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
       status: "completed",
       name: "Coverage",
       details_url: detailsUrl,
-      conclusion: isSuccess ? "success" : "failure",
+      conclusion: !requireIncrease ? "success" : isSuccess ? "success" : "failure",
       completed_at: new Date().toISOString(),
       output: {
         title: "Coverage",
