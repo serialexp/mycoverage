@@ -77,7 +77,6 @@ export function generateDifferences(base: any, next: any) {
         const baseFile = basePackage?.FileCoverage.find((p) => p.name === nextFile.name)
         //console.log("next", nextFile.name, "base", baseFile?.name)
         if (!baseFile) {
-          nextFile.name = nextPackage.name + "/" + nextFile.name
           const next = { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name }
           changedFiles.push({
             base: undefined,

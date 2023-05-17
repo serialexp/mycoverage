@@ -1,4 +1,4 @@
-import { Box, StatArrow, Link as ChakraLink, Table, Td, Th, Tr } from "@chakra-ui/react"
+import { Box, StatArrow, Stat, Link as ChakraLink, Table, Td, Th, Tr } from "@chakra-ui/react"
 import { RouteUrlObject } from "blitz"
 import { Link } from "src/library/components/Link"
 import { CoverageDifference, Diff } from "src/library/generateDifferences"
@@ -30,7 +30,11 @@ const RowItem = (props: { diff: Diff } & { link?: (path?: string) => RouteUrlObj
       </Td>
       <Td isNumeric></Td>
       <Td isNumeric>
-        {props.diff.change !== 0 ? <StatArrow type={isIncrease ? "increase" : "decrease"} /> : null}
+        {props.diff.change !== 0 ? (
+          <Stat>
+            <StatArrow type={isIncrease ? "increase" : "decrease"} />
+          </Stat>
+        ) : null}
         {format.format(props.diff.change, true)}
       </Td>
     </Tr>
@@ -55,16 +59,18 @@ const DeleteRowItem = (props: { diff: Diff }) => {
 const AddRowItem = (props: { diff: Diff }) => {
   return (
     <Tr>
-      <Td wordBreak={"break-all"}>{props.diff.base?.name}</Td>
+      <Td wordBreak={"break-all"}>{props.diff.next?.name}</Td>
 
       <Td isNumeric>-</Td>
       <Td>&raquo;</Td>
       <Td isNumeric>
-        {props.diff.base?.coveredElements} / {props.diff.base?.elements}
+        {props.diff.next?.coveredElements} / {props.diff.next?.elements}
       </Td>
       <Td isNumeric></Td>
       <Td isNumeric>
-        <StatArrow type={"increase"} /> {format.format(props.diff.next?.coveredPercentage, true)}%
+        <Stat>
+          <StatArrow type={"increase"} /> {format.format(props.diff.next?.coveredPercentage, true)}%
+        </Stat>
       </Td>
     </Tr>
   )
@@ -103,7 +109,7 @@ export const CoverageDifferences = (props: {
       {fileDifferences?.add && fileDifferences?.add.length > 0 ? (
         <>
           <Subheading mt={4} size={"md"}>
-            Files removed ({fileDifferences?.add.length})
+            Files added ({fileDifferences?.add.length})
           </Subheading>
           <Table size={"sm"}>
             <Tr>
@@ -116,7 +122,7 @@ export const CoverageDifferences = (props: {
               </Th>
             </Tr>
             {fileDifferences?.add.map((file) => {
-              return <AddRowItem key={file.base?.name} diff={file} />
+              return <AddRowItem key={file.next?.name} diff={file} />
             })}
           </Table>
         </>

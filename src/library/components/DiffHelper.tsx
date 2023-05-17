@@ -1,4 +1,4 @@
-import { StatArrow } from "@chakra-ui/react"
+import { StatArrow, Stat } from "@chakra-ui/react"
 import { format } from "src/library/format"
 
 export const DiffHelper = (props: {
@@ -11,7 +11,9 @@ export const DiffHelper = (props: {
   if (props.from === props.to) return <>No change</>
   return (
     <>
-      <StatArrow type={props.from < props.to ? "increase" : "decrease"} />
+      <Stat>
+        <StatArrow type={props.from < props.to ? "increase" : "decrease"} />
+      </Stat>
       {format.format(props.to - props.from)}
       {props.isPercentage ? "%" : null}
       {props.fromAbsolute
