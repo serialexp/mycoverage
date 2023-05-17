@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -20,10 +22,14 @@ jobs:
           version: latest
       - name: Install dependencies
         run: pnpm install
-      #      - name: Generate prisma client
-      #        run: node_modules/.bin/prisma generate
-      #      - name: Build application
-      #        run: pnpm run build
+      - name: Generate prisma client
+        run: node_modules/.bin/prisma generate
+      - name: Ls weird missing files
+        run: ls -la src/library/components/
+      - name: Build application
+        run: pnpm run build
+      - name: Build worker
+        run: pnpm run build:worker
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
