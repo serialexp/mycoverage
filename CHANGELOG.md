@@ -1,3 +1,18 @@
+## [1.22.1](https://github.com/Aeolun/mycoverage/compare/v1.22.0...v1.22.1) (2023-05-17)
+
+
+### Bug Fixes
+
+* do not ignore the non-root coverage directory ([ccfd4fa](https://github.com/Aeolun/mycoverage/commit/ccfd4fae7502c819e41e6aeadc7bc1faa532a124))
+* find missing files ([e267d83](https://github.com/Aeolun/mycoverage/commit/e267d83a4d48a72315c44806642bfd94a9ffc477))
+* have root directory and no more linting ([e1e4fae](https://github.com/Aeolun/mycoverage/commit/e1e4fae8ba73a5aee003438a85b347320fac77b8))
+* no more build outside of docker ([cb5df81](https://github.com/Aeolun/mycoverage/commit/cb5df81d249d4e12ddd90b81f2edfa0487a8e001))
+* no more extra buidl ([b2c75ce](https://github.com/Aeolun/mycoverage/commit/b2c75ce7a31bedd94781302b05098a62005b0efb))
+* require coverage ([f7e6db2](https://github.com/Aeolun/mycoverage/commit/f7e6db28c84d6b34fef384940f73d8645c06c5db))
+* update action versions ([8e62de9](https://github.com/Aeolun/mycoverage/commit/8e62de9c1eb1a536b80837b0d03e4b80b46bd926))
+* update all packages and use last successful commit ([aed8064](https://github.com/Aeolun/mycoverage/commit/aed8064a763ca42fde9de30c645815c854c666d0))
+* use pnpm for github workflows ([2157428](https://github.com/Aeolun/mycoverage/commit/2157428d15dc5597e1b5277a634899c5eb621880))
+
 # [1.22.0](https://github.com/Aeolun/mycoverage/compare/v1.21.0...v1.22.0) (2022-08-15)
 
 
