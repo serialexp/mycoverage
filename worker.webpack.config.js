@@ -7,7 +7,7 @@ module.exports = {
   mode: process.env.NODE_ENV,
   context: projectRoot,
   entry: {
-    worker: "./app/worker.ts",
+    worker: "./src/worker.ts",
   },
   resolve: {
     modules: ["node_modules", projectRoot],

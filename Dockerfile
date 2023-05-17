@@ -3,6 +3,9 @@ FROM node:18
 WORKDIR /app
 COPY . /app
 
-RUN npm ci && node_modules/.bin/blitz prisma generate && npm run build && npm run build:worker
+ENV DATABASE_URL=mysql://localhost
 
-CMD node_modules/.bin/blitz prisma migrate deploy && npm run start
+RUN npm install -g pnpm
+RUN pnpm install && node_modules/.bin/prisma generate && pnpm run build && pnpm run build:worker
+
+CMD node_modules/.bin/prisma migrate deploy && pnpm run start
