@@ -56,4 +56,4 @@ lib-cov
 performance
 dist
 
-coverage
+/coverage
