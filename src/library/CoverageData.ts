@@ -15,6 +15,7 @@ type CoverageInfo = {
   line: number
   hits: number
   hitsBySource: HitsBySource
+  signature?: string
 } & (
   | {
       type: "branch"

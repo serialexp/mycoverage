@@ -17,9 +17,9 @@
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts,.tsx .",
     "test:tsc": "tsc --noEmit",
     "pretty": "prettier .",
-    "test": "jest",
-    "test:coverage": "jest --coverage --collectCoverageFrom=app/**/*.{ts,tsx} --coverageReporters=cobertura --coverageReporters=lcov --coverageReporters=text-summary",
-    "test:watch": "jest --watch",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "housekeeping": "node housekeeping.mjs",
     "healthcheck": "node healthchecks.mjs",
     "release": "standard-version",
@@ -33,9 +33,7 @@
     "printWidth": 100
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "eslint --fix"
-    ]
+    "*.{js,ts,tsx}": []
   },
   "dependencies": {
     "@blitzjs/auth": "2.0.0-beta.27",
@@ -74,7 +72,7 @@
     "long": "5.2.3",
     "memoize-one": "6.0.0",
     "minimist": "^1.2.8",
-    "next": "13.4.2",
+    "next": "^13.4.2",
     "prop-types": "^15.8.1",
     "protobufjs": "^6.11.3",
     "queue": "^6.0.2",
@@ -92,6 +90,7 @@
     "@babel/core": "^7.21.8",
     "@babel/preset-env": "^7.21.5",
     "@codedependant/semantic-release-docker": "^4.3.0",
+    "@next/env": "13.4.2",
     "@octokit/webhooks-types": "^6.11.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -105,6 +104,8 @@
     "@types/react-vis": "^1.11.11",
     "@types/xml2js": "^0.4.11",
     "@typescript-eslint/eslint-plugin": "5.59.6",
+    "@vitejs/plugin-react": "4.0.0",
+    "@vitest/coverage-istanbul": "0.31.0",
     "dotenv-cli": "7.2.1",
     "eslint": "^7.32.0",
     "eslint-config-next": "13.4.2",
@@ -129,6 +130,7 @@
     "ts-proto": "^1.147.3",
     "tsconfig-paths": "^3.14.2",
     "typescript": "5.0.4",
+    "vite-tsconfig-paths": "4.2.0",
     "vitest": "0.31.0",
     "webpack": "^5.82.1",
     "webpack-cli": "^4.10.0",

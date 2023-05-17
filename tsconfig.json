@@ -18,6 +18,7 @@
     "jsx": "preserve",
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
+    "rootDir": ".",
     "paths": {
       "src/*": ["src/*"]
     }
