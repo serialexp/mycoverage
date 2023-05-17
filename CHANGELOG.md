@@ -1,3 +1,10 @@
+## [1.22.2](https://github.com/Aeolun/mycoverage/compare/v1.22.1...v1.22.2) (2023-05-17)
+
+
+### Bug Fixes
+
+* solve issue with missing stat arrows ([d5c7a9d](https://github.com/Aeolun/mycoverage/commit/d5c7a9d687f6814ca46f06a42846543b9b269bd8))
+
 ## [1.22.1](https://github.com/Aeolun/mycoverage/compare/v1.22.0...v1.22.1) (2023-05-17)
 
 
