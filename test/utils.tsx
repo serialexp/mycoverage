@@ -1,6 +1,9 @@
-import { RouterContext, BlitzRouter, BlitzProvider } from "blitz"
+import { vi } from "vitest"
 import { render as defaultRender } from "@testing-library/react"
 import { renderHook as defaultRenderHook } from "@testing-library/react-hooks"
+import { NextRouter } from "next/router"
+import { BlitzProvider, RouterContext } from "@blitzjs/next"
+import { QueryClient } from "@blitzjs/rpc"
 
 export * from "@testing-library/react"
 
@@ -24,11 +27,16 @@ export * from "@testing-library/react"
 //   router: { pathname: '/my-custom-pathname' },
 // });
 // --------------------------------------------------
-export function render(ui: RenderUI, { wrapper, router, dehydratedState, ...options }: RenderOptions = {}) {
+
+const queryClient = new QueryClient()
+export function render(
+  ui: RenderUI,
+  { wrapper, router, dehydratedState, ...options }: RenderOptions = {}
+) {
   if (!wrapper) {
     // Add a default context wrapper if one isn't supplied from the test
-    wrapper = ({ children }) => (
-      <BlitzProvider dehydratedState={dehydratedState}>
+    wrapper = ({ children }: { children: React.ReactNode }) => (
+      <BlitzProvider dehydratedState={dehydratedState} client={queryClient}>
         <RouterContext.Provider value={{ ...mockRouter, ...router }}>
           {children}
         </RouterContext.Provider>
@@ -51,12 +59,12 @@ export function render(ui: RenderUI, { wrapper, router, dehydratedState, ...opti
 // --------------------------------------------------
 export function renderHook(
   hook: RenderHook,
-  { wrapper, router, dehydratedState,...options }: RenderHookOptions = {}
+  { wrapper, router, dehydratedState, ...options }: RenderOptions = {}
 ) {
   if (!wrapper) {
     // Add a default context wrapper if one isn't supplied from the test
-    wrapper = ({ children }) => (
-      <BlitzProvider dehydratedState={dehydratedState}>
+    wrapper = ({ children }: { children: React.ReactNode }) => (
+      <BlitzProvider dehydratedState={dehydratedState} client={queryClient}>
         <RouterContext.Provider value={{ ...mockRouter, ...router }}>
           {children}
         </RouterContext.Provider>
@@ -66,34 +74,33 @@ export function renderHook(
   return defaultRenderHook(hook, { wrapper, ...options })
 }
 
-export const mockRouter: BlitzRouter =     {
+export const mockRouter: NextRouter = {
   basePath: "",
   pathname: "/",
   route: "/",
   asPath: "/",
-  params: {},
   query: {},
   isReady: true,
   isLocaleDomain: false,
   isPreview: false,
-  push: jest.fn(),
-  replace: jest.fn(),
-  reload: jest.fn(),
-  back: jest.fn(),
-  prefetch: jest.fn(),
-  beforePopState: jest.fn(),
+  forward: vi.fn(),
+  push: vi.fn(),
+  replace: vi.fn(),
+  reload: vi.fn(),
+  back: vi.fn(),
+  prefetch: vi.fn(),
+  beforePopState: vi.fn(),
   events: {
-    on: jest.fn(),
-    off: jest.fn(),
-    emit: jest.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn(),
   },
   isFallback: false,
 }
 
 type DefaultParams = Parameters<typeof defaultRender>
 type RenderUI = DefaultParams[0]
-type RenderOptions = DefaultParams[1] & { router?: Partial<BlitzRouter>, dehydratedState?: unknown }
+type RenderOptions = DefaultParams[1] & { router?: Partial<NextRouter>; dehydratedState?: unknown }
 
 type DefaultHookParams = Parameters<typeof defaultRenderHook>
 type RenderHook = DefaultHookParams[0]
-type RenderHookOptions = DefaultHookParams[1] & { router?: Partial<BlitzRouter>, dehydratedState?: unknown }

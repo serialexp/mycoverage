@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = []
 }
 
@@ -74,14 +74,15 @@ model Commit {
   message               String?
   coverageProcessStatus CoverageProcessStatus @default(PENDING)
 
-  codeIssues      CodeIssueOnCommit[]
-  CommitOnBranch  CommitOnBranch[]
-  PackageCoverage PackageCoverage[]
-  Project         Project[]
-  Test            Test[]
-  PullRequest     PullRequest[]       @relation("commit")
-  BasePullRequest PullRequest[]       @relation("baseCommit")
-  CoverageSource  CoverageSource[]
+  codeIssues       CodeIssueOnCommit[]
+  CommitOnBranch   CommitOnBranch[]
+  PackageCoverage  PackageCoverage[]
+  Project          Project[]           @relation("lastCommit")
+  ProcessedProject Project[]           @relation("lastProcessedCommit")
+  Test             Test[]
+  PullRequest      PullRequest[]       @relation("commit")
+  BasePullRequest  PullRequest[]       @relation("baseCommit")
+  CoverageSource   CoverageSource[]
 }
 
 model Test {
@@ -288,14 +289,17 @@ model Project {
   slug                    String           @default("")
   groupId                 Int
   lastCommitId            Int?
+  lastProcessedCommitId   Int?
   requireCoverageIncrease Boolean          @default(false)
   group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  lastCommit              Commit?          @relation(fields: [lastCommitId], references: [id])
+  lastCommit              Commit?          @relation("lastCommit", fields: [lastCommitId], references: [id])
+  lastProcessedCommit     Commit?          @relation("lastProcessedCommit", fields: [lastProcessedCommitId], references: [id])
   Branch                  Branch[]
   ExpectedResult          ExpectedResult[]
 
   PrHook      PrHook[]
   PullRequest PullRequest[]
+
   @@index([groupId])
   @@index([lastCommitId])
   @@index([slug])
@@ -334,7 +338,6 @@ model PullRequest {
 
   projectId Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
 }
 
 model Branch {
