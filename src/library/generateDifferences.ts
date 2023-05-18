@@ -1,4 +1,4 @@
-import { FileCoverage } from "db"
+import fs from "fs"
 
 export interface Diff {
   base?: FileCoverage
@@ -30,7 +30,19 @@ const getPercentageChange = (base?: FileCoverage, next?: FileCoverage) => {
   return (next?.coveredPercentage || 0) - (base?.coveredPercentage || 0)
 }
 
-export function generateDifferences(base: any, next: any) {
+interface PackageCoverage {
+  name: string
+  FileCoverage: FileCoverage[]
+}
+
+interface FileCoverage {
+  name: string
+  elements: number
+  coveredElements: number
+  coveredPercentage: number
+}
+
+export function generateDifferences(base: PackageCoverage[], next: PackageCoverage[]) {
   const changedFiles: Diff[] = []
 
   console.log(base.length, next.length)
@@ -45,7 +57,7 @@ export function generateDifferences(base: any, next: any) {
 
       basePackage.FileCoverage.forEach((baseFile) => {
         const nextFile = nextPackage?.FileCoverage.find((p) => p.name === baseFile.name)
-        if (nextFile && baseFile.coveredPercentage !== nextFile.coveredPercentage) {
+        if (nextPackage && nextFile && baseFile.coveredPercentage !== nextFile.coveredPercentage) {
           const base = { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name }
           const next = { ...nextFile, name: fixName(nextPackage.name) + "/" + nextFile.name }
           changedFiles.push({

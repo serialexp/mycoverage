@@ -52,6 +52,44 @@ export const TestResults = (props: {
         </Tr>
       </Thead>
       <Tbody>
+        {props.expectedResult
+          ?.filter((er) => {
+            return props.commit?.Test.find((test) => test.testName === er.testName) === undefined
+          })
+          .map((er) => {
+            return (
+              <Fragment key={er.id}>
+                <Tr _hover={{ bg: "primary.50" }}>
+                  <Td wordBreak={"break-all"}>{er.testName}</Td>
+                  <Td>-</Td>
+                  <Td isNumeric>0 (0)</Td>
+                  <Td isNumeric></Td>
+                  <Td isNumeric>
+                    <Minibar progress={0} />
+                  </Td>
+                </Tr>
+
+                <Tr>
+                  <Td colSpan={5}>
+                    {Array.from(Array(er.count).keys())
+                      .map((i) => i + 1)
+                      .map((index) => {
+                        return (
+                          <Tag
+                            key={index}
+                            ml={2}
+                            title={"Coverage for instance not received yet"}
+                            colorScheme={"red"}
+                          >
+                            <>{index}</>
+                          </Tag>
+                        )
+                      })}
+                  </Td>
+                </Tr>
+              </Fragment>
+            )
+          })}
         {props.commit?.Test.map((test) => {
           const baseTest = props.baseCommit?.Test.find((base) => base.testName === test.testName)
           let uniqueInstances = {}
