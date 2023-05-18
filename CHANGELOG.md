@@ -1,3 +1,10 @@
+## [1.22.4](https://github.com/Aeolun/mycoverage/compare/v1.22.3...v1.22.4) (2023-05-18)
+
+
+### Bug Fixes
+
+* show missing test results ([3faeb3e](https://github.com/Aeolun/mycoverage/commit/3faeb3e1646eed69f1c0539867ce0756f8c00066))
+
 ## [1.22.3](https://github.com/Aeolun/mycoverage/compare/v1.22.2...v1.22.3) (2023-05-18)
 
 
