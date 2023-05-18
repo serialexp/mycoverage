@@ -1,3 +1,10 @@
+## [1.22.3](https://github.com/Aeolun/mycoverage/compare/v1.22.2...v1.22.3) (2023-05-18)
+
+
+### Bug Fixes
+
+* use slugified strings for pr test results ([870221e](https://github.com/Aeolun/mycoverage/commit/870221e505f0dba2c54f15dc79763c95d14605c4))
+
 ## [1.22.2](https://github.com/Aeolun/mycoverage/compare/v1.22.1...v1.22.2) (2023-05-17)
 
 
