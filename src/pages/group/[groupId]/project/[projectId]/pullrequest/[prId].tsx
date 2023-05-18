@@ -8,6 +8,7 @@ import getRecentCommits from "src/coverage/queries/getRecentCommits"
 import { Actions } from "src/library/components/Actions"
 import { Breadcrumbs } from "src/library/components/Breadcrumbs"
 import { BuildStatus } from "src/library/components/BuildStatus"
+import { CommitInfo } from "src/library/components/CommitInfo"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
 import { Subheading } from "src/library/components/Subheading"
@@ -20,6 +21,7 @@ import getProject from "src/coverage/queries/getProject"
 import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaCheck, FaClock } from "react-icons/fa"
+import { slugify } from "src/library/slugify"
 
 const PullRequestPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
@@ -33,11 +35,11 @@ const PullRequestPage: BlitzPage = () => {
 
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: pullRequest?.branch,
+    branch: slugify(pullRequest?.branch), // branch is not a slug in the db
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: pullRequest?.baseBranch,
+    branch: slugify(pullRequest?.baseBranch), // branch is not a slug in the db
   })
   const [recentCommits] = useQuery(getRecentCommits, {
     projectId: project?.id,
@@ -146,13 +148,7 @@ const PullRequestPage: BlitzPage = () => {
       <Subheading mt={4} size={"md"}>
         Last Commit
       </Subheading>
-      <Box m={4}>
-        Last commit:{" "}
-        <strong>
-          {pullRequest.commit?.createdDate.toLocaleString()} {pullRequest.commit?.ref.substr(0, 10)}{" "}
-          ({pullRequest.commit?.id})
-        </strong>
-      </Box>
+      <CommitInfo lastCommit={pullRequest.commit} />
       <Subheading mt={4} size={"md"}>
         Combined coverage
       </Subheading>
