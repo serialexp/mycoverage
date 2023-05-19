@@ -1,11 +1,9 @@
 import db from "db"
-import { PullRequestEvent, WebhookEvent } from "@octokit/webhooks-types"
+import { PullRequestEvent } from "@octokit/webhooks-types"
 import { NextApiRequest, NextApiResponse } from "next"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log("serving github hook")
-
-  const body = req.body as WebhookEvent
 
   try {
     let eventName = req.headers["x-github-event"] as string
@@ -27,10 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       event &&
       (event.action == "opened" ||
         event.action == "synchronize" ||
-        event.action == "ready_for_review")
+        event.action == "ready_for_review" ||
+        event.action == "closed" ||
+        event.action == "reopened" ||
+        event.action == "edited")
     ) {
       const payload = event
-      console.log("pull request", payload)
 
       // get target group
       const baseGroup = await db.group.findFirst({

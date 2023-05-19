@@ -44,6 +44,7 @@ export const FileCoverageDisplay = (props: {
         CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & { CodeIssue: CodeIssue })[]
       })
     | null
+  hideIssues?: boolean
   isShowRaw: boolean
 }) => {
   const [data] = useQuery(getLineCoverageData, {
@@ -70,6 +71,7 @@ export const FileCoverageDisplay = (props: {
             id={"meta"}
             background={"secondary.100"}
             maxWidth={"40%"}
+            minWidth={"120px"}
             overflow={"auto"}
             borderRightWidth={1}
             borderRightStyle={"solid"}
@@ -77,7 +79,7 @@ export const FileCoverageDisplay = (props: {
           >
             {lines?.map((line, lineNr) => {
               let element: ReactNode = null
-              const codeIssue = issueOnLine[lineNr + 1]
+              const codeIssue = props.hideIssues ? undefined : issueOnLine[lineNr + 1]
               const lineData: LineInformation | undefined = coveragePerLine[lineNr + 1]
               if (lineData?.coverageItems.length) {
                 element = (
@@ -118,7 +120,7 @@ export const FileCoverageDisplay = (props: {
           <Box overflowX={"auto"}>
             {lines?.map((line, lineNr) => {
               let color = "transparent"
-              const codeIssue = issueOnLine[lineNr + 1]
+              const codeIssue = props.hideIssues ? undefined : issueOnLine[lineNr + 1]
               let element: ReactNode = null
               const lineData = coveragePerLine[lineNr + 1]
               const baseLineData = baseCoveragePerLine[lineNr + 1]

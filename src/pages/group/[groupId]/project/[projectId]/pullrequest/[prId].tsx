@@ -16,7 +16,20 @@ import { TestResults } from "src/library/components/TestResults"
 import { TestResultStatus } from "src/library/components/TestResultStatus"
 import { format } from "src/library/format"
 import Layout from "src/core/layouts/Layout"
-import { Box, Button, Flex, Link as ChakraLink, Tag, Th, useToast } from "@chakra-ui/react"
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Code,
+  Flex,
+  Link as ChakraLink,
+  Tag,
+  Th,
+  useToast,
+} from "@chakra-ui/react"
 import getProject from "src/coverage/queries/getProject"
 import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
@@ -35,11 +48,12 @@ const PullRequestPage: BlitzPage = () => {
 
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: slugify(pullRequest?.branch), // branch is not a slug in the db
+    branchSlug: slugify(pullRequest?.branch), // branch is not a slug in the db
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: slugify(pullRequest?.baseBranch), // branch is not a slug in the db
+    branchSlug: slugify(pullRequest?.baseBranch), // branch is not a slug in the db,
+    beforeDate: pullRequest?.baseCommit?.createdDate,
   })
   const [recentCommits] = useQuery(getRecentCommits, {
     projectId: project?.id,
@@ -90,16 +104,22 @@ const PullRequestPage: BlitzPage = () => {
           Update PR Comment
         </Button>
 
-        <Link
-          href={Routes.CompareBranchPage({
-            groupId,
-            projectId,
-            commitRef: pullRequest.commit.ref,
-            baseCommitRef: pullRequest.baseCommit?.ref || "",
-          })}
-        >
-          <Button ml={2}>Compare</Button>
-        </Link>
+        {baseBuildInfo.lastProcessedCommit?.ref ? (
+          <Link
+            href={Routes.CompareBranchPage({
+              groupId,
+              projectId,
+              commitRef: pullRequest.commit.ref,
+              baseCommitRef: baseBuildInfo.lastProcessedCommit?.ref || "",
+            })}
+          >
+            <Button ml={2}>Compare</Button>
+          </Link>
+        ) : (
+          <Button ml={2} disabled={true}>
+            Compare
+          </Button>
+        )}
       </Actions>
       <Subheading mt={4} size={"md"}>
         Pull Request
@@ -145,18 +165,56 @@ const PullRequestPage: BlitzPage = () => {
           {pullRequest?.state}
         </Tag>
       </Flex>
+      {baseBuildInfo.lastProcessedCommit?.ref &&
+      baseBuildInfo.lastCommit?.ref !== baseBuildInfo.lastProcessedCommit?.ref ? (
+        <Box px={4}>
+          Using different commit{" "}
+          <Code>{baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}</Code> for base info on
+          this page, as status for base{" "}
+          <Code>{baseBuildInfo.lastCommit?.ref.substring(0, 10)}</Code> is{" "}
+          <BuildStatus
+            commit={baseBuildInfo.lastCommit}
+            expectedResults={project?.ExpectedResult}
+            targetBranch={pullRequest.baseBranch}
+          />
+          .
+        </Box>
+      ) : null}
+      {!baseBuildInfo.lastProcessedCommit?.ref ? (
+        <Box px={4}>
+          <Alert status={"error"}>
+            <AlertIcon />
+            <AlertTitle>No suitable base commit found</AlertTitle>
+            <AlertDescription>
+              Please make sure coverage is correctly processed for commit{" "}
+              <Code>{pullRequest.baseCommit?.ref.substring(0, 10)}</Code> on the target branch.{" "}
+              <BuildStatus
+                commit={baseBuildInfo.lastCommit}
+                expectedResults={project?.ExpectedResult}
+                targetBranch={pullRequest.baseBranch}
+              />
+            </AlertDescription>
+          </Alert>
+        </Box>
+      ) : null}
       <Subheading mt={4} size={"md"}>
         Last Commit
       </Subheading>
       <CommitInfo lastCommit={pullRequest.commit} />
       <Subheading mt={4} size={"md"}>
-        Combined coverage
+        Combined coverage{" "}
+        {baseBuildInfo.lastProcessedCommit ? (
+          <>
+            (relative to <Code>{baseBuildInfo.branch?.name}</Code> ref{" "}
+            <Code>{baseBuildInfo.lastProcessedCommit?.ref.substr(0, 10)}</Code>)
+          </>
+        ) : null}
       </Subheading>
-      {pullRequest.commit ? (
+      {buildInfo.lastCommit ? (
         <CoverageSummary
           processing={pullRequest.commit.coverageProcessStatus !== "FINISHED"}
-          metrics={pullRequest.commit}
-          baseMetrics={pullRequest.baseCommit ?? undefined}
+          metrics={buildInfo.lastCommit}
+          baseMetrics={baseBuildInfo.lastProcessedCommit ?? undefined}
         />
       ) : null}
       <Subheading mt={4} size={"md"}>

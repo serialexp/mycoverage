@@ -12,7 +12,7 @@ export const BuildStatus = (props: {
       })
     | null
     | undefined
-  expectedResults?: ExpectedResult[]
+  expectedResults: ExpectedResult[] | undefined
   targetBranch: string
 }) => {
   const result = satisfiesExpectedResults(
@@ -37,6 +37,7 @@ export const BuildStatus = (props: {
 
   return !result.isOk ? (
     <Flex
+      display={"inline-flex"}
       gap={2}
       title={`Upload not yet complete, missing ${result.missing
         .map((test) => test.count + " items from " + test.test)
@@ -59,7 +60,17 @@ export const BuildStatus = (props: {
   ) : props.commit?.coverageProcessStatus !== "FINISHED" &&
     props.commit &&
     props.commit.createdDate.getTime() < Date.now() - 3600 * 1000 ? (
-    <Flex gap={2} title={"Processing time out"} alignItems={"center"}>
+    <Flex display={"inline-flex"} gap={2} title={"Processing time out"} alignItems={"center"}>
+      <Text color={"red.500"}>
+        <FaCloudUploadAlt />
+      </Text>
+      <Text fontSize={"xs"}>{uploaded}</Text>
+      <Text color={"blue.500"}>
+        <FaSortNumericUp />
+      </Text>
+      <Text fontSize={"xs"}>
+        {processed}/{count}
+      </Text>
       <Text color={"red.500"}>
         <FaClock />
       </Text>
@@ -68,7 +79,12 @@ export const BuildStatus = (props: {
       </Text>
     </Flex>
   ) : props.commit?.coverageProcessStatus !== "FINISHED" ? (
-    <Flex gap={2} title={"Upload complete, processing coverage"} alignItems={"center"}>
+    <Flex
+      display={"inline-flex"}
+      gap={2}
+      title={"Upload complete, processing coverage"}
+      alignItems={"center"}
+    >
       <Text color={"green.500"}>
         <FaCloudUploadAlt />
       </Text>

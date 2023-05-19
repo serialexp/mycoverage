@@ -79,6 +79,18 @@ export class CoverageData {
     })
   }
 
+  public getAllHitSources() {
+    const sources: Record<string, true> = {}
+    Object.values(this.coverage).forEach((line) => {
+      line.forEach((item) => {
+        Object.keys(item.hitsBySource).forEach((source) => {
+          sources[source] = true
+        })
+      })
+    })
+    return Object.keys(sources)
+  }
+
   static getConditionalCoverageFromSourceHits(hitsBySource: HitsBySource) {
     const totalHits: Record<number, number> = {}
     Object.values(hitsBySource).forEach((source) => {

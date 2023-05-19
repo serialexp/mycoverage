@@ -3,25 +3,22 @@ import { useMutation, useQuery } from "@blitzjs/rpc"
 import { WarningIcon } from "@chakra-ui/icons"
 import Link from "next/link"
 import combineCoverage from "src/coverage/mutations/combineCoverage"
-import getMergeBase from "src/coverage/queries/getMergeBase"
 import getRecentCommits from "src/coverage/queries/getRecentCommits"
 import { Actions } from "src/library/components/Actions"
 import { Breadcrumbs } from "src/library/components/Breadcrumbs"
-import { BuildStatus } from "src/library/components/BuildStatus"
 import { CommitInfo } from "src/library/components/CommitInfo"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
 import { RecentCommitTable } from "src/library/components/RecentCommitTable"
 import { Subheading } from "src/library/components/Subheading"
 import { TestResults } from "src/library/components/TestResults"
-import { format } from "src/library/format"
 import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
 import Layout from "src/core/layouts/Layout"
-import { Alert, AlertIcon, AlertTitle, Box, Button, Link as ChakraLink, Th } from "@chakra-ui/react"
+import { Alert, AlertIcon, AlertTitle, Box, Button, Code } from "@chakra-ui/react"
 import getProject from "src/coverage/queries/getProject"
 import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
-import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaClock } from "react-icons/fa"
+import { slugify } from "src/library/slugify"
 
 const BranchPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
@@ -31,12 +28,11 @@ const BranchPage: BlitzPage = () => {
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [buildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: branchSlug,
+    branchSlug: slugify(branchSlug),
   })
-
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
-    branch: buildInfo?.branch?.baseBranch,
+    branchSlug: slugify(project?.defaultBaseBranch),
   })
   const [recentCommits] = useQuery(getRecentCommits, {
     projectId: project?.id,
@@ -87,13 +83,14 @@ const BranchPage: BlitzPage = () => {
         lastProcessedCommit={buildInfo?.lastProcessedCommit}
       />
       <Subheading mt={4} size={"md"}>
-        Combined coverage
+        Combined coverage (relative to <Code>{baseBuildInfo.branch?.name}</Code> ref{" "}
+        <Code>{baseBuildInfo.lastProcessedCommit?.ref.substr(0, 10)}</Code>)
       </Subheading>
       {buildInfo.lastCommit ? (
         <CoverageSummary
           processing={buildInfo?.lastCommit?.coverageProcessStatus !== "FINISHED"}
           metrics={buildInfo?.lastCommit}
-          baseMetrics={baseBuildInfo?.lastCommit ?? undefined}
+          baseMetrics={baseBuildInfo?.lastProcessedCommit ?? undefined}
         />
       ) : null}
       <Subheading mt={4} size={"md"}>

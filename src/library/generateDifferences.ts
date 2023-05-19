@@ -1,10 +1,14 @@
+import db from "db"
 import fs from "fs"
+import { CoverageData } from "src/library/CoverageData"
 
 export interface Diff {
   base?: FileCoverage
   next?: FileCoverage
   change: number
   percentageChange: number
+  nextFrom?: string[]
+  baseFrom?: string[]
 }
 export type CoverageDifference = {
   increase: Diff[]
@@ -36,13 +40,14 @@ interface PackageCoverage {
 }
 
 interface FileCoverage {
+  id: number
   name: string
   elements: number
   coveredElements: number
   coveredPercentage: number
 }
 
-export function generateDifferences(base: PackageCoverage[], next: PackageCoverage[]) {
+export async function generateDifferences(base: PackageCoverage[], next: PackageCoverage[]) {
   const changedFiles: Diff[] = []
 
   if (base && next) {
@@ -94,6 +99,42 @@ export function generateDifferences(base: PackageCoverage[], next: PackageCovera
       })
     })
   }
+
+  const changedFileIds = changedFiles.reduce((ids, item) => {
+    if (item.next) {
+      ids.push(item.next.id)
+    }
+    if (item.base) {
+      ids.push(item.base.id)
+    }
+
+    return ids
+  }, [] as number[])
+
+  const changedFileFileCoverageData = await db.fileCoverage.findMany({
+    select: {
+      id: true,
+      coverageData: true,
+    },
+    where: {
+      id: {
+        in: changedFileIds,
+      },
+    },
+  })
+  const coverageData: Record<number, CoverageData> = {}
+  changedFileFileCoverageData.forEach((item) => {
+    coverageData[item.id] = CoverageData.fromProtobuf(item.coverageData)
+  })
+
+  changedFiles.forEach((item) => {
+    if (item.next && !item.base) {
+      item.nextFrom = coverageData[item.next.id]?.getAllHitSources()
+    }
+    if (!item.next && item.base) {
+      item.baseFrom = coverageData[item.base.id]?.getAllHitSources()
+    }
+  })
 
   changedFiles.sort((a, b) => {
     if (a.next && !b.next) {

@@ -43,36 +43,53 @@ const RowItem = (props: { diff: Diff } & { link?: (path?: string) => RouteUrlObj
 
 const DeleteRowItem = (props: { diff: Diff }) => {
   return (
-    <Tr>
-      <Td wordBreak={"break-all"}>{props.diff.base?.name}</Td>
-      <Td isNumeric>
-        {props.diff.base?.coveredElements} / {props.diff.base?.elements}
-      </Td>
-      <Td>&raquo;</Td>
-      <Td isNumeric>-</Td>
-      <Td isNumeric></Td>
-      <Td isNumeric>0%</Td>
-    </Tr>
+    <>
+      <Tr>
+        <Td wordBreak={"break-all"}>{props.diff.base?.name}</Td>
+        <Td isNumeric>
+          {props.diff.base?.coveredElements} / {props.diff.base?.elements}
+        </Td>
+        <Td>&raquo;</Td>
+        <Td isNumeric>-</Td>
+        <Td isNumeric></Td>
+        <Td isNumeric>0%</Td>
+      </Tr>
+      {props.diff.baseFrom ? (
+        <Tr>
+          <Td></Td>
+          <Td colSpan={5}>Previously covered by {props.diff.baseFrom.join(", ")}</Td>
+        </Tr>
+      ) : null}
+    </>
   )
 }
 
 const AddRowItem = (props: { diff: Diff }) => {
   return (
-    <Tr>
-      <Td wordBreak={"break-all"}>{props.diff.next?.name}</Td>
+    <>
+      <Tr>
+        <Td wordBreak={"break-all"}>{props.diff.next?.name}</Td>
 
-      <Td isNumeric>-</Td>
-      <Td>&raquo;</Td>
-      <Td isNumeric>
-        {props.diff.next?.coveredElements} / {props.diff.next?.elements}
-      </Td>
-      <Td isNumeric></Td>
-      <Td isNumeric>
-        <Stat>
-          <StatArrow type={"increase"} /> {format.format(props.diff.next?.coveredPercentage, true)}%
-        </Stat>
-      </Td>
-    </Tr>
+        <Td isNumeric>-</Td>
+        <Td>&raquo;</Td>
+        <Td isNumeric>
+          {props.diff.next?.coveredElements} / {props.diff.next?.elements}
+        </Td>
+        <Td isNumeric></Td>
+        <Td isNumeric>
+          <Stat>
+            <StatArrow type={"increase"} />{" "}
+            {format.format(props.diff.next?.coveredPercentage, true)}%
+          </Stat>
+        </Td>
+      </Tr>
+      {props.diff.nextFrom ? (
+        <Tr>
+          <Td></Td>
+          <Td colSpan={5}>Covered by {props.diff.nextFrom.join(", ")}</Td>
+        </Tr>
+      ) : null}
+    </>
   )
 }
 
