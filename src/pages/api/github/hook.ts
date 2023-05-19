@@ -23,7 +23,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     // if you pull the information from the context in an action, this payload has 'event_name', if you get it through a github app integration as a webhook, it's missing, but has a header value
-    if (event && event.action == "opened") {
+    if (
+      event &&
+      (event.action == "opened" ||
+        event.action == "synchronize" ||
+        event.action == "ready_for_review")
+    ) {
       const payload = event
       console.log("pull request", payload)
 

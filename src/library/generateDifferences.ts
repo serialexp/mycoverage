@@ -45,14 +45,12 @@ interface FileCoverage {
 export function generateDifferences(base: PackageCoverage[], next: PackageCoverage[]) {
   const changedFiles: Diff[] = []
 
-  console.log(base.length, next.length)
-
   if (base && next) {
     base.forEach((basePackage) => {
       const nextPackage = next.find((p) => p.name === basePackage.name)
       //if (!nextPackage) return
       if (!nextPackage) {
-        console.log("missing package", basePackage)
+        console.log("missing next package", basePackage.name)
       }
 
       basePackage.FileCoverage.forEach((baseFile) => {
@@ -67,10 +65,6 @@ export function generateDifferences(base: PackageCoverage[], next: PackageCovera
             percentageChange: getPercentageChange(base, next),
           })
         } else if (!nextFile) {
-          console.log(
-            `cannot find ${baseFile.name} in ${basePackage.name}`,
-            nextPackage?.FileCoverage.map((i) => i.name)
-          )
           const base = { ...baseFile, name: fixName(basePackage.name) + "/" + baseFile.name }
           changedFiles.push({
             base,

@@ -69,10 +69,14 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
         include: {
           Test: true,
         },
+        orderBy: {
+          createdDate: "desc",
+        },
       })
       if (!lastSuccessfulCommit) {
         throw new Error("Could not find a last successful commit")
       }
+      console.log(`switching head commit to last successful commit on ${pullRequest.branch}`)
       commit = lastSuccessfulCommit
     }
     if (pullRequestResult.baseCommit.coverageProcessStatus !== "FINISHED") {
@@ -92,11 +96,15 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
         include: {
           Test: true,
         },
+        orderBy: {
+          createdDate: "desc",
+        },
       })
 
       if (!lastSuccessfulBaseCommit) {
         throw new Error("Could not find a last successful base commit")
       }
+      console.log(`switching base commit to last successful commit on ${pullRequest.baseBranch}`)
       baseCommit = lastSuccessfulBaseCommit
       switchedBaseCommit = true
     }
@@ -175,15 +183,11 @@ ${
 [${differences.totalCount} differences](${differencesUrl})`,
     })
 
-    console.log("newcomment", newComment)
-
     const checkSuite = await octokit.checks.listForRef({
       owner: pullRequest.project.group.githubName,
       repo: pullRequest.project.name,
       ref: pullRequestResult.commit.ref,
     })
-
-    console.log(checkSuite.data.check_runs)
 
     const detailsUrl =
       (baseUrl || "") +
@@ -195,7 +199,6 @@ ${
         "pullrequest",
         pullRequest.id.toString()
       )
-    console.log(detailsUrl)
 
     const addedFilesText = `### New files
 ${differences.add.map((diff) => `- ${diff.base?.name}`).join("\n")}`
@@ -205,21 +208,22 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
     // since we are making a check, we can still require successful coverage completion before allowing a merge
     const requireIncrease = pullRequest.project.requireCoverageIncrease
 
-    const check = await octokit.checks.create({
-      owner: pullRequest.project.group.githubName,
-      repo: pullRequest.project.name,
-      head_sha: pullRequestResult.commit.ref,
-      status: "completed",
-      name: "Coverage",
-      details_url: detailsUrl,
-      conclusion: !requireIncrease ? "success" : isSuccess ? "success" : "failure",
-      completed_at: new Date().toISOString(),
-      output: {
-        title: "Coverage",
-        summary: `${format.format(
-          pullRequestResult.baseCommit.coveredPercentage
-        )}% -> ${format.format(pullRequestResult.commit.coveredPercentage)}%`,
-        text: `### Coverage increase
+    try {
+      const check = await octokit.checks.create({
+        owner: pullRequest.project.group.githubName,
+        repo: pullRequest.project.name,
+        head_sha: commit.ref,
+        status: "completed",
+        name: "Coverage",
+        details_url: detailsUrl,
+        conclusion: !requireIncrease ? "success" : isSuccess ? "success" : "failure",
+        completed_at: new Date().toISOString(),
+        output: {
+          title: "Coverage",
+          summary: `${format.format(baseCommit.coveredPercentage)}% -> ${format.format(
+            commit.coveredPercentage
+          )}%`,
+          text: `### Coverage increase
 
 ${differences.increase.map((diff) => `- ${diff.base?.name}: +${diff.change}`).join("\n")}
 
@@ -229,17 +233,21 @@ ${differences.decrease.map((diff) => `- ${diff.base?.name}: ${diff.change}`).joi
 ${differences.add.length > 0 ? addedFilesText : ""}
 ${differences.remove.length > 0 ? removedFilesText : ""}
 `.substring(0, 50000),
-        annotations: [
-          // {
-          //   path: "",
-          //   start_line: 0,
-          //   end_line: 0,
-          //   annotation_level: isSuccess ? "notice" : "failure",
-          //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
-          // }
-        ],
-      },
-    })
+          annotations: [
+            // {
+            //   path: "",
+            //   start_line: 0,
+            //   end_line: 0,
+            //   annotation_level: isSuccess ? "notice" : "failure",
+            //   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+            // }
+          ],
+        },
+      })
+      console.log("Check successfully created for commit " + commit.ref, check.data.id)
+    } catch (error) {
+      console.log("could not create check", error)
+    }
 
     // console.log('check', check)
   } catch (e) {

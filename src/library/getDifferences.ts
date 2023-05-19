@@ -52,7 +52,5 @@ export const getDifferences = async (baseCommitId: number, commitId: number) => 
     },
   })
 
-  console.log("differences", base.length, next.length)
-
   return generateDifferences(base, next)
 }
