@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/Aeolun/mycoverage/compare/v1.22.5...v1.23.0) (2023-05-19)
+
+
+### Features
+
+* ensure we have an accurate basis of comparison ([51ece45](https://github.com/Aeolun/mycoverage/commit/51ece45c1d55bdd98b3ef8c4b3e80242ff46e59a))
+
 ## [1.22.5](https://github.com/Aeolun/mycoverage/compare/v1.22.4...v1.22.5) (2023-05-19)
 
 
