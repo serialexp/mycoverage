@@ -1,3 +1,10 @@
+## [1.22.5](https://github.com/Aeolun/mycoverage/compare/v1.22.4...v1.22.5) (2023-05-19)
+
+
+### Bug Fixes
+
+* trigger pr events on synchronize and ready_for_review actions ([84806a1](https://github.com/Aeolun/mycoverage/commit/84806a1a1ace0734a3da42f90f555367c4089b67))
+
 ## [1.22.4](https://github.com/Aeolun/mycoverage/compare/v1.22.3...v1.22.4) (2023-05-18)
 
 
