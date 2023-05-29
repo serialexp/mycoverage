@@ -1,3 +1,10 @@
+## [1.23.3](https://github.com/Aeolun/mycoverage/compare/v1.23.2...v1.23.3) (2023-05-29)
+
+
+### Bug Fixes
+
+* transform error to string before output ([7226206](https://github.com/Aeolun/mycoverage/commit/722620686019a90d414678652791295bfb0f57d1))
+
 ## [1.23.2](https://github.com/Aeolun/mycoverage/compare/v1.23.1...v1.23.2) (2023-05-29)
 
 
