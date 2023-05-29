@@ -1,3 +1,10 @@
+## [1.23.2](https://github.com/Aeolun/mycoverage/compare/v1.23.1...v1.23.2) (2023-05-29)
+
+
+### Bug Fixes
+
+* set log level to warn on production ([94d73aa](https://github.com/Aeolun/mycoverage/commit/94d73aa8da6980ccaeb09b3f77dd3428d2003d6e))
+
 ## [1.23.1](https://github.com/Aeolun/mycoverage/compare/v1.23.0...v1.23.1) (2023-05-29)
 
 
