@@ -120,14 +120,14 @@ export class CoverageData {
 
       sources?.forEach((source) => {
         if (type === "b") {
-          const lineData = source[type][lineNr]!
+          const lineData = source[type][lineNr]
 
           if (!lineData) return
           // @ts-expect-error typescript doesn't narrow this down correctly
           hitsBySource[source.source] = Array.isArray(lineData[0]) ? lineData[instance] : lineData
         } else {
           hitsBySource[source.source] = Array.isArray(source[type][lineNr])
-            ? [source[type][lineNr]![instance]]
+            ? [source[type][lineNr]?.[instance]]
             : [source[type][lineNr]!]
         }
       })
@@ -287,13 +287,7 @@ export class CoverageData {
     return data
   }
 
-  public addFunction(
-    line: number,
-    hits: number,
-    signature: string = "",
-    name: string = "",
-    hitsBySource: HitsBySource
-  ) {
+  public addFunction(line: number, hits: number, signature, name, hitsBySource: HitsBySource) {
     this.addCoverage(line.toString(), {
       type: "function",
       line: line,
@@ -468,7 +462,7 @@ export class CoverageData {
           .sort((a, b) => a.localeCompare(b))
           .map((k) => {
             if (line.hitsBySource[k]?.some((i) => i > 0)) {
-              return k + "=" + line.hitsBySource[k]?.join("|")
+              return `${k}=${line.hitsBySource[k]?.join("|")}`
             } else {
               return undefined
             }
@@ -476,34 +470,14 @@ export class CoverageData {
           .filter((i) => i)
           .join(";")
         if (line.type === "statement") {
-          lines.push(type + "," + line.line + "," + line.hits + "," + hitsBySource)
+          lines.push(`${type},${line.line},${line.hits},${hitsBySource}`)
         } else if (line.type === "branch") {
           lines.push(
-            type +
-              "," +
-              line.line +
-              "," +
-              line.hits +
-              "," +
-              line.coveredConditionals +
-              "," +
-              line.conditionals +
-              "," +
-              hitsBySource
+            `${type},${line.line},${line.hits},${line.coveredConditionals},${line.conditionals},${hitsBySource}`
           )
         } else if (line.type === "function") {
           lines.push(
-            type +
-              "," +
-              line.line +
-              "," +
-              line.hits +
-              "," +
-              line.signature +
-              "," +
-              line.name +
-              "," +
-              hitsBySource
+            `${type},${line.line},${line.hits},${line.signature},${line.name},${hitsBySource}`
           )
         }
       })

@@ -50,7 +50,6 @@ export default async function getTree(args: { commitId: number }, { session }: C
 
     if (!rootNode) {
       return
-      throw new Error("Could not find rootnode for " + item.name)
     }
 
     if (!rootNode.children) {

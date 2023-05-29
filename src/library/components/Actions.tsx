@@ -1,9 +1,9 @@
-import { Box } from "@chakra-ui/react"
+import { Box } from "@chakra-ui/react";
 
 export const Actions = (props: any) => {
-  return (
-    <Box px={2} py={2}>
-      {props.children}
-    </Box>
-  )
-}
+	return (
+		<Box px={2} py={2}>
+			{props.children}
+		</Box>
+	);
+};

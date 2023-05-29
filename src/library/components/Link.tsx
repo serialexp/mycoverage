@@ -12,7 +12,7 @@ export const Link = (
   const { href: hrefName, ...rest } = props
   return (
     <ChakraLink
-      {...(rest as any)}
+      {...rest}
       onClick={async () => {
         await router.push(href)
       }}

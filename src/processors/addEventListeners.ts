@@ -1,16 +1,17 @@
-import { Worker } from "bullmq"
+import { Worker } from "bullmq";
+import { log } from "src/library/log";
 
 export const addEventListeners = (worker: Worker) => {
-  worker.on("active", (job) => {
-    console.log(`${job.name}:${job.id} has started!`)
-  })
+	worker.on("active", (job) => {
+		log(`${job.name}:${job.id} has started!`);
+	});
 
-  worker.on("completed", (job) => {
-    console.log(`${job.name}:${job.id} has completed!`)
-  })
+	worker.on("completed", (job) => {
+		log(`${job.name}:${job.id} has completed!`);
+	});
 
-  worker.on("failed", (job, err) => {
-    console.error(err)
-    console.log(`${job.name}:${job.id} has failed with ${err.message}`)
-  })
-}
+	worker.on("failed", (job, err) => {
+		log(`${job.name}:${job.id} has failed with ${err.message}`);
+		log("error data", err);
+	});
+};

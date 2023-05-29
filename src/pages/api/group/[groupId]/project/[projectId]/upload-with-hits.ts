@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 import { NextApiRequest, NextApiResponse } from "next"
 import { fixQuery } from "src/library/fixQuery"
 import { hitsJsonSchema } from "src/library/HitsJsonSchema"
+import { log } from "src/library/log"
 import { slugify } from "src/library/slugify"
 import { SourceHits } from "src/library/types"
 import { uploadJob } from "src/queues/UploadQueue"
@@ -32,21 +33,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const startTime = new Date()
 
   let timeForLast = new Date()
-  let requestId = Math.round(Math.random() * 900000 + 100000)
-  const timeSinceLast = (...args: any[]) => {
-    let originalTime = timeForLast
+  const requestId = Math.round(Math.random() * 900000 + 100000)
+  const timeSinceLast = <T>(...args: T[]) => {
+    const originalTime = timeForLast
     timeForLast = new Date()
-    console.log(requestId, "[" + (timeForLast.getTime() - originalTime.getTime()) + "ms]", ...args)
   }
-  const measure = async (what: string, fn: () => Promise<any>) => {
+  const measure = async <T>(what: string, fn: () => Promise<T>) => {
     const startTime = new Date()
     const result = await fn()
-    console.log(
-      requestId,
-      "measure",
-      "[" + (new Date().getTime() - startTime.getTime()) + "ms]",
-      what
-    )
+
     return result
   }
 
@@ -72,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await measure("parse schema", () => {
       const result = hitsJsonSchema(req.body)
-      console.log("valid", result)
+
       return Promise.resolve(result)
     })
   } catch (error) {
@@ -162,18 +157,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       //   }, Math.random() * 2000 + 1000)
       // })
 
-      const s3FileKey =
-        process.env.S3_KEY_PREFIX +
-        group.slug +
-        "/" +
-        project.slug +
-        "/" +
-        query.ref +
-        "/instance-" +
-        query.testName +
-        "-" +
-        new Date().getTime() +
-        ".json"
+      const s3FileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${project.slug}/${
+        query.ref
+      }/instance-${query.testName}-${new Date().getTime()}.json`
 
       const s3 = new S3({})
       await measure("upload to s3", () => {
@@ -225,7 +211,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ref: query.ref,
         },
       })
-      timeSinceLast("commit is", commit)
+      timeSinceLast(`commit is ${commit?.ref}`)
       if (!commit) {
         timeSinceLast("creating commit")
         commit = await mydb.commit.create({
@@ -246,7 +232,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
 
-      if (!commit) throw new Error("Could not create commit for ref " + query.ref)
+      if (!commit) throw new Error(`Could not create commit for ref ${query.ref}`)
 
       try {
         timeSinceLast("create commit on branch")
@@ -258,14 +244,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       } catch (error) {
         if (error.message.includes("Unique constraint")) {
-          console.log("commit already on branch")
         } else {
           throw error
         }
       }
 
       timeSinceLast("should update default?", project.defaultBaseBranch, branch.name)
-      if (project.defaultBaseBranch == branch.name) {
+      if (project.defaultBaseBranch === branch.name) {
         timeSinceLast("update last commit id")
         await mydb.project.update({
           data: {
@@ -320,7 +305,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         group.slug,
         project.slug
       ).catch((error) => {
-        console.error(error)
+        log("error adding upload job", error)
       })
 
       await db.jobLog.update({
@@ -335,10 +320,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       res.status(200).json({ code: "OK", message: "Ok" })
-
-      console.log("Took ", new Date().getTime() - startTime.getTime(), "ms")
     } catch (error) {
-      console.error(error)
       await db.jobLog.update({
         where: {
           id: jobLog.id,
@@ -348,7 +330,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           status: "failed",
           namespace: query.groupId,
           repository: query.projectId,
-          message: "Failure uploading " + error.message,
+          message: `Failure uploading ${error.message}`,
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
@@ -363,10 +345,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
   } else {
-    console.log("done")
-    res
-      .status(400)
-      .send({ message: "Missing either branch, ref, index or testName parameter", query })
+    res.status(400).send({
+      message: "Missing either branch, ref, index or testName parameter",
+      query,
+    })
   }
 }
 

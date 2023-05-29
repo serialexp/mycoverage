@@ -20,7 +20,8 @@ const RowItem = (props: { diff: Diff } & { link?: (path?: string) => RouteUrlObj
         )}
       </Td>
       <Td isNumeric>
-        {props.diff.base ? format.format(props.diff.base.coveredPercentage, true) : "?"}%<br />
+        {props.diff.base ? format.format(props.diff.base.coveredPercentage, true) : "?"}
+        %<br />
         {props.diff.base?.coveredElements} / {props.diff.base?.elements}
       </Td>
       <Td>&raquo;</Td>
@@ -28,7 +29,7 @@ const RowItem = (props: { diff: Diff } & { link?: (path?: string) => RouteUrlObj
         {format.format(props.diff.next?.coveredPercentage, true)}%<br />
         {props.diff.next?.coveredElements} / {props.diff.next?.elements}
       </Td>
-      <Td isNumeric></Td>
+      <Td isNumeric />
       <Td isNumeric>
         {props.diff.change !== 0 ? (
           <Stat>
@@ -51,12 +52,12 @@ const DeleteRowItem = (props: { diff: Diff }) => {
         </Td>
         <Td>&raquo;</Td>
         <Td isNumeric>-</Td>
-        <Td isNumeric></Td>
+        <Td isNumeric />
         <Td isNumeric>0%</Td>
       </Tr>
       {props.diff.baseFrom ? (
         <Tr>
-          <Td></Td>
+          <Td />
           <Td colSpan={5}>Previously covered by {props.diff.baseFrom.join(", ")}</Td>
         </Tr>
       ) : null}
@@ -75,7 +76,7 @@ const AddRowItem = (props: { diff: Diff }) => {
         <Td isNumeric>
           {props.diff.next?.coveredElements} / {props.diff.next?.elements}
         </Td>
-        <Td isNumeric></Td>
+        <Td isNumeric />
         <Td isNumeric>
           <Stat>
             <StatArrow type={"increase"} />{" "}
@@ -85,7 +86,7 @@ const AddRowItem = (props: { diff: Diff }) => {
       </Tr>
       {props.diff.nextFrom ? (
         <Tr>
-          <Td></Td>
+          <Td />
           <Td colSpan={5}>Covered by {props.diff.nextFrom.join(", ")}</Td>
         </Tr>
       ) : null}
@@ -175,7 +176,7 @@ export const CoverageDifferences = (props: {
           </Th>
         </Tr>
         {fileDifferences?.increase.map((diff, i) => {
-          return <RowItem key={i} diff={diff} link={props.link} />
+          return <RowItem key={diff.base?.name} diff={diff} link={props.link} />
         })}
       </Table>
     </>

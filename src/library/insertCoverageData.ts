@@ -11,7 +11,20 @@ export const insertCoverageData = async (
 ) => {
   const mydb: PrismaClient = db
 
-  const packageDatas: any[] = []
+  const packageDatas: {
+    name: string
+    statements: number
+    packageCoverageId?: number
+    conditionals: number
+    methods: number
+    hits: number
+    coveredStatements: number
+    coveredConditionals: number
+    coveredMethods: number
+    coveredElements: number
+    elements: number
+    coveredPercentage: number
+  }[] = []
   const fileDatas: {
     name: string
     statements: number
@@ -37,7 +50,7 @@ export const insertCoverageData = async (
       conditionals: pkg.metrics?.conditionals ?? 0,
       methods: pkg.metrics?.methods ?? 0,
       elements: pkg.metrics?.elements ?? 0,
-      hits: pkg.metrics?.hits,
+      hits: pkg.metrics?.hits ?? 0,
       coveredStatements: pkg.metrics?.coveredstatements ?? 0,
       coveredConditionals: pkg.metrics?.coveredconditionals ?? 0,
       coveredMethods: pkg.metrics?.coveredmethods ?? 0,
@@ -47,11 +60,10 @@ export const insertCoverageData = async (
     }
     packageDatas.push(packageData)
   }
-  console.log("  Creating all packages")
+
   const packageCoverage = await mydb.packageCoverage.createMany({
     data: packageDatas,
   })
-  console.log("  Retrieving created package ids", where)
 
   const packagesCoverages = await mydb.packageCoverage.findMany({
     select: {
@@ -66,7 +78,6 @@ export const insertCoverageData = async (
   packagesCoverages.forEach((coverage) => {
     packageCoverageIds[coverage.name] = coverage.id
   })
-  console.log("  Converting coverage data to insert format")
   for (const pkg of covInfo.packages) {
     for (const file of pkg.files) {
       const coverageData = new CoverageData(file.coverageData.coverage)
@@ -87,7 +98,7 @@ export const insertCoverageData = async (
       })
     }
   }
-  console.log("  Inserting file coverage data")
+
   // limit the amount of data per insert since mysql doesn't like too much data (binary coverage info is big) in one insert
   const maxDataPerInsert = 3_000_000
   let currentBatchSize = 0
@@ -107,7 +118,6 @@ export const insertCoverageData = async (
   batches.push(currentBatch)
 
   const startTime = new Date().getTime()
-  console.log("  Inserting coverage data in " + batches.length + " batches")
   const batchSize = 5
   for (let i = 0; i < batches.length; i += batchSize) {
     await Promise.all(
@@ -117,7 +127,5 @@ export const insertCoverageData = async (
         })
       })
     )
-    console.log("  Finished batch " + i + " to " + (i + batchSize) + "of " + batches.length)
   }
-  console.log(`  Inserted in ${Math.round(new Date().getTime() - startTime)}ms!`)
 }

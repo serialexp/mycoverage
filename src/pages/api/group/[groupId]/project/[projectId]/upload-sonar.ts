@@ -1,11 +1,11 @@
-import handler from "./upload-sonarqube"
+import handler from "./upload-sonarqube";
 
-export default handler
+export default handler;
 
 export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "25mb",
-    },
-  },
-}
+	api: {
+		bodyParser: {
+			sizeLimit: "25mb",
+		},
+	},
+};

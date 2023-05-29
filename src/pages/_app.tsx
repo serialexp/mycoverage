@@ -29,10 +29,7 @@ function RootErrorFallback({ error }: ErrorFallbackProps) {
     )
   } else {
     return (
-      <ErrorComponent
-        statusCode={(error as any)?.statusCode || 400}
-        title={error.message || error.name}
-      />
+      <ErrorComponent statusCode={error?.statusCode || 400} title={error.message || error.name} />
     )
   }
 }
@@ -45,12 +42,17 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Suspense
           fallback={
             <svg
-              style={{ margin: "15% auto", background: "transparent", display: "block" }}
+              style={{
+                margin: "15% auto",
+                background: "transparent",
+                display: "block",
+              }}
               width="200px"
               height="200px"
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid"
             >
+              <title>Loading...</title>
               <g transform="translate(50,50)">
                 <circle
                   cx="0"
@@ -70,7 +72,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     keySplines="0.2 0 0.8 1"
                     begin="0"
                     repeatCount="indefinite"
-                  ></animateTransform>
+                  />
                 </circle>
                 <circle
                   cx="0"
@@ -90,7 +92,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     keySplines="0.2 0 0.8 1"
                     begin="-0.2"
                     repeatCount="indefinite"
-                  ></animateTransform>
+                  />
                 </circle>
                 <circle
                   cx="0"
@@ -110,7 +112,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     keySplines="0.2 0 0.8 1"
                     begin="-0.4"
                     repeatCount="indefinite"
-                  ></animateTransform>
+                  />
                 </circle>
                 <circle
                   cx="0"
@@ -130,7 +132,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     keySplines="0.2 0 0.8 1"
                     begin="-0.6"
                     repeatCount="indefinite"
-                  ></animateTransform>
+                  />
                 </circle>
                 <circle
                   cx="0"
@@ -150,7 +152,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     keySplines="0.2 0 0.8 1"
                     begin="-0.8"
                     repeatCount="indefinite"
-                  ></animateTransform>
+                  />
                 </circle>
               </g>
             </svg>

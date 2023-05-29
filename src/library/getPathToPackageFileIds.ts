@@ -1,6 +1,6 @@
-import db from "db"
+import db, { Prisma } from "db"
 
-export async function getPathToPackageFileIds(where: any) {
+export async function getPathToPackageFileIds(where: Prisma.PackageCoverageWhereInput) {
   const packageIdToPath: Record<number, string> = {}
   const packagePathToId: Record<string, number> = {}
   const packagesCoverages = await db.packageCoverage.findMany({
@@ -17,8 +17,6 @@ export async function getPathToPackageFileIds(where: any) {
     packagePathToId[name] = pk.id
   })
 
-  console.log(`Found ${packagesCoverages.length} packageCoverage items to check`)
-
   const fileCoverages = await db.fileCoverage.findMany({
     select: {
       id: true,
@@ -32,15 +30,13 @@ export async function getPathToPackageFileIds(where: any) {
     },
   })
 
-  console.log(`Found ${fileCoverages.length} fileCoverage items to check`)
-
   const pathToFileId: Record<string, number> = {}
   fileCoverages.forEach((coverage) => {
     const originalPath = coverage.packageCoverageId
       ? packageIdToPath[coverage.packageCoverageId]
       : undefined
     if (originalPath) {
-      pathToFileId[originalPath + "/" + coverage.name] = coverage.id
+      pathToFileId[`${originalPath}/${coverage.name}`] = coverage.id
     }
   })
 
