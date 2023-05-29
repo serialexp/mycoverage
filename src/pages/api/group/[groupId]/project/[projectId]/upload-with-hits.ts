@@ -340,7 +340,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               details: error.details,
             }
           : {
-              message: error.message,
+              message: error.toString(),
             },
       })
     }
