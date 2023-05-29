@@ -1,3 +1,10 @@
+## [1.23.1](https://github.com/Aeolun/mycoverage/compare/v1.23.0...v1.23.1) (2023-05-29)
+
+
+### Bug Fixes
+
+* remove a lot of logging ([0f8f827](https://github.com/Aeolun/mycoverage/commit/0f8f827a27bf4dfca92412123a9ff114eb243ee0))
+
 # [1.23.0](https://github.com/Aeolun/mycoverage/compare/v1.22.5...v1.23.0) (2023-05-19)
 
 
