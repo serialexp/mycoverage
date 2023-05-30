@@ -1,3 +1,10 @@
+## [1.23.4](https://github.com/Aeolun/mycoverage/compare/v1.23.3...v1.23.4) (2023-05-30)
+
+
+### Bug Fixes
+
+* require slug and correctly add in hook ([804534c](https://github.com/Aeolun/mycoverage/commit/804534c185976213beb8466d31138f4099d98c9d))
+
 ## [1.23.3](https://github.com/Aeolun/mycoverage/compare/v1.23.2...v1.23.3) (2023-05-29)
 
 
