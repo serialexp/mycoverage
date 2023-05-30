@@ -347,7 +347,7 @@ model Branch {
   baseBranch     String
   createdDate    DateTime         @default(now())
   updatedDate    DateTime         @updatedAt
-  slug           String           @default("")
+  slug           String
   project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   CommitOnBranch CommitOnBranch[]
 

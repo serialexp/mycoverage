@@ -2,6 +2,7 @@ import db from "db"
 import { PullRequestEvent } from "@octokit/webhooks-types"
 import { NextApiRequest, NextApiResponse } from "next"
 import { log } from "src/library/log"
+import { slugify } from "src/library/slugify"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -92,6 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           projectId: headProject.id,
           baseBranch: payload.pull_request.base.ref,
           name: payload.pull_request.head.ref,
+          slug: slugify(payload.pull_request.head.ref),
         },
         update: {},
       })

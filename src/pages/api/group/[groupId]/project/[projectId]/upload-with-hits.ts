@@ -141,6 +141,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw new Error("No hit information posted, in this case use the plain upload endpoint")
       }
 
+      timeSinceLast("finding branch")
+
+      console.log("slugifid branch", slugify(query.branch))
+      let branch = await mydb.branch.findFirst({
+        where: {
+          projectId: project.id,
+          slug: slugify(query.branch),
+        },
+      })
+      console.log("found branch", {
+        name: query.branch,
+        slug: slugify(query.branch),
+        projectId: project.id,
+        baseBranch: query.baseBranch ?? project.defaultBaseBranch,
+      })
+      if (!branch) {
+        timeSinceLast("creating branch")
+        branch = await mydb.branch.create({
+          data: {
+            name: query.branch,
+            slug: slugify(query.branch),
+            projectId: project.id,
+            baseBranch: query.baseBranch ?? project.defaultBaseBranch,
+          },
+        })
+      }
+
       await db.jobLog.update({
         where: {
           id: jobLog.id,
@@ -184,26 +211,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         })
       })
-
-      timeSinceLast("finding branch")
-
-      let branch = await mydb.branch.findFirst({
-        where: {
-          projectId: project.id,
-          slug: slugify(query.branch),
-        },
-      })
-      if (!branch) {
-        timeSinceLast("creating branch")
-        branch = await mydb.branch.create({
-          data: {
-            name: query.branch,
-            slug: slugify(query.branch),
-            projectId: project.id,
-            baseBranch: query.baseBranch ?? project.defaultBaseBranch,
-          },
-        })
-      }
 
       timeSinceLast("find commit")
       let commit = await mydb.commit.findFirst({

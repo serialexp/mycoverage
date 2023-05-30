@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Branch` ALTER COLUMN `slug` DROP DEFAULT;
