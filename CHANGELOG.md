@@ -1,3 +1,10 @@
+## [1.23.5](https://github.com/Aeolun/mycoverage/compare/v1.23.4...v1.23.5) (2023-06-23)
+
+
+### Bug Fixes
+
+* update corresponding PR's for pull_request builds/uploads ([b60b3b7](https://github.com/Aeolun/mycoverage/commit/b60b3b7321f9993d7e0ebe59490d898b670c20ef))
+
 ## [1.23.4](https://github.com/Aeolun/mycoverage/compare/v1.23.3...v1.23.4) (2023-05-30)
 
 
