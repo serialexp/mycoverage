@@ -145,6 +145,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
+      // TODO: This is not accurate if there is more than one PR per branch
+      const correspondingPr = await mydb.pullRequest.findFirst({
+        where: {
+          branch: branch.slug,
+          state: "open",
+        },
+        include: {
+          commit: true,
+        },
+      })
+      if (correspondingPr && correspondingPr.commit.createdDate < commit.createdDate) {
+        log("found corresponding PR, updating last commit")
+        await mydb.pullRequest.update({
+          where: {
+            id: correspondingPr.id,
+          },
+          data: {
+            commitId: commit.id,
+          },
+        })
+      }
+
       log("should update default?", project.defaultBaseBranch, branch.name)
       if (project.defaultBaseBranch === branch.name) {
         log("update last commit id")
