@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/Aeolun/mycoverage/compare/v1.23.5...v1.24.0) (2023-07-19)
+
+
+### Features
+
+* display historical coverage on test coverage page ([db685ff](https://github.com/Aeolun/mycoverage/commit/db685ff63a8cd5b0c402d5c8acfe145d015a8645))
+
 ## [1.23.5](https://github.com/Aeolun/mycoverage/compare/v1.23.4...v1.23.5) (2023-06-23)
 
 
