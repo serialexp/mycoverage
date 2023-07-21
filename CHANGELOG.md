@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/Aeolun/mycoverage/compare/v1.24.0...v1.24.1) (2023-07-21)
+
+
+### Bug Fixes
+
+* add coverage graph to project page ([2517dc7](https://github.com/Aeolun/mycoverage/commit/2517dc76cadc0a3a5843ce199ff342c41f6f3b99))
+
 # [1.24.0](https://github.com/Aeolun/mycoverage/compare/v1.23.5...v1.24.0) (2023-07-19)
 
 
