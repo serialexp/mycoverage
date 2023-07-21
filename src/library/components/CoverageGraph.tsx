@@ -9,7 +9,7 @@ import { format } from "src/library/format"
 type Props = {
   groupId: number
   projectId: number
-  testName: string
+  testName?: string
   currentTime: Date
   clickRedirect?: (ref: string) => string | Promise<string | undefined> | undefined
 }
@@ -33,12 +33,10 @@ export const CoverageGraph = (props: Props) => {
   //console.log(queryData)
 
   const coverageForTests = queryData?.map((commit) => {
-    const test = commit.Test[0]
-
-    const percent = test?.coveredPercentage ?? 0
+    const percent = commit?.coveredPercentage ?? 0
     return {
-      x: test?.createdDate,
-      y: test?.coveredPercentage,
+      x: commit?.createdDate,
+      y: commit?.coveredPercentage,
       ref: commit.ref,
       color:
         percent > 60
@@ -93,6 +91,7 @@ export const CoverageGraph = (props: Props) => {
             axis: "x",
             value: props.currentTime,
             legend: props.currentTime.toLocaleDateString(),
+            legendPosition: "top-left",
             lineStyle: {
               stroke: "red",
             },
@@ -122,7 +121,7 @@ export const CoverageGraph = (props: Props) => {
               }}
             >
               <div>{(point.data as unknown as { ref: string }).ref}</div>
-              <div>{format.format(point.y)}%</div>
+              <div>{format.format((point.data as unknown as { x: number; y: number }).y)}%</div>
             </div>
           )
         }}

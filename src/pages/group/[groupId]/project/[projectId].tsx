@@ -1,12 +1,15 @@
 import { BlitzPage, Routes, useParam } from "@blitzjs/next"
-import { useQuery } from "@blitzjs/rpc"
+import { invoke, useQuery } from "@blitzjs/rpc"
 import Link from "next/link"
+import getCommitFromRef from "src/coverage/queries/getCommitFromRef"
 import getRecentCommits from "src/coverage/queries/getRecentCommits"
 import getRecentPullRequests from "src/coverage/queries/getRecentPullRequests"
+import getTestByCommitName from "src/coverage/queries/getTestByCommitName"
 import { Actions } from "src/library/components/Actions"
 import { Breadcrumbs } from "src/library/components/Breadcrumbs"
 import { BuildStatus } from "src/library/components/BuildStatus"
 import { CommitInfo } from "src/library/components/CommitInfo"
+import { CoverageGraph } from "src/library/components/CoverageGraph"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
 import { Minibar } from "src/library/components/Minbar"
@@ -110,11 +113,26 @@ const ProjectPage: BlitzPage = () => {
       ) : null}
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastProcessedCommit ? (
-        <CoverageSummary
-          metrics={buildInfo.lastProcessedCommit}
-          processing={buildInfo.lastProcessedCommit.coverageProcessStatus !== "FINISHED"}
-        />
+        <>
+          <CoverageSummary
+            metrics={buildInfo.lastProcessedCommit}
+            processing={buildInfo.lastProcessedCommit.coverageProcessStatus !== "FINISHED"}
+          />
+          <CoverageGraph
+            groupId={project.groupId}
+            projectId={project.id}
+            currentTime={buildInfo.lastProcessedCommit.createdDate}
+            clickRedirect={async (ref: string) => {
+              return Routes.CommitPage({
+                groupId,
+                projectId,
+                commitRef: ref,
+              }).href
+            }}
+          />
+        </>
       ) : null}
+
       <Subheading>Test results ({buildInfo?.lastProcessedCommit?.Test.length})</Subheading>
       <TestResultStatus status={buildInfo?.lastProcessedCommit?.coverageProcessStatus} />
       <TestResults
