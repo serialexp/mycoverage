@@ -220,7 +220,8 @@ ${baseBuildInfo.commits
 					baseCommit.ref,
 				);
 
-			const isSuccess = commit.coveredPercentage > baseCommit.coveredPercentage;
+			const isSuccess =
+				commit.coveredPercentage >= baseCommit.coveredPercentage;
 
 			const differences = await getDifferences(baseCommit.id, commit.id);
 

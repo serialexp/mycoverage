@@ -49,7 +49,7 @@ export const FileDisplay = (props: {
 		groupName: group?.githubName,
 		projectName: project?.name,
 		branchName: props.commitRef,
-		path: (test?.repositoryRoot ?? "") + path?.join("/"),
+		path: `/${path?.join("/")}`,
 	});
 
 	const [showRaw, setShowRaw] = useState(false);
