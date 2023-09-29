@@ -1,3 +1,10 @@
+## [1.24.2](https://github.com/Aeolun/mycoverage/compare/v1.24.1...v1.24.2) (2023-09-29)
+
+
+### Bug Fixes
+
+* coverage increase passes when coverage is equal ([f89f5c8](https://github.com/Aeolun/mycoverage/commit/f89f5c8321f55600713c416f56f848d79dc271cb))
+
 ## [1.24.1](https://github.com/Aeolun/mycoverage/compare/v1.24.0...v1.24.1) (2023-07-21)
 
 
