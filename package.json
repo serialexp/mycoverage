@@ -1,6 +1,6 @@
 {
   "name": "mycoverage",
-  "version": "1.25.0",
+  "version": "1.25.1",
   "scripts": {
     "dev": "blitz dev",
     "dev:worker": "nodemon --exec 'npm run build:worker && npm run start:worker' src/worker.ts",

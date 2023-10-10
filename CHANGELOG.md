@@ -1,3 +1,10 @@
+## [1.25.1](https://github.com/Aeolun/mycoverage/compare/v1.25.0...v1.25.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* indicate when last commits were ([04d9afa](https://github.com/Aeolun/mycoverage/commit/04d9afa583cb1523617df26debfa0828ca847155))
+
 # [1.25.0](https://github.com/Aeolun/mycoverage/compare/v1.24.2...v1.25.0) (2023-10-10)
 
 
