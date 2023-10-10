@@ -4,16 +4,18 @@ import Link from "next/link"
 import combineCoverage from "src/coverage/mutations/combineCoverage"
 import getProject from "src/coverage/queries/getProject"
 import getTestInstance from "src/coverage/queries/getTestInstance"
+import getTestInstanceData from "src/coverage/queries/getTestInstanceData"
 import { Actions } from "src/library/components/Actions"
+import { Codeblock } from "src/library/components/Codeblock"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
 import { Subheading } from "src/library/components/Subheading"
 
 import Layout from "src/core/layouts/Layout"
-import { Button } from "@chakra-ui/react"
+import { Button, Code, Box } from "@chakra-ui/react"
 import getCommit from "src/coverage/queries/getCommit"
 
-const TestInstancePage: BlitzPage = () => {
+const TestInstanceRawDataPage: BlitzPage = () => {
   const commitRef = useParam("commitRef", "string")
   const groupId = useParam("groupId", "string")
   const projectId = useParam("projectId", "string")
@@ -22,6 +24,9 @@ const TestInstancePage: BlitzPage = () => {
   const [project] = useQuery(getProject, { projectSlug: projectId })
   const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
   const [testInstance] = useQuery(getTestInstance, {
+    testInstanceId: testInstanceId,
+  })
+  const [testInstanceData] = useQuery(getTestInstanceData, {
     testInstanceId: testInstanceId,
   })
 
@@ -34,34 +39,29 @@ const TestInstancePage: BlitzPage = () => {
       </Heading>
       <Actions>
         <Link
-          href={Routes.CommitPage({
-            groupId,
-            projectId,
-            commitRef: commit.ref,
-          })}
-        >
-          <Button>Back</Button>
-        </Link>
-        <Link
-          href={Routes.TestInstanceRawDataPage({
+          href={Routes.TestInstancePage({
             groupId,
             projectId,
             commitRef: commitRef,
             testInstanceId: testInstance.id,
           })}
         >
-          <Button ml={2}>Raw Data</Button>
+          <Button>Back</Button>
         </Link>
       </Actions>
       <Subheading mt={4} size={"md"}>
-        Combined coverage
+        Test Data
       </Subheading>
-      <CoverageSummary metrics={testInstance} processing={false} />
+      <Codeblock>{JSON.stringify(testInstance, null, 2)}</Codeblock>
+      <Subheading mt={4} size={"md"}>
+        Coverage Data
+      </Subheading>
+      <Codeblock>{testInstanceData}</Codeblock>
     </>
   ) : null
 }
 
-TestInstancePage.suppressFirstRenderFlicker = true
-TestInstancePage.getLayout = (page) => <Layout title="Test instance">{page}</Layout>
+TestInstanceRawDataPage.suppressFirstRenderFlicker = true
+TestInstanceRawDataPage.getLayout = (page) => <Layout title="Test instance raw">{page}</Layout>
 
-export default TestInstancePage
+export default TestInstanceRawDataPage

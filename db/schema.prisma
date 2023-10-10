@@ -101,7 +101,6 @@ model Test {
   coveredElements     Int               @default(0)
   elements            Int               @default(0)
   hits                Int               @default(0)
-  repositoryRoot      String?
   commit              Commit            @relation(fields: [commitId], references: [id], onDelete: Cascade)
   PackageCoverage     PackageCoverage[]
   TestInstance        TestInstance[]
@@ -148,6 +147,7 @@ model TestInstance {
   createdDate           DateTime              @default(now())
   updatedDate           DateTime              @default(now()) @updatedAt
   dataSize              Int                   @default(0)
+  repositoryRoot        String?
   test                  Test                  @relation(fields: [testId], references: [id], onDelete: Cascade)
   coverageFileKey       String?
   coverageProcessStatus CoverageProcessStatus @default(PENDING)
