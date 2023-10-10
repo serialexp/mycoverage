@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/Aeolun/mycoverage/compare/v1.24.2...v1.25.0) (2023-10-10)
+
+
+### Features
+
+* correctly interpret repository base ([7e05853](https://github.com/Aeolun/mycoverage/commit/7e05853a6198d66b2084865a31eee6208cdbb11d))
+
 ## [1.24.2](https://github.com/Aeolun/mycoverage/compare/v1.24.1...v1.24.2) (2023-09-29)
 
 
