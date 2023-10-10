@@ -268,9 +268,9 @@ Commit Coverage:
 - Base: ${format.format(baseCommit.coveredPercentage)}%
 - New: ${format.format(commit.coveredPercentage)}%
 
-Difference: ${format.format(commit.coveredPercentage - baseCommit.coveredPercentage)}% (${
-          differences.totalCount
-        } elements)
+Difference: ${state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"} ${format.format(
+          commit.coveredPercentage - baseCommit.coveredPercentage
+        )}% (${format.format(commit.coveredElements - baseCommit.coveredElements)} elements)
 
 ${testResults
   .map((result) => {
