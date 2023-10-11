@@ -100,7 +100,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const commit = await db.commit.upsert({
         update: {},
         create: {
-          ref: payload.pull_request.head.ref,
+          ref: payload.pull_request.head.sha,
           CommitOnBranch: {
             create: {
               Branch: {

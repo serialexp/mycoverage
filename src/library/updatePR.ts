@@ -207,7 +207,7 @@ ${baseBuildInfo.commits
         )
 
       const state =
-        commit.coveredPercentage == baseCommit.coveredPercentage
+        commit.coveredPercentage === baseCommit.coveredPercentage
           ? "SAME"
           : commit.coveredPercentage > baseCommit.coveredPercentage
           ? "BETTER"
@@ -265,12 +265,13 @@ ${
 }
 Commit Coverage:
 
-- Base: ${format.format(baseCommit.coveredPercentage)}%
-- New: ${format.format(commit.coveredPercentage)}%
+- Base: ${format.format(baseCommit.coveredPercentage, true)}%
+- New: ${format.format(commit.coveredPercentage, true)}%
 
 Difference: ${state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"} ${format.format(
-          commit.coveredPercentage - baseCommit.coveredPercentage
-        )}% (${format.format(commit.coveredElements - baseCommit.coveredElements)} elements)
+          commit.coveredPercentage - baseCommit.coveredPercentage,
+          true
+        )}% (${format.format(commit.coveredElements - baseCommit.coveredElements, true)} elements)
 
 ${testResults
   .map((result) => {
