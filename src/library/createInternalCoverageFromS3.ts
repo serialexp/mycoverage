@@ -1,7 +1,7 @@
 import { fillFromCobertura } from "src/library/coverage-formats/cobertura"
 import { fillFromLcov } from "src/library/coverage-formats/lcov"
 import { InternalCoverage } from "src/library/InternalCoverage"
-import { S3 } from "aws-sdk"
+import { S3 } from "@aws-sdk/client-s3"
 import { SourceHits } from "src/library/types"
 
 export const getCoverageFileFromS3 = async (coverageFileKey: string) => {
@@ -11,7 +11,6 @@ export const getCoverageFileFromS3 = async (coverageFileKey: string) => {
       Bucket: process.env.S3_BUCKET || "",
       Key: coverageFileKey,
     })
-    .promise()
 
   return {
     body: data.Body?.toString(),

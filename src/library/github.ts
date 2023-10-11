@@ -25,6 +25,16 @@ export async function getAppOctokit() {
 	return appOctokit;
 }
 
+export async function getGithubAccessibleRepositories() {
+  const res = await (
+    await getAppOctokit()
+  ).repos.listForAuthenticatedUser({
+    per_page: 100
+  });
+
+  return res.data
+}
+
 export async function getFileData(
 	org: string,
 	repo: string,

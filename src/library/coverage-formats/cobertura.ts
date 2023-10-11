@@ -1,4 +1,4 @@
-import Joi from "joi"
+import Joi from "zod"
 import { CoverageData } from "src/library/CoverageData"
 import { CoberturaFileFormat, InternalCoverage } from "src/library/InternalCoverage"
 import { SourceHits } from "src/library/types"
@@ -12,6 +12,7 @@ const joiMetrics = Joi.object({
   methods: Joi.number(),
   coveredmethods: Joi.number(),
   elements: Joi.number(),
+  hits: Joi.number(),
   coveredelements: Joi.number(),
 })
 
@@ -30,41 +31,30 @@ const schema = Joi.object({
       source: Joi.string(),
     }),
     metrics: joiMetrics,
-    packages: Joi.array()
-      .items(
-        Joi.object({
+    packages: Joi.array(Joi.object({
+      name: Joi.string(),
+      metrics: joiMetrics,
+      files: Joi.array(Joi.object({
+        name: Joi.string(),
+        filename: Joi.string(),
+        metrics: joiMetrics,
+        coverageData: Joi.any(),
+        lines: Joi.array(Joi.object({
+          branch: Joi.boolean(),
+          number: Joi.number(),
+          hits: Joi.number(),
+          coveredConditions: Joi.number(),
+          conditions: Joi.number(),
+          "condition-coverage": Joi.string(),
+        })),
+        functions: Joi.array(Joi.object({
           name: Joi.string(),
-          metrics: joiMetrics,
-          files: Joi.array().items(
-            Joi.object({
-              name: Joi.string(),
-              filename: Joi.string(),
-              metrics: joiMetrics,
-              coverageData: Joi.any(),
-              lines: Joi.array().items(
-                Joi.object({
-                  branch: Joi.boolean(),
-                  number: Joi.number(),
-                  hits: Joi.number(),
-                  coveredConditions: Joi.number(),
-                  conditions: Joi.number(),
-                  "condition-coverage": Joi.string(),
-                })
-              ),
-              functions: Joi.array().items(
-                Joi.object({
-                  name: Joi.string(),
-                  number: Joi.number(),
-                  hits: Joi.number(),
-                  signature: Joi.string(),
-                })
-              ),
-            })
-          ),
-        })
-      )
-      .min(1)
-      .required(),
+          number: Joi.number(),
+          hits: Joi.number(),
+          signature: Joi.string(),
+        })),
+      })),
+    })).min(1),
   }),
 })
 export const fillFromCobertura = async (
@@ -175,11 +165,7 @@ export const fillFromCobertura = async (
         },
       }
 
-      const { error, value: validatedData } = schema.validate(newData)
-
-      if (error) {
-        throw error
-      }
+      const validatedData = schema.parse(newData)
 
       coverage.data = validatedData
       InternalCoverage.updateMetrics(coverage.data)

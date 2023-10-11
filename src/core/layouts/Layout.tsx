@@ -4,6 +4,9 @@ import Head from "next/head"
 import { ReactNode } from "react"
 import { dom } from "@fortawesome/fontawesome-svg-core"
 import { Link } from "src/library/components/Link"
+import {useSession} from "@blitzjs/auth";
+import {useMutation} from "@blitzjs/rpc";
+import logout from "src/auth/mutations/logout";
 
 type LayoutProps = {
   title?: string
@@ -11,6 +14,9 @@ type LayoutProps = {
 }
 
 const Layout = ({ title, children }: LayoutProps) => {
+  const session = useSession()
+  const [logoutMutation] = useMutation(logout)
+
   return (
     <>
       <Head>
@@ -25,11 +31,12 @@ const Layout = ({ title, children }: LayoutProps) => {
             <Link href={Routes.Logs()}>Logs</Link>
             <Link href={Routes.Queues()}>Queues</Link>
             <Link href={Routes.SettingsPage()}>System Settings</Link>
+            {session.userId ? <ChakraLink onClick={() => logoutMutation({})}>Logout</ChakraLink> : null }
           </Flex>
         </Flex>
       </Container>
       <Container p={0} bg={"white"} maxW={"container.lg"}>
-        {children}
+        {session.userId ? children : <a href="/api/auth/github/login">Log In With GitHub</a>}
       </Container>
     </>
   )

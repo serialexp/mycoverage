@@ -62,7 +62,7 @@ export interface CoberturaFile {
   metrics?: Metrics
   lines: (CoberturaLine | CoberturaBranchLine)[]
   functions: CoberturaFunction[]
-  coverageData: CoverageData
+  coverageData?: CoverageData
 }
 
 export interface CoberturaFileFormat {

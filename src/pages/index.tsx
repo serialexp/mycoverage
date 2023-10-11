@@ -20,6 +20,7 @@ import { useState } from "react";
 import getGroups from "../coverage/queries/getGroups";
 import createGroupMutation from "../coverage/mutations/createGroup";
 import packageConfig from "../../package.json";
+import getAccessibleRepositories from "src/coverage/queries/getAccessibleRepositories";
 
 /*
  * This file is just for a pleasant getting started page for your new app.
@@ -29,7 +30,7 @@ import packageConfig from "../../package.json";
 const Home: BlitzPage = () => {
 	const [groups, groupsMeta] = useQuery(getGroups, null);
 	const [createGroup] = useMutation(createGroupMutation);
-
+  const repos = []
 	const [formFields, setFormFields] = useState({
 		name: "",
 		slug: "",
@@ -52,6 +53,16 @@ const Home: BlitzPage = () => {
 						</Tr>
 					);
 				})}
+        {repos.map(r => {
+          return (
+            <Tr key={r.id} _hover={{ bg: "primary.50" }}>
+              <Td>
+                {r.name}
+              </Td>
+              <Td>{r.namespace.name}</Td>
+            </Tr>
+          )
+        })}
 			</Table>
 			<Subheading>Add namespace</Subheading>
 			<Box p={4}>
