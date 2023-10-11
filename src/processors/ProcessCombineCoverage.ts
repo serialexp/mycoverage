@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client"
-import { CoberturaCoverage } from "src/library/CoberturaCoverage"
+import { InternalCoverage } from "src/library/InternalCoverage"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
@@ -187,7 +187,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 
           log(`commit: Found ${Object.keys(lastOfEach).length} tests to combine.`)
 
-          const coverage = new CoberturaCoverage()
+          const coverage = new InternalCoverage()
 
           let fileCounter = 0
           const start = new Date()
@@ -204,7 +204,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
             })
           })
 
-          CoberturaCoverage.updateMetrics(coverage.data)
+          InternalCoverage.updateMetrics(coverage.data)
           await job.updateProgress(75)
           log(
             `commit: Combined coverage results for ${fileCounter} files in ${

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
-import { CoberturaCoverage } from "src/library/CoberturaCoverage"
+import { InternalCoverage } from "src/library/InternalCoverage"
 import { coveredPercentage } from "src/library/coveredPercentage"
-import { createCoberturaCoverageFromS3 } from "src/library/createCoberturaCoverageFromS3"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
 import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
@@ -30,7 +30,7 @@ export const processAllInstances = async (job: Job<ProcessCombineCoveragePayload
     const test = all[i]
     if (!test) continue
 
-    const testCoverage = new CoberturaCoverage()
+    const testCoverage = new InternalCoverage()
 
     for (let j = 0; j < test.TestInstance.length; j++) {
       count++
@@ -52,7 +52,7 @@ export const processAllInstances = async (job: Job<ProcessCombineCoveragePayload
         },
       })
 
-      const { coverageFile: testInstanceCoverageFile } = await createCoberturaCoverageFromS3(
+      const { coverageFile: testInstanceCoverageFile } = await createInternalCoverageFromS3(
         testInstance.coverageFileKey,
         testInstance.repositoryRoot ?? undefined
       )
@@ -88,7 +88,7 @@ export const processAllInstances = async (job: Job<ProcessCombineCoveragePayload
         },
       })
     }
-    CoberturaCoverage.updateMetrics(testCoverage.data)
+    InternalCoverage.updateMetrics(testCoverage.data)
 
     log(
       `test: Test instance combination with test instances result: ${testCoverage.data.coverage.metrics?.coveredelements}/${testCoverage.data.coverage.metrics?.elements}`

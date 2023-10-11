@@ -1,91 +1,113 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { fixQuery } from "src/library/fixQuery";
-import { log } from "src/library/log";
-import { SonarIssue } from "src/library/types";
-import { sonarqubeJob } from "src/queues/SonarQubeQueue";
+import { NextApiRequest, NextApiResponse } from "next"
+import { fixQuery } from "src/library/fixQuery"
+import { log } from "src/library/log"
+import { SonarIssue } from "src/library/types"
+import { sonarqubeJob } from "src/queues/SonarQubeQueue"
 
-import db from "db";
+import db from "db"
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse,
-) {
-	if (req.headers["content-type"] !== "application/json") {
-		return res.status(400).send("Content type must be application/json");
-	}
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.headers["content-type"] !== "application/json") {
+    return res.status(400).send("Content type must be application/json")
+  }
 
-	const query = fixQuery(req.query);
-	const groupInteger = parseInt(query.groupId || "");
+  const startTime = new Date()
 
-	try {
-		const group = await db.group.findFirst({
-			where: {
-				OR: [
-					{
-						id: !isNaN(groupInteger) ? groupInteger : undefined,
-					},
-					{
-						slug: query.groupId,
-					},
-				],
-			},
-		});
+  const query = fixQuery(req.query)
+  const groupInteger = parseInt(query.groupId || "")
 
-		if (!group) {
-			throw new Error("Specified group does not exist");
-		}
+  try {
+    const group = await db.group.findFirst({
+      where: {
+        OR: [
+          {
+            id: !isNaN(groupInteger) ? groupInteger : undefined,
+          },
+          {
+            slug: query.groupId,
+          },
+        ],
+      },
+    })
 
-		const projectInteger = parseInt(query.projectId || "");
-		const project = await db.project.findFirst({
-			where: {
-				OR: [
-					{
-						id: !isNaN(projectInteger) ? projectInteger : undefined,
-					},
-					{
-						slug: query.projectId,
-						groupId: group.id,
-					},
-				],
-			},
-		});
+    if (!group) {
+      throw new Error("Specified group does not exist")
+    }
 
-		if (!project) {
-			throw new Error("Project does not exist");
-		}
+    const projectInteger = parseInt(query.projectId || "")
+    const project = await db.project.findFirst({
+      where: {
+        OR: [
+          {
+            id: !isNaN(projectInteger) ? projectInteger : undefined,
+          },
+          {
+            slug: query.projectId,
+            groupId: group.id,
+          },
+        ],
+      },
+    })
 
-		if (!req.body) {
-			throw new Error("No sonarqube data posted");
-		}
+    if (!project) {
+      throw new Error("Project does not exist")
+    }
 
-		const commit = await db["commit"].findFirst({
-			where: {
-				ref: query.ref,
-			},
-		});
+    if (!req.body) {
+      throw new Error("No sonarqube data posted")
+    }
 
-		if (!commit) {
-			throw new Error("Commit with this id does not exist");
-		}
+    const commit = await db["commit"].findFirst({
+      where: {
+        ref: query.ref,
+      },
+    })
 
-		const issues: SonarIssue[] = req.body;
+    if (!commit) {
+      throw new Error("Commit with this id does not exist")
+    }
 
-		sonarqubeJob(issues, commit, group.slug, project.slug).catch((error) => {
-			log("error adding sonarqube job", error);
-		});
+    const issues: SonarIssue[] = req.body
 
-		return res.status(200).send("Thanks");
-	} catch (error) {
-		return res.status(500).send({
-			message: error.toString(),
-		});
-	}
+    sonarqubeJob(issues, commit, group.slug, project.slug).catch((error) => {
+      log("error adding sonarqube job", error)
+    })
+
+    await db.jobLog.create({
+      data: {
+        name: "upload-sonarqube",
+        commitRef: query.ref,
+        namespace: query.groupId,
+        repository: query.projectId,
+        message: `Success uploading sonarqube`,
+        timeTaken: new Date().getTime() - startTime.getTime(),
+      },
+    })
+
+    return res.status(200).send("Thanks")
+  } catch (error) {
+    log("error in sonarqube processing", error)
+    await db.jobLog.create({
+      data: {
+        name: "upload-sonarqube",
+        commitRef: query.ref,
+        namespace: query.groupId,
+        repository: query.projectId,
+        message: `Failure uploading sonarqube ${error.message}`,
+        timeTaken: new Date().getTime() - startTime.getTime(),
+      },
+    })
+
+    return res.status(500).send({
+      message: error.toString(),
+    })
+  }
 }
 
 export const config = {
-	api: {
-		bodyParser: {
-			sizeLimit: "25mb",
-		},
-	},
-};
+  api: {
+    bodyParser: {
+      sizeLimit: "25mb",
+    },
+  },
+}

@@ -1,92 +1,112 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { fixQuery } from "src/library/fixQuery";
-import { log } from "src/library/log";
-import { ChangeFrequencyData } from "src/library/types";
-import { changeFrequencyJob } from "src/queues/ChangeFrequencyQueue";
-import db from "db";
+import { NextApiRequest, NextApiResponse } from "next"
+import { fixQuery } from "src/library/fixQuery"
+import { log } from "src/library/log"
+import { ChangeFrequencyData } from "src/library/types"
+import { changeFrequencyJob } from "src/queues/ChangeFrequencyQueue"
+import db from "db"
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse,
-) {
-	if (req.headers["content-type"] !== "application/json") {
-		return res.status(400).send("Content type must be application/json");
-	}
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.headers["content-type"] !== "application/json") {
+    return res.status(400).send("Content type must be application/json")
+  }
 
-	const query = fixQuery(req.query);
-	const groupInteger = parseInt(query.groupId || "");
+  const startTime = new Date()
 
-	try {
-		const group = await db.group.findFirst({
-			where: {
-				OR: [
-					{
-						id: !isNaN(groupInteger) ? groupInteger : undefined,
-					},
-					{
-						slug: query.groupId,
-					},
-				],
-			},
-		});
+  const query = fixQuery(req.query)
+  const groupInteger = parseInt(query.groupId || "")
 
-		if (!group) {
-			throw new Error("Specified group does not exist");
-		}
+  try {
+    const group = await db.group.findFirst({
+      where: {
+        OR: [
+          {
+            id: !isNaN(groupInteger) ? groupInteger : undefined,
+          },
+          {
+            slug: query.groupId,
+          },
+        ],
+      },
+    })
 
-		const projectInteger = parseInt(query.projectId || "");
-		const project = await db.project.findFirst({
-			where: {
-				OR: [
-					{
-						id: !isNaN(projectInteger) ? projectInteger : undefined,
-					},
-					{
-						slug: query.projectId,
-						groupId: group.id,
-					},
-				],
-			},
-		});
+    if (!group) {
+      throw new Error("Specified group does not exist")
+    }
 
-		if (!project) {
-			throw new Error("Project does not exist");
-		}
+    const projectInteger = parseInt(query.projectId || "")
+    const project = await db.project.findFirst({
+      where: {
+        OR: [
+          {
+            id: !isNaN(projectInteger) ? projectInteger : undefined,
+          },
+          {
+            slug: query.projectId,
+            groupId: group.id,
+          },
+        ],
+      },
+    })
 
-		if (!req.body) {
-			throw new Error("No change frequency data posted");
-		}
+    if (!project) {
+      throw new Error("Project does not exist")
+    }
 
-		const commit = await db["commit"].findFirst({
-			where: {
-				ref: query.ref,
-			},
-		});
+    if (!req.body) {
+      throw new Error("No change frequency data posted")
+    }
 
-		if (!commit) {
-			throw new Error("Commit with this id does not exist");
-		}
+    const commit = await db["commit"].findFirst({
+      where: {
+        ref: query.ref,
+      },
+    })
 
-		const postData: ChangeFrequencyData = req.body;
+    if (!commit) {
+      throw new Error("Commit with this id does not exist")
+    }
 
-		changeFrequencyJob(postData, commit, group.slug, project.slug).catch(
-			(error) => {
-				log("error in changefrequency job adding", error);
-			},
-		);
+    const postData: ChangeFrequencyData = req.body
 
-		return res.status(200).send("Thanks");
-	} catch (error) {
-		return res.status(500).json({
-			message: error.toString(),
-		});
-	}
+    changeFrequencyJob(postData, commit, group.slug, project.slug).catch((error) => {
+      log("error in changefrequency job adding", error)
+    })
+
+    await db.jobLog.create({
+      data: {
+        name: "upload-changefrequency",
+        commitRef: query.ref,
+        namespace: query.groupId,
+        repository: query.projectId,
+        message: `Success uploading changefrequency`,
+        timeTaken: new Date().getTime() - startTime.getTime(),
+      },
+    })
+
+    return res.status(200).send("Thanks")
+  } catch (error) {
+    log("error in changefrequency processing", error)
+    await db.jobLog.create({
+      data: {
+        name: "upload-changefrequency",
+        commitRef: query.ref,
+        namespace: query.groupId,
+        repository: query.projectId,
+        message: `Failure uploading changefrequency ${error.message}`,
+        timeTaken: new Date().getTime() - startTime.getTime(),
+      },
+    })
+
+    return res.status(500).json({
+      message: error.toString(),
+    })
+  }
 }
 
 export const config = {
-	api: {
-		bodyParser: {
-			sizeLimit: "10mb",
-		},
-	},
-};
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+}

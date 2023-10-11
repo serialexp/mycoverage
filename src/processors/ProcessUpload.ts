@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client"
-import { CoberturaCoverage } from "src/library/CoberturaCoverage"
+import { InternalCoverage } from "src/library/InternalCoverage"
 import { CoverageData } from "src/library/CoverageData"
 import { coveredPercentage } from "src/library/coveredPercentage"
-import { createCoberturaCoverageFromS3 } from "src/library/createCoberturaCoverageFromS3"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
 import { SourceHits } from "src/library/types"
@@ -47,7 +47,7 @@ export const uploadWorker = new Worker<{
 
       await job.updateProgress(10)
 
-      const { coverageFile, contentLength } = await createCoberturaCoverageFromS3(coverageFileKey)
+      const { coverageFile, contentLength } = await createInternalCoverageFromS3(coverageFileKey)
 
       await job.updateProgress(40)
 

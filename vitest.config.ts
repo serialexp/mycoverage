@@ -18,7 +18,7 @@ export default defineConfig({
       provider: "istanbul",
       include: ["src/**/*"],
       all: true,
-      reporter: ["text", "cobertura", "html"],
+      reporter: ["text", "clover", "json", "cobertura", "lcov", "html"],
     },
   },
 })

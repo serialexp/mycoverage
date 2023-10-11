@@ -1,6 +1,6 @@
 import { Ctx } from "blitz"
 import db from "db"
-import { getCoverageFileFromS3 } from "src/library/createCoberturaCoverageFromS3"
+import { getCoverageFileFromS3 } from "src/library/createInternalCoverageFromS3"
 
 export default async function getTestInstanceData(
   args: { testInstanceId?: number },

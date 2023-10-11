@@ -242,6 +242,9 @@ model JobLog {
   timeTaken   Int      @default(0)
   status      String   @default("")
   commitRef   String   @default("")
+
+  @@index([createdDate])
+  @@index([commitRef])
 }
 
 model CodeIssue {

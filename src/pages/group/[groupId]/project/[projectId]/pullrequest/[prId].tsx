@@ -11,6 +11,7 @@ import { BuildStatus } from "src/library/components/BuildStatus"
 import { CommitInfo } from "src/library/components/CommitInfo"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
+import { Section } from "src/library/components/Section"
 import { Subheading } from "src/library/components/Subheading"
 import { TestResults } from "src/library/components/TestResults"
 import TimeAgo from "react-timeago"
@@ -226,17 +227,21 @@ const PullRequestPage: BlitzPage = () => {
           baseMetrics={baseBuildInfo.lastProcessedCommit ?? undefined}
         />
       ) : null}
-      <Subheading mt={4} size={"md"}>
-        Test results ({buildInfo?.lastCommit?.Test.length})
-      </Subheading>
-      <TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />
-      <TestResults
-        groupId={groupId}
-        projectId={projectId}
-        commit={buildInfo?.lastCommit}
-        baseCommit={baseBuildInfo?.lastCommit ?? undefined}
-        expectedResult={project?.ExpectedResult}
-      />
+
+      <Section
+        title={`Test results (${buildInfo?.lastCommit?.Test.length})`}
+        summary={<TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />}
+      >
+        <TestResultStatus status={buildInfo?.lastCommit?.coverageProcessStatus} />
+        <TestResults
+          groupId={groupId}
+          projectId={projectId}
+          commit={buildInfo?.lastCommit}
+          baseCommit={baseBuildInfo?.lastCommit ?? undefined}
+          expectedResult={project?.ExpectedResult}
+        />
+      </Section>
+
       <Subheading mt={4} size={"md"}>
         Recent Commits
       </Subheading>

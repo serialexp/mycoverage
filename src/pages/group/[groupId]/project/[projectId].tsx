@@ -39,6 +39,7 @@ import getLastBuildInfo from "../../../../coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import TimeAgo from "react-timeago"
 import { combineIssueCount } from "src/library/combineIssueCount"
+import { Section } from "src/library/components/Section"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
@@ -137,14 +138,21 @@ const ProjectPage: BlitzPage = () => {
         </>
       ) : null}
 
-      <Subheading>Test results ({buildInfo?.lastProcessedCommit?.Test.length})</Subheading>
-      <TestResultStatus status={buildInfo?.lastProcessedCommit?.coverageProcessStatus} />
-      <TestResults
-        groupId={groupId}
-        projectId={projectId}
-        commit={buildInfo?.lastProcessedCommit}
-        expectedResult={project.ExpectedResult}
-      />
+      <Section
+        title={`Test results (${buildInfo?.lastProcessedCommit?.Test.length})`}
+        summary={
+          <TestResultStatus status={buildInfo?.lastProcessedCommit?.coverageProcessStatus} />
+        }
+      >
+        <TestResultStatus status={buildInfo?.lastProcessedCommit?.coverageProcessStatus} />
+        <TestResults
+          groupId={groupId}
+          projectId={projectId}
+          commit={buildInfo?.lastProcessedCommit}
+          expectedResult={project.ExpectedResult}
+        />
+      </Section>
+
       <Subheading>Coverage Map</Subheading>
       {buildInfo?.lastProcessedCommit?.id ? (
         <TreeMap

@@ -78,6 +78,17 @@ export const RecentPRTable = (props: Props) => {
                 <Minibar progress={commit.coveredPercentage / 100} />
               </Td>
               <Td>
+                <Link
+                  passHref={true}
+                  href={Routes.CommitPage({
+                    groupId: props.groupId,
+                    projectId: props.project.slug,
+                    commitRef: commit.ref,
+                  })}
+                >
+                  <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
+                </Link>
+                <br />
                 <TimeAgo live={false} date={commit.createdDate} />
               </Td>
             </Tr>
