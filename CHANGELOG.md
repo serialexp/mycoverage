@@ -1,3 +1,10 @@
+## [1.25.2](https://github.com/Aeolun/mycoverage/compare/v1.25.1...v1.25.2) (2023-10-11)
+
+
+### Bug Fixes
+
+* use sha as commit ref ([afe350d](https://github.com/Aeolun/mycoverage/commit/afe350d15276b67e0a5d7dc8bd6f19648a6f7035))
+
 ## [1.25.1](https://github.com/Aeolun/mycoverage/compare/v1.25.0...v1.25.1) (2023-10-10)
 
 
