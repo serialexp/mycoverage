@@ -12,9 +12,19 @@ export const getCoverageFileFromS3 = async (coverageFileKey: string) => {
 	});
 
 	return {
-		body: data.Body?.toString(),
+		body: await data.Body?.transformToString(),
 		contentLength: data.ContentLength,
 	};
+};
+
+export const detectCoverageKindFromBody = (body: string) => {
+	if (body.substring(0, 5) === "<?xml") {
+		return "cobertura";
+	} else if (body.substring(0, 3) === "TN:") {
+		return "lcov";
+	} else {
+		return "json";
+	}
 };
 
 export const createInternalCoverageFromS3 = async (
