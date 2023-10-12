@@ -23,7 +23,7 @@ jobs:
       - name: Run unit tests
         run: pnpm run test:coverage
       - name: Post coverage results to mycoverage
-        run: pnpx mycoverage-cli upload-coverage -t unit_test coverage/cobertura-coverage.xml
+        run: pnpx mycoverage-cli upload-coverage -t unit_test coverage/lcov.info
   typescript:
     name: Typescript
     runs-on: ubuntu-latest
