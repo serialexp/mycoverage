@@ -1,8 +1,4 @@
-import path from "path"
 import { CoverageData } from "src/library/CoverageData"
-import { SourceHits } from "src/library/types"
-import { parseString } from "xml2js"
-import Joi from "joi"
 
 export interface CloverMetrics {
   statements: number

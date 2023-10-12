@@ -7,7 +7,7 @@ import { slugify } from "src/library/slugify";
 import { SourceHits } from "src/library/types";
 import { uploadJob } from "src/queues/UploadQueue";
 import db, { CoverageProcessStatus } from "db";
-import { S3 } from "aws-sdk";
+import { S3 } from "@aws-sdk/client-s3";
 import { z } from "zod";
 
 const schema = z.object({
@@ -205,13 +205,11 @@ export default async function handler(
 
 			const s3 = new S3({});
 			await measure("upload to s3", () => {
-				return s3
-					.putObject({
-						Bucket: process.env.S3_BUCKET || "",
-						Key: s3FileKey,
-						Body: JSON.stringify(req.body),
-					})
-					.promise();
+				return s3.putObject({
+					Bucket: process.env.S3_BUCKET || "",
+					Key: s3FileKey,
+					Body: JSON.stringify(req.body),
+				});
 			});
 			timeSinceLast("uploaded");
 

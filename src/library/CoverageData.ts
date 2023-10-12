@@ -125,9 +125,15 @@ export class CoverageData {
 
     record.lines.forEach((branch) => {
       if (branch.branches) {
-        coverage.addBranch(branch.line, branch.hits, branch.branches.found, branch.branches.hit, {
-          [testName]: [branch.hits],
-        })
+        coverage.addBranch(
+          branch.line,
+          branch.hits,
+          Object.keys(branch.branches).length,
+          Object.values(branch.branches).filter((v) => v > 0).length,
+          {
+            [testName]: [branch.hits],
+          }
+        )
       }
     })
 
@@ -398,10 +404,8 @@ export class CoverageData {
           lines.push({
             line: line.line,
             hits: line.hits,
-            branches: {
-              found: line.conditionals,
-              hit: line.coveredConditionals,
-            },
+            // TODO: This is not correct, coverageData does not have this info, need up modify CoverageData object
+            branches: {},
           })
         } else if (line.type === "function") {
           functions.push({

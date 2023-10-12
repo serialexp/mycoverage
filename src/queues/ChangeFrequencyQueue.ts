@@ -2,7 +2,7 @@ import { log } from "src/library/log";
 import { ChangeFrequencyData } from "src/library/types";
 import { queueConfig } from "src/queues/config";
 import { Commit } from "db";
-import { Queue, QueueScheduler } from "bullmq";
+import { Queue } from "bullmq";
 
 export const changeFrequencyQueue = new Queue("changefrequency", {
 	connection: queueConfig,
@@ -10,13 +10,6 @@ export const changeFrequencyQueue = new Queue("changefrequency", {
 		removeOnFail: true,
 	},
 });
-export const changeFrequencyQueueScheduler = new QueueScheduler(
-	"changefrequency",
-	{
-		connection: queueConfig,
-		stalledInterval: 60 * 1000,
-	},
-);
 
 export const changeFrequencyJob = (
 	postData: ChangeFrequencyData,

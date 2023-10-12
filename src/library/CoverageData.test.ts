@@ -1,4 +1,5 @@
 import { CoverageData } from "src/library/CoverageData";
+import { describe, expect, it } from "vitest";
 
 const data1 = `stmt,7,21,file0=21
 func,7,0,()V,(anonymous_0),file0=0

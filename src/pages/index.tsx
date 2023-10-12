@@ -30,7 +30,6 @@ import getAccessibleRepositories from "src/coverage/queries/getAccessibleReposit
 const Home: BlitzPage = () => {
 	const [groups, groupsMeta] = useQuery(getGroups, null);
 	const [createGroup] = useMutation(createGroupMutation);
-  const repos = []
 	const [formFields, setFormFields] = useState({
 		name: "",
 		slug: "",
@@ -53,16 +52,6 @@ const Home: BlitzPage = () => {
 						</Tr>
 					);
 				})}
-        {repos.map(r => {
-          return (
-            <Tr key={r.id} _hover={{ bg: "primary.50" }}>
-              <Td>
-                {r.name}
-              </Td>
-              <Td>{r.namespace.name}</Td>
-            </Tr>
-          )
-        })}
 			</Table>
 			<Subheading>Add namespace</Subheading>
 			<Box p={4}>

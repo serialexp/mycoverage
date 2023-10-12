@@ -1,4 +1,5 @@
 import fs from "fs"
+import { describe, expect, it } from "vitest"
 import { fillFromCobertura } from "src/library/coverage-formats/cobertura"
 import { fillFromLcov } from "src/library/coverage-formats/lcov"
 import { InternalCoverage } from "src/library/InternalCoverage"
@@ -23,7 +24,7 @@ describe("CoverturaCoverage", () => {
     const internalCoverage = new InternalCoverage()
 
     await fillFromLcov(internalCoverage, {
-      data: fs.readFileSync(__dirname + "/coverage/mock-coverage/lcov.info").toString(),
+      data: fs.readFileSync(`${__dirname}/coverage/mock-coverage/lcov.info`).toString(),
       sourceHits: {},
       repositoryRoot: "/Users/bart.riepe/Projects/mycoverage",
     })
@@ -32,7 +33,7 @@ describe("CoverturaCoverage", () => {
 
     await fillFromCobertura(otherInternalCoverage, {
       data: fs
-        .readFileSync(__dirname + "/coverage/mock-coverage/cobertura-coverage.xml")
+        .readFileSync(`${__dirname}/coverage/mock-coverage/cobertura-coverage.xml`)
         .toString(),
       sourceHits: {},
       repositoryRoot: "/Users/bart.riepe/Projects/mycoverage",
@@ -85,7 +86,7 @@ describe("CoverturaCoverage", () => {
     InternalCoverage.updateMetrics(coberturaCoverage.data)
 
     const data =
-      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData.coverage["2"]?.[0]
+      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData?.coverage["2"]?.[0]
     const data2 = data?.hitsBySource["stuff"]
 
     expect(data?.hits).toEqual(7)
@@ -95,7 +96,7 @@ describe("CoverturaCoverage", () => {
   it("adds hits information during init", async () => {
     const coberturaCoverage = new InternalCoverage()
     await fillFromCobertura(coberturaCoverage, {
-      data: `<coverage><sources><source>src/</source></sources><packages><package name="super"><classes><class name="sexy"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
+      data: `<coverage version="1"><sources><source>src/</source></sources><packages><package name="super"><classes><class name="sexy"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
       sourceHits: {
         "super/sexy": [
           {
@@ -110,7 +111,7 @@ describe("CoverturaCoverage", () => {
     })
 
     const data =
-      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData.coverage["2"]?.[0]
+      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData?.coverage["2"]?.[0]
 
     expect(data?.hitsBySource["elegant"]).toEqual([2])
   })
@@ -129,7 +130,7 @@ describe("CoverturaCoverage", () => {
       for (const source of sourcePermutations) {
         const coberturaCoverage = new InternalCoverage()
         await fillFromCobertura(coberturaCoverage, {
-          data: `<coverage><sources><source>${source}</source></sources><packages><package name="extra.super"><classes><class name="sexy.ts"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
+          data: `<coverage version="1"><sources><source>${source}</source></sources><packages><package name="extra.super"><classes><class name="sexy.ts"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
           sourceHits: {},
           repositoryRoot: root,
         })

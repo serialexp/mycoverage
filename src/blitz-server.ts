@@ -17,8 +17,4 @@ export const { gSSP, gSP, api } = setupBlitzServer({
 			isAuthorized: simpleRolesIsAuthorized,
 		}),
 	],
-	logger: BlitzLogger({
-		// no more noise in production
-		minLevel: process.env.NODE_ENV === "production" ? "warn" : "info",
-	}),
 });

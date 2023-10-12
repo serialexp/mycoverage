@@ -26,13 +26,13 @@ export async function getAppOctokit() {
 }
 
 export async function getGithubAccessibleRepositories() {
-  const res = await (
-    await getAppOctokit()
-  ).repos.listForAuthenticatedUser({
-    per_page: 100
-  });
+	const res = await (
+		await getAppOctokit()
+	).repos.listForAuthenticatedUser({
+		per_page: 100,
+	});
 
-  return res.data
+	return res.data;
 }
 
 export async function getFileData(
