@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/Aeolun/mycoverage/compare/v1.25.2...v1.26.0) (2023-10-12)
+
+
+### Features
+
+* ability to process lcov files ([#4](https://github.com/Aeolun/mycoverage/issues/4)) ([da7b9ef](https://github.com/Aeolun/mycoverage/commit/da7b9efc9ba1d4f97b5dec9313241b5358cdcc2e))
+
 ## [1.25.2](https://github.com/Aeolun/mycoverage/compare/v1.25.1...v1.25.2) (2023-10-11)
 
 
