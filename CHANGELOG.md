@@ -1,3 +1,10 @@
+## [1.26.1](https://github.com/Aeolun/mycoverage/compare/v1.26.0...v1.26.1) (2023-10-12)
+
+
+### Bug Fixes
+
+* slight styling update ([dff0195](https://github.com/Aeolun/mycoverage/commit/dff0195e46d15769e3c4a0b256b9c36155d7d900))
+
 # [1.26.0](https://github.com/Aeolun/mycoverage/compare/v1.25.2...v1.26.0) (2023-10-12)
 
 
