@@ -32,8 +32,6 @@ export const CoverageGraph = (props: Props) => {
 	});
 	const router = useRouter();
 
-	//console.log(queryData)
-
 	const coverageForTests = queryData?.map((commit) => {
 		const percent = commit?.coveredPercentage ?? 0;
 		return {
@@ -48,7 +46,6 @@ export const CoverageGraph = (props: Props) => {
 					: "var(--chakra-colors-red-500)",
 		};
 	});
-	console.log(coverageForTests);
 
 	return (
 		<Box width={"100%"} height={"200px"}>
@@ -104,9 +101,7 @@ export const CoverageGraph = (props: Props) => {
 				]}
 				onClick={async (data: Point) => {
 					const ourPoint: OurPoint = data as unknown as OurPoint;
-					console.log("click", ourPoint.data.ref);
 					if (props.clickRedirect) {
-						console.log("redirecitng");
 						const url = await props.clickRedirect(ourPoint.data.ref);
 						if (url) {
 							router.push(url);

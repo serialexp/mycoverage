@@ -1,6 +1,6 @@
-import theme from "@chakra-ui/theme";
-import { TreeMapInputData } from "src/library/components/TreeMap";
+import { theme } from "@chakra-ui/theme";
 import { Ctx } from "blitz";
+import { TreeMapInputData } from "src/library/components/TreeMap";
 import db from "db";
 import { scaleLinear } from "d3-scale";
 
@@ -27,10 +27,7 @@ const getColor = (fraction: number): string => {
 	//return interpolateRdYlGn(fraction)
 };
 
-export default async function getTree(
-	args: { commitId: number },
-	{ session }: Ctx,
-) {
+export default async function getTree(args: { commitId: number }, ctx: Ctx) {
 	if (!args.commitId) return undefined;
 
 	const coverage = await db.packageCoverage.findMany({

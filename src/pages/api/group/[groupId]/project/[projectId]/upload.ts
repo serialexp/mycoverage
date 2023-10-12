@@ -5,7 +5,7 @@ import { log } from "src/library/log";
 import { slugify } from "src/library/slugify";
 import { uploadJob, uploadQueue } from "src/queues/UploadQueue";
 import db, { CoverageProcessStatus } from "db";
-import { S3 } from "aws-sdk";
+import { S3 } from "@aws-sdk/client-s3";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -70,17 +70,15 @@ export default async function handler(
 
 			const coverageFileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${
 				project.slug
-			}/${query.ref}/instance-${query.testName}-${new Date().getTime()}.xml`;
+			}/${query.ref}/instance-${query.testName}-${new Date().getTime()}.data`;
 
 			log("uploading to s3");
 			const s3 = new S3({});
-			await s3
-				.putObject({
-					Bucket: process.env.S3_BUCKET || "",
-					Key: coverageFileKey,
-					Body: req.body,
-				})
-				.promise();
+			await s3.putObject({
+				Bucket: process.env.S3_BUCKET || "",
+				Key: coverageFileKey,
+				Body: req.body,
+			});
 			log("uploaded");
 
 			log("finding branch");

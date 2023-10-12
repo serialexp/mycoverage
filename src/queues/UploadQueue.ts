@@ -1,22 +1,15 @@
-import {
-	CoberturaCoverage,
-	CloverMetrics,
-} from "src/library/CoberturaCoverage";
+import { InternalCoverage, CloverMetrics } from "src/library/InternalCoverage";
 import { log } from "src/library/log";
 import { SourceHits } from "src/library/types";
 import { queueConfig } from "src/queues/config";
 import db, { Test, Commit, TestInstance } from "db";
-import { Queue, QueueScheduler } from "bullmq";
+import { Queue } from "bullmq";
 
 export const uploadQueue = new Queue("upload", {
 	connection: queueConfig,
 	defaultJobOptions: {
 		removeOnFail: true,
 	},
-});
-export const uploadQueueScheduler = new QueueScheduler("upload", {
-	connection: queueConfig,
-	stalledInterval: 60 * 1000,
 });
 
 export const uploadJob = async (

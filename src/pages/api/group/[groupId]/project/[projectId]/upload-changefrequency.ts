@@ -13,6 +13,8 @@ export default async function handler(
 		return res.status(400).send("Content type must be application/json");
 	}
 
+	const startTime = new Date();
+
 	const query = fixQuery(req.query);
 	const groupInteger = parseInt(query.groupId || "");
 
@@ -75,8 +77,31 @@ export default async function handler(
 			},
 		);
 
+		await db.jobLog.create({
+			data: {
+				name: "upload-changefrequency",
+				commitRef: query.ref,
+				namespace: query.groupId,
+				repository: query.projectId,
+				message: "Success uploading changefrequency",
+				timeTaken: new Date().getTime() - startTime.getTime(),
+			},
+		});
+
 		return res.status(200).send("Thanks");
 	} catch (error) {
+		log("error in changefrequency processing", error);
+		await db.jobLog.create({
+			data: {
+				name: "upload-changefrequency",
+				commitRef: query.ref,
+				namespace: query.groupId,
+				repository: query.projectId,
+				message: `Failure uploading changefrequency ${error.message}`,
+				timeTaken: new Date().getTime() - startTime.getTime(),
+			},
+		});
+
 		return res.status(500).json({
 			message: error.toString(),
 		});

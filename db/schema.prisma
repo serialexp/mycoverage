@@ -28,8 +28,8 @@ model Session {
   handle             String    @unique
   hashedSessionToken String?
   antiCSRFToken      String?
-  publicData         String?
-  privateData        String?
+  publicData         String?   @db.Text
+  privateData        String?   @db.Text
   userId             Int?
   user               User?     @relation(fields: [userId], references: [id])
 
@@ -242,6 +242,9 @@ model JobLog {
   timeTaken   Int      @default(0)
   status      String   @default("")
   commitRef   String   @default("")
+
+  @@index([createdDate])
+  @@index([commitRef])
 }
 
 model CodeIssue {

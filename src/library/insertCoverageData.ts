@@ -1,15 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import {
-	CoberturaCoverage,
-	CoberturaFile,
-} from "src/library/CoberturaCoverage";
+import { InternalCoverage, CoberturaFile } from "src/library/InternalCoverage";
 import { CoverageData } from "src/library/CoverageData";
 import { coveredPercentage } from "src/library/coveredPercentage";
 import { SourceHits } from "src/library/types";
 import db, { Commit, Test, TestInstance } from "db";
 
 export const insertCoverageData = async (
-	covInfo: CoberturaCoverage["data"]["coverage"],
+	covInfo: InternalCoverage["data"]["coverage"],
 	where: { commitId: number } | { testId: number },
 ) => {
 	const mydb: PrismaClient = db;
@@ -83,7 +80,11 @@ export const insertCoverageData = async (
 	});
 	for (const pkg of covInfo.packages) {
 		for (const file of pkg.files) {
-			const coverageData = new CoverageData(file.coverageData.coverage);
+			if (!file.coverageData) {
+				throw new Error(
+					`File ${file.filename ?? file.name} has no coverage data`,
+				);
+			}
 			fileDatas.push({
 				name: file.name,
 				packageCoverageId: packageCoverageIds[pkg.name],
@@ -94,7 +95,7 @@ export const insertCoverageData = async (
 				coveredStatements: file.metrics?.coveredstatements ?? 0,
 				coveredConditionals: file.metrics?.coveredconditionals ?? 0,
 				coveredMethods: file.metrics?.coveredmethods ?? 0,
-				coverageData: Buffer.from(coverageData.toProtobuf()),
+				coverageData: Buffer.from(file.coverageData.toProtobuf()),
 				coveredElements: file.metrics?.coveredelements ?? 0,
 				elements: file.metrics?.elements ?? 0,
 				coveredPercentage: coveredPercentage(file.metrics),

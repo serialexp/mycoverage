@@ -1,7 +1,7 @@
 import { log } from "src/library/log";
 import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage";
 import { queueConfig } from "src/queues/config";
-import { Queue, QueueScheduler } from "bullmq";
+import { Queue } from "bullmq";
 
 export const combineCoverageQueue = new Queue<ProcessCombineCoveragePayload>(
 	"combinecoverage",
@@ -10,13 +10,6 @@ export const combineCoverageQueue = new Queue<ProcessCombineCoveragePayload>(
 		defaultJobOptions: {
 			removeOnFail: true,
 		},
-	},
-);
-export const combineCoverageQueueScheduler = new QueueScheduler(
-	"combinecoverage",
-	{
-		connection: queueConfig,
-		stalledInterval: 300 * 1000,
 	},
 );
 

@@ -20,6 +20,7 @@ import { useState } from "react";
 import getGroups from "../coverage/queries/getGroups";
 import createGroupMutation from "../coverage/mutations/createGroup";
 import packageConfig from "../../package.json";
+import getAccessibleRepositories from "src/coverage/queries/getAccessibleRepositories";
 
 /*
  * This file is just for a pleasant getting started page for your new app.
@@ -29,7 +30,6 @@ import packageConfig from "../../package.json";
 const Home: BlitzPage = () => {
 	const [groups, groupsMeta] = useQuery(getGroups, null);
 	const [createGroup] = useMutation(createGroupMutation);
-
 	const [formFields, setFormFields] = useState({
 		name: "",
 		slug: "",

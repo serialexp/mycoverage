@@ -330,6 +330,7 @@ export const sonarqubeWorker = new Worker<{
 		lockDuration: 300 * 1000,
 		concurrency: 1,
 		autorun: false,
+		stalledInterval: 60 * 1000,
 	},
 );
 

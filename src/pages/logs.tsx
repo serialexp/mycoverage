@@ -9,12 +9,14 @@ import {
 	Th,
 	Link as ChakraLink,
 	Input,
+	Flex,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import getLogs from "src/coverage/queries/getLogs";
 import { Heading } from "src/library/components/Heading";
 import Layout from "src/core/layouts/Layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Datetime from "react-datetime";
 
 /*
  * This file is just for a pleasant getting started page for your new app.
@@ -23,14 +25,38 @@ import { useState } from "react";
 
 const Logs: BlitzPage = () => {
 	const [filter, setFilter] = useState("");
+	const [minDate, setMinDate] = useState<Date>(new Date(0));
+	const [maxDate, setMaxDate] = useState<Date>(new Date(0));
+	useEffect(() => {
+		setMinDate(new Date(Date.now() - 86400000));
+		setMaxDate(new Date());
+	}, []);
 	const [logs] = useQuery(getLogs, {
+		minDate,
+		maxDate,
 		filter: filter,
 	});
 
 	return (
 		<>
 			<Heading>Logs</Heading>
-			<Box p={4}>
+			<Flex p={4} flexDirection={"row"} gap={4}>
+				<Box border={"1px solid black"}>
+					<Datetime
+						value={minDate}
+						onChange={(e) => {
+							setMinDate(typeof e === "string" ? new Date(e) : e.toDate());
+						}}
+					/>
+				</Box>
+				<Box border={"1px solid black"}>
+					<Datetime
+						value={maxDate}
+						onChange={(e) => {
+							setMaxDate(typeof e === "string" ? new Date(e) : e.toDate());
+						}}
+					/>
+				</Box>
 				<Input
 					placeholder={"Filter"}
 					onBlur={(e) => {
@@ -42,7 +68,7 @@ const Logs: BlitzPage = () => {
 						}
 					}}
 				/>
-			</Box>
+			</Flex>
 			<Table size="sm">
 				<Thead>
 					<Tr>
@@ -59,7 +85,13 @@ const Logs: BlitzPage = () => {
 					return (
 						<Tr key={g.id} _hover={{ bg: "primary.50" }}>
 							<Td>
-								<Link href={Routes.Logs({ commitRef: g.commitRef })}>
+								<Link
+									href={Routes.CommitPage({
+										groupId: g.namespace,
+										projectId: g.repository,
+										commitRef: g.commitRef,
+									})}
+								>
 									<ChakraLink color={"blue.500"}>
 										{g.commitRef.substr(0, 10)}
 									</ChakraLink>

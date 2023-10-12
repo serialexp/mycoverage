@@ -14,6 +14,8 @@ export default async function handler(
 		return res.status(400).send("Content type must be application/json");
 	}
 
+	const startTime = new Date();
+
 	const query = fixQuery(req.query);
 	const groupInteger = parseInt(query.groupId || "");
 
@@ -74,8 +76,31 @@ export default async function handler(
 			log("error adding sonarqube job", error);
 		});
 
+		await db.jobLog.create({
+			data: {
+				name: "upload-sonarqube",
+				commitRef: query.ref,
+				namespace: query.groupId,
+				repository: query.projectId,
+				message: "Success uploading sonarqube",
+				timeTaken: new Date().getTime() - startTime.getTime(),
+			},
+		});
+
 		return res.status(200).send("Thanks");
 	} catch (error) {
+		log("error in sonarqube processing", error);
+		await db.jobLog.create({
+			data: {
+				name: "upload-sonarqube",
+				commitRef: query.ref,
+				namespace: query.groupId,
+				repository: query.projectId,
+				message: `Failure uploading sonarqube ${error.message}`,
+				timeTaken: new Date().getTime() - startTime.getTime(),
+			},
+		});
+
 		return res.status(500).send({
 			message: error.toString(),
 		});

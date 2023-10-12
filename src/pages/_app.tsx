@@ -13,6 +13,7 @@ import { AuthenticationError, AuthorizationError } from "blitz";
 import React, { Suspense } from "react";
 import { withBlitz } from "src/blitz-client";
 import "src/styles/globals.css";
+import "react-datetime/css/react-datetime.css";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";

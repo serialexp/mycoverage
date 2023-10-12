@@ -48,10 +48,18 @@ export const RecentCommitTable = (props: Props) => {
 				<Tr>
 					<Th>Commit Sha</Th>
 					<Th>Branch</Th>
-					<Th width={"10%"}>Issues</Th>
-					<Th width={"10%"}>Tests</Th>
-					<Th width={"15%"}>Coverage</Th>
-					<Th width={"25%"}>Created</Th>
+					<Th width={"10%"} isNumeric>
+						Issues
+					</Th>
+					<Th width={"10%"} isNumeric>
+						Tests
+					</Th>
+					<Th width={"15%"} isNumeric>
+						Coverage
+					</Th>
+					<Th width={"15%"} isNumeric>
+						Created
+					</Th>
 				</Tr>
 			</Thead>
 			<Tbody>
@@ -84,24 +92,25 @@ export const RecentCommitTable = (props: Props) => {
 											})}
 										>
 											<ChakraLink color={"blue.500"}>
-												{b.Branch.name}
+												{b.Branch.name.substring(0, 40)}
+												{b.Branch.name.length > 40 ? "..." : null}
 											</ChakraLink>
 										</Link>
 									</Tag>
 								))}
 							</Td>
-							<Td>{format.format(combineIssueCount(commit))}</Td>
-							<Td>
+							<Td isNumeric>{format.format(combineIssueCount(commit))}</Td>
+							<Td isNumeric>
 								<BuildStatus
 									commit={commit}
 									expectedResults={props.project?.ExpectedResult}
 									targetBranch={props.project.defaultBaseBranch}
 								/>
 							</Td>
-							<Td>
+							<Td isNumeric>
 								<Minibar progress={commit.coveredPercentage / 100} />
 							</Td>
-							<Td>
+							<Td isNumeric>
 								<TimeAgo live={false} date={commit.createdDate} />
 							</Td>
 						</Tr>

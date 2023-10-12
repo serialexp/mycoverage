@@ -1,7 +1,9 @@
 import { BlitzPage, Routes, useParam } from "@blitzjs/next";
 import { useMutation, useQuery } from "@blitzjs/rpc";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import combineCoverage from "src/coverage/mutations/combineCoverage";
+import getLogs from "src/coverage/queries/getLogs";
 import getPackagesForCommit from "src/coverage/queries/getPackagesForCommit";
 import getProject from "src/coverage/queries/getProject";
 import { Actions } from "src/library/components/Actions";
@@ -10,6 +12,7 @@ import { CoverageSummary } from "src/library/components/CoverageSummary";
 import { Heading } from "src/library/components/Heading";
 import { IssueSummary } from "src/library/components/IssueSummary";
 import { PackageFileTable } from "src/library/components/PackageFileTable";
+import { Section } from "src/library/components/Section";
 import { Subheading } from "src/library/components/Subheading";
 import { TestResults } from "src/library/components/TestResults";
 import { TestResultStatus } from "src/library/components/TestResultStatus";
@@ -32,6 +35,19 @@ const CommitPage: BlitzPage = () => {
 	const [packages] = useQuery(getPackagesForCommit, {
 		commitId: commit?.id || 0,
 		path: undefined,
+	});
+	const [minDate, setMinDate] = useState(new Date(0));
+	const [maxDate, setMaxDate] = useState(new Date(0));
+
+	useEffect(() => {
+		setMinDate(new Date(Date.now() - 86400 * 1000 * 7));
+		setMaxDate(new Date());
+	}, []);
+
+	const [logs] = useQuery(getLogs, {
+		minDate,
+		maxDate,
+		commitRef: commit?.ref ?? "",
 	});
 
 	const toast = useToast();
@@ -59,6 +75,13 @@ const CommitPage: BlitzPage = () => {
 				>
 					<Button ml={2}>Code Issues</Button>
 				</Link>
+				<Link
+					href={`https://github.com/${project.group.githubName}/${project.name}/commit/${commitRef}`}
+					target={"_blank"}
+				>
+					<Button ml={2}>Github</Button>
+				</Link>
+
 				<Button
 					ml={2}
 					leftIcon={<FaClock />}
@@ -97,20 +120,54 @@ const CommitPage: BlitzPage = () => {
 				metrics={commit}
 				processing={commit.coverageProcessStatus !== "FINISHED"}
 			/>
+			<Section
+				title={"Logs"}
+				summary={
+					<Table>
+						<Tr>
+							<Td>Time</Td>
+							<Td>Message</Td>
+						</Tr>
+						{logs.slice(0, 3).map((log) => (
+							<Tr key={log.id}>
+								<Td>{log.createdDate.toISOString()}</Td>
+								<Td>{log.message}</Td>
+							</Tr>
+						))}
+					</Table>
+				}
+			>
+				<Table>
+					<Tr>
+						<Td>Time</Td>
+						<Td>Message</Td>
+					</Tr>
+					{logs.map((log) => (
+						<Tr key={log.id}>
+							<Td>{log.createdDate.toISOString()}</Td>
+							<Td>{log.message}</Td>
+						</Tr>
+					))}
+				</Table>
+			</Section>
+
 			<Subheading mt={4} size={"md"}>
 				Issues
 			</Subheading>
 			<IssueSummary commit={commit} projectId={projectId} groupId={groupId} />
-			<Subheading mt={4} size={"md"}>
-				Test results ({commit.Test.length})
-			</Subheading>
-			<TestResultStatus status={commit.coverageProcessStatus} />
-			<TestResults
-				groupId={groupId}
-				projectId={projectId}
-				commit={commit}
-				expectedResult={project.ExpectedResult}
-			/>
+			<Section
+				title={`Test results (${commit.Test.length})`}
+				summary={<TestResultStatus status={commit.coverageProcessStatus} />}
+			>
+				<TestResultStatus status={commit.coverageProcessStatus} />
+				<TestResults
+					groupId={groupId}
+					projectId={projectId}
+					commit={commit}
+					expectedResult={project.ExpectedResult}
+				/>
+			</Section>
+
 			<Subheading>Coverage Map</Subheading>
 			<TreeMap
 				commitId={commit.id}

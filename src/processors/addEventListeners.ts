@@ -11,7 +11,7 @@ export const addEventListeners = (worker: Worker) => {
 	});
 
 	worker.on("failed", (job, err) => {
-		log(`${job.name}:${job.id} has failed with ${err.message}`);
+		log(`${job?.name}:${job?.id} has failed with ${err.message}`);
 		log("error data", err);
 	});
 };
