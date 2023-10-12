@@ -1,3 +1,10 @@
+## [1.26.2](https://github.com/Aeolun/mycoverage/compare/v1.26.1...v1.26.2) (2023-10-12)
+
+
+### Bug Fixes
+
+* update coverage retrievel for new s3 library ([69dc493](https://github.com/Aeolun/mycoverage/commit/69dc493696f1b8780cab3a7932e334277c6eb552))
+
 ## [1.26.1](https://github.com/Aeolun/mycoverage/compare/v1.26.0...v1.26.1) (2023-10-12)
 
 
