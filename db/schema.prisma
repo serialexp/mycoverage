@@ -148,6 +148,7 @@ model TestInstance {
   updatedDate           DateTime              @default(now()) @updatedAt
   dataSize              Int                   @default(0)
   repositoryRoot        String?
+  workingDirectory      String?
   test                  Test                  @relation(fields: [testId], references: [id], onDelete: Cascade)
   coverageFileKey       String?
   coverageProcessStatus CoverageProcessStatus @default(PENDING)
