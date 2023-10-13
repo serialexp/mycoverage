@@ -1,3 +1,10 @@
+## [1.26.5](https://github.com/Aeolun/mycoverage/compare/v1.26.4...v1.26.5) (2023-10-13)
+
+
+### Bug Fixes
+
+* output proper errors for github hook ([2879af0](https://github.com/Aeolun/mycoverage/commit/2879af0d30f4024a42dd9986928cac747d576ca9))
+
 ## [1.26.4](https://github.com/Aeolun/mycoverage/compare/v1.26.3...v1.26.4) (2023-10-13)
 
 
