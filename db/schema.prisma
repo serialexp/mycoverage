@@ -230,6 +230,8 @@ model PrHook {
   updatedDate DateTime @updatedAt
   Project     Project? @relation(references: [id], onDelete: Cascade, fields: [projectId])
   projectId   Int?
+
+  @@index([createdDate])
 }
 
 model JobLog {
