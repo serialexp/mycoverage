@@ -1,3 +1,10 @@
+## [1.26.3](https://github.com/Aeolun/mycoverage/compare/v1.26.2...v1.26.3) (2023-10-13)
+
+
+### Bug Fixes
+
+* use working directory in upload ([7c955b0](https://github.com/Aeolun/mycoverage/commit/7c955b00a42cf584c046d7c819adbc5718dd4752))
+
 ## [1.26.2](https://github.com/Aeolun/mycoverage/compare/v1.26.1...v1.26.2) (2023-10-12)
 
 
