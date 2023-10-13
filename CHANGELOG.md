@@ -1,3 +1,10 @@
+## [1.26.4](https://github.com/Aeolun/mycoverage/compare/v1.26.3...v1.26.4) (2023-10-13)
+
+
+### Bug Fixes
+
+* respond to githubName too on upload endpoints ([c62fbcd](https://github.com/Aeolun/mycoverage/commit/c62fbcd1d90950c763e43b9b2678ad4cd89eef75))
+
 ## [1.26.3](https://github.com/Aeolun/mycoverage/compare/v1.26.2...v1.26.3) (2023-10-13)
 
 
