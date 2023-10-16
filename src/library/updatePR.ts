@@ -3,6 +3,7 @@ import { format } from "src/library/format"
 import { getDifferences } from "src/library/getDifferences"
 import { getAppOctokit } from "src/library/github"
 import { log } from "src/library/log"
+import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
 import { getSetting } from "src/library/setting"
 import db, { PullRequest, Project, Group } from "db"
 import { Octokit } from "@octokit/rest"
@@ -45,7 +46,11 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
       include: {
         commit: {
           include: {
-            Test: true,
+            Test: {
+              include: {
+                TestInstance: true,
+              },
+            },
           },
         },
         baseCommit: {
@@ -60,8 +65,17 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
       throw new Error("Could not find commits linked to pull request")
     }
 
+    const project = await db.project.findFirstOrThrow({
+      where: {
+        id: pullRequest.project.id,
+      },
+      include: {
+        ExpectedResult: true,
+      },
+    })
+
     let baseCommit = pullRequestResult.baseCommit
-    let commit = pullRequestResult.commit
+    const commit = pullRequestResult.commit
     let switchedBaseCommit = false
     let noBaseCommit = false
     let baseBuildInfo
@@ -81,7 +95,11 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
           },
         },
         include: {
-          Test: true,
+          Test: {
+            include: {
+              TestInstance: true,
+            },
+          },
         },
         orderBy: {
           createdDate: "desc",
@@ -90,8 +108,6 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
       if (!lastSuccessfulCommit) {
         throw new Error("Could not find a last successful commit")
       }
-      log(`switching head commit to last successful commit on ${pullRequest.branch}`)
-      commit = lastSuccessfulCommit
     }
     if (pullRequestResult.baseCommit.coverageProcessStatus !== "FINISHED") {
       // base commit does not have finished processing information, use the last successfully processed commit instead
@@ -216,6 +232,12 @@ ${baseBuildInfo.commits
       const expectedChanges = changedFiles.data.map((f) => f.filename)
       const differences = await getDifferences(baseCommit.id, commit.id, expectedChanges)
 
+      const satisfied = satisfiesExpectedResults(
+        commit,
+        project.ExpectedResult,
+        pullRequest.baseBranch
+      )
+
       const testResults: {
         name: string
         before: number
@@ -227,6 +249,7 @@ ${baseBuildInfo.commits
         const baseCoverage =
           baseCommit.Test.find((t) => t.testName === test.testName)?.coveredPercentage || 0
         const diff = (test.coveredPercentage - baseCoverage) / baseCoverage
+
         if (baseCoverage !== test.coveredPercentage) {
           testResults.push({
             name: test.testName,
@@ -236,6 +259,17 @@ ${baseBuildInfo.commits
           })
         } else {
           similarTestsResults++
+        }
+      }
+      for (const test of baseCommit.Test) {
+        const testResultIsMissing = satisfied.missing.some((m) => m.test === test.testName)
+        if (testResultIsMissing) {
+          testResults.push({
+            name: test.testName,
+            before: test.coveredPercentage,
+            after: 0,
+            difference: -1,
+          })
         }
       }
 
@@ -261,11 +295,44 @@ ${baseBuildInfo.commits
         } removed`
       }
 
-      const newComment = await octokit.issues.createComment({
-        owner: pullRequest.project.group.githubName,
-        repo: pullRequest.project.name,
-        issue_number: parseInt(pullRequest.sourceIdentifier),
-        body: `**Coverage quality gate**
+      console.log("satisfied", satisfied)
+
+      let resultString = ""
+      if (!satisfied.isOk) {
+        resultString = `**Coverage quality gate**
+
+Coverage processing failed ❌. Please check the job execution logs for more information.
+
+Issues:
+${satisfied.missing
+  .map((test) => {
+    return `- Missing ${test.count} ${test.count === 1 ? "result" : "results"} for ${
+      test.test
+    }, expected ${test.expected}`
+  })
+  .join("\n")}
+
+Preliminary commit coverage:
+
+- Base: ${format.format(baseCommit.coveredPercentage, true)}%
+- New: ${format.format(commit.coveredPercentage, true)}%
+
+Difference: ${format.format(
+          commit.coveredPercentage - baseCommit.coveredPercentage,
+          true
+        )}% (${format.format(commit.coveredElements - baseCommit.coveredElements, true)} elements)
+
+${testResults
+  .map((result) => {
+    return `- *${result.name}*: ${format.format(result.before, true)}% -> ${format.format(
+      result.after,
+      true
+    )}% (${format.format(result.difference * 100, true)}%)`
+  })
+  .join("\n")}
+- ${similarTestsResults} tests which have the same result`
+      } else {
+        resultString = `**Coverage quality gate**
 ${
   switchedBaseCommit
     ? `\n_Base commit for comparison was switched from ${pullRequestResult.baseCommit.ref.substring(
@@ -308,13 +375,14 @@ ${
     : "New Commit is **worse** than Base Commit"
 }
 
-[${differences.totalCount} differences](${differencesUrl}) (${differencesString})`,
-      })
+[${differences.totalCount} differences](${differencesUrl}) (${differencesString})`
+      }
 
-      const checkSuite = await octokit.checks.listForRef({
+      const newComment = await octokit.issues.createComment({
         owner: pullRequest.project.group.githubName,
         repo: pullRequest.project.name,
-        ref: pullRequestResult.commit.ref,
+        issue_number: parseInt(pullRequest.sourceIdentifier),
+        body: resultString,
       })
 
       const detailsUrl =
