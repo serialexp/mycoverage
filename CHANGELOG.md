@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/Aeolun/mycoverage/compare/v1.26.5...v1.27.0) (2023-10-16)
+
+
+### Features
+
+* respond to workflow_job hooks to mark coverage as failed ([d5fe8c8](https://github.com/Aeolun/mycoverage/commit/d5fe8c8bc032e209b51ec4e13ccbb2c84aa57d7e))
+
 ## [1.26.5](https://github.com/Aeolun/mycoverage/compare/v1.26.4...v1.26.5) (2023-10-13)
 
 
