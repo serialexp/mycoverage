@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import { areRefWorkflowsAllComplete } from "src/library/github"
 import { InternalCoverage } from "src/library/InternalCoverage"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { insertCoverageData } from "src/library/insertCoverageData"
@@ -208,6 +209,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
                 group: true,
               },
             },
+            commit: true,
           },
         })
 
@@ -279,6 +281,26 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 
           if (prWithLatestCommit) {
             await updatePR(prWithLatestCommit)
+          }
+        } else {
+          // if we don't have perfect information, check to see if we are done processing on Github side
+          if (prWithLatestCommit && options?.full) {
+            const allComplete = await areRefWorkflowsAllComplete(
+              prWithLatestCommit.project.group.githubName,
+              prWithLatestCommit.project.name,
+              prWithLatestCommit.commit.ref
+            )
+
+            if (allComplete.allCompleted) {
+              await mydb.commit.update({
+                where: {
+                  id: commit.id,
+                },
+                data: {
+                  coverageProcessStatus: allComplete.hasFailures ? "FAILED" : "FINISHED",
+                },
+              })
+            }
           }
         }
       }

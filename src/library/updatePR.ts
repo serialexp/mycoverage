@@ -105,9 +105,6 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
           createdDate: "desc",
         },
       })
-      if (!lastSuccessfulCommit) {
-        throw new Error("Could not find a last successful commit")
-      }
     }
     if (pullRequestResult.baseCommit.coverageProcessStatus !== "FINISHED") {
       // base commit does not have finished processing information, use the last successfully processed commit instead
@@ -301,14 +298,15 @@ ${baseBuildInfo.commits
       if (!satisfied.isOk) {
         resultString = `**Coverage quality gate**
 
-Coverage processing failed ❌. Please check the job execution logs for more information.
+> [!WARNING]
+> Coverage processing failed ❌. Please check the job execution logs for more information.
 
 Issues:
 ${satisfied.missing
   .map((test) => {
-    return `- Missing ${test.count} ${test.count === 1 ? "result" : "results"} for ${
+    return `- Missing ${test.count} ${test.count === 1 ? "result" : "results"} for *${
       test.test
-    }, expected ${test.expected}`
+    }*, expected ${test.expected}`
   })
   .join("\n")}
 
