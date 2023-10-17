@@ -1,3 +1,10 @@
+## [1.27.1](https://github.com/Aeolun/mycoverage/compare/v1.27.0...v1.27.1) (2023-10-17)
+
+
+### Bug Fixes
+
+* mark things completed when failed ([4bd16d6](https://github.com/Aeolun/mycoverage/commit/4bd16d68e2e2a1ecb87444213fc88800e47d66c9))
+
 # [1.27.0](https://github.com/Aeolun/mycoverage/compare/v1.26.5...v1.27.0) (2023-10-16)
 
 
