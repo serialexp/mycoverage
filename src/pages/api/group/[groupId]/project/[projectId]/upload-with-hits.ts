@@ -146,19 +146,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       timeSinceLast("finding branch")
 
-      console.log("slugifid branch", slugify(query.branch))
       let branch = await mydb.branch.findFirst({
         where: {
           projectId: project.id,
           slug: slugify(query.branch),
         },
       })
-      console.log("found branch", {
-        name: query.branch,
-        slug: slugify(query.branch),
-        projectId: project.id,
-        baseBranch: query.baseBranch ?? project.defaultBaseBranch,
-      })
+
       if (!branch) {
         timeSinceLast("creating branch")
         branch = await mydb.branch.create({

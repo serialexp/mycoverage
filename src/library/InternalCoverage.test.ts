@@ -165,7 +165,7 @@ describe("CoverturaCoverage", () => {
         const superPackage = coberturaCoverage.data.coverage.packages.find(
           (p) => p.name === "src.packages.package1.extra.super"
         )
-        console.log(superPackage)
+
         expect(superPackage?.files[0]?.name).toEqual("sexy.ts")
         expect(superPackage?.files[0]?.filename).toEqual(
           "src/packages/package1/extra/super/sexy.ts"
@@ -265,7 +265,7 @@ end_of_record`,
         const superPackage = internalCoverage.data.coverage.packages.find(
           (p) => p.name === "src.pack"
         )
-        console.log(superPackage)
+
         expect(superPackage?.files[0]?.name).toEqual("app.js")
         expect(superPackage?.files[0]?.filename).toEqual("src/pack/app.js")
       }
