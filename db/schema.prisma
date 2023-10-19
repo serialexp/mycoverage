@@ -158,7 +158,7 @@ model TestInstance {
 }
 
 model PackageCoverage {
-  id                  Int            @id @default(autoincrement())
+  id                  BigInt         @id @default(autoincrement())
   name                String
   testId              Int?
   createdDate         DateTime       @default(now())
@@ -187,9 +187,9 @@ model PackageCoverage {
 }
 
 model FileCoverage {
-  id                      Int                       @id @default(autoincrement())
+  id                      BigInt                    @id @default(autoincrement())
   name                    String
-  packageCoverageId       Int?
+  packageCoverageId       BigInt?
   createdDate             DateTime                  @default(now())
   statements              Int
   conditionals            Int
@@ -278,7 +278,7 @@ model CodeIssueOnCommit {
 }
 
 model CodeIssueOnFileCoverage {
-  fileCoverageId Int
+  fileCoverageId BigInt
   codeIssueId    Int
   CodeIssue      CodeIssue    @relation(fields: [codeIssueId], references: [id], onDelete: Cascade)
   FileCoverage   FileCoverage @relation(fields: [fileCoverageId], references: [id], onDelete: Cascade)

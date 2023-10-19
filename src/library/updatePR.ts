@@ -292,8 +292,6 @@ ${baseBuildInfo.commits
         } removed`
       }
 
-      console.log("satisfied", satisfied)
-
       let resultString = ""
       if (!satisfied.isOk) {
         resultString = `**Coverage quality gate**
