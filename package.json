@@ -58,7 +58,7 @@
     "@nivo/treemap": "^0.74.1",
     "@octokit/auth-app": "^4.0.13",
     "@octokit/rest": "^19.0.13",
-    "@prisma/client": "^4.16.2",
+    "@prisma/client": "^5.4.2",
     "@react-spring/web": "9.7.2",
     "ajv": "8.12.0",
     "axios": "^0.21.4",
@@ -88,6 +88,7 @@
     "react-final-form": "^6.5.9",
     "react-icons": "^4.11.0",
     "react-timeago": "7.1.0",
+    "uuidv7": "0.6.3",
     "xml2js": "^0.4.23",
     "zod": "^3.22.4"
   },
