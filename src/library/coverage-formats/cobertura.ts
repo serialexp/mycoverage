@@ -192,8 +192,16 @@ export const fillFromCobertura = async (
 
       const validatedData = schema.parse(newData)
 
-      coverage.data = validatedData
-      InternalCoverage.updateMetrics(coverage.data)
+      validatedData.coverage.packages.forEach((pack) => {
+        pack.files.forEach((file) => {
+          const path = pack.name.replaceAll(".", "/") + "/" + file.name
+          console.log(path)
+
+          const covData = CoverageData.fromCoberturaFile(file, options.sourceHits?.[path])
+          coverage.mergeCoverage(pack.name, file.name, covData.toInternalCoverage())
+        })
+      })
+      coverage.updateMetrics()
 
       resolve(coverage)
     })

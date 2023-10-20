@@ -10,14 +10,14 @@ describe("CoverturaCoverage", () => {
     const coberturaCoverage = new InternalCoverage()
 
     coberturaCoverage.mergeCoverageString("super", "super", "stmt,1,6", "unit")
-    InternalCoverage.updateMetrics(coberturaCoverage.data)
+    coberturaCoverage.updateMetrics()
 
-    const pack = coberturaCoverage.data.coverage.packages.find((i) => i.name === "super")
+    const pack = coberturaCoverage.locateDirectory("super")
     const file = pack?.files.find((f) => f.name === "super")
 
     expect(file?.metrics?.hits).toEqual(6)
     expect(pack?.metrics?.hits).toEqual(6)
-    expect(coberturaCoverage.data.coverage.metrics?.hits).toEqual(6)
+    expect(coberturaCoverage.data.metrics?.hits).toEqual(6)
   })
 
   it("calculates the same coverage from two different formats", async () => {
@@ -39,21 +39,21 @@ describe("CoverturaCoverage", () => {
       repositoryRoot: "/Users/bart.riepe/Projects/mycoverage",
     })
 
-    expect(internalCoverage.data.coverage.metrics?.statements).toEqual(
-      otherInternalCoverage.data.coverage.metrics?.statements
+    expect(internalCoverage.data.metrics?.statements).toEqual(
+      otherInternalCoverage.data.metrics?.statements
     )
-    expect(internalCoverage.data.coverage.metrics?.coveredstatements).toEqual(
-      otherInternalCoverage.data.coverage.metrics?.coveredstatements
+    expect(internalCoverage.data.metrics?.coveredstatements).toEqual(
+      otherInternalCoverage.data.metrics?.coveredstatements
     )
-    expect(internalCoverage.data.coverage.metrics?.methods).toEqual(
-      otherInternalCoverage.data.coverage.metrics?.methods
+    expect(internalCoverage.data.metrics?.methods).toEqual(
+      otherInternalCoverage.data.metrics?.methods
     )
-    expect(internalCoverage.data.coverage.metrics?.coveredmethods).toEqual(
-      otherInternalCoverage.data.coverage.metrics?.coveredmethods
+    expect(internalCoverage.data.metrics?.coveredmethods).toEqual(
+      otherInternalCoverage.data.metrics?.coveredmethods
     )
     // cobertura does not have the ability to count all conditionals (on function definitions/invocations)
-    expect(internalCoverage.data.coverage.metrics?.conditionals).not.toEqual(
-      otherInternalCoverage.data.coverage.metrics?.conditionals
+    expect(internalCoverage.data.metrics?.conditionals).not.toEqual(
+      otherInternalCoverage.data.metrics?.conditionals
     )
   })
 
@@ -61,16 +61,16 @@ describe("CoverturaCoverage", () => {
     const coberturaCoverage = new InternalCoverage()
 
     coberturaCoverage.mergeCoverageString("src.super", "name.tsx", "stmt,2,4", "test")
-    InternalCoverage.updateMetrics(coberturaCoverage.data)
+    coberturaCoverage.updateMetrics()
 
-    expect(coberturaCoverage.data.coverage.packages[0]?.name).toEqual("src")
-    expect(coberturaCoverage.data.coverage.packages[1]?.name).toEqual("src.super")
+    expect(coberturaCoverage.data.directories[0]?.name).toEqual("src")
+    expect(coberturaCoverage.data.directories[0]?.children[0]?.name).toEqual("super")
 
     coberturaCoverage.mergeCoverageString("action.mega", "action.ts", "stmt,2,3", "test2")
-    InternalCoverage.updateMetrics(coberturaCoverage.data)
+    coberturaCoverage.updateMetrics()
 
-    expect(coberturaCoverage.data.coverage.packages[0]?.name).toEqual("action")
-    expect(coberturaCoverage.data.coverage.packages[3]?.name).toEqual("src.super")
+    expect(coberturaCoverage.data.directories[0]?.name).toEqual("action")
+    expect(coberturaCoverage.data.directories[1]?.children[0]?.name).toEqual("super")
   })
 
   it("merge coverage buffers", () => {
@@ -83,14 +83,14 @@ describe("CoverturaCoverage", () => {
     coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage.toProtobuf())
     coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage2.toProtobuf())
     coberturaCoverage.mergeCoverageBuffer("src.super", "name.tsx", coverage3.toProtobuf())
-    InternalCoverage.updateMetrics(coberturaCoverage.data)
+    coberturaCoverage.updateMetrics()
 
-    const data =
-      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData?.coverage["2"]?.[0]
-    const data2 = data?.hitsBySource["stuff"]
+    const data = coberturaCoverage.locateDirectory("src.super")?.files[0]?.coverage.items[0]
+    const data2 = data?.hitsFromSource[0]
 
+    expect(data?.lineNr).toEqual(2)
     expect(data?.hits).toEqual(7)
-    expect(data2?.[0]).toEqual(3)
+    expect(data2).toEqual(3)
   })
 
   it("adds hits information during init", async () => {
@@ -98,7 +98,7 @@ describe("CoverturaCoverage", () => {
     await fillFromCobertura(coberturaCoverage, {
       data: `<coverage version="1"><sources><source>src/</source></sources><packages><package name="super"><classes><class name="sexy"><lines><line hits="2" number="2" /></lines><methods></methods></class></classes></package></packages></coverage>`,
       sourceHits: {
-        "super/sexy": [
+        "src/super/sexy": [
           {
             source: "elegant",
             s: { "2": 2 },
@@ -110,10 +110,10 @@ describe("CoverturaCoverage", () => {
       repositoryRoot: "/src/",
     })
 
-    const data =
-      coberturaCoverage.data.coverage.packages[1]?.files[0]?.coverageData?.coverage["2"]?.[0]
+    const data = coberturaCoverage.locateDirectory("src.super")?.files[0]?.coverage.items[0]
 
-    expect(data?.hitsBySource["elegant"]).toEqual([2])
+    console.log(JSON.stringify(coberturaCoverage.data, null, 2), data?.hitsFromSource)
+    expect(data?.hitsFromSource).toEqual({ 0: 2 })
   })
 
   it("joins coverage functions with the same name", () => {})
@@ -135,12 +135,9 @@ describe("CoverturaCoverage", () => {
           repositoryRoot: root,
         })
 
-        const packageNames = coberturaCoverage.data.coverage.packages.map((p) => p.name)
-        expect(packageNames).toContain("src.extra.super")
-        const superPackage = coberturaCoverage.data.coverage.packages.find(
-          (p) => p.name === "src.extra.super"
-        )
-        expect(superPackage?.files[0]?.name).toEqual("sexy.ts")
+        const directory = coberturaCoverage.locateDirectory("src.extra.super")
+        expect(directory).toBeTruthy()
+        expect(directory?.files[0]?.name).toEqual("sexy.ts")
       }
     }
   })
@@ -159,15 +156,14 @@ describe("CoverturaCoverage", () => {
           workingDirectory: "/workspace/sexy/path/src/packages/package1",
         })
 
-        const packageNames = coberturaCoverage.data.coverage.packages.map((p) => p.name)
+        const packageNames = coberturaCoverage.flattenDirectories().map((p) => p.fileName)
 
-        expect(packageNames).toContain("src.packages.package1.extra.super")
-        const superPackage = coberturaCoverage.data.coverage.packages.find(
-          (p) => p.name === "src.packages.package1.extra.super"
-        )
+        expect(packageNames).toContain("src/packages/package1/extra/super")
+        const superPackage = coberturaCoverage.locateDirectory("src.packages.package1.extra.super")
 
+        console.log(superPackage)
         expect(superPackage?.files[0]?.name).toEqual("sexy.ts")
-        expect(superPackage?.files[0]?.filename).toEqual(
+        expect(superPackage?.files[0]?.fileName).toEqual(
           "src/packages/package1/extra/super/sexy.ts"
         )
       }
@@ -259,15 +255,13 @@ end_of_record`,
           workingDirectory: workDir,
         })
 
-        const packageNames = internalCoverage.data.coverage.packages.map((p) => p.name)
+        const packageNames = internalCoverage.flattenDirectories().map((p) => p.fileName)
 
-        expect(packageNames).toContain("src.pack")
-        const superPackage = internalCoverage.data.coverage.packages.find(
-          (p) => p.name === "src.pack"
-        )
+        expect(packageNames).toContain("src/pack")
+        const superPackage = internalCoverage.locateDirectory("src.pack")
 
         expect(superPackage?.files[0]?.name).toEqual("app.js")
-        expect(superPackage?.files[0]?.filename).toEqual("src/pack/app.js")
+        expect(superPackage?.files[0]?.fileName).toEqual("src/pack/app.js")
       }
     }
   })

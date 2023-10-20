@@ -190,9 +190,7 @@ export const fillFromLcov = async (
     i++
   }
 
-  coverage.data.coverage.sources = {
-    source: repositoryRoot ?? "",
-  }
+  coverage.data.root = repositoryRoot
 
   tests.forEach((test) => {
     test.records.forEach((record) => {
@@ -200,83 +198,18 @@ export const fillFromLcov = async (
       const fileName = path[path.length - 1]
       const packageName = path.slice(0, path.length - 1).join(".")
 
-      let pkg = coverage.data.coverage.packages.find((p) => p.name === packageName)
-      if (!pkg) {
-        pkg = {
-          name: packageName,
-          files: [],
-        }
-        coverage.data.coverage.packages.push(pkg)
+      if (!fileName) {
+        throw new Error("File has no name")
       }
 
-      if (!fileName || !path) {
-        throw new Error("New file has no name or path")
-      }
-
-      let file = pkg.files.find((f) => f.path === record.path)
-      if (!file) {
-        file = {
-          name: fileName,
-          filename: record.path,
-          functions: record.functions.map((f, index) => {
-            return {
-              number: f.line,
-              name: f.name,
-              hits: f.hits,
-              signature: f.name,
-            }
-          }),
-          lines: record.lines.map((l) => {
-            if (l.branches) {
-              return {
-                number: l.line,
-                hits: l.hits,
-                branch: true,
-                conditions: l.branches ? Object.keys(l.branches).length : 0,
-                coveredConditions: l.branches
-                  ? Object.values(l.branches).filter((hits) => hits > 0).length
-                  : 0,
-              }
-            } else {
-              return {
-                number: l.line,
-                hits: l.hits,
-                branch: false,
-              }
-            }
-          }),
-          coverageData: CoverageData.fromLcovRecord(record, test.name),
-        }
-        pkg.files.push(file)
-      } else {
-        const newCoverage = CoverageData.fromLcovRecord(record, test.name)
-        record.functions.forEach((f, index) => {
-          const fn = file?.functions[index]
-          if (fn) {
-            fn.hits += f.hits
-          }
-        })
-        record.lines.forEach((l) => {
-          const line = file?.lines.find((line) => line.number === l.line)
-          if (line) {
-            line.hits += l.hits
-            if (l.branches && line.branch === true) {
-              line.conditions = Math.max(line.conditions, Object.keys(l.branches).length)
-              line.coveredConditions = Math.max(
-                line.coveredConditions,
-                Object.values(l.branches).filter((hits) => hits > 0).length
-              )
-            }
-          }
-        })
-        if (!file.coverageData) {
-          throw new Error(`File ${file.filename ?? file.name} has no coverage data`)
-        }
-        file.coverageData.merge(newCoverage)
-      }
+      coverage.mergeCoverage(
+        packageName,
+        fileName,
+        CoverageData.fromLcovRecord(record, test.name).toInternalCoverage()
+      )
     })
   })
-  InternalCoverage.updateMetrics(coverage.data)
+  coverage.updateMetrics()
 
   return coverage
 }
