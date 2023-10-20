@@ -1,3 +1,15 @@
+# [1.28.0](https://github.com/Aeolun/mycoverage/compare/v1.27.1...v1.28.0) (2023-10-20)
+
+
+### Bug Fixes
+
+* buffers for file and folder ids ([ee6976f](https://github.com/Aeolun/mycoverage/commit/ee6976f335848e3cb82411ea075176583579dde8))
+
+
+### Features
+
+* display commit changes more clearly ([61367c1](https://github.com/Aeolun/mycoverage/commit/61367c1e218011f9a9b4b50b077bc9c5f2fd3674))
+
 ## [1.27.1](https://github.com/Aeolun/mycoverage/compare/v1.27.0...v1.27.1) (2023-10-17)
 
 
