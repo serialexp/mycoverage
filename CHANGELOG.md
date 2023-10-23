@@ -1,3 +1,10 @@
+## [1.29.1](https://github.com/Aeolun/mycoverage/compare/v1.29.0...v1.29.1) (2023-10-23)
+
+
+### Bug Fixes
+
+* fix sourcehits from cobertura coverage ([e1cff30](https://github.com/Aeolun/mycoverage/commit/e1cff308e52ca4af9a87a0efc721d50f6fdd3833))
+
 # [1.29.0](https://github.com/Aeolun/mycoverage/compare/v1.28.0...v1.29.0) (2023-10-23)
 
 
