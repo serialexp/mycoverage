@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/Aeolun/mycoverage/compare/v1.28.0...v1.29.0) (2023-10-23)
+
+
+### Features
+
+* modified coverage format in preparation for separate saving ([8d6f93d](https://github.com/Aeolun/mycoverage/commit/8d6f93d8915e62dfe10be62ec9e59edd757cc7a5))
+
 # [1.28.0](https://github.com/Aeolun/mycoverage/compare/v1.27.1...v1.28.0) (2023-10-20)
 
 
