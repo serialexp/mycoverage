@@ -84,6 +84,7 @@ const BranchFileDifferencePage: BlitzPage = () => {
   const highlightSyntax = (str) => (
     <pre
       style={{ display: "inline" }}
+      // rome-ignore lint/security/noDangerouslySetInnerHtml: this is a code highlighter
       dangerouslySetInnerHTML={{
         __html: Prism.highlight(str, Prism.languages.typescript),
       }}
@@ -92,7 +93,7 @@ const BranchFileDifferencePage: BlitzPage = () => {
 
   return groupId && projectId && baseCommit && commit ? (
     <>
-      <Heading m={2}>
+      <Heading>
         Browsing differences in {path?.join("/")} between commit {baseCommit?.ref.substr(0, 10)} and{" "}
         {commit?.ref.substr(0, 10)}
       </Heading>
@@ -131,7 +132,7 @@ const BranchFileDifferencePage: BlitzPage = () => {
             showDiffOnly={false}
             renderGutter={(diffData) => {
               let data: LineInformation | undefined
-              let errors: any = undefined
+              let errors: undefined | unknown = undefined
               if (diffData.prefix === LineNumberPrefix.LEFT) {
                 data = baseCoverageData.coveragePerLine[diffData.lineNumber]
                 errors = baseCoverageData.issueOnLine[diffData.lineNumber]
@@ -176,7 +177,7 @@ const BranchFileDifferencePage: BlitzPage = () => {
                         label={`${c.type}: ${c.count}${
                           c.type === "cond" ? ` (${c.covered}/${c.total})` : ""
                         }`}
-                        key={index}
+                        key={c.type + c.count}
                       >
                         <Tag
                           title={c.count.toString()}

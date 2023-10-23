@@ -94,11 +94,7 @@ const Queues: BlitzPage = () => {
 										<Td>{job.data.commit.ref.substr(0, 10)}</Td>
 										<Td>{new Date(job.timestamp).toLocaleString()}</Td>
 									</Tr>
-								) : (
-									<Tr key={index}>
-										<Td colSpan={3}>Empty job</Td>
-									</Tr>
-								);
+								) : null;
 							})}
 						</Table>
 					</Box>

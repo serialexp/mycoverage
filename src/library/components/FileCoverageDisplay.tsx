@@ -152,7 +152,7 @@ export const FileCoverageDisplay = (props: {
                     >
                       {line ? line : <>&nbsp;</>}
                       {lineData.coverageItems?.map((l, i) => (
-                        <Popover key={i} aria-label="A tooltip">
+                        <Popover key={`${lineNr}-${i}`} aria-label="A tooltip">
                           <PopoverTrigger>
                             <Badge
                               cursor={"pointer"}
@@ -175,14 +175,14 @@ export const FileCoverageDisplay = (props: {
                                       const item = l.split("=")
                                       if (item[1] && !item[1].includes("|")) {
                                         return (
-                                          <Tr key={i}>
+                                          <Tr key={item[0]}>
                                             <Td>{item[0]}</Td>
                                             <Td isNumeric>{item[1]}</Td>
                                           </Tr>
                                         )
                                       } else if (item[1]?.includes("|")) {
                                         return (
-                                          <Tr key={i}>
+                                          <Tr key={item[0]}>
                                             <Td>{item[0]}</Td>
                                             <Td isNumeric>
                                               {item[1]

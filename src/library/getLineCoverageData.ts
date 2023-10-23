@@ -91,7 +91,7 @@ export function getLineCoverageData(
 			cov.status = CoverageStatus.PartiallyCovered;
 		}
 	});
-	const issueOnLine: { [lineNr: number]: any } = {};
+	const issueOnLine: { [issueLineNr: number]: CodeIssue } = {};
 	file?.CodeIssueOnFileCoverage.forEach((issue) => {
 		issueOnLine[issue.CodeIssue.line] = issue.CodeIssue;
 	});

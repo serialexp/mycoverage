@@ -68,7 +68,7 @@ const DeleteRowItem = (props: { diff: Diff }) => {
 				<Td isNumeric />
 				<Td isNumeric>0%</Td>
 			</Tr>
-			{props.diff.baseFrom ? (
+			{props.diff.baseFrom && props.diff.baseFrom.length > 0 ? (
 				<Tr>
 					<Td />
 					<Td colSpan={5}>
@@ -99,7 +99,7 @@ const AddRowItem = (props: { diff: Diff }) => {
 					</Stat>
 				</Td>
 			</Tr>
-			{props.diff.nextFrom ? (
+			{props.diff.nextFrom && props.diff.nextFrom.length > 0 ? (
 				<Tr>
 					<Td />
 					<Td colSpan={5}>Covered by {props.diff.nextFrom.join(", ")}</Td>
@@ -174,7 +174,9 @@ export const CoverageDifferences = (props: {
 					</Th>
 				</Tr>
 				{fileDifferences?.decrease.map((diff, i) => {
-					return <RowItem key={i} diff={diff} link={props.link} />;
+					return (
+						<RowItem key={diff.base?.name} diff={diff} link={props.link} />
+					);
 				})}
 			</Table>
 			<Subheading mt={4} size={"md"}>

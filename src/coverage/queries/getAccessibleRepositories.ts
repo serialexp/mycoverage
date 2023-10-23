@@ -8,6 +8,6 @@ import {
 export default async function getAccessibleRepositories(
 	args: {},
 	{ session }: Ctx,
-): Promise<any> {
+) {
 	return getGithubAccessibleRepositories();
 }

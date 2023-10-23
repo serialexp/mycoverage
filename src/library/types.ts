@@ -19,11 +19,14 @@ export interface SonarIssue {
 	severity: string;
 }
 
+type SourceBranchHits = { [lineNr: string]: number[] | number[][] };
+type SourceFunctionHits = { [lineNr: string]: number | number[] };
+type SourceStatementHits = { [lineNr: string]: number | number[] };
 export interface SourceHit {
 	source: string;
-	b: { [lineNr: string]: number[] | number[][] };
-	f: { [lineNr: string]: number | number[] };
-	s: { [lineNr: string]: number | number[] };
+	b: SourceBranchHits;
+	f: SourceFunctionHits;
+	s: SourceStatementHits;
 }
 
 export interface SourceHits {

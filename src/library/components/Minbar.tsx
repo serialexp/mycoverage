@@ -2,19 +2,22 @@ import { Box, Flex, Tooltip } from "@chakra-ui/react";
 import { format } from "src/library/format";
 
 export const Minibar = (props: { progress: number }) => {
-	const boxes: { color: string }[] = [];
+	const boxes: { name: string; color: string }[] = [];
 	for (let i = 0; i < 3; i++) {
 		boxes.push({
+			name: `red${i}`,
 			color: "red.500",
 		});
 	}
 	for (let i = 0; i < 3; i++) {
 		boxes.push({
+			name: `yellow${i}`,
 			color: "yellow.500",
 		});
 	}
 	for (let i = 0; i < 4; i++) {
 		boxes.push({
+			name: `green${i}`,
 			color: "green.500",
 		});
 	}
@@ -24,7 +27,7 @@ export const Minibar = (props: { progress: number }) => {
 				{boxes.map((box, index) => {
 					return (
 						<Box
-							key={index}
+							key={box.name}
 							mx={"1px"}
 							width={"6px"}
 							height={"6px"}

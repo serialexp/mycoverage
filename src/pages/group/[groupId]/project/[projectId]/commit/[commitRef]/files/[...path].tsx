@@ -35,7 +35,7 @@ const CommitFilesPage: BlitzPage = () => {
 
   return groupId && projectId && commitRef ? (
     <>
-      <Heading m={2}>
+      <Heading>
         Browsing {path?.join("/")} for commit {commit?.ref.substr(0, 10)}
       </Heading>
       <Box>

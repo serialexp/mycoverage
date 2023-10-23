@@ -21,7 +21,7 @@ export default async function getQueues(args: {}, { session }: Ctx) {
 		queued: number;
 		delayed: number;
 		uniqueQueued: number;
-		details: any;
+		details: unknown;
 	}[] = [];
 	for (let i = 0; i < queues.length; i++) {
 		const queue = queues[i];
@@ -32,7 +32,7 @@ export default async function getQueues(args: {}, { session }: Ctx) {
 		const queuedCount = await queue.getWaitingCount();
 		const delayedCount = await queue.getDelayedCount();
 
-		const uniqueCommits = {};
+		const uniqueCommits: Record<string, number> = {};
 		if (queue.name === "combinecoverage") {
 			const waiting = await queue.getWaiting();
 			waiting.forEach((job) => {
