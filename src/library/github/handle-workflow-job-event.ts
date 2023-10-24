@@ -12,6 +12,8 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
     },
   })
 
+  const startTime = Date.now()
+
   // if you pull the information from the context in an action, this payload has 'event_name', if you get it through a github app integration as a webhook, it's missing, but has a header value
   if (event && event.action === "completed") {
     const payload = event
@@ -47,19 +49,24 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
 
     const octokit = await getAppOctokit()
 
-    const suites = await octokit.checks.listForRef({
+    const queuedSuites = await octokit.checks.listForRef({
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
       ref: payload.workflow_job.head_sha,
-      per_page: 100,
+      status: "queued",
+      per_page: 10,
+    })
+    const inProgressSuites = await octokit.checks.listForRef({
+      owner: payload.repository.owner.login,
+      repo: payload.repository.name,
+      ref: payload.workflow_job.head_sha,
+      status: "queued",
+      per_page: 10,
     })
 
-    const hasFailures = suites.data.check_runs.some(
-      (suite) =>
-        (suite.status !== "completed" || suite.conclusion === "failure") &&
-        suite.name !== "Coverage"
-    )
-    const allCompleted = suites.data.check_runs.every((suite) => suite.status === "completed")
+    const allCompleted =
+      queuedSuites.data.check_runs.filter((r) => r.name !== "Coverage").length === 0 &&
+      inProgressSuites.data.check_runs.filter((r) => r.name !== "Coverage").length === 0
 
     if (allCompleted) {
       const commit = await db.commit.findFirstOrThrow({
@@ -94,6 +101,17 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
       })
 
       if (pullRequest) {
+        await db.jobLog.create({
+          data: {
+            name: "hook",
+            commitRef: payload.workflow_job.head_sha,
+            namespace: payload.repository.owner.name,
+            repository: payload.repository.name,
+            message: `Processed workflow job ${payload.action} hook for ${payload.workflow_job.workflow_name}`,
+            timeTaken: new Date().getTime() - startTime,
+          },
+        })
+
         await updatePR(pullRequest)
       }
     }
