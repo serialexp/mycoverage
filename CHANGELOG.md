@@ -1,3 +1,10 @@
+## [1.29.7](https://github.com/Aeolun/mycoverage/compare/v1.29.6...v1.29.7) (2023-10-24)
+
+
+### Bug Fixes
+
+* do not add duplicate children ([0ce47e8](https://github.com/Aeolun/mycoverage/commit/0ce47e89e801153658d61f15291212152568b84d))
+
 ## [1.29.6](https://github.com/Aeolun/mycoverage/compare/v1.29.5...v1.29.6) (2023-10-24)
 
 
