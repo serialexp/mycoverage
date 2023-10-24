@@ -1,3 +1,10 @@
+## [1.29.3](https://github.com/Aeolun/mycoverage/compare/v1.29.2...v1.29.3) (2023-10-24)
+
+
+### Bug Fixes
+
+* fix failed workflow hook logspam ([7f894f7](https://github.com/Aeolun/mycoverage/commit/7f894f789499c74fb854b82f87c3d4f7fa5305f6))
+
 ## [1.29.2](https://github.com/Aeolun/mycoverage/compare/v1.29.1...v1.29.2) (2023-10-24)
 
 
