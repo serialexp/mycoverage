@@ -1,3 +1,10 @@
+## [1.29.6](https://github.com/Aeolun/mycoverage/compare/v1.29.5...v1.29.6) (2023-10-24)
+
+
+### Bug Fixes
+
+* no need for coveragedata when inserting it either ([1225009](https://github.com/Aeolun/mycoverage/commit/1225009d757f89758ff83c08ed61729a7b0e63c5))
+
 ## [1.29.5](https://github.com/Aeolun/mycoverage/compare/v1.29.4...v1.29.5) (2023-10-24)
 
 
