@@ -1,3 +1,10 @@
+## [1.29.4](https://github.com/Aeolun/mycoverage/compare/v1.29.3...v1.29.4) (2023-10-24)
+
+
+### Bug Fixes
+
+* logs for correctly executed events ([ecbaf77](https://github.com/Aeolun/mycoverage/commit/ecbaf77b69d57469c0131dcb4858bda424b05f3b))
+
 ## [1.29.3](https://github.com/Aeolun/mycoverage/compare/v1.29.2...v1.29.3) (2023-10-24)
 
 
