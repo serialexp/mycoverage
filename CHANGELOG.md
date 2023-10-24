@@ -1,3 +1,10 @@
+## [1.29.8](https://github.com/Aeolun/mycoverage/compare/v1.29.7...v1.29.8) (2023-10-24)
+
+
+### Bug Fixes
+
+* old child logic ([8eb5202](https://github.com/Aeolun/mycoverage/commit/8eb52020bda8c23d573636dc651b9a4167349cf9))
+
 ## [1.29.7](https://github.com/Aeolun/mycoverage/compare/v1.29.6...v1.29.7) (2023-10-24)
 
 
