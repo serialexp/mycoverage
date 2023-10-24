@@ -20,6 +20,32 @@ describe("CoverturaCoverage", () => {
     expect(coberturaCoverage.data.metrics?.hits).toEqual(6)
   })
 
+  it("combines internalcoverage objects", () => {
+    const coberturaCoverage = new InternalCoverage()
+
+    coberturaCoverage.mergeCoverageString("super", "super", "stmt,1,6", "unit")
+
+    const coberturaCoverage2 = new InternalCoverage()
+
+    coberturaCoverage2.mergeCoverageString("super", "super", "stmt,1,6", "unit")
+
+    coberturaCoverage.merge(coberturaCoverage2)
+    coberturaCoverage.updateMetrics()
+
+    expect(coberturaCoverage.data.metrics?.hits).toEqual(12)
+    expect(coberturaCoverage.data.metrics).toMatchObject({
+      conditionals: 0,
+      coveredconditionals: 0,
+      coveredelements: 1,
+      coveredmethods: 0,
+      coveredstatements: 1,
+      elements: 1,
+      hits: 12,
+      methods: 0,
+      statements: 1,
+    })
+  })
+
   it("calculates the same coverage from two different formats", async () => {
     const internalCoverage = new InternalCoverage()
 
