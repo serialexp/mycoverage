@@ -1,3 +1,10 @@
+## [1.29.2](https://github.com/Aeolun/mycoverage/compare/v1.29.1...v1.29.2) (2023-10-24)
+
+
+### Bug Fixes
+
+* handle merge queues from github ([5276153](https://github.com/Aeolun/mycoverage/commit/52761535571cff0de45efcc643471cc2e4adf4a0))
+
 ## [1.29.1](https://github.com/Aeolun/mycoverage/compare/v1.29.0...v1.29.1) (2023-10-23)
 
 
