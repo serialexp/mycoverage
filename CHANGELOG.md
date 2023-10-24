@@ -1,3 +1,10 @@
+## [1.29.5](https://github.com/Aeolun/mycoverage/compare/v1.29.4...v1.29.5) (2023-10-24)
+
+
+### Bug Fixes
+
+* use correct property for coverage data ([9053aba](https://github.com/Aeolun/mycoverage/commit/9053aba6b71c872bf6ff1dcd95e830bf5510618c))
+
 ## [1.29.4](https://github.com/Aeolun/mycoverage/compare/v1.29.3...v1.29.4) (2023-10-24)
 
 
