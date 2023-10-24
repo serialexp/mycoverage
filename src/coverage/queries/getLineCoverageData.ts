@@ -1,31 +1,31 @@
-import { Ctx } from "blitz";
-import db from "db";
-import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData";
+import { Ctx } from "blitz"
+import db from "db"
+import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData"
 
 export default async function getLineCoverageData(
-	args: { fileCoverageId?: Buffer },
-	{ session }: Ctx,
+  args: { fileCoverageId?: string },
+  { session }: Ctx
 ) {
-	if (!args.fileCoverageId) {
-		return {
-			coveragePerLine: {},
-			issueOnLine: {},
-			raw: "",
-		};
-	}
+  if (!args.fileCoverageId) {
+    return {
+      coveragePerLine: {},
+      issueOnLine: {},
+      raw: "",
+    }
+  }
 
-	const fileCoverage = await db.fileCoverage.findFirst({
-		where: {
-			id: args.fileCoverageId,
-		},
-		include: {
-			CodeIssueOnFileCoverage: {
-				include: {
-					CodeIssue: true,
-				},
-			},
-		},
-	});
+  const fileCoverage = await db.fileCoverage.findFirst({
+    where: {
+      id: Buffer.from(args.fileCoverageId, "base64"),
+    },
+    include: {
+      CodeIssueOnFileCoverage: {
+        include: {
+          CodeIssue: true,
+        },
+      },
+    },
+  })
 
-	return getInternalLineCoverageData(fileCoverage);
+  return getInternalLineCoverageData(fileCoverage)
 }

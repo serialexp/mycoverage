@@ -35,14 +35,14 @@ const typeToString = (line: LineData) => {
 export const FileCoverageDisplay = (props: {
   fileData?: string | null
   file:
-    | ({ id: Buffer; name: string } & {
+    | ({ id: string; name: string } & {
         CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & {
           CodeIssue: CodeIssue
         })[]
       })
     | null
   baseFile?:
-    | ({ id: Buffer; name: string } & {
+    | ({ id: string; name: string } & {
         CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & {
           CodeIssue: CodeIssue
         })[]

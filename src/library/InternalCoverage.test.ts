@@ -46,6 +46,26 @@ describe("CoverturaCoverage", () => {
     })
   })
 
+  it("remembers parent directory objects", () => {
+    const coberturaCoverage = new InternalCoverage()
+
+    coberturaCoverage.mergeCoverageString("super.stupid", "super", "stmt,1,6", "unit")
+
+    const coberturaCoverage2 = new InternalCoverage()
+
+    coberturaCoverage2.mergeCoverageString("super.stupid", "super", "stmt,1,6", "unit")
+
+    coberturaCoverage.merge(coberturaCoverage2)
+    coberturaCoverage.updateMetrics()
+
+    const suprStupd = coberturaCoverage.locateDirectory("super.stupid")
+    const flattened = coberturaCoverage.flattenDirectories()
+
+    expect(flattened.length).toBe(2)
+    expect(suprStupd?.fileName).toEqual("super/stupid")
+    expect(suprStupd?.parent?.name).toBe("super")
+  })
+
   it("calculates the same coverage from two different formats", async () => {
     const internalCoverage = new InternalCoverage()
 

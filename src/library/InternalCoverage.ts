@@ -281,17 +281,17 @@ interface InternalFormat {
   metrics: Metrics
 }
 
-const getMembers = (members: InternalDirectory[]) => {
+const getMembers = (members: InternalDirectory[]): InternalDirectory[] => {
   let children: InternalDirectory[] = []
+  members.forEach((m) => {
+    children.push(m)
+  })
+  members.forEach((member) => {
+    const memberChildren = getMembers(member.children)
+    children = children.concat(memberChildren)
+  })
 
-  return members
-    .map((m) => {
-      if (m.children?.length) {
-        children = [...children, ...m.children]
-      }
-      return m
-    })
-    .concat(children.length ? getMembers(children) : children)
+  return children
 }
 
 export class InternalCoverage {
@@ -439,7 +439,7 @@ export class InternalCoverage {
   public merge(coverageFile: InternalCoverage) {
     coverageFile.flattenDirectories().forEach((pkg) => {
       pkg.files.forEach((file: InternalFile) => {
-        this.mergeCoverage(pkg.name, file.name, file.coverage)
+        this.mergeCoverage(pkg.fileName.replaceAll("/", "."), file.name, file.coverage)
       })
     })
   }
