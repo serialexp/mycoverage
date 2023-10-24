@@ -243,7 +243,6 @@ export class CoverageData {
 
         // pull info from hitsBySource if possible
         if (hitsBySource && Object.keys(hitsBySource).length > 0) {
-          console.log(line, hitsBySource)
           const updated = CoverageData.getConditionalCoverageFromSourceHits(hitsBySource)
           conditionals = updated.total
           coveredConditionals = updated.covered
