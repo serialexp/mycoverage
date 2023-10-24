@@ -281,17 +281,17 @@ interface InternalFormat {
   metrics: Metrics
 }
 
-const getMembers = (members: InternalDirectory[]): InternalDirectory[] => {
+const getMembers = (members: InternalDirectory[]) => {
   let children: InternalDirectory[] = []
-  members.forEach((m) => {
-    children.push(m)
-  })
-  members.forEach((member) => {
-    const memberChildren = getMembers(member.children)
-    children = children.concat(memberChildren)
-  })
 
-  return children
+  return members
+    .map((m) => {
+      if (m.children?.length) {
+        children = [...children, ...m.children]
+      }
+      return m
+    })
+    .concat(children.length ? getMembers(children) : children)
 }
 
 export class InternalCoverage {
