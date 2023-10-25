@@ -38,8 +38,6 @@ export function lineInformation_LineTypeFromJSON(
 		case 2:
 		case "FUNCTION":
 			return LineInformation_LineType.FUNCTION;
-		case -1:
-		case "UNRECOGNIZED":
 		default:
 			return LineInformation_LineType.UNRECOGNIZED;
 	}
@@ -85,7 +83,7 @@ export const Coverage = {
 
 	decode(input: _m0.Reader | Uint8Array, length?: number): Coverage {
 		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-		let end = length === undefined ? reader.len : reader.pos + length;
+		const end = length === undefined ? reader.len : reader.pos + length;
 		const message = createBaseCoverage();
 		while (reader.pos < end) {
 			const tag = reader.uint32();
@@ -180,7 +178,7 @@ export const LineInformation = {
 
 	decode(input: _m0.Reader | Uint8Array, length?: number): LineInformation {
 		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-		let end = length === undefined ? reader.len : reader.pos + length;
+		const end = length === undefined ? reader.len : reader.pos + length;
 		const message = createBaseLineInformation();
 		while (reader.pos < end) {
 			const tag = reader.uint32();
@@ -299,7 +297,7 @@ export const HitsBySource = {
 
 	decode(input: _m0.Reader | Uint8Array, length?: number): HitsBySource {
 		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-		let end = length === undefined ? reader.len : reader.pos + length;
+		const end = length === undefined ? reader.len : reader.pos + length;
 		const message = createBaseHitsBySource();
 		while (reader.pos < end) {
 			const tag = reader.uint32();

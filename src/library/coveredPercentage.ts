@@ -7,5 +7,5 @@ export const coveredPercentage = (d?: CloverMetrics) => {
 		((d.coveredstatements + d.coveredconditionals + d.coveredmethods) /
 			(d.statements + d.conditionals + d.methods)) *
 		100;
-	return isNaN(result) ? 0 : result ?? 0;
+	return Number.isNaN(result) ? 0 : result ?? 0;
 };

@@ -31,7 +31,7 @@ export default async function handler(
 				where: {
 					OR: [
 						{
-							id: !isNaN(groupInteger) ? groupInteger : undefined,
+							id: !Number.isNaN(groupInteger) ? groupInteger : undefined,
 						},
 						{
 							slug: query.groupId,
@@ -53,7 +53,7 @@ export default async function handler(
 				where: {
 					OR: [
 						{
-							id: !isNaN(projectInteger) ? projectInteger : undefined,
+							id: !Number.isNaN(projectInteger) ? projectInteger : undefined,
 						},
 						{
 							slug: query.projectId,

@@ -8,7 +8,7 @@ export default async function getLogs(
 	const conditions = {};
 
 	if (args.filter) {
-		conditions["OR"] = [
+		conditions.OR = [
 			{
 				message: {
 					contains: args.filter,
@@ -27,13 +27,13 @@ export default async function getLogs(
 		];
 	}
 	if (args.minDate || args.maxDate) {
-		conditions["createdDate"] = {
+		conditions.createdDate = {
 			gte: args.minDate ?? undefined,
 			lte: args.maxDate ?? undefined,
 		};
 	}
 	if (args.commitRef) {
-		conditions["commitRef"] = args.commitRef;
+		conditions.commitRef = args.commitRef;
 	}
 
 	return db.jobLog.findMany({

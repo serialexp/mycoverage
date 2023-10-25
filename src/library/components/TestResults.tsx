@@ -85,7 +85,7 @@ export const TestResults = (props: {
 														title={"Coverage for instance not received yet"}
 														colorScheme={"red"}
 													>
-														<>{index}</>
+														{index}
 													</Tag>
 												);
 											})}

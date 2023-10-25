@@ -23,7 +23,7 @@ export default async function handler(
 			where: {
 				OR: [
 					{
-						id: !isNaN(groupInteger) ? groupInteger : undefined,
+						id: !Number.isNaN(groupInteger) ? groupInteger : undefined,
 					},
 					{
 						slug: query.groupId,
@@ -41,7 +41,7 @@ export default async function handler(
 			where: {
 				OR: [
 					{
-						id: !isNaN(projectInteger) ? projectInteger : undefined,
+						id: !Number.isNaN(projectInteger) ? projectInteger : undefined,
 					},
 					{
 						slug: query.projectId,
@@ -59,7 +59,7 @@ export default async function handler(
 			throw new Error("No change frequency data posted");
 		}
 
-		const commit = await db["commit"].findFirst({
+		const commit = await db.commit.findFirst({
 			where: {
 				ref: query.ref,
 			},

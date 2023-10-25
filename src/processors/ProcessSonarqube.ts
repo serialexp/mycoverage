@@ -280,11 +280,11 @@ export const sonarqubeWorker = new Worker<{
 
 			await db.commit.update({
 				data: {
-					blockerSonarIssues: severities["BLOCKER"],
-					criticalSonarIssues: severities["CRITICAL"],
-					majorSonarIssues: severities["MAJOR"],
-					minorSonarIssues: severities["MINOR"],
-					infoSonarIssues: severities["INFO"],
+					blockerSonarIssues: severities.BLOCKER,
+					criticalSonarIssues: severities.CRITICAL,
+					majorSonarIssues: severities.MAJOR,
+					minorSonarIssues: severities.MINOR,
+					infoSonarIssues: severities.INFO,
 				},
 				where: {
 					id: commit.id,
