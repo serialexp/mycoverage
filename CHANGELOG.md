@@ -1,3 +1,10 @@
+## [1.29.9](https://github.com/Aeolun/mycoverage/compare/v1.29.8...v1.29.9) (2023-10-25)
+
+
+### Bug Fixes
+
+* ensure file coverage is correctly inserted ([2150897](https://github.com/Aeolun/mycoverage/commit/21508975aa1ad5979282ce481a945bccc4c50154))
+
 ## [1.29.8](https://github.com/Aeolun/mycoverage/compare/v1.29.7...v1.29.8) (2023-10-24)
 
 
