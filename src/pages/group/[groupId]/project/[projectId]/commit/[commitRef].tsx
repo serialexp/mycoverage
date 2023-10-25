@@ -23,7 +23,7 @@ import { Box, Button, Tag } from "@chakra-ui/react"
 import { useToast } from "@chakra-ui/react"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import getCommit from "src/coverage/queries/getCommit"
-import { FaClock } from "react-icons/fa"
+import { FaClock, FaSortAmountDown } from "react-icons/fa"
 
 const CommitPage: BlitzPage = () => {
   const commitRef = useParam("commitRef", "string")
@@ -102,6 +102,27 @@ const CommitPage: BlitzPage = () => {
           }}
         >
           Re-combine Coverage
+        </Button>
+        <Button
+          ml={2}
+          leftIcon={<FaSortAmountDown />}
+          onClick={() => {
+            combineCoverageMutation({ commitId: commit.id, sync: true })
+              .then((result) => {
+                toast({
+                  title: "Recombination completed",
+                  description: "Commit tests have been recombined.",
+                  status: "success",
+                  duration: 2000,
+                  isClosable: true,
+                })
+              })
+              .catch((error) => {
+                console.error(error)
+              })
+          }}
+        >
+          Re-combine Coverage (sync)
         </Button>
       </Actions>
       <Subheading>Part of</Subheading>

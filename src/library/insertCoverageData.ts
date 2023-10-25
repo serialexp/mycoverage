@@ -63,6 +63,7 @@ export const insertCoverageData = async (
     }
     packageDatas.push(packageData)
   }
+  const packageCount = packageDatas.length
 
   const packageCoverage = await mydb.packageCoverage.createMany({
     data: packageDatas,
@@ -83,10 +84,15 @@ export const insertCoverageData = async (
   })
   for (const pkg of covInfo.flattenDirectories()) {
     for (const file of pkg.files) {
+      const pkgName = pkg.fileName.replaceAll("/", ".")
+      const packageId = packageCoverageIds[pkgName]
+      if (!packageId) {
+        throw new Error("No package coverage id known for " + pkgName)
+      }
       fileDatas.push({
         id: Buffer.from(uuidv7obj().bytes),
         name: file.name,
-        packageCoverageId: packageCoverageIds[pkg.name],
+        packageCoverageId: packageId,
         statements: file.metrics?.statements ?? 0,
         conditionals: file.metrics?.conditionals ?? 0,
         methods: file.metrics?.methods ?? 0,
@@ -101,6 +107,7 @@ export const insertCoverageData = async (
       })
     }
   }
+  const fileCount = fileDatas.length
 
   // limit the amount of data per insert since mysql doesn't like too much data (binary coverage info is big) in one insert
   const maxDataPerInsert = 3_000_000
@@ -119,6 +126,7 @@ export const insertCoverageData = async (
     }
   }
   batches.push(currentBatch)
+  const batchCount = batches.length
 
   const startTime = new Date().getTime()
   const batchSize = 5
@@ -130,5 +138,11 @@ export const insertCoverageData = async (
         })
       })
     )
+  }
+
+  return {
+    fileCount,
+    packageCount,
+    batchCount,
   }
 }

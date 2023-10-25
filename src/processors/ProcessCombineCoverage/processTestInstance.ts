@@ -9,10 +9,7 @@ import { Test, TestInstance } from "db"
 import { Job } from "bullmq"
 import db from "db"
 
-export const processTestInstance = async (
-  job: Job<ProcessCombineCoveragePayload, unknown, string>,
-  testInstance: TestInstance
-) => {
+export const processTestInstance = async (testInstance: TestInstance) => {
   await db.testInstance.update({
     where: {
       id: testInstance.id,
@@ -49,8 +46,6 @@ export const processTestInstance = async (
 
   if (!test) throw new Error("Cannot combine coverage for testInstance without a test")
 
-  await job.updateProgress(10)
-
   // const settingValue = await getSetting("max-combine-coverage-size")
   // const sizeInMegabytes = parseInt(settingValue || "100")
   //
@@ -65,8 +60,6 @@ export const processTestInstance = async (
   //     )}, maximum is ${sizeInMegabytes}, cancelling.`
   //   )
   // }
-
-  await job.updateProgress(20)
 
   if (!testInstance.coverageFileKey)
     throw new Error("Cannot combine coverage for a testInstance without a coverageFileKey")
@@ -103,8 +96,6 @@ export const processTestInstance = async (
   )
 
   testCoverage.updateMetrics()
-
-  await job.updateProgress(40)
 
   log(`test: Combined coverage results for files in ${new Date().getTime() - start.getTime()}ms`)
 
@@ -152,6 +143,4 @@ export const processTestInstance = async (
       coverageProcessStatus: "FINISHED",
     },
   })
-
-  await job.updateProgress(45)
 }

@@ -1,21 +1,15 @@
-import { PrismaClient } from "@prisma/client"
 import { InternalCoverage } from "src/library/InternalCoverage"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
-import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
-import { processTestInstance } from "src/processors/ProcessCombineCoverage/processTestInstance"
-import { Test, TestInstance } from "db"
-import { Job } from "bullmq"
+import { Test, TestInstance, Commit } from "db"
 import db from "db"
 
-export const processAllInstances = async (
-  job: Job<ProcessCombineCoveragePayload, unknown, string>
-) => {
+export const processAllTestInstances = async (commit: Commit) => {
   const all = await db.test.findMany({
     where: {
-      commitId: job.data.commit.id,
+      commitId: commit.id,
     },
     include: {
       TestInstance: true,
@@ -36,7 +30,6 @@ export const processAllInstances = async (
 
     for (let j = 0; j < test.TestInstance.length; j++) {
       count++
-      await job.updateProgress(Math.round((count / totalItems) * 60))
 
       const testInstance = test.TestInstance[j]
       if (!testInstance) continue
@@ -90,19 +83,16 @@ export const processAllInstances = async (
     testCoverage.updateMetrics()
 
     log(
-      `test: Test instance combination with test instances result: ${testCoverage.data.metrics?.coveredelements}/${testCoverage.data.metrics?.elements}`
+      `test: Result of combining all tests instances: ${testCoverage.data.metrics?.coveredelements}/${testCoverage.data.metrics?.elements} for ${test.testName}`
     )
 
-    await job.updateProgress(40)
-
-    log(`test: Deleting existing results for test ${test.testName}`)
+    log(`test: Deleting existing Package/File Coverage for test ${test.testName}`)
     await db.packageCoverage.deleteMany({
       where: {
         testId: test.id,
       },
     })
 
-    log(`test: Updating coverage summary data for test ${test.testName}`)
     await db.test.update({
       where: {
         id: test.id,
@@ -120,11 +110,13 @@ export const processAllInstances = async (
         coveredPercentage: coveredPercentage(testCoverage.data.metrics),
       },
     })
+    log(`test: Updated coverage summary data for test ${test.testName}`)
 
-    log(`test: Inserting new package and file coverage for test ${test.testName}`)
-
-    await insertCoverageData(testCoverage, {
+    const res = await insertCoverageData(testCoverage, {
       testId: test.id,
     })
+    log(
+      `test: Inserted new package (${res.packageCount}) and file (${res.fileCount}) coverage for test ${test.testName} across ${res.batchCount} batches.`
+    )
   }
 }
