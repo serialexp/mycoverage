@@ -1,3 +1,15 @@
+# [1.30.0](https://github.com/Aeolun/mycoverage/compare/v1.29.9...v1.30.0) (2023-10-27)
+
+
+### Bug Fixes
+
+* lint issues ([b457d35](https://github.com/Aeolun/mycoverage/commit/b457d35f029ae03c5398025bcc7857bc1761ed6d))
+
+
+### Features
+
+* add endpoint for retrieving coverage summary from pr ids ([3bd9601](https://github.com/Aeolun/mycoverage/commit/3bd960126e6fe330573c50dfc72d37c799578fa8))
+
 ## [1.29.9](https://github.com/Aeolun/mycoverage/compare/v1.29.8...v1.29.9) (2023-10-25)
 
 
