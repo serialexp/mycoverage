@@ -1,3 +1,10 @@
+## [1.30.1](https://github.com/Aeolun/mycoverage/compare/v1.30.0...v1.30.1) (2023-11-01)
+
+
+### Bug Fixes
+
+* do not fail on outputting ids as buffers ([7e9a1b2](https://github.com/Aeolun/mycoverage/commit/7e9a1b2e4326659cb067996247c811e31e966615))
+
 # [1.30.0](https://github.com/Aeolun/mycoverage/compare/v1.29.9...v1.30.0) (2023-10-27)
 
 
