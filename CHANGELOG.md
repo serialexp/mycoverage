@@ -1,3 +1,10 @@
+## [1.30.2](https://github.com/Aeolun/mycoverage/compare/v1.30.1...v1.30.2) (2023-11-01)
+
+
+### Bug Fixes
+
+* only show changed lines on coverage diff ([f969371](https://github.com/Aeolun/mycoverage/commit/f9693714754cb08d5ec5af02798635723816a2c3))
+
 ## [1.30.1](https://github.com/Aeolun/mycoverage/compare/v1.30.0...v1.30.1) (2023-11-01)
 
 
