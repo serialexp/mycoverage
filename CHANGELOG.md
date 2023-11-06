@@ -1,3 +1,10 @@
+## [1.30.3](https://github.com/Aeolun/mycoverage/compare/v1.30.2...v1.30.3) (2023-11-06)
+
+
+### Bug Fixes
+
+* store test instance before validating coverage file ([5f6d69a](https://github.com/Aeolun/mycoverage/commit/5f6d69a7088472b6351e4e809cce5ab1e01dbb8f))
+
 ## [1.30.2](https://github.com/Aeolun/mycoverage/compare/v1.30.1...v1.30.2) (2023-11-01)
 
 
