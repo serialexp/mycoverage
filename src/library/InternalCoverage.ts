@@ -236,7 +236,7 @@ class InternalDirectory {
   }
 
   get fileName() {
-    return this.parent ? `${this.parent.fileName}/${this.name}` : this.name
+    return this.parent?.fileName ? `${this.parent.fileName}/${this.name}` : this.name
   }
 
   toJSON() {
@@ -378,24 +378,23 @@ export class InternalCoverage {
   }
 
   private locateOrCreateDirectory(packageName: string): InternalDirectory {
-    const packageParts = packageName.split(".")
-    let currentPart = packageParts.shift()
-    if (!currentPart) {
-      throw new Error(`No empty package names allowed: "${packageName}"`)
-    }
-    let currentPackage: InternalDirectory | undefined = this.data.directories.find(
-      (dir) => dir.name === currentPart
-    )
-    if (!currentPackage) {
-      currentPackage = new InternalDirectory(undefined, currentPart)
-      this.data.directories.push(currentPackage)
-      this.data.directories.sort((a, b) => {
-        return a.name.localeCompare(b.name)
-      })
+    let rootDirectory = this.data.directories.find((dir) => dir.name === "")
+    if (!rootDirectory) {
+      rootDirectory = new InternalDirectory(undefined, "")
+      this.data.directories.push(rootDirectory)
     }
 
-    while (currentPart && currentPackage && packageParts.length > 0) {
-      currentPart = packageParts.shift()
+    let currentPackage: InternalDirectory | undefined = rootDirectory
+    const packageParts = packageName.split(".")
+    let currentPart = packageParts.shift()
+
+    if (!currentPart) {
+      // this is in root directory
+      return rootDirectory
+    }
+    currentPackage = rootDirectory
+
+    while (currentPart && currentPackage) {
       if (!currentPart) {
         throw new Error(`No empty package names allowed: "${packageName}"`)
       }
@@ -409,6 +408,7 @@ export class InternalCoverage {
         })
       }
       currentPackage = nextPackage
+      currentPart = packageParts.shift()
     }
 
     if (!currentPackage) {

@@ -32,7 +32,7 @@ export const FileDisplay = (props: {
     fileName: fileName,
   })
   const [project] = useQuery(getProject, { projectSlug: projectId })
-  const [test] = useQuery(getTest, { testId: testId })
+  //const [test] = useQuery(getTest, { testId: testId })
   const [group] = useQuery(getGroup, { groupSlug: groupId })
 
   const router = useRouter()

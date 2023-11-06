@@ -5,7 +5,7 @@ export default async function getPackageCoverageForCommit(
   args: { commitId?: number; path?: string },
   { session }: Ctx
 ) {
-  if (!args.commitId || !args.path) return null
+  if (!args.commitId || args.path === undefined || args.path === null) return null
   const data = await db.packageCoverage.findFirst({
     where: { commitId: args.commitId, name: args.path },
   })
