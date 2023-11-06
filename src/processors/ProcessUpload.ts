@@ -1,193 +1,210 @@
-import { PrismaClient } from "@prisma/client";
-import { coveredPercentage } from "src/library/coveredPercentage";
-import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3";
-import { log } from "src/library/log";
-import { addEventListeners } from "src/processors/addEventListeners";
-import { combineCoverageJob } from "src/queues/CombineCoverage";
-import { queueConfig } from "src/queues/config";
-import db, { Commit } from "db";
-import { Worker } from "bullmq";
+import { PrismaClient } from "@prisma/client"
+import { coveredPercentage } from "src/library/coveredPercentage"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
+import { log } from "src/library/log"
+import { addEventListeners } from "src/processors/addEventListeners"
+import { combineCoverageJob } from "src/queues/CombineCoverage"
+import { queueConfig } from "src/queues/config"
+import db, { Commit } from "db"
+import { Worker } from "bullmq"
 
 export const uploadWorker = new Worker<{
-	coverageFileKey: string;
-	commit: Commit;
-	testName: string;
-	repositoryRoot: string | undefined;
-	workingDirectory: string | undefined;
-	testInstanceIndex: number;
-	namespaceSlug: string;
-	repositorySlug: string;
+  coverageFileKey: string
+  commit: Commit
+  testName: string
+  repositoryRoot: string | undefined
+  workingDirectory: string | undefined
+  testInstanceIndex: number
+  namespaceSlug: string
+  repositorySlug: string
 }>(
-	"upload",
-	async (job) => {
-		const startTime = new Date();
-		const {
-			coverageFileKey,
-			commit,
-			testName,
-			repositoryRoot,
-			workingDirectory,
-			testInstanceIndex,
-			namespaceSlug,
-			repositorySlug,
-		} = job.data;
-		try {
-			const timeout = setTimeout(() => {
-				log("worker timed out, killing this process");
-				process.exit(1);
-			}, 30000);
+  "upload",
+  async (job) => {
+    const startTime = new Date()
+    const {
+      coverageFileKey,
+      commit,
+      testName,
+      repositoryRoot,
+      workingDirectory,
+      testInstanceIndex,
+      namespaceSlug,
+      repositorySlug,
+    } = job.data
+    try {
+      const timeout = setTimeout(() => {
+        log("worker timed out, killing this process")
+        process.exit(1)
+      }, 30000)
 
-			log("Executing process upload job");
-			const mydb: PrismaClient = db;
+      log("Executing process upload job")
+      const mydb: PrismaClient = db
 
-			await job.updateProgress(10);
+      let test = await mydb.test.upsert({
+        where: {
+          testName_commitId: {
+            commitId: commit.id,
+            testName: testName,
+          },
+        },
+        update: {},
+        create: {
+          testName: testName,
+          commitId: commit.id,
+          statements: 0,
+          conditionals: 0,
+          methods: 0,
+          coveredStatements: 0,
+          coveredConditionals: 0,
+          coveredMethods: 0,
+        },
+      })
 
-			const { coverageFile, contentLength } =
-				await createInternalCoverageFromS3(coverageFileKey, {
-					repositoryRoot,
-					workingDirectory,
-				});
+      let testInstance = await mydb.testInstance.create({
+        data: {
+          index: testInstanceIndex,
+          testId: test.id,
+          repositoryRoot: repositoryRoot,
+          workingDirectory: workingDirectory,
+          coverageFileKey: coverageFileKey,
+          statements: 0,
+          conditionals: 0,
+          methods: 0,
+          coveredStatements: 0,
+          coveredConditionals: 0,
+          coveredMethods: 0,
+        },
+      })
 
-			await job.updateProgress(40);
+      await job.updateProgress(10)
 
-			const covInfo = coverageFile.data;
+      const { coverageFile, contentLength } = await createInternalCoverageFromS3(coverageFileKey, {
+        repositoryRoot,
+        workingDirectory,
+      })
 
-			if (!covInfo) {
-				throw new Error(
-					"No coverage information in the input file, cannot read first project.",
-				);
-			}
+      await job.updateProgress(40)
 
-			if (!covInfo.metrics) {
-				throw new Error("Could not calculate metrics for input file.");
-			}
+      const covInfo = coverageFile.data
 
-			const test = await mydb.test.upsert({
-				where: {
-					testName_commitId: {
-						commitId: commit.id,
-						testName: testName,
-					},
-				},
-				update: {},
-				create: {
-					testName: testName,
-					commitId: commit.id,
-					statements: covInfo.metrics.statements,
-					conditionals: covInfo.metrics.conditionals,
-					methods: covInfo.metrics.methods,
-					elements: covInfo.metrics.elements,
-					coveredStatements: covInfo.metrics.coveredstatements,
-					coveredConditionals: covInfo.metrics.coveredconditionals,
-					coveredMethods: covInfo.metrics.coveredmethods,
-					coveredElements: covInfo.metrics.coveredelements,
-					coveredPercentage: coveredPercentage(covInfo.metrics),
-				},
-			});
+      if (!covInfo) {
+        throw new Error("No coverage information in the input file, cannot read first project.")
+      }
 
-			// let testInstance = await mydb.testInstance.find({
-			//   where: {
-			//     testId: test.id,
-			//     index: testInstanceIndex
-			//   }
-			// })
+      if (!covInfo.metrics) {
+        throw new Error("Could not calculate metrics for input file.")
+      }
 
-			const testInstance = await mydb.testInstance.create({
-				data: {
-					index: testInstanceIndex,
-					testId: test.id,
-					repositoryRoot: repositoryRoot,
-					workingDirectory: workingDirectory,
-					statements: covInfo.metrics.statements,
-					conditionals: covInfo.metrics.conditionals,
-					methods: covInfo.metrics.methods,
-					elements: covInfo.metrics.elements,
-					coveredStatements: covInfo.metrics.coveredstatements,
-					coveredConditionals: covInfo.metrics.coveredconditionals,
-					coveredMethods: covInfo.metrics.coveredmethods,
-					coveredElements: covInfo.metrics.coveredelements,
-					coveredPercentage: coveredPercentage(covInfo.metrics),
-					dataSize: contentLength,
-					coverageFileKey: coverageFileKey,
-				},
-			});
+      test = await mydb.test.update({
+        where: {
+          testName_commitId: {
+            commitId: commit.id,
+            testName: testName,
+          },
+        },
+        data: {
+          statements: covInfo.metrics.statements,
+          conditionals: covInfo.metrics.conditionals,
+          methods: covInfo.metrics.methods,
+          elements: covInfo.metrics.elements,
+          coveredStatements: covInfo.metrics.coveredstatements,
+          coveredConditionals: covInfo.metrics.coveredconditionals,
+          coveredMethods: covInfo.metrics.coveredmethods,
+          coveredElements: covInfo.metrics.coveredelements,
+          coveredPercentage: coveredPercentage(covInfo.metrics),
+        },
+      })
 
-			if (!covInfo) {
-				throw new Error(
-					"No coverage information in the input file, cannot read first project.",
-				);
-			}
+      // let testInstance = await mydb.testInstance.find({
+      //   where: {
+      //     testId: test.id,
+      //     index: testInstanceIndex
+      //   }
+      // })
 
-			log("Creating package and file information for test instance");
+      testInstance = await mydb.testInstance.update({
+        where: {
+          id: testInstance.id,
+        },
+        data: {
+          statements: covInfo.metrics.statements,
+          conditionals: covInfo.metrics.conditionals,
+          methods: covInfo.metrics.methods,
+          elements: covInfo.metrics.elements,
+          coveredStatements: covInfo.metrics.coveredstatements,
+          coveredConditionals: covInfo.metrics.coveredconditionals,
+          coveredMethods: covInfo.metrics.coveredmethods,
+          coveredElements: covInfo.metrics.coveredelements,
+          coveredPercentage: coveredPercentage(covInfo.metrics),
+          dataSize: contentLength,
+        },
+      })
 
-			await job.updateProgress(50);
+      if (!covInfo) {
+        throw new Error("No coverage information in the input file, cannot read first project.")
+      }
 
-			await job.updateProgress(80);
+      log("Creating package and file information for test instance")
 
-			log("Inserted all package and file information");
+      await job.updateProgress(50)
 
-			await mydb.jobLog.create({
-				data: {
-					name: "processupload",
-					commitRef: commit.ref,
-					namespace: namespaceSlug,
-					repository: repositorySlug,
-					message: `Processed upload information for commit ${commit.ref.substr(
-						0,
-						10,
-					)}${
-						testInstance
-							? ` and test instance ${testInstance.id} and test ${test.testName}`
-							: ""
-					}`,
-					timeTaken: new Date().getTime() - startTime.getTime(),
-				},
-			});
+      await job.updateProgress(80)
 
-			combineCoverageJob({
-				commit,
-				namespaceSlug,
-				repositorySlug,
-				testInstance,
-				delay: 0,
-			}).catch((error) => {
-				log("error adding combinecoverage job", error);
-			});
+      log("Inserted all package and file information")
 
-			clearTimeout(timeout);
-		} catch (error) {
-			log("error processing combinecoverage job", error);
-			if (
-				error.message.includes(
-					"Timed out fetching a new connection from the connection pool",
-				)
-			) {
-				log(
-					"Shutting down worker immediately due to connection pool error, hopefully we can restart.",
-				);
-				process.exit(1);
-			}
+      await mydb.jobLog.create({
+        data: {
+          name: "processupload",
+          commitRef: commit.ref,
+          namespace: namespaceSlug,
+          repository: repositorySlug,
+          message: `Processed upload information for commit ${commit.ref.substr(0, 10)}${
+            testInstance ? ` and test instance ${testInstance.id} and test ${test.testName}` : ""
+          }`,
+          timeTaken: new Date().getTime() - startTime.getTime(),
+        },
+      })
 
-			await db.jobLog.create({
-				data: {
-					name: "processupload",
-					commitRef: commit.ref,
-					namespace: namespaceSlug,
-					repository: repositorySlug,
-					message: `Failure processing ${error.message}`,
-					timeTaken: new Date().getTime() - startTime.getTime(),
-				},
-			});
-			return false;
-		}
-	},
-	{
-		connection: queueConfig,
-		lockDuration: 300 * 1000,
-		concurrency: 2,
-		autorun: false,
-		stalledInterval: 60 * 1000,
-	},
-);
+      combineCoverageJob({
+        commit,
+        namespaceSlug,
+        repositorySlug,
+        testInstance,
+        delay: 0,
+      }).catch((error) => {
+        log("error adding combinecoverage job", error)
+      })
 
-addEventListeners(uploadWorker);
+      clearTimeout(timeout)
+    } catch (error) {
+      log("error processing combinecoverage job", error)
+      if (error.message.includes("Timed out fetching a new connection from the connection pool")) {
+        log(
+          "Shutting down worker immediately due to connection pool error, hopefully we can restart."
+        )
+        process.exit(1)
+      }
+
+      await db.jobLog.create({
+        data: {
+          name: "processupload",
+          commitRef: commit.ref,
+          namespace: namespaceSlug,
+          repository: repositorySlug,
+          message: `Failure processing upload ${error.message}`,
+          timeTaken: new Date().getTime() - startTime.getTime(),
+        },
+      })
+      return false
+    }
+  },
+  {
+    connection: queueConfig,
+    lockDuration: 300 * 1000,
+    concurrency: 2,
+    autorun: false,
+    stalledInterval: 60 * 1000,
+  }
+)
+
+addEventListeners(uploadWorker)
