@@ -1,3 +1,11 @@
+## [1.30.4](https://github.com/Aeolun/mycoverage/compare/v1.30.3...v1.30.4) (2023-11-24)
+
+
+### Bug Fixes
+
+* add a root level directory object in InternalCoverage to keep track of top level files ([05b348b](https://github.com/Aeolun/mycoverage/commit/05b348b1ab6112c57528dc4ce7fb4ad125e7f935))
+* allow files at root level of repository ([189c4ee](https://github.com/Aeolun/mycoverage/commit/189c4ee310d1dc95609ce9a5037662d1d625f0c6))
+
 ## [1.30.3](https://github.com/Aeolun/mycoverage/compare/v1.30.2...v1.30.3) (2023-11-06)
 
 
