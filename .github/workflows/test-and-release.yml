@@ -1,4 +1,4 @@
-name: Test
+name: Test and release
 on:
   push:
 
@@ -63,3 +63,30 @@ jobs:
         run: pnpm install
       - name: Run linter
         run: pnpm run lint
+  release:
+    name: Release
+    if: "!contains(github.event.head_commit.message , '[skip release]') && github.ref == 'refs/heads/master'"
+    needs: [unit_test, typescript]
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://localhost
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - name: Install dependencies
+        run: pnpm install
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+        run: pnpx semantic-release
