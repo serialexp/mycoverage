@@ -1,3 +1,10 @@
+## [1.30.5](https://github.com/Aeolun/mycoverage/compare/v1.30.4...v1.30.5) (2023-12-06)
+
+
+### Bug Fixes
+
+* do not release unless tests and typescript succeed ([8168271](https://github.com/Aeolun/mycoverage/commit/816827154edf470ee043cf47ac0e8f4dd95fd7c0))
+
 ## [1.30.4](https://github.com/Aeolun/mycoverage/compare/v1.30.3...v1.30.4) (2023-11-24)
 
 
