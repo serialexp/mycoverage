@@ -9,16 +9,17 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  name           String?
-  email          String    @unique
-  hashedPassword String?
-  role           String    @default("USER")
-  sessions       Session[]
-  tokens         Token[]
-  repositories   Project[]
+  id                     Int       @id @default(autoincrement())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  name                   String?
+  email                  String    @unique
+  hashedPassword         String?
+  role                   String    @default("USER")
+  sessions               Session[]
+  tokens                 Token[]
+  accessibleRepositories Project[]
+  accessibleGroups       Group[]
 }
 
 model Session {
@@ -214,14 +215,16 @@ model FileCoverage {
 }
 
 model Group {
-  id          Int       @id @default(autoincrement())
-  name        String
-  createdDate DateTime  @default(now())
-  updatedDate DateTime  @updatedAt
-  slug        String    @default("")
-  githubName  String    @default("")
-  Project     Project[]
+  id                Int       @id @default(autoincrement())
+  name              String
+  createdDate       DateTime  @default(now())
+  updatedDate       DateTime  @updatedAt
+  slug              String    @default("")
+  githubName        String    @default("")
+  Project           Project[]
+  accessibleByUsers User[]
 
+  @@unique([name])
   @@index([slug])
 }
 
@@ -305,9 +308,11 @@ model Project {
   Branch                  Branch[]
   ExpectedResult          ExpectedResult[]
 
-  PrHook      PrHook[]
-  PullRequest PullRequest[]
+  PrHook          PrHook[]
+  PullRequest     PullRequest[]
+  usersWithAccess User[]
 
+  @@unique([name, groupId])
   @@index([groupId])
   @@index([lastCommitId])
   @@index([slug])

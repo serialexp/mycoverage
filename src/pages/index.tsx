@@ -38,7 +38,7 @@ const Home: BlitzPage = () => {
 
 	return (
 		<>
-			<Heading>Namespaces</Heading>
+			<Heading>Owner</Heading>
 			<Table>
 				{groups.map((g) => {
 					return (

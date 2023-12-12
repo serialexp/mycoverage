@@ -14,6 +14,7 @@
     "start": "node concurrently.js",
     "studio": "blitz prisma studio",
     "migrate:dev": "dotenv -e .env.local -- prisma migrate dev",
+    "migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
     "test:tsc": "tsc --noEmit",
     "lint": "biome check src && biome format src",
     "lint:fix": "biome check --apply-unsafe src && biome format --apply-unsafe src",

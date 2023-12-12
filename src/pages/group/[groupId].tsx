@@ -1,5 +1,5 @@
 import { BlitzPage, Routes, useParams } from "@blitzjs/next";
-import { useMutation, useQuery } from "@blitzjs/rpc";
+import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc";
 import {
 	Box,
 	Table,
@@ -12,8 +12,10 @@ import {
 	FormLabel,
 	Input,
 	FormHelperText,
+	Flex,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import createGroupMutation from "src/coverage/mutations/createGroup";
 import getGroup from "src/coverage/queries/getGroup";
 import { Actions } from "src/library/components/Actions";
@@ -32,9 +34,60 @@ const GroupPage: BlitzPage = () => {
 	const [group] = useQuery(getGroup, {
 		groupSlug: params.groupId,
 	});
-	const [projects, projectsMeta] = useQuery(getProjects, {
+
+	const router = useRouter();
+	const page = Number(router.query.page) || 1;
+	const search = router.query.search;
+	const [projects, projectsMeta] = usePaginatedQuery(getProjects, {
+		name: search,
 		groupId: params.groupId,
+		take: 20,
+		skip: (page - 1) * 20,
 	});
+
+	const goToPreviousPage = () =>
+		router.push(
+			{ pathname: window.location.pathname, query: { search, page: page - 1 } },
+			undefined,
+			{
+				scroll: false,
+			},
+		);
+	const goToNextPage = () =>
+		router.push(
+			{ pathname: window.location.pathname, query: { search, page: page + 1 } },
+			undefined,
+			{
+				scroll: false,
+			},
+		);
+	const goToFirstPage = () =>
+		router.push(
+			{ pathname: window.location.pathname, query: { search, page: 1 } },
+			undefined,
+			{
+				scroll: false,
+			},
+		);
+	const goToLastPage = () =>
+		router.push(
+			{
+				pathname: window.location.pathname,
+				query: { search, page: Math.ceil(projects.count / 20) },
+			},
+			undefined,
+			{
+				scroll: false,
+			},
+		);
+	const setSearch = (search: string) =>
+		router.push(
+			{ pathname: window.location.pathname, query: { search } },
+			undefined,
+			{
+				scroll: false,
+			},
+		);
 
 	const [createProject] = useMutation(createProjectMutation);
 
@@ -46,21 +99,36 @@ const GroupPage: BlitzPage = () => {
 
 	return group ? (
 		<>
-			<Heading>Group</Heading>
+			<Heading>Repositories</Heading>
 			<Actions>
 				<Link href={Routes.Home()}>
 					<Button>Back</Button>
 				</Link>
 			</Actions>
+			<Box p={2}>
+				<Input
+					type={"search"}
+					placeholder={"Search repository"}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+							setSearch(e.currentTarget.value);
+						}
+					}}
+				/>
+			</Box>
 			<Table>
 				<Tr>
-					<Th>Repository Name</Th>
-					<Th>Last Commit</Th>
-					<Th>Commit Time</Th>
-					<Th>Elements</Th>
-					<Th isNumeric>Percentage Covered</Th>
+					<Th width={"30%"}>Repository Name</Th>
+					<Th width={"15%"}>Last Commit</Th>
+					<Th width={"25%"}>Commit Time</Th>
+					<Th isNumeric width={"15%"}>
+						Elements
+					</Th>
+					<Th width={"15%"} isNumeric>
+						Percentage Covered
+					</Th>
 				</Tr>
-				{projects.map((p) => {
+				{projects.projects.map((p) => {
 					return (
 						<Tr key={p.id} _hover={{ bg: "primary.50" }}>
 							<Td>
@@ -73,94 +141,58 @@ const GroupPage: BlitzPage = () => {
 									<ChakraLink color={"blue.500"}>{p.name}</ChakraLink>
 								</Link>
 							</Td>
-
-							<Td>
-								{p.lastProcessedCommit ? (
-									<>{p.lastProcessedCommit?.ref.substr(0, 12)}</>
-								) : null}
-							</Td>
-							<Td>
-								{p.lastProcessedCommit ? (
-									<>{p.lastProcessedCommit?.createdDate.toLocaleString()}</>
-								) : null}
-							</Td>
-							<Td isNumeric>
-								{format.format(p.lastProcessedCommit?.elements)}
-							</Td>
-							<Td isNumeric>
-								{p.lastProcessedCommit ? (
-									<Minibar
-										progress={p.lastProcessedCommit?.coveredPercentage / 100}
-									/>
-								) : null}
-							</Td>
+							{p.lastProcessedCommit ? (
+								<>
+									<Td>{p.lastProcessedCommit.ref.substr(0, 12)}</Td>
+									<Td>{p.lastProcessedCommit?.createdDate.toLocaleString()}</Td>
+									<Td isNumeric>
+										{format.format(p.lastProcessedCommit?.elements)}
+									</Td>
+									<Td isNumeric>
+										<Minibar
+											progress={p.lastProcessedCommit?.coveredPercentage / 100}
+										/>
+									</Td>
+								</>
+							) : (
+								<>
+									<Td isNumeric colspan={3}>
+										No coverage information
+									</Td>
+									<Td isNumeric>
+										<Minibar progress={0} />
+									</Td>
+								</>
+							)}
 						</Tr>
 					);
 				})}
 			</Table>
-			<Subheading mt={4}>Add project</Subheading>
-			<Box p={4}>
-				<FormControl id="name">
-					<FormLabel>Name</FormLabel>
-					<Input
-						type="text"
-						value={formFields.name}
-						onChange={(e) => {
-							setFormFields((ff) => ({ ...ff, name: e.target.value }));
-						}}
-					/>
-					<FormHelperText>The name of the namespace</FormHelperText>
-				</FormControl>
-				<FormControl id="slug">
-					<FormLabel>Slug</FormLabel>
-					<Input
-						type="text"
-						value={formFields.slug}
-						onChange={(e) => {
-							setFormFields((ff) => ({ ...ff, slug: e.target.value }));
-						}}
-					/>
-					<FormHelperText>Slug used for the URL</FormHelperText>
-				</FormControl>
-				<FormControl id="githubName">
-					<FormLabel>Default Base Branch</FormLabel>
-					<Input
-						type="text"
-						value={formFields.defaultBaseBranch}
-						onChange={(e) => {
-							setFormFields((ff) => ({
-								...ff,
-								defaultBaseBranch: e.target.value,
-							}));
-						}}
-					/>
-					<FormHelperText>
-						The branch that this project uses as the main branch
-					</FormHelperText>
-				</FormControl>
-				<Button
-					mt={2}
-					colorScheme={"green"}
-					onClick={() => {
-						createProject({ ...formFields, groupId: group.id })
-							.then(() => {
-								setFormFields({
-									name: "",
-									slug: "",
-									defaultBaseBranch: "",
-								});
-								return projectsMeta.refetch().catch((error) => {
-									console.error(error);
-								});
-							})
-							.catch((error) => {
-								console.error(error);
-							});
-					}}
-				>
-					Create
+			<Flex
+				bg={"primary.100"}
+				justifyContent={"space-between"}
+				alignItems={"center"}
+				p={2}
+			>
+				<Button isDisabled={page === 1} onClick={goToFirstPage}>
+					First
 				</Button>
-			</Box>
+				<Button isDisabled={page === 1} onClick={goToPreviousPage}>
+					Previous
+				</Button>
+				<div>
+					Page {page} of {Math.ceil(projects.count / 20)}
+				</div>
+				<Button isDisabled={!projects.hasMore} onClick={goToNextPage}>
+					Next
+				</Button>
+				<Button
+					isDisabled={page === Math.ceil(projects.count / 20)}
+					onClick={goToLastPage}
+				>
+					Last
+				</Button>
+			</Flex>
 		</>
 	) : null;
 };
