@@ -303,6 +303,7 @@ model Project {
   lastProcessedCommitId   Int?
   githubName              String           @default("")
   requireCoverageIncrease Boolean          @default(false)
+  reportCoverageEnabled   Boolean          @default(false)
   group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   lastCommit              Commit?          @relation("lastCommit", fields: [lastCommitId], references: [id])
   lastProcessedCommit     Commit?          @relation("lastProcessedCommit", fields: [lastProcessedCommitId], references: [id])
