@@ -91,6 +91,8 @@ export const loadUserPermissions = async (userId: number, accessToken: string) =
           },
           create: {
             name: owner,
+            slug: owner,
+            githubName: owner,
           },
           update: {},
         })
@@ -111,6 +113,8 @@ export const loadUserPermissions = async (userId: number, accessToken: string) =
             name: r.name,
             defaultBaseBranch: r.default_branch,
             groupId: existingOwner.id,
+            slug: r.name,
+            githubName: r.name,
           })),
         })
         const accessibleRepositories = await db.project.findMany({
