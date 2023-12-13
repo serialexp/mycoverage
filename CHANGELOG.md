@@ -1,3 +1,10 @@
+## [1.31.3](https://github.com/serialexp/mycoverage/compare/v1.31.2...v1.31.3) (2023-12-13)
+
+
+### Bug Fixes
+
+* new version on serialexp ([f77352a](https://github.com/serialexp/mycoverage/commit/f77352a2ec7988cef628d3548502a1da16446df5))
+
 ## [1.31.2](https://github.com/serialexp/mycoverage/compare/v1.31.1...v1.31.2) (2023-12-13)
 
 
