@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/serialexp/mycoverage/compare/v1.30.5...v1.31.0) (2023-12-13)
+
+
+### Features
+
+* add github authentication to mycoverage ([#5](https://github.com/serialexp/mycoverage/issues/5)) ([424e07e](https://github.com/serialexp/mycoverage/commit/424e07ef3191b0c7f8ad429385fb42e03d62ff50))
+
 ## [1.30.5](https://github.com/Aeolun/mycoverage/compare/v1.30.4...v1.30.5) (2023-12-06)
 
 
