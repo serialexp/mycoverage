@@ -1,3 +1,10 @@
+## [1.31.2](https://github.com/serialexp/mycoverage/compare/v1.31.1...v1.31.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* enable reporting to actions on per repo basis ([6079b21](https://github.com/serialexp/mycoverage/commit/6079b2173cca1b8af3ae887960f4e32247386215))
+
 ## [1.31.1](https://github.com/serialexp/mycoverage/compare/v1.31.0...v1.31.1) (2023-12-13)
 
 
