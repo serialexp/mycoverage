@@ -301,6 +301,7 @@ model Project {
   groupId                 Int
   lastCommitId            Int?
   lastProcessedCommitId   Int?
+  githubName              String           @default("")
   requireCoverageIncrease Boolean          @default(false)
   group                   Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   lastCommit              Commit?          @relation("lastCommit", fields: [lastCommitId], references: [id])

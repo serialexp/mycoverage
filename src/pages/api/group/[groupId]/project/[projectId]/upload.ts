@@ -53,6 +53,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               slug: query.projectId,
               groupId: group.id,
             },
+            {
+              githubName: query.projectId,
+              groupId: group.id,
+            },
           ],
         },
       })
