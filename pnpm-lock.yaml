@@ -131,6 +131,9 @@ dependencies:
   passport-github2:
     specifier: 0.1.12
     version: 0.1.12
+  passport-oauth2:
+    specifier: ^1.7.0
+    version: 1.7.0
   prismjs:
     specifier: 1.29.0
     version: 1.29.0
@@ -162,8 +165,8 @@ dependencies:
     specifier: ^4.11.0
     version: 4.12.0(react@18.2.0)
   react-timeago:
-    specifier: 7.1.0
-    version: 7.1.0(react@18.2.0)
+    specifier: ^7.2.0
+    version: 7.2.0(react@18.2.0)
   uuidv7:
     specifier: 0.6.3
     version: 0.6.3
@@ -199,18 +202,30 @@ devDependencies:
   '@testing-library/react-hooks':
     specifier: ^8.0.1
     version: 8.0.1(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
+  '@types/d3-scale':
+    specifier: 4.0.8
+    version: 4.0.8
   '@types/node':
     specifier: ^20.8.4
     version: 20.9.5
   '@types/passport-github2':
     specifier: 1.2.9
     version: 1.2.9
+  '@types/passport-oauth2':
+    specifier: ^1.4.15
+    version: 1.4.15
   '@types/preview-email':
     specifier: ^2.0.1
     version: 2.0.1
+  '@types/prismjs':
+    specifier: 1.26.3
+    version: 1.26.3
   '@types/react':
     specifier: ^18.2.28
     version: 18.2.38
+  '@types/react-timeago':
+    specifier: ^4.1.6
+    version: 4.1.6
   '@types/react-vis':
     specifier: ^1.11.12
     version: 1.11.14
@@ -6784,6 +6799,16 @@ packages:
       '@types/keygrip': 1.0.6
     dev: false
 
+  /@types/d3-scale@4.0.8:
+    resolution: {integrity: sha512-gkK1VVTr5iNiYJ7vWDI+yUFFlszhNMtVeneJ6lUTKPjprsvLLI9/tgEGiXJOnlINJA8FyA88gfnQsHbybVZrYQ==}
+    dependencies:
+      '@types/d3-time': 3.0.3
+    dev: true
+
+  /@types/d3-time@3.0.3:
+    resolution: {integrity: sha512-2p6olUZ4w3s+07q3Tm2dbiMZy5pCDfYwtLXXHUnVzXgQlZ/OyPtUz6OL382BkOuGlLXqfT+wqv8Fw2v8/0geBw==}
+    dev: true
+
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
     dependencies:
@@ -6938,6 +6963,10 @@ packages:
       '@types/nodemailer': 6.4.14
     dev: true
 
+  /@types/prismjs@1.26.3:
+    resolution: {integrity: sha512-A0D0aTXvjlqJ5ZILMz3rNfDBOx9hHxLZYv2by47Sm/pqW35zzjusrZTryatjN/Rf8Us2gZrJD+KeHbUSTux1Cw==}
+    dev: true
+
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
 
@@ -6949,6 +6978,12 @@ packages:
 
   /@types/react-dom@18.2.17:
     resolution: {integrity: sha512-rvrT/M7Df5eykWFxn6MYt5Pem/Dbyc1N8Y0S9Mrkw2WFCRiqUgw9P7ul2NpwsXCSM1DVdENzdG9J5SreqfAIWg==}
+    dependencies:
+      '@types/react': 18.2.38
+    dev: true
+
+  /@types/react-timeago@4.1.6:
+    resolution: {integrity: sha512-BFUH7FEple9m0K8dNvOqhba3+iCyrgsLcRtAnaZ6HlXvG8AJfC/7NCDcLaXfB1jvpAezwDRi/BflzdaLI4+Fow==}
     dependencies:
       '@types/react': 18.2.38
     dev: true
@@ -13396,8 +13431,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /react-timeago@7.1.0(react@18.2.0):
-    resolution: {integrity: sha512-rouF7MiEm55fH791Y8cg+VobIJgx8gtNJ+gjr86R4ZqO1WKPkXiXjdT/lRzrvEkUzsxT1exHqV2V+Zdi114H3A==}
+  /react-timeago@7.2.0(react@18.2.0):
+    resolution: {integrity: sha512-2KsBEEs+qRhKx/kekUVNSTIpop3Jwd7SRBm0R4Eiq3mPeswRGSsftY9FpKsE/lXLdURyQFiHeHFrIUxLYskG5g==}
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0
     dependencies:
