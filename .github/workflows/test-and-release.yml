@@ -23,7 +23,7 @@ jobs:
       - name: Run unit tests
         run: pnpm run test:coverage
       - name: Upload to MyCoverage
-        uses: Aeolun/mycoverage-action@v1
+        uses: serialexp/mycoverage-action@v1
 
   typescript:
     name: Typescript

@@ -1,11 +1,60 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { resolver } from "@blitzjs/rpc"
+import { Ctx, paginate } from "blitz"
+import db, { Prisma } from "db"
+import { z } from "zod"
 
-export default async function getProjects(args: { groupId }, { session }: Ctx) {
-	return db.project.findMany({
-		where: { group: { slug: { equals: args.groupId } } },
-		include: {
-			lastProcessedCommit: true,
-		},
-	});
-}
+export default resolver.pipe(
+  resolver.authorize(),
+  resolver.zod(
+    z.object({
+      name: z.string().optional(),
+      groupId: z.string(),
+      skip: z.number().optional(),
+      take: z.number().optional(),
+    })
+  ),
+  async function getProjects(args, { session }: Ctx) {
+    const userId = session.userId
+    if (!userId) throw new Error("User not logged in")
+
+    const searchCondition: Prisma.ProjectWhereInput = {
+      group: { slug: { equals: args.groupId } },
+      usersWithAccess: { some: { id: userId } },
+    }
+
+    if (args.name) {
+      searchCondition.name = { contains: args.name }
+    }
+
+    const {
+      items: projects,
+      hasMore,
+      nextPage,
+      count,
+    } = await paginate({
+      skip: args.skip,
+      take: args.take,
+      count: () => db.project.count({ where: searchCondition }),
+      query: (paginateArgs) =>
+        db.project.findMany({
+          ...paginateArgs,
+          where: searchCondition,
+          include: {
+            lastProcessedCommit: true,
+          },
+          orderBy: {
+            lastProcessedCommit: {
+              createdDate: "desc",
+            },
+          },
+        }),
+    })
+
+    return {
+      projects,
+      nextPage,
+      hasMore,
+      count,
+    }
+  }
+)

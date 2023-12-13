@@ -55,11 +55,11 @@ const Layout = ({ title, children }: LayoutProps) => {
 			<Container p={0} maxW={"container.lg"}>
 				<Card p={0} mb={4}>
 					<CardBody p={0}>
-						{session.userId || true ? (
+						{session.userId ? (
 							children
 						) : (
 							<Box m={2}>
-								<Link href="/api/auth/github/login">
+								<Link href="/api/auth/github">
 									<Button>Log In With GitHub</Button>
 								</Link>
 							</Box>
