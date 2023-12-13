@@ -1,3 +1,10 @@
+## [1.31.4](https://github.com/serialexp/mycoverage/compare/v1.31.3...v1.31.4) (2023-12-13)
+
+
+### Bug Fixes
+
+* set slug and githubName for new projects ([bf39ba1](https://github.com/serialexp/mycoverage/commit/bf39ba183584b373935ef854471739e27f46c4ad))
+
 ## [1.31.3](https://github.com/serialexp/mycoverage/compare/v1.31.2...v1.31.3) (2023-12-13)
 
 
