@@ -1,3 +1,10 @@
+## [1.31.1](https://github.com/serialexp/mycoverage/compare/v1.31.0...v1.31.1) (2023-12-13)
+
+
+### Bug Fixes
+
+* allow matching group and project by name or slug ([a6c83f2](https://github.com/serialexp/mycoverage/commit/a6c83f2fb8e3ec13dc818589037bd583a198ea3b))
+
 # [1.31.0](https://github.com/serialexp/mycoverage/compare/v1.30.5...v1.31.0) (2023-12-13)
 
 
