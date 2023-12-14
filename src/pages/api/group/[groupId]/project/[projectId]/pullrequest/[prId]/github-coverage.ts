@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const octokit = await getAppOctokit()
     const changedFiles = await octokit.pulls.listFiles({
-      owner: group.githubName,
+      owner: group.name,
       repo: project.name,
       pull_number: parseInt(pullRequest.sourceIdentifier),
     })

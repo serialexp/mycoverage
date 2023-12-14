@@ -60,13 +60,13 @@ const BranchFileDifferencePage: BlitzPage = () => {
   })
 
   const [baseFileData] = useQuery(getFileData, {
-    groupName: group?.githubName,
+    groupName: group?.name,
     projectName: project?.name,
     branchName: baseCommit?.ref,
     path: path?.join("/"),
   })
   const [fileData] = useQuery(getFileData, {
-    groupName: group?.githubName,
+    groupName: group?.name,
     projectName: project?.name,
     branchName: commit?.ref,
     path: path?.join("/"),
