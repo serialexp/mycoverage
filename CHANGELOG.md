@@ -1,3 +1,10 @@
+## [1.31.6](https://github.com/serialexp/mycoverage/compare/v1.31.5...v1.31.6) (2023-12-14)
+
+
+### Bug Fixes
+
+* use project name for repository updates (assume they are the same) ([48294a3](https://github.com/serialexp/mycoverage/commit/48294a3800aec4d5022f3ae3ad41cd6b8a74aa82))
+
 ## [1.31.5](https://github.com/serialexp/mycoverage/compare/v1.31.4...v1.31.5) (2023-12-14)
 
 
