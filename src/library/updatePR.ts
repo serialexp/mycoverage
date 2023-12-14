@@ -16,13 +16,13 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
   const baseUrl = await getSetting("baseUrl")
 
   const comments = await octokit.issues.listComments({
-    owner: pullRequest.project.group.githubName,
+    owner: pullRequest.project.group.name,
     repo: pullRequest.project.name,
     issue_number: parseInt(pullRequest.sourceIdentifier),
   })
 
   const changedFiles = await octokit.pulls.listFiles({
-    owner: pullRequest.project.group.githubName,
+    owner: pullRequest.project.group.name,
     repo: pullRequest.project.name,
     pull_number: parseInt(pullRequest.sourceIdentifier),
   })
@@ -35,7 +35,7 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
     log("deleting existing comments")
     for (const coverageComment of coverageComments) {
       await octokit.issues.deleteComment({
-        owner: pullRequest.project.group.githubName,
+        owner: pullRequest.project.group.name,
         repo: pullRequest.project.name,
         comment_id: coverageComment.id,
       })
@@ -134,7 +134,7 @@ export async function updatePR(pullRequest: PullRequest & { project: Project & {
     if (noBaseCommit) {
       const baseCommitMessage = `THE BASE COMMIT ${pullRequestResult.baseCommit.ref} HAS NOT BEEN PROCESSED YET, AND NO OTHER SUITABLE BASE COMMIT FOR COMPARISON EXISTS.`
       await octokit.issues.createComment({
-        owner: pullRequest.project.group.githubName,
+        owner: pullRequest.project.group.name,
         repo: pullRequest.project.name,
         issue_number: parseInt(pullRequest.sourceIdentifier),
         body: `**Coverage quality gate**
@@ -180,7 +180,7 @@ ${baseBuildInfo?.commits
             baseCommit.ref
           )
         const check = await octokit.checks.create({
-          owner: pullRequest.project.group.githubName,
+          owner: pullRequest.project.group.name,
           repo: pullRequest.project.name,
           head_sha: commit.ref,
           details_url: statusUrl,
@@ -381,7 +381,7 @@ ${
       }
 
       const newComment = await octokit.issues.createComment({
-        owner: pullRequest.project.group.githubName,
+        owner: pullRequest.project.group.name,
         repo: pullRequest.project.name,
         issue_number: parseInt(pullRequest.sourceIdentifier),
         body: resultString,
@@ -408,7 +408,7 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
 
       try {
         const check = await octokit.checks.create({
-          owner: pullRequest.project.group.githubName,
+          owner: pullRequest.project.group.name,
           repo: pullRequest.project.name,
           head_sha: commit.ref,
           status: "completed",
