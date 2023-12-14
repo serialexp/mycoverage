@@ -1,3 +1,10 @@
+## [1.31.5](https://github.com/serialexp/mycoverage/compare/v1.31.4...v1.31.5) (2023-12-14)
+
+
+### Bug Fixes
+
+* match pr events on either githubname or name for projects ([21bf29c](https://github.com/serialexp/mycoverage/commit/21bf29c97ca226ea4afd23da1a4f88b31b83827f))
+
 ## [1.31.4](https://github.com/serialexp/mycoverage/compare/v1.31.3...v1.31.4) (2023-12-13)
 
 
