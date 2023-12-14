@@ -1,3 +1,10 @@
+## [1.31.7](https://github.com/serialexp/mycoverage/compare/v1.31.6...v1.31.7) (2023-12-14)
+
+
+### Bug Fixes
+
+* no references to githubName in the UI ([34c78de](https://github.com/serialexp/mycoverage/commit/34c78de85c10b4053186bb6a17681d2408683fc2))
+
 ## [1.31.6](https://github.com/serialexp/mycoverage/compare/v1.31.5...v1.31.6) (2023-12-14)
 
 
