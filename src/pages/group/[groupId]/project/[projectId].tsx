@@ -82,7 +82,7 @@ const ProjectPage: BlitzPage = () => {
 					<Button leftIcon={<FaGears />}>Settings</Button>
 				</Link>
 			</Actions>
-			<Subheading>Main branch</Subheading>
+			<Subheading>Main branch ({project.defaultBaseBranch})</Subheading>
 			<Box m={4}>
 				<Link
 					href={Routes.BranchPage({

@@ -46,7 +46,7 @@ export const FileDisplay = (props: {
 	const router = useRouter();
 
 	const [fileData] = useQuery(getFileData, {
-		groupName: group?.githubName,
+		groupName: group?.name,
 		projectName: project?.name,
 		branchName: props.commitRef,
 		path: `/${path?.join("/")}`,

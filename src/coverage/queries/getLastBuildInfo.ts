@@ -27,7 +27,7 @@ export default async function getLastBuildInfo(args: {
 			CommitOnBranch: {
 				some: {
 					Branch: {
-						slug: branchSlug,
+						name: branchSlug,
 						projectId: args.projectId,
 					},
 				},
@@ -69,7 +69,7 @@ export default async function getLastBuildInfo(args: {
 			CommitOnBranch: {
 				some: {
 					Branch: {
-						slug: branchSlug,
+						name: branchSlug,
 						projectId: args.projectId,
 					},
 				},
@@ -100,7 +100,7 @@ export default async function getLastBuildInfo(args: {
 			CommitOnBranch: {
 				some: {
 					Branch: {
-						slug: branchSlug,
+						name: branchSlug,
 						projectId: args.projectId,
 					},
 				},
