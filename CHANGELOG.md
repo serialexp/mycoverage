@@ -1,3 +1,10 @@
+## [1.31.8](https://github.com/serialexp/mycoverage/compare/v1.31.7...v1.31.8) (2023-12-15)
+
+
+### Bug Fixes
+
+* update latest commits when main branch on repo is changed ([4788afd](https://github.com/serialexp/mycoverage/commit/4788afd65a5f29383e463d2047bbe9d335d219f5))
+
 ## [1.31.7](https://github.com/serialexp/mycoverage/compare/v1.31.6...v1.31.7) (2023-12-14)
 
 
