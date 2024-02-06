@@ -1,3 +1,10 @@
+## [1.31.9](https://github.com/serialexp/mycoverage/compare/v1.31.8...v1.31.9) (2024-02-06)
+
+
+### Bug Fixes
+
+* make coverage pass dependent on individual commit, not aggregate coverage ([a448c54](https://github.com/serialexp/mycoverage/commit/a448c544221b0b9988c49a76cebb344b0698379e))
+
 ## [1.31.8](https://github.com/serialexp/mycoverage/compare/v1.31.7...v1.31.8) (2023-12-15)
 
 
