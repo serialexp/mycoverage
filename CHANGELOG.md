@@ -1,3 +1,10 @@
+## [1.31.10](https://github.com/serialexp/mycoverage/compare/v1.31.9...v1.31.10) (2024-02-06)
+
+
+### Bug Fixes
+
+* require email to sign in and actually throw error ([099f4d4](https://github.com/serialexp/mycoverage/commit/099f4d42aa8621c0d6929a5d1029848e846c36c8))
+
 ## [1.31.9](https://github.com/serialexp/mycoverage/compare/v1.31.8...v1.31.9) (2024-02-06)
 
 
