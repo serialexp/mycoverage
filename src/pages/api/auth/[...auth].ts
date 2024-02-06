@@ -19,39 +19,49 @@ const strategy = new GithubStrategy(
 		profile: GithubProfile,
 		done: VerifyCallback,
 	) {
-		const user = await db.user.upsert({
-			where: {
-				id: profile._json.id,
-				email: profile._json.email,
-				name: profile.username,
-			},
-			create: {
-				id: profile._json.id,
-				name: profile.username,
-				email: profile._json.email,
-			},
-			update: {
-				name: profile.username,
-			},
-		});
+		try {
+			const email = profile.email;
+			if (!email) {
+				throw new Error(
+					"No email returned from GitHub. You need an email associated with your account to sign in.",
+				);
+			}
+			const user = await db.user.upsert({
+				where: {
+					id: profile._json.id,
+					email,
+					name: profile.username,
+				},
+				create: {
+					id: profile._json.id,
+					name: profile.username,
+					email,
+				},
+				update: {
+					name: profile.username,
+				},
+			});
 
-		loadUserPermissions(user.id, accessToken).then(() => {
-			console.log("Loaded permissions for user");
-		});
+			loadUserPermissions(user.id, accessToken).then(() => {
+				console.log(`Loaded permissions for user ${user.id}`);
+			});
 
-		return done(null, {
-			publicData: {
-				displayName: profile.displayName,
-				userId: profile._json.id,
-				username: profile.username,
-				avatarUrl: profile._json.avatar_url,
-				role: "USER",
-			},
-			privateData: {
-				accessToken,
-				refreshToken,
-			},
-		});
+			return done(null, {
+				publicData: {
+					displayName: profile.displayName,
+					userId: profile._json.id,
+					username: profile.username,
+					avatarUrl: profile._json.avatar_url,
+					role: "USER",
+				},
+				privateData: {
+					accessToken,
+					refreshToken,
+				},
+			});
+		} catch (error) {
+			done(error as Error);
+		}
 	},
 );
 

@@ -15,7 +15,9 @@ export const loadUserPermissions = async (
 			},
 		})
 		.then(async (installations) => {
-			console.log(`Found ${installations.data.total_count} installations`);
+			console.log(
+				`Found ${installations.data.total_count} installations of mycoverage for ${userId}`,
+			);
 			const allInstallationRepositories = await Promise.all(
 				installations.data.installations.map(async (installation) => {
 					let allRepositories: {
