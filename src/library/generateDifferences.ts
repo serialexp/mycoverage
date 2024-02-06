@@ -191,6 +191,11 @@ export async function generateDifferences(
 		return a.next.coveredPercentage > b.next.coveredPercentage ? -1 : 1;
 	});
 
+	const averageChange =
+		changedFiles.reduce((acc, item) => {
+			return acc + item.percentageChange;
+		}, 0) / changedFiles.length;
+
 	return {
 		increase: changedFiles.filter(
 			(diff) => diff.base && diff.next && diff.percentageChange > 0,
@@ -202,5 +207,6 @@ export async function generateDifferences(
 		remove: changedFiles.filter((diff) => !diff.next && diff.base),
 		unexpectedCount: changedFiles.filter((diff) => !diff.expectedChange).length,
 		totalCount: changedFiles.length,
+		averageChange,
 	};
 }

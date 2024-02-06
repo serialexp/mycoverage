@@ -20,6 +20,9 @@ export default async function getLogs(
 				},
 			},
 			{
+				repository: args.filter,
+			},
+			{
 				name: {
 					contains: args.filter,
 				},

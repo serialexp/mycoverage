@@ -239,19 +239,23 @@ ${baseBuildInfo?.commits
 					baseCommit.ref,
 				);
 
-			const state =
-				commit.coveredPercentage === baseCommit.coveredPercentage
-					? "SAME"
-					: commit.coveredPercentage > baseCommit.coveredPercentage
-					? "BETTER"
-					: "WORSE";
-
 			const expectedChanges = changedFiles.data.map((f) => f.filename);
 			const differences = await getDifferences(
 				baseCommit.id,
 				commit.id,
 				expectedChanges,
 			);
+
+			const state =
+				differences.averageChange === 0
+					? "SAME"
+					: differences.averageChange > 0
+					? "BETTER"
+					: "WORSE";
+			const overallDiff =
+				commit.coveredPercentage - baseCommit.coveredPercentage;
+			const overallState =
+				overallDiff === 0 ? "SAME" : overallDiff > 0 ? "BETTER" : "WORSE";
 
 			const satisfied = satisfiesExpectedResults(
 				commit,
@@ -366,6 +370,12 @@ ${testResults
 - ${similarTestsResults} tests which have the same result`;
 			} else {
 				resultString = `**Coverage quality gate**
+
+${
+	["SAME", "BETTER"].includes(state)
+		? "![passed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/passed-16px.png)"
+		: "![passed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/failed-16px.png)"
+}
 ${
 	switchedBaseCommit
 		? `\n_Base commit for comparison was switched from ${pullRequestResult.baseCommit.ref.substring(
@@ -379,18 +389,34 @@ ${
 }
 Commit Coverage:
 
-- Base: ${format.format(baseCommit.coveredPercentage, true)}%
-- New: ${format.format(commit.coveredPercentage, true)}%
+- Base: ${format.format(baseCommit.coveredPercentage, true)}% (${format.format(
+					baseCommit.coveredElements,
+				)} / ${format.format(baseCommit.elements)})
+- New: ${format.format(commit.coveredPercentage, true)}% (${format.format(
+					commit.coveredElements,
+				)} / ${format.format(commit.elements)})
 
-Difference: ${
+${format.format(
+	commit.coveredElements - baseCommit.coveredElements,
+	true,
+)} covered, ${format.format(commit.elements - baseCommit.elements, true)} total elements
+
+Changed Files: ${
 					state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"
+				} ${format.format(differences.averageChange, true)}%
+Overall Difference: ${
+					overallState === "BETTER"
+						? "🥰"
+						: overallState === "SAME"
+						? "🙂"
+						: state === "BETTER"
+						? // the commit is good, but the overall is worse
+						  "😅"
+						: "🙁"
 				} ${format.format(
 					commit.coveredPercentage - baseCommit.coveredPercentage,
 					true,
-				)}% (${format.format(
-					commit.coveredElements - baseCommit.coveredElements,
-					true,
-				)} elements)
+				)}%
 
 ${testResults
 	.map((result) => {
