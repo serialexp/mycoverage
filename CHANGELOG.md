@@ -1,3 +1,10 @@
+## [1.31.11](https://github.com/serialexp/mycoverage/compare/v1.31.10...v1.31.11) (2024-02-07)
+
+
+### Bug Fixes
+
+* correctly consider commits without changes ([c25133c](https://github.com/serialexp/mycoverage/commit/c25133ceddd0a9a3274cdf3dcf98eb02faa29eab))
+
 ## [1.31.10](https://github.com/serialexp/mycoverage/compare/v1.31.9...v1.31.10) (2024-02-06)
 
 
