@@ -247,11 +247,11 @@ ${baseBuildInfo?.commits
 			);
 
 			const state =
-				differences.averageChange === 0
-					? "SAME"
-					: differences.averageChange > 0
+				differences.averageChange > 0
 					? "BETTER"
-					: "WORSE";
+					: differences.averageChange < 0
+					? "WORSE"
+					: "SAME";
 			const overallDiff =
 				commit.coveredPercentage - baseCommit.coveredPercentage;
 			const overallState =
