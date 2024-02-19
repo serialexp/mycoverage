@@ -4,7 +4,6 @@ import { Strategy as GithubStrategy } from "passport-github2";
 import { VerifyCallback } from "passport-oauth2";
 import { api } from "src/blitz-server";
 import db from "db";
-import { Octokit } from "@octokit/rest";
 import { loadUserPermissions } from "src/library/loadUserPermissions";
 
 const strategy = new GithubStrategy(
@@ -20,17 +19,20 @@ const strategy = new GithubStrategy(
 		done: VerifyCallback,
 	) {
 		try {
-			const email = profile.email;
+			console.log(
+				JSON.stringify({
+					message: "github profile",
+					profile,
+				}),
+			);
+			let email = profile.email;
 			if (!email) {
-				throw new Error(
-					"No email returned from GitHub. You need an email associated with your account to sign in.",
-				);
+				email = `${profile.username}@mycoverage.local`;
 			}
+
 			const user = await db.user.upsert({
 				where: {
 					id: profile._json.id,
-					email,
-					name: profile.username,
 				},
 				create: {
 					id: profile._json.id,
@@ -39,6 +41,7 @@ const strategy = new GithubStrategy(
 				},
 				update: {
 					name: profile.username,
+					email,
 				},
 			});
 
