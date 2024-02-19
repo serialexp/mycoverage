@@ -1,3 +1,10 @@
+## [1.31.12](https://github.com/serialexp/mycoverage/compare/v1.31.11...v1.31.12) (2024-02-19)
+
+
+### Bug Fixes
+
+* do not require email associated with profile ([6a02af5](https://github.com/serialexp/mycoverage/commit/6a02af56ea571777ca7e319dcdbee6d2c8fe7f1f))
+
 ## [1.31.11](https://github.com/serialexp/mycoverage/compare/v1.31.10...v1.31.11) (2024-02-07)
 
 
