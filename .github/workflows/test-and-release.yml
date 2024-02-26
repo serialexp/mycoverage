@@ -24,6 +24,8 @@ jobs:
         run: pnpm run test:coverage
       - name: Upload to MyCoverage
         uses: serialexp/mycoverage-action@v1
+        with:
+          endpoint: https://mycoverage.se1.serial-experiments.com/
 
   typescript:
     name: Typescript
