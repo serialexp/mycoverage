@@ -2,6 +2,7 @@ import { BlitzPage, Routes, useParam } from "@blitzjs/next";
 import { useMutation, useQuery } from "@blitzjs/rpc";
 import Link from "next/link";
 import updatePrComment from "src/coverage/mutations/updatePrComment";
+import getCommit from "src/coverage/queries/getCommit";
 
 import getPullRequest from "src/coverage/queries/getPullRequest";
 import getRecentCommits from "src/coverage/queries/getRecentCommits";
@@ -52,6 +53,9 @@ const PullRequestPage: BlitzPage = () => {
 		projectId: project?.id,
 		branchSlug: slugify(pullRequest?.branch), // branch is not a slug in the db
 	});
+	const [commit] = useQuery(getCommit, {
+		commitRef: pullRequest?.commit.ref,
+	});
 	const [baseBuildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id,
 		branchSlug: slugify(pullRequest?.baseBranch), // branch is not a slug in the db,
@@ -63,7 +67,7 @@ const PullRequestPage: BlitzPage = () => {
 	});
 	const [updatePrCommentMutation] = useMutation(updatePrComment);
 
-	return groupId && projectId && prId && pullRequest ? (
+	return groupId && projectId && prId && pullRequest && commit ? (
 		<>
 			<Heading>PR: {pullRequest?.name}</Heading>
 			<Breadcrumbs
@@ -233,7 +237,8 @@ const PullRequestPage: BlitzPage = () => {
 			<Subheading mt={4} size={"md"}>
 				Last Commit
 			</Subheading>
-			<CommitInfo lastCommit={pullRequest.commit} />
+			<CommitInfo lastCommit={commit} />
+
 			<Subheading mt={4} size={"md"}>
 				Combined coverage{" "}
 				{baseBuildInfo.lastProcessedCommit ? (
@@ -243,29 +248,24 @@ const PullRequestPage: BlitzPage = () => {
 					</>
 				) : null}
 			</Subheading>
-			{buildInfo.lastCommit ? (
+
+			{commit ? (
 				<CoverageSummary
-					processing={pullRequest.commit.coverageProcessStatus !== "FINISHED"}
-					metrics={buildInfo.lastCommit}
+					processing={commit.coverageProcessStatus !== "FINISHED"}
+					metrics={commit}
 					baseMetrics={baseBuildInfo.lastProcessedCommit ?? undefined}
 				/>
 			) : null}
 
 			<Section
-				title={`Test results (${buildInfo?.lastCommit?.Test.length})`}
-				summary={
-					<TestResultStatus
-						status={buildInfo?.lastCommit?.coverageProcessStatus}
-					/>
-				}
+				title={`Test results (${commit?.Test.length})`}
+				summary={<TestResultStatus status={commit?.coverageProcessStatus} />}
 			>
-				<TestResultStatus
-					status={buildInfo?.lastCommit?.coverageProcessStatus}
-				/>
+				<TestResultStatus status={commit.coverageProcessStatus} />
 				<TestResults
 					groupId={groupId}
 					projectId={projectId}
-					commit={buildInfo?.lastCommit}
+					commit={commit}
 					baseCommit={baseBuildInfo?.lastCommit ?? undefined}
 					expectedResult={project?.ExpectedResult}
 				/>

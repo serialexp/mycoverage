@@ -88,7 +88,7 @@ export async function updatePR(
 		let baseCommit = pullRequestResult.baseCommit;
 		const commit = pullRequestResult.commit;
 		let switchedBaseCommit = false;
-		let noBaseCommit = false;
+		let noBaseCommit: false | "first_commit" | "not_found" = false;
 		let baseBuildInfo;
 		let baseBuildInfoWithoutLimits;
 
@@ -129,8 +129,11 @@ export async function updatePR(
 				branchSlug: slugify(pullRequest.baseBranch),
 			});
 
-			if (!baseBuildInfo.lastProcessedCommit) {
-				noBaseCommit = true;
+			// when no processed commits at all on the main branch, probably first commit
+			if (!baseBuildInfoWithoutLimits.lastProcessedCommit) {
+				noBaseCommit = "first_commit";
+			} else if (!baseBuildInfo.lastProcessedCommit) {
+				noBaseCommit = "not_found";
 			} else {
 				log(
 					`switching base commit to last successful commit on ${pullRequest.baseBranch} to ${baseBuildInfo.lastProcessedCommit.ref}`,
@@ -140,7 +143,59 @@ export async function updatePR(
 			}
 		}
 
-		if (noBaseCommit) {
+		if (noBaseCommit === "first_commit") {
+			const message = `We cannot compare coverage yet, since the target branch (\`${pullRequest.baseBranch}\`) has no processed commits.`;
+			await octokit.issues.createComment({
+				owner: pullRequest.project.group.name,
+				repo: pullRequest.project.name,
+				issue_number: parseInt(pullRequest.sourceIdentifier),
+				body: `**Coverage quality gate**
+
+${message}`,
+			});
+			try {
+				const statusUrl =
+					baseUrl +
+					path.join(
+						"group",
+						pullRequest.project.group.slug,
+						"project",
+						pullRequest.project.slug,
+						"commit",
+						baseCommit.ref,
+					);
+				const check = await octokit.checks.create({
+					owner: pullRequest.project.group.name,
+					repo: pullRequest.project.name,
+					head_sha: commit.ref,
+					details_url: statusUrl,
+					status: "completed",
+					name: "Coverage",
+					conclusion: "success",
+					completed_at: new Date().toISOString(),
+					output: {
+						title: "Coverage",
+						summary: message,
+						text: "No information until situation is resolved",
+						annotations: [
+							// {
+							//   path: "",
+							//   start_line: 0,
+							//   end_line: 0,
+							//   annotation_level: isSuccess ? "notice" : "failure",
+							//   message: `Coverage: ${format.format(commitStatus.commit.coveredPercentage)}%`,
+							// }
+						],
+					},
+				});
+				log(
+					`Check successfully created for commit ${commit.ref}`,
+					check.data.id,
+				);
+			} catch (error) {
+				log("could not create check", error);
+			}
+		} else if (noBaseCommit === "not_found") {
 			const baseCommitMessage = `THE BASE COMMIT ${pullRequestResult.baseCommit.ref} HAS NOT BEEN PROCESSED YET, AND NO OTHER SUITABLE BASE COMMIT FOR COMPARISON EXISTS.`;
 			await octokit.issues.createComment({
 				owner: pullRequest.project.group.name,
