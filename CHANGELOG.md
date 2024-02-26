@@ -1,3 +1,10 @@
+## [1.31.13](https://github.com/serialexp/mycoverage/compare/v1.31.12...v1.31.13) (2024-02-26)
+
+
+### Bug Fixes
+
+* do not post scary message on first commit ([4eae9c5](https://github.com/serialexp/mycoverage/commit/4eae9c5df23e7c9dda6066ec04f852fa84f6f8c6))
+
 ## [1.31.12](https://github.com/serialexp/mycoverage/compare/v1.31.11...v1.31.12) (2024-02-19)
 
 
