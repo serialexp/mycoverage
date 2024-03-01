@@ -7,5 +7,5 @@ export default async function getCommitFileDifferences(
 ) {
 	if (!args.baseCommitId || !args.commitId) return null;
 
-	return getDifferences(args.baseCommitId, args.commitId, []);
+	return getDifferences(args.baseCommitId, args.commitId, [], []);
 }

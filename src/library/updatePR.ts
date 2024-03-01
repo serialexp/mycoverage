@@ -295,10 +295,14 @@ ${baseBuildInfo?.commits
 				);
 
 			const expectedChanges = changedFiles.data.map((f) => f.filename);
+			const removedPaths = changedFiles.data
+				.filter((f) => f.status === "removed")
+				.map((f) => f.filename);
 			const differences = await getDifferences(
 				baseCommit.id,
 				commit.id,
 				expectedChanges,
+				removedPaths,
 			);
 
 			const state =

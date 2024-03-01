@@ -63,6 +63,7 @@ export async function generateDifferences(
 	base: PackageCoverage[],
 	next: PackageCoverage[],
 	expectedChangePaths: string[],
+	removedPaths: string[],
 ) {
 	const changedFiles: Diff[] = [];
 
@@ -191,10 +192,13 @@ export async function generateDifferences(
 		return a.next.coveredPercentage > b.next.coveredPercentage ? -1 : 1;
 	});
 
+	// do not count files that are deleted
 	const averageChange =
-		changedFiles.reduce((acc, item) => {
-			return acc + item.percentageChange;
-		}, 0) / changedFiles.length;
+		changedFiles
+			.filter((item) => item.next !== undefined)
+			.reduce((acc, item) => {
+				return acc + item.percentageChange;
+			}, 0) / changedFiles.length;
 
 	return {
 		increase: changedFiles.filter(

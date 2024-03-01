@@ -6,6 +6,7 @@ export const getDifferences = async (
 	baseCommitId: number,
 	commitId: number,
 	expectedChangePaths: string[],
+	removedPaths: string[],
 ) => {
 	const selectValues = {
 		name: true,
@@ -52,5 +53,5 @@ export const getDifferences = async (
 
 	// fs.writeFileSync("base.json", JSON.stringify(base, null, 2))
 	// fs.writeFileSync("next.json", JSON.stringify(next, null, 2))
-	return generateDifferences(base, next, expectedChangePaths);
+	return generateDifferences(base, next, expectedChangePaths, removedPaths);
 };
