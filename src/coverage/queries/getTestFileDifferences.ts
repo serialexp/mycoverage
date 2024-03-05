@@ -58,5 +58,5 @@ export default async function getTestFileDifferences(
 		},
 	});
 
-	return generateDifferences(base, next, []);
+	return generateDifferences(base, next, [], []);
 }

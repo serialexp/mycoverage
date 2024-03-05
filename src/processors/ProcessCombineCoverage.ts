@@ -1,11 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { areRefWorkflowsAllComplete } from "src/library/github";
-import { InternalCoverage } from "src/library/InternalCoverage";
-import { coveredPercentage } from "src/library/coveredPercentage";
-import { insertCoverageData } from "src/library/insertCoverageData";
 import { log } from "src/library/log";
-import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults";
-import { updatePR } from "src/library/updatePR";
 import { addEventListeners } from "src/processors/addEventListeners";
 import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances";
 import { processCommit } from "src/processors/ProcessCombineCoverage/processCommit";

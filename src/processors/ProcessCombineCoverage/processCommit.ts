@@ -26,9 +26,9 @@ const combineCoverageForCommit = async (commit: Commit) => {
 	});
 
 	const lastOfEach: { [test: string]: typeof latestTests[0] } = {};
-	latestTests.forEach((test) => {
+	for (const test of latestTests) {
 		lastOfEach[test.testName] = test;
-	});
+	}
 
 	log(`commit: Found ${Object.keys(lastOfEach).length} tests to combine.`);
 
@@ -36,7 +36,7 @@ const combineCoverageForCommit = async (commit: Commit) => {
 
 	let fileCounter = 0;
 	const start = new Date();
-	Object.values(lastOfEach).forEach(async (test) => {
+	for (const test of Object.values(lastOfEach)) {
 		const files = test.PackageCoverage.map(
 			(pkg) => pkg.FileCoverage?.length ?? 0,
 		).reduce((a, b) => a + b, 0);
@@ -45,13 +45,13 @@ const combineCoverageForCommit = async (commit: Commit) => {
 			`${test.PackageCoverage.length} packages, ${files} files`,
 		);
 
-		test.PackageCoverage.forEach(async (pkg) => {
-			pkg.FileCoverage?.forEach((file) => {
+		for (const pkg of test.PackageCoverage) {
+			for (const file of pkg.FileCoverage) {
 				fileCounter++;
 				coverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData);
-			});
-		});
-	});
+			}
+		}
+	}
 
 	coverage.updateMetrics();
 
@@ -145,6 +145,13 @@ export async function processCommit(args: {
 				commit: true,
 			},
 		});
+		if (prWithLatestCommit) {
+			log(
+				`Commit for PR ${prWithLatestCommit.id} (Github ${prWithLatestCommit.sourceIdentifier}), ref ${prWithLatestCommit?.commit.ref}`,
+			);
+		} else {
+			log(`No associated PR found for commit id ${commit.id}`);
+		}
 
 		const satisfied = satisfiesExpectedResults(
 			allTestInstancesProcessed,
@@ -154,15 +161,15 @@ export async function processCommit(args: {
 		let allFinished = true;
 		let unfinished = 0;
 		let instances = 0;
-		allTestInstancesProcessed?.Test.forEach((test) => {
-			test.TestInstance.forEach((testInstance) => {
+		for (const test of allTestInstancesProcessed?.Test ?? []) {
+			for (const testInstance of test.TestInstance) {
 				instances++;
 				if (testInstance.coverageProcessStatus !== "FINISHED") {
 					unfinished++;
 					allFinished = false;
 				}
-			});
-		});
+			}
+		}
 		log(
 			`commit: ${instances} test instances known, ${unfinished} unfinished, ${satisfied.missing
 				.map((r) => `${r.test} missing ${r.count}`)
@@ -209,9 +216,13 @@ export async function processCommit(args: {
 
 			if (prWithLatestCommit) {
 				await updatePR(prWithLatestCommit);
+			} else {
+				log(
+					`commit: No PR found for commit id ${commit.id}, skipping PR update`,
+				);
 			}
 		} else {
-			// if we don't have perfect information, check to see if we are done processing on Github side
+			// if we don't have all results, check to see if we are done processing on Github side
 			if (prWithLatestCommit && full) {
 				const allComplete = await areRefWorkflowsAllComplete(
 					prWithLatestCommit.project.group.githubName,
@@ -231,6 +242,10 @@ export async function processCommit(args: {
 						},
 					});
 				}
+			} else {
+				log(
+					`commit: No PR found for commit id ${commit.id} or not a full rebuild, skipping PR update`,
+				);
 			}
 		}
 	}
