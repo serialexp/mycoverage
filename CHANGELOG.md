@@ -1,3 +1,11 @@
+## [1.31.14](https://github.com/serialexp/mycoverage/compare/v1.31.13...v1.31.14) (2024-03-05)
+
+
+### Bug Fixes
+
+* add extra logging around coverage processing ([ba4f324](https://github.com/serialexp/mycoverage/commit/ba4f324828c6047775b3a181cc3df75ba28a10a3))
+* do not count deleted files towards average commit coverage ([e5c5e8e](https://github.com/serialexp/mycoverage/commit/e5c5e8e9958e6682ebce051b8b825f149285f848))
+
 ## [1.31.13](https://github.com/serialexp/mycoverage/compare/v1.31.12...v1.31.13) (2024-02-26)
 
 
