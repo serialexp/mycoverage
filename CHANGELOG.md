@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/serialexp/mycoverage/compare/v1.31.14...v1.32.0) (2024-03-05)
+
+
+### Features
+
+* allow recording and displaying lighthouse results ([531ae8c](https://github.com/serialexp/mycoverage/commit/531ae8c1dce07e90a800547ca820deede49e3bdd))
+
 ## [1.31.14](https://github.com/serialexp/mycoverage/compare/v1.31.13...v1.31.14) (2024-03-05)
 
 
