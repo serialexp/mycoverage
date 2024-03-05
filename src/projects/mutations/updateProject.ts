@@ -6,6 +6,7 @@ const UpdateProject = z.object({
 	id: z.number(),
 	defaultBaseBranch: z.string().optional(),
 	requireCoverageIncrease: z.boolean().optional(),
+	defaultLighthouseUrl: z.string().optional(),
 });
 
 export default resolver.pipe(

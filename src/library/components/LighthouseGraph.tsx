@@ -1,16 +1,15 @@
-import { Routes } from "@blitzjs/next";
 import { useQuery } from "@blitzjs/rpc";
 import { Box } from "@chakra-ui/react";
 import { ResponsiveLine, Point } from "@nivo/line";
 import { useRouter } from "next/router";
-import getCoverageGraphData from "src/coverage/queries/getCoverageGraphData";
+import getLighthouseGraphData from "src/coverage/queries/getLigthhouseGraphData";
 import { format } from "src/library/format";
 
 type Props = {
 	groupId: number;
 	projectId: number;
 	testName?: string;
-	currentTime: Date;
+	currentTime?: Date;
 	clickRedirect?: (
 		ref: string,
 	) => string | Promise<string | undefined> | undefined;
@@ -24,39 +23,53 @@ interface OurPoint {
 	};
 }
 
-export const CoverageGraph = (props: Props) => {
-	const [queryData] = useQuery(getCoverageGraphData, {
+export const LighthouseGraph = (props: Props) => {
+	const [queryData] = useQuery(getLighthouseGraphData, {
 		groupId: props.groupId,
 		projectId: props.projectId,
-		testName: props.testName,
 	});
+
 	const router = useRouter();
 
-	const coverageForTests = queryData?.map((commit) => {
-		const percent = commit?.coveredPercentage ?? 0;
-		return {
-			x: commit?.createdDate,
-			y: commit?.coveredPercentage,
-			ref: commit.ref,
-			color:
-				percent > 60
-					? "var(--chakra-colors-green-500)"
-					: percent > 30
-					? "var(--chakra-colors-yellow-500)"
-					: "var(--chakra-colors-red-500)",
-		};
-	});
+	if (!queryData || queryData.length === 0) {
+		return null;
+	}
+
+	const coverageForTests = (
+		kind: "mobile" | "desktop",
+		stat: "average" | "performance",
+	) => {
+		return queryData?.map((commit) => {
+			const percent = (commit?.[kind]?.[stat] ?? 0) * 100;
+			return {
+				x: commit?.createdDate,
+				y: percent,
+				ref: commit.ref,
+				color:
+					percent > 89
+						? "var(--chakra-colors-green-500)"
+						: percent > 50
+						? "var(--chakra-colors-yellow-500)"
+						: "var(--chakra-colors-red-500)",
+			};
+		});
+	};
 
 	return (
 		<Box width={"100%"} height={"200px"}>
 			<ResponsiveLine
 				data={[
 					{
-						id: "Coverage",
-						color: "red",
-						data: coverageForTests ?? [],
+						id: "Mobile Avg",
+						data: coverageForTests("mobile", "average") ?? [],
+					},
+					{
+						id: "Desktop Avg",
+						data: coverageForTests("desktop", "average") ?? [],
 					},
 				]}
+				colors={["#DD6B20", "#00A0DC"]}
+				lineWidth={1}
 				margin={{ top: 20, right: 20, bottom: 20, left: 30 }}
 				xScale={{ type: "time", format: "native" }}
 				yScale={{
@@ -64,7 +77,6 @@ export const CoverageGraph = (props: Props) => {
 					min: 0,
 					max: 100,
 				}}
-				colors={["gray"]}
 				yFormat=" >-.2f"
 				axisTop={null}
 				axisRight={null}
@@ -85,20 +97,24 @@ export const CoverageGraph = (props: Props) => {
 					legendOffset: -40,
 					legendPosition: "middle",
 				}}
-				markers={[
-					{
-						axis: "x",
-						value: props.currentTime,
-						legend: props.currentTime.toLocaleDateString(),
-						legendPosition: "top-left",
-						lineStyle: {
-							stroke: "red",
-						},
-						textStyle: {
-							fill: "red",
-						},
-					},
-				]}
+				markers={
+					props.currentTime
+						? [
+								{
+									axis: "x",
+									value: props.currentTime,
+									legend: props.currentTime.toLocaleDateString(),
+									legendPosition: "top-left",
+									lineStyle: {
+										stroke: "red",
+									},
+									textStyle: {
+										fill: "red",
+									},
+								},
+						  ]
+						: []
+				}
 				onClick={async (data: Point) => {
 					const ourPoint: OurPoint = data as unknown as OurPoint;
 					if (props.clickRedirect) {
@@ -117,6 +133,9 @@ export const CoverageGraph = (props: Props) => {
 								border: "1px solid #ccc",
 							}}
 						>
+							<div style={{ color: point.serieColor }}>
+								<strong>{point.serieId}</strong>
+							</div>
 							<div>
 								{(point.data as unknown as { ref: string }).ref.substring(
 									0,
@@ -136,7 +155,6 @@ export const CoverageGraph = (props: Props) => {
 					const eventtarget = event.currentTarget as HTMLDivElement;
 					eventtarget.style.cursor = "pointer";
 				}}
-				lineWidth={1}
 				pointSymbol={(e) => {
 					return (
 						<circle

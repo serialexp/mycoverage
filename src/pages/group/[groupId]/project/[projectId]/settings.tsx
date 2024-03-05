@@ -50,6 +50,9 @@ const ProjectSettingsPage: BlitzPage = () => {
 	const [defaultBaseBranch, setDefaultBaseBranch] = useState(
 		project?.defaultBaseBranch,
 	);
+	const [defaultLighthouseUrl, setDefaultLighthouseUrl] = useState(
+		project?.defaultLighthouseUrl ?? "",
+	);
 
 	const [result, fieldMeta] = useQuery(getExpectedResults, {
 		where: {
@@ -91,6 +94,26 @@ const ProjectSettingsPage: BlitzPage = () => {
 					<FormHelperText>
 						The base branch to use for comparison if nothing has been specified
 						for any specific commit.
+					</FormHelperText>
+				</FormControl>
+				<FormControl id="email">
+					<FormLabel>Lighthouse default URL</FormLabel>
+					<Input
+						type="text"
+						value={defaultLighthouseUrl ?? ""}
+						onChange={(e) => {
+							setDefaultLighthouseUrl(e.target.value);
+						}}
+						onBlur={async () => {
+							await updateProj({
+								id: project.id,
+								defaultLighthouseUrl: defaultLighthouseUrl,
+							});
+						}}
+					/>
+					<FormHelperText>
+						The results for this URL will be used for lighthouse scores on the
+						project page.
 					</FormHelperText>
 				</FormControl>
 				<FormControl id="email">

@@ -85,6 +85,38 @@ model Commit {
   PullRequest      PullRequest[]       @relation("commit")
   BasePullRequest  PullRequest[]       @relation("baseCommit")
   CoverageSource   CoverageSource[]
+  Lighthouse       Lighthouse[]
+}
+
+enum LighthouseKind {
+  MOBILE
+  DESKTOP
+}
+
+model Lighthouse {
+  id       Int            @id @default(autoincrement())
+  commitId Int
+  url      String
+  kind     LighthouseKind
+
+  // performance measurements
+  performance            Float
+  firstContentfulPaint   Float
+  largestContentfulPaint Float
+  totalBlockingTime      Float
+  cumulativeLayoutShift  Float
+  speedIndex             Float
+
+  // other measurements
+  accessibility Float
+  bestPractices Float
+  seo           Float
+  pwa           Float?
+  createdDate   DateTime @default(now())
+  updatedDate   DateTime @default(now()) @updatedAt
+  commit        Commit   @relation(fields: [commitId], references: [id], onDelete: Cascade)
+
+  @@unique([commitId, kind, url])
 }
 
 model Test {
@@ -309,6 +341,7 @@ model Project {
   lastProcessedCommit     Commit?          @relation("lastProcessedCommit", fields: [lastProcessedCommitId], references: [id])
   Branch                  Branch[]
   ExpectedResult          ExpectedResult[]
+  defaultLighthouseUrl    String?
 
   PrHook          PrHook[]
   PullRequest     PullRequest[]

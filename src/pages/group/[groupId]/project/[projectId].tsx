@@ -12,6 +12,8 @@ import { CommitInfo } from "src/library/components/CommitInfo";
 import { CoverageGraph } from "src/library/components/CoverageGraph";
 import { CoverageSummary } from "src/library/components/CoverageSummary";
 import { Heading } from "src/library/components/Heading";
+import { Lighthouse } from "src/library/components/Lighthouse";
+import { LighthouseGraph } from "src/library/components/LighthouseGraph";
 import { Minibar } from "src/library/components/Minbar";
 import { RecentCommitTable } from "src/library/components/RecentCommitTable";
 import { RecentPRTable } from "src/library/components/RecentPRTable";
@@ -143,6 +145,22 @@ const ProjectPage: BlitzPage = () => {
 				</>
 			) : null}
 
+			<Lighthouse
+				commitId={buildInfo.lastProcessedCommit?.id}
+				projectId={project.id}
+			/>
+			<LighthouseGraph
+				groupId={project.groupId}
+				projectId={project.id}
+				currentTime={buildInfo.lastCommit?.createdDate}
+				clickRedirect={async (ref: string) => {
+					return Routes.CommitPage({
+						groupId,
+						projectId,
+						commitRef: ref,
+					}).href;
+				}}
+			/>
 			<Section
 				title={`Test results (${buildInfo?.lastProcessedCommit?.Test.length})`}
 				summary={
