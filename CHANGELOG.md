@@ -1,3 +1,10 @@
+## [1.32.2](https://github.com/serialexp/mycoverage/compare/v1.32.1...v1.32.2) (2024-03-06)
+
+
+### Bug Fixes
+
+* prevent pull request comment spam ([ffb646a](https://github.com/serialexp/mycoverage/commit/ffb646af195b80282b31c4d4538c6914157815ca))
+
 ## [1.32.1](https://github.com/serialexp/mycoverage/compare/v1.32.0...v1.32.1) (2024-03-06)
 
 
