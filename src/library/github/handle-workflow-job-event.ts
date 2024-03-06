@@ -104,19 +104,19 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
 			});
 
 			if (pullRequest) {
-				await db.jobLog.create({
-					data: {
-						name: "hook",
-						commitRef: payload.workflow_job.head_sha,
-						namespace: payload.repository.owner.name,
-						repository: payload.repository.name,
-						message: `Processed workflow job ${payload.action} hook for ${payload.workflow_job.workflow_name}`,
-						timeTaken: new Date().getTime() - startTime,
-					},
-				});
-
 				await updatePR(pullRequest);
 			}
+
+			await db.jobLog.create({
+				data: {
+					name: "hook",
+					commitRef: payload.workflow_job.head_sha,
+					namespace: payload.repository.owner.name,
+					repository: payload.repository.name,
+					message: `Processed workflow job ${payload.action} hook for ${payload.workflow_job.workflow_name}`,
+					timeTaken: new Date().getTime() - startTime,
+				},
+			});
 		}
 
 		return true;

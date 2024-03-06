@@ -215,21 +215,33 @@ export async function processCommit(args: {
 			});
 
 			if (prWithLatestCommit) {
-				await updatePR(prWithLatestCommit);
-			} else {
-				log(
-					`commit: No PR found for commit id ${commit.id}, skipping PR update`,
-				);
-			}
-		} else {
-			// if we don't have all results, check to see if we are done processing on Github side
-			if (prWithLatestCommit && full) {
 				const allComplete = await areRefWorkflowsAllComplete(
 					prWithLatestCommit.project.group.githubName,
 					prWithLatestCommit.project.name,
 					prWithLatestCommit.commit.ref,
 				);
 
+				if (allComplete) {
+					await updatePR(prWithLatestCommit);
+				} else {
+					log(
+						`commit: Github tasks not yet finished ${commit.id}, skipping PR update`,
+					);
+				}
+			} else {
+				log(
+					`commit: No PR found for commit id ${commit.id}, skipping PR update`,
+				);
+			}
+		} else {
+			// if we don't have all results specified in our list of requirements, check to see if we
+			// should expect anything more to be sent from the Github side
+			if (prWithLatestCommit && full) {
+				const allComplete = await areRefWorkflowsAllComplete(
+					prWithLatestCommit.project.group.githubName,
+					prWithLatestCommit.project.name,
+					prWithLatestCommit.commit.ref,
+				);
 				if (allComplete.allCompleted) {
 					await mydb.commit.update({
 						where: {
@@ -241,6 +253,7 @@ export async function processCommit(args: {
 								: "FINISHED",
 						},
 					});
+					await updatePR(prWithLatestCommit);
 				}
 			} else {
 				log(
