@@ -40,17 +40,19 @@ export const LighthouseGraph = (props: Props) => {
 		stat: "average" | "performance",
 	) => {
 		return queryData?.map((commit) => {
-			const percent = (commit?.[kind]?.[stat] ?? 0) * 100;
+			const val = commit?.[kind]?.[stat];
+			const percent = val ? val * 100 : undefined;
 			return {
 				x: commit?.createdDate,
-				y: percent,
+				y: percent ?? 0,
 				ref: commit.ref,
-				color:
-					percent > 89
-						? "var(--chakra-colors-green-500)"
-						: percent > 50
-						? "var(--chakra-colors-yellow-500)"
-						: "var(--chakra-colors-red-500)",
+				color: !percent
+					? "var(--chakra-colors-gray-500)"
+					: percent > 89
+					? "var(--chakra-colors-green-500)"
+					: percent > 50
+					? "var(--chakra-colors-yellow-500)"
+					: "var(--chakra-colors-red-500)",
 			};
 		});
 	};

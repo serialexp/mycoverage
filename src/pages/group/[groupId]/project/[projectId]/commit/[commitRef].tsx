@@ -82,17 +82,16 @@ const CommitPage: BlitzPage = () => {
 						commitRef: commitRef,
 					})}
 				>
-					<Button ml={2}>Code Issues</Button>
+					<Button>Code Issues</Button>
 				</Link>
 				<Link
 					href={`https://github.com/${project.group.name}/${project.name}/commit/${commitRef}`}
 					target={"_blank"}
 				>
-					<Button ml={2}>Github</Button>
+					<Button>Github</Button>
 				</Link>
 
 				<Button
-					ml={2}
 					leftIcon={<FaClock />}
 					onClick={() => {
 						combineCoverageMutation({ commitId: commit.id })
@@ -114,7 +113,6 @@ const CommitPage: BlitzPage = () => {
 					Re-combine Coverage
 				</Button>
 				<Button
-					ml={2}
 					leftIcon={<FaSortAmountDown />}
 					onClick={() => {
 						combineCoverageMutation({ commitId: commit.id, sync: true })

@@ -45,13 +45,6 @@ export default async function getLighthouseGraphData(args: {
 					},
 				},
 			},
-			Lighthouse: {
-				some: {
-					kind: {
-						in: ["DESKTOP", "MOBILE"],
-					},
-				},
-			},
 		},
 		select: {
 			ref: true,

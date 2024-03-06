@@ -25,7 +25,9 @@ export const SpecificTestLinks = (props: Props) => {
 					baseCommitRef: baseCommitRef,
 				})}
 			>
-				<Button colorScheme={!testId ? "secondary" : undefined}>All</Button>
+				<Button size={"xs"} colorScheme={!testId ? "secondary" : undefined}>
+					All
+				</Button>
 			</Link>
 			{commit?.Test.map((test) => {
 				return (
@@ -40,7 +42,7 @@ export const SpecificTestLinks = (props: Props) => {
 						})}
 					>
 						<Button
-							ml={2}
+							size={"xs"}
 							colorScheme={testId === test.id ? "secondary" : undefined}
 						>
 							{test.testName}

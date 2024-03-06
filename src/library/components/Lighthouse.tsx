@@ -8,6 +8,7 @@ import {
 	Th,
 	Thead,
 	Tr,
+	Box,
 } from "@chakra-ui/react";
 import { Lighthouse as DBLighthouse } from "db";
 import getLighthouse from "src/coverage/queries/getLighthouse";
@@ -66,7 +67,13 @@ export const Lighthouse = (props: {
 		commitId: props.commitId,
 	});
 
-	if (!props.commitId || !lighthouse || lighthouse.length === 0) return null;
+	if (!props.commitId || !lighthouse || lighthouse.length === 0)
+		return (
+			<>
+				<Subheading>Lighthouse</Subheading>
+				<Box p={2}>No lighthouse information for commit.</Box>
+			</>
+		);
 
 	const results: Partial<Record<"MOBILE" | "DESKTOP", DBLighthouse>> = {};
 	for (const item of lighthouse) {
