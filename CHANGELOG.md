@@ -1,3 +1,10 @@
+## [1.32.1](https://github.com/serialexp/mycoverage/compare/v1.32.0...v1.32.1) (2024-03-06)
+
+
+### Bug Fixes
+
+* show lighthouse graph for commits without info ([9a01df0](https://github.com/serialexp/mycoverage/commit/9a01df07cfb62a37580cd06190eb5d0fe35e0653))
+
 # [1.32.0](https://github.com/serialexp/mycoverage/compare/v1.31.14...v1.32.0) (2024-03-05)
 
 
