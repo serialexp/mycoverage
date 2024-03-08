@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/serialexp/mycoverage/compare/v1.32.2...v1.33.0) (2024-03-08)
+
+
+### Features
+
+* add change rate to all coverage itesm ([173603b](https://github.com/serialexp/mycoverage/commit/173603b0040a814e0320aad57b0bd1581b753efb))
+
 ## [1.32.2](https://github.com/serialexp/mycoverage/compare/v1.32.1...v1.32.2) (2024-03-06)
 
 
