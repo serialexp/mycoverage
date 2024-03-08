@@ -1,3 +1,11 @@
+## [1.33.3](https://github.com/serialexp/mycoverage/compare/v1.33.2...v1.33.3) (2024-03-08)
+
+
+### Bug Fixes
+
+* display activity level in file table ([607aec7](https://github.com/serialexp/mycoverage/commit/607aec709716b7dd828a067f840f196cf543a2e6))
+* use correct names for retrieving workflow runs ([dfd379e](https://github.com/serialexp/mycoverage/commit/dfd379e765588c3ebfd83dd02ee3c68e42d981e6))
+
 ## [1.33.2](https://github.com/serialexp/mycoverage/compare/v1.33.1...v1.33.2) (2024-03-08)
 
 
