@@ -1,3 +1,10 @@
+## [1.33.2](https://github.com/serialexp/mycoverage/compare/v1.33.1...v1.33.2) (2024-03-08)
+
+
+### Bug Fixes
+
+* process package frequency in the correct location ([f201138](https://github.com/serialexp/mycoverage/commit/f201138554e21f24898a6f4f67d97c2744b1d45c))
+
 ## [1.33.1](https://github.com/serialexp/mycoverage/compare/v1.33.0...v1.33.1) (2024-03-08)
 
 
