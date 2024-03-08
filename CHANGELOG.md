@@ -1,3 +1,10 @@
+## [1.33.4](https://github.com/serialexp/mycoverage/compare/v1.33.3...v1.33.4) (2024-03-08)
+
+
+### Bug Fixes
+
+* use proper org name ([46754dc](https://github.com/serialexp/mycoverage/commit/46754dc7681134b5491337c6124ccd853eb3f779))
+
 ## [1.33.3](https://github.com/serialexp/mycoverage/compare/v1.33.2...v1.33.3) (2024-03-08)
 
 
