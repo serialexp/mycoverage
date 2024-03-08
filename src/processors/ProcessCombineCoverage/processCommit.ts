@@ -214,11 +214,7 @@ export async function processCommit(args: {
       })
 
       if (prWithLatestCommit) {
-        const allComplete = await areRefWorkflowsAllComplete(
-          group.githubName,
-          project.name,
-          commit.ref
-        )
+        const allComplete = await areRefWorkflowsAllComplete(group.name, project.name, commit.ref)
 
         if (allComplete) {
           await updatePR(prWithLatestCommit)
@@ -232,11 +228,7 @@ export async function processCommit(args: {
       // if we don't have all results specified in our list of requirements, check to see if we
       // should expect anything more to be sent from the Github side
       if (prWithLatestCommit && full) {
-        const allComplete = await areRefWorkflowsAllComplete(
-          group.githubName,
-          project.name,
-          commit.ref
-        )
+        const allComplete = await areRefWorkflowsAllComplete(group.name, project.name, commit.ref)
         if (allComplete.allCompleted) {
           await mydb.commit.update({
             where: {
