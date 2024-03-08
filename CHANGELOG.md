@@ -1,3 +1,10 @@
+## [1.33.1](https://github.com/serialexp/mycoverage/compare/v1.33.0...v1.33.1) (2024-03-08)
+
+
+### Bug Fixes
+
+* handle push events ([215427e](https://github.com/serialexp/mycoverage/commit/215427e77b7d29bf1c036d73bd077b232130584b))
+
 # [1.33.0](https://github.com/serialexp/mycoverage/compare/v1.32.2...v1.33.0) (2024-03-08)
 
 
