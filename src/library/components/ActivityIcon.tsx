@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from "@chakra-ui/react"
 import { ChangeRate } from "db"
 
-export const ActivityIcon = (props: { activity: ChangeRate; rate: number }) => {
+export const ActivityIcon = (props: { activity: ChangeRate; rate: string }) => {
   let icon
   let title
   let color

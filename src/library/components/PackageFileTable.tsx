@@ -29,6 +29,7 @@ export const PackageFileTable = (props: {
     hits: number
     codeIssues: number
     changeRatio: number
+    changeRate: ChangeRate
     changes: number
   }[]
   files: {
