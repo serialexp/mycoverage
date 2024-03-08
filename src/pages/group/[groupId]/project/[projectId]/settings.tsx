@@ -1,15 +1,15 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useMutation, useQuery } from "@blitzjs/rpc";
-import Link from "next/link";
-import getProject from "src/coverage/queries/getProject";
-import deleteExpectedResult from "src/expected-results/mutations/deleteExpectedResult";
-import getExpectedResults from "src/expected-results/queries/getExpectedResults";
-import createExpectedResult from "src/expected-results/mutations/createExpectedResult";
-import updateProject from "src/projects/mutations/updateProject";
-import { Actions } from "src/library/components/Actions";
-import { Heading } from "src/library/components/Heading";
-import { Subheading } from "src/library/components/Subheading";
-import Layout from "src/core/layouts/Layout";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useMutation, useQuery } from "@blitzjs/rpc"
+import Link from "next/link"
+import getProject from "src/coverage/queries/getProject"
+import deleteExpectedResult from "src/expected-results/mutations/deleteExpectedResult"
+import getExpectedResults from "src/expected-results/queries/getExpectedResults"
+import createExpectedResult from "src/expected-results/mutations/createExpectedResult"
+import updateProject from "src/projects/mutations/updateProject"
+import { Actions } from "src/library/components/Actions"
+import { Heading } from "src/library/components/Heading"
+import { Subheading } from "src/library/components/Subheading"
+import Layout from "src/core/layouts/Layout"
 import {
 	Box,
 	Button,
@@ -23,43 +23,43 @@ import {
 	Checkbox,
 	Thead,
 	Th,
-} from "@chakra-ui/react";
-import { useState } from "react";
+} from "@chakra-ui/react"
+import { useState } from "react"
 
 const ProjectSettingsPage: BlitzPage = () => {
-	const projectId = useParam("projectId", "string");
-	const groupId = useParam("groupId", "string");
+	const projectId = useParam("projectId", "string")
+	const groupId = useParam("groupId", "string")
 
 	const [fields, setFields] = useState<{
-		testName: string;
-		branchPattern: string;
-		instanceCount: string;
-		requireIncrease: boolean;
+		testName: string
+		branchPattern: string
+		instanceCount: string
+		requireIncrease: boolean
 	}>({
 		testName: "",
 		branchPattern: "",
 		instanceCount: "",
 		requireIncrease: true,
-	});
+	})
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
-	const [createExpected] = useMutation(createExpectedResult);
-	const [deleteExpected] = useMutation(deleteExpectedResult);
-	const [updateProj] = useMutation(updateProject);
+	const [project] = useQuery(getProject, { projectSlug: projectId })
+	const [createExpected] = useMutation(createExpectedResult)
+	const [deleteExpected] = useMutation(deleteExpectedResult)
+	const [updateProj] = useMutation(updateProject)
 
 	const [defaultBaseBranch, setDefaultBaseBranch] = useState(
 		project?.defaultBaseBranch,
-	);
+	)
 	const [defaultLighthouseUrl, setDefaultLighthouseUrl] = useState(
 		project?.defaultLighthouseUrl ?? "",
-	);
+	)
 
 	const [result, fieldMeta] = useQuery(getExpectedResults, {
 		where: {
 			projectId: project?.id,
 		},
 		take: 100,
-	});
+	})
 
 	return groupId && projectId && project ? (
 		<>
@@ -82,13 +82,13 @@ const ProjectSettingsPage: BlitzPage = () => {
 						type="text"
 						value={defaultBaseBranch}
 						onChange={(e) => {
-							setDefaultBaseBranch(e.target.value);
+							setDefaultBaseBranch(e.target.value)
 						}}
 						onBlur={async () => {
 							await updateProj({
 								id: project.id,
 								defaultBaseBranch: defaultBaseBranch || "",
-							});
+							})
 						}}
 					/>
 					<FormHelperText>
@@ -102,13 +102,13 @@ const ProjectSettingsPage: BlitzPage = () => {
 						type="text"
 						value={defaultLighthouseUrl ?? ""}
 						onChange={(e) => {
-							setDefaultLighthouseUrl(e.target.value);
+							setDefaultLighthouseUrl(e.target.value)
 						}}
 						onBlur={async () => {
 							await updateProj({
 								id: project.id,
 								defaultLighthouseUrl: defaultLighthouseUrl,
-							});
+							})
 						}}
 					/>
 					<FormHelperText>
@@ -124,7 +124,7 @@ const ProjectSettingsPage: BlitzPage = () => {
 							await updateProj({
 								id: project.id,
 								requireCoverageIncrease: e.target.checked,
-							});
+							})
 						}}
 					/>
 					<FormHelperText>
@@ -159,15 +159,15 @@ const ProjectSettingsPage: BlitzPage = () => {
 										await deleteExpected({
 											id: result.id,
 										}).then(() => {
-											return fieldMeta.refetch();
-										});
+											return fieldMeta.refetch()
+										})
 									}}
 								>
 									Delete
 								</Button>
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 				<Tr>
 					<Td>
@@ -211,7 +211,7 @@ const ProjectSettingsPage: BlitzPage = () => {
 								setFields((fields) => ({
 									...fields,
 									requireIncrease: e.target.checked,
-								}));
+								}))
 							}}
 						>
 							Require Increase
@@ -233,12 +233,12 @@ const ProjectSettingsPage: BlitzPage = () => {
 											branchPattern: "",
 											instanceCount: "",
 											requireIncrease: true,
-										});
-										return fieldMeta.refetch();
+										})
+										return fieldMeta.refetch()
 									})
 									.catch((error) => {
-										console.error(error);
-									});
+										console.error(error)
+									})
 							}}
 						>
 							Create
@@ -247,12 +247,12 @@ const ProjectSettingsPage: BlitzPage = () => {
 				</Tr>
 			</Table>
 		</>
-	) : null;
-};
+	) : null
+}
 
-ProjectSettingsPage.suppressFirstRenderFlicker = true;
+ProjectSettingsPage.suppressFirstRenderFlicker = true
 ProjectSettingsPage.getLayout = (page) => (
 	<Layout title="Settings">{page}</Layout>
-);
+)
 
-export default ProjectSettingsPage;
+export default ProjectSettingsPage

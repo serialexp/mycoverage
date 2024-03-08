@@ -1,11 +1,11 @@
-import { resolver } from "@blitzjs/rpc";
-import { paginate } from "blitz";
-import db, { Prisma } from "db";
+import { resolver } from "@blitzjs/rpc"
+import { paginate } from "blitz"
+import db, { Prisma } from "db"
 
 type GetSettingsInput = Pick<
 	Prisma.SettingFindManyArgs,
 	"where" | "orderBy" | "skip" | "take"
->;
+>
 
 export default resolver.pipe(
 	resolver.authorize(),
@@ -22,13 +22,13 @@ export default resolver.pipe(
 			count: () => db.setting.count({ where }),
 			query: (paginateArgs) =>
 				db.setting.findMany({ ...paginateArgs, where, orderBy }),
-		});
+		})
 
 		return {
 			settings,
 			nextPage,
 			hasMore,
 			count,
-		};
+		}
 	},
-);
+)

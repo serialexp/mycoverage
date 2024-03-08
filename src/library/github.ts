@@ -1,11 +1,11 @@
-import { Octokit } from "@octokit/rest";
-import { createAppAuth } from "@octokit/auth-app";
+import { Octokit } from "@octokit/rest"
+import { createAppAuth } from "@octokit/auth-app"
 
-let appOctokit: Octokit | undefined;
+let appOctokit: Octokit | undefined
 
 export async function getAppOctokit() {
 	if (appOctokit) {
-		return appOctokit;
+		return appOctokit
 	}
 
 	const config = {
@@ -15,24 +15,22 @@ export async function getAppOctokit() {
 			"base64",
 		).toString(),
 		installationId: process.env.GITHUB_INSTALLATION_ID,
-	};
+	}
 
 	appOctokit = new Octokit({
 		authStrategy: createAppAuth,
 		auth: config,
-	});
+	})
 
-	return appOctokit;
+	return appOctokit
 }
 
 export async function getGithubAccessibleRepositories() {
-	const res = await (
-		await getAppOctokit()
-	).repos.listForAuthenticatedUser({
+	const res = await (await getAppOctokit()).repos.listForAuthenticatedUser({
 		per_page: 100,
-	});
+	})
 
-	return res.data;
+	return res.data
 }
 
 export async function getFileData(
@@ -41,33 +39,28 @@ export async function getFileData(
 	ref: string,
 	path: string,
 ) {
-	const res = await (
-		await getAppOctokit()
-	).repos.getContent({
+	const res = await (await getAppOctokit()).repos.getContent({
 		owner: org,
 		repo,
 		ref: ref,
 		path: decodeURIComponent(path),
-	});
+	})
 
 	if ("type" in res.data && res.data.type === "file") {
-		return Buffer.from(res.data.content, "base64").toString();
-	} else {
-		return undefined;
+		return Buffer.from(res.data.content, "base64").toString()
 	}
+	return undefined
 }
 
 export async function getPRFiles(org: string, repo: string, prId: string) {
-	const res = await (
-		await getAppOctokit()
-	).pulls.listFiles({
+	const res = await (await getAppOctokit()).pulls.listFiles({
 		owner: org,
 		repo,
 		pull_number: parseInt(prId),
 		per_page: 100,
-	});
+	})
 
-	return res.data;
+	return res.data
 }
 
 export async function areRefWorkflowsAllComplete(
@@ -75,26 +68,26 @@ export async function areRefWorkflowsAllComplete(
 	repo: string,
 	ref: string,
 ) {
-	const octokit = await getAppOctokit();
+	const octokit = await getAppOctokit()
 
 	const suites = await octokit.checks.listForRef({
 		owner: org,
 		repo: repo,
 		ref: ref,
 		per_page: 100,
-	});
+	})
 
 	const hasFailures = suites.data.check_runs.some(
 		(suite) =>
 			(suite.status !== "completed" || suite.conclusion === "failure") &&
 			suite.name !== "Coverage",
-	);
+	)
 	const allCompleted = suites.data.check_runs.every(
 		(suite) => suite.status === "completed",
-	);
+	)
 
 	return {
 		hasFailures,
 		allCompleted,
-	};
+	}
 }

@@ -1,86 +1,86 @@
-import { CoverageData } from "src/library/CoverageData";
-import { SourceHits } from "src/library/types";
+import { CoverageData } from "src/library/CoverageData"
+import { SourceHits } from "src/library/types"
 
 export interface CloverMetrics {
-	statements: number;
-	coveredstatements: number;
-	conditionals: number;
-	coveredconditionals: number;
-	methods: number;
-	coveredmethods: number;
+	statements: number
+	coveredstatements: number
+	conditionals: number
+	coveredconditionals: number
+	methods: number
+	coveredmethods: number
 }
 
 export interface CoberturaLine {
-	number: number;
-	hits: number;
-	branch: false;
+	number: number
+	hits: number
+	branch: false
 }
 
 export interface CoberturaBranchLine {
-	number: number;
-	hits: number;
-	branch: true;
-	conditions: number;
-	coveredConditions: number;
-	"condition-coverage"?: string;
+	number: number
+	hits: number
+	branch: true
+	conditions: number
+	coveredConditions: number
+	"condition-coverage"?: string
 }
 
 interface Metrics {
-	statements: number;
-	coveredstatements: number;
-	conditionals: number;
-	hits: number;
-	coveredconditionals: number;
-	methods: number;
-	coveredmethods: number;
-	elements: number;
-	coveredelements: number;
+	statements: number
+	coveredstatements: number
+	conditionals: number
+	hits: number
+	coveredconditionals: number
+	methods: number
+	coveredmethods: number
+	elements: number
+	coveredelements: number
 }
 
 export interface CoberturaFunction {
-	name: string;
-	hits: number;
-	signature: string;
-	number: number;
+	name: string
+	hits: number
+	signature: string
+	number: number
 }
 
 export interface CoberturaFile {
 	/**
 	 * Just the filename
 	 */
-	name: string;
+	name: string
 	/**
 	 * The full path to the file
 	 */
-	path?: string;
-	filename?: string;
-	"line-rate"?: number;
-	"branch-rate"?: number;
-	metrics?: Metrics;
-	lines: (CoberturaLine | CoberturaBranchLine)[];
-	functions: CoberturaFunction[];
-	coverageData?: CoverageData;
+	path?: string
+	filename?: string
+	"line-rate"?: number
+	"branch-rate"?: number
+	metrics?: Metrics
+	lines: (CoberturaLine | CoberturaBranchLine)[]
+	functions: CoberturaFunction[]
+	coverageData?: CoverageData
 }
 
 export interface CoberturaFileFormat {
 	coverage: {
-		"lines-valid"?: number;
-		"lines-covered"?: number;
-		"branches-valid"?: number;
-		"branches-covered"?: number;
-		timestamp?: number;
-		complexity?: number;
-		version: string;
+		"lines-valid"?: number
+		"lines-covered"?: number
+		"branches-valid"?: number
+		"branches-covered"?: number
+		timestamp?: number
+		complexity?: number
+		version: string
 		sources?: {
-			source: string;
-		};
-		metrics?: Metrics;
+			source: string
+		}
+		metrics?: Metrics
 		packages: {
-			name: string;
-			metrics?: Metrics;
-			files: CoberturaFile[];
-		}[];
-	};
+			name: string
+			metrics?: Metrics
+			files: CoberturaFile[]
+		}[]
+	}
 }
 
 const createEmptyMetrics = (): Metrics => {
@@ -94,51 +94,51 @@ const createEmptyMetrics = (): Metrics => {
 		coveredconditionals: 0,
 		statements: 0,
 		coveredstatements: 0,
-	};
-};
+	}
+}
 
 interface BaseData {
-	lineNr: number;
-	hits: number;
-	hitsFromSource: Record<string, number>;
+	lineNr: number
+	hits: number
+	hitsFromSource: Record<string, number>
 }
 
 type InternalStatement = BaseData & {
-	type: "statement";
-};
+	type: "statement"
+}
 
 type InternalFunction = BaseData & {
-	type: "function";
-	name: string;
-};
+	type: "function"
+	name: string
+}
 
 type InternalConditional = BaseData & {
-	type: "conditional";
-	hitsPerBranch: Record<string, number>;
-};
+	type: "conditional"
+	hitsPerBranch: Record<string, number>
+}
 
 export interface InternalFileCoverage {
-	sourcesNames: string[];
-	items: (InternalConditional | InternalFunction | InternalStatement)[];
+	sourcesNames: string[]
+	items: (InternalConditional | InternalFunction | InternalStatement)[]
 }
 
 class InternalFile {
-	name: string;
-	parentDirectory: InternalDirectory | undefined;
-	coverage: InternalFileCoverage;
-	metrics: Metrics;
+	name: string
+	parentDirectory: InternalDirectory | undefined
+	coverage: InternalFileCoverage
+	metrics: Metrics
 
 	constructor(parentDirectory: InternalDirectory | undefined, name: string) {
-		this.name = name;
-		this.parentDirectory = parentDirectory;
-		this.coverage = { sourcesNames: [], items: [] };
-		this.metrics = createEmptyMetrics();
+		this.name = name
+		this.parentDirectory = parentDirectory
+		this.coverage = { sourcesNames: [], items: [] }
+		this.metrics = createEmptyMetrics()
 	}
 
 	get fileName() {
 		return this.parentDirectory
 			? `${this.parentDirectory.fileName}/${this.name}`
-			: this.name;
+			: this.name
 	}
 
 	toJSON() {
@@ -147,37 +147,37 @@ class InternalFile {
 			fileName: this.fileName,
 			coverage: this.coverage,
 			metrics: this.metrics,
-		};
+		}
 	}
 
 	updateMetrics() {
 		this.coverage.items.forEach((item) => {
 			if (item.type === "statement") {
-				this.metrics.statements++;
-				this.metrics.elements++;
-				this.metrics.hits += item.hits;
+				this.metrics.statements++
+				this.metrics.elements++
+				this.metrics.hits += item.hits
 				if (item.hits > 0) {
-					this.metrics.coveredstatements++;
-					this.metrics.coveredelements++;
+					this.metrics.coveredstatements++
+					this.metrics.coveredelements++
 				}
 			} else if (item.type === "function") {
-				this.metrics.methods++;
-				this.metrics.elements++;
-				this.metrics.hits += item.hits;
+				this.metrics.methods++
+				this.metrics.elements++
+				this.metrics.hits += item.hits
 				if (item.hits > 0) {
-					this.metrics.coveredmethods++;
-					this.metrics.coveredelements++;
+					this.metrics.coveredmethods++
+					this.metrics.coveredelements++
 				}
 			} else if (item.type === "conditional") {
-				this.metrics.conditionals++;
-				this.metrics.elements++;
-				this.metrics.hits += item.hits;
+				this.metrics.conditionals++
+				this.metrics.elements++
+				this.metrics.hits += item.hits
 				if (item.hits > 0) {
-					this.metrics.coveredconditionals++;
-					this.metrics.coveredelements++;
+					this.metrics.coveredconditionals++
+					this.metrics.coveredelements++
 				}
 			}
-		});
+		})
 	}
 
 	mergeCoverage(coverage: InternalFileCoverage) {
@@ -186,69 +186,72 @@ class InternalFile {
 				return (
 					existingItem.type === newItem.type &&
 					existingItem.lineNr === newItem.lineNr
-				);
-			});
+				)
+			})
 			if (existingItem) {
-				existingItem.hits += newItem.hits;
+				existingItem.hits += newItem.hits
 				if (
 					newItem.type === "conditional" &&
 					existingItem.type === "conditional"
 				) {
 					Object.entries(newItem.hitsPerBranch).forEach(([branch, hits]) => {
-						existingItem.hitsPerBranch[branch] += hits;
-					});
+						existingItem.hitsPerBranch[branch] += hits
+					})
 				}
-				const hitsFromSource = existingItem.hitsFromSource;
+				const hitsFromSource = existingItem.hitsFromSource
 				Object.entries(newItem.hitsFromSource).forEach(([source, hits]) => {
-					const sourceName = coverage.sourcesNames[parseInt(source)];
+					const sourceName = coverage.sourcesNames[parseInt(source)]
 					if (sourceName) {
 						if (this.coverage.sourcesNames.indexOf(sourceName) === -1) {
-							this.coverage.sourcesNames.push(sourceName);
+							this.coverage.sourcesNames.push(sourceName)
 						}
-						const newIndex = this.coverage.sourcesNames.indexOf(sourceName);
+						const newIndex = this.coverage.sourcesNames.indexOf(sourceName)
 						if (hitsFromSource[newIndex]) {
-							hitsFromSource[newIndex] += hits;
+							hitsFromSource[newIndex] += hits
 						} else {
-							hitsFromSource[newIndex] = hits;
+							hitsFromSource[newIndex] = hits
 						}
 					}
-				});
+				})
 			} else {
-				this.coverage.items.push(newItem);
+				this.coverage.items.push(newItem)
 			}
-		});
+		})
 	}
 }
 
 function addMetrics(metrics: Metrics, addedMetrics: Metrics) {
-	metrics.elements += addedMetrics.elements;
-	metrics.hits += addedMetrics.hits;
-	metrics.coveredelements += addedMetrics.coveredelements;
-	metrics.coveredstatements += addedMetrics.coveredstatements;
-	metrics.coveredmethods += addedMetrics.coveredmethods;
-	metrics.coveredconditionals += addedMetrics.coveredconditionals;
-	metrics.statements += addedMetrics.statements;
-	metrics.methods += addedMetrics.methods;
-	metrics.conditionals += addedMetrics.conditionals;
+	metrics.elements += addedMetrics.elements
+	metrics.hits += addedMetrics.hits
+	metrics.coveredelements += addedMetrics.coveredelements
+	metrics.coveredstatements += addedMetrics.coveredstatements
+	metrics.coveredmethods += addedMetrics.coveredmethods
+	metrics.coveredconditionals += addedMetrics.coveredconditionals
+	metrics.statements += addedMetrics.statements
+	metrics.methods += addedMetrics.methods
+	metrics.conditionals += addedMetrics.conditionals
 }
 
 class InternalDirectory {
-	parent: InternalDirectory | undefined;
-	children: InternalDirectory[];
-	files: InternalFile[];
-	metrics: Metrics;
+	parent: InternalDirectory | undefined
+	children: InternalDirectory[]
+	files: InternalFile[]
+	metrics: Metrics
 
-	constructor(parent: InternalDirectory | undefined, public name: string) {
-		this.parent = parent;
-		this.children = [];
-		this.files = [];
-		this.metrics = createEmptyMetrics();
+	constructor(
+		parent: InternalDirectory | undefined,
+		public name: string,
+	) {
+		this.parent = parent
+		this.children = []
+		this.files = []
+		this.metrics = createEmptyMetrics()
 	}
 
 	get fileName(): string {
 		return this.parent?.fileName
 			? `${this.parent.fileName}/${this.name}`
-			: this.name;
+			: this.name
 	}
 
 	toJSON() {
@@ -257,88 +260,88 @@ class InternalDirectory {
 			children: this.children,
 			files: this.files,
 			metrics: this.metrics,
-		};
+		}
 	}
 
 	sortDirectoriesRecursively() {
 		this.children.sort((a, b) => {
-			return a.name.localeCompare(b.name);
-		});
+			return a.name.localeCompare(b.name)
+		})
 		this.children.forEach((dir) => {
-			dir.sortDirectoriesRecursively();
-		});
+			dir.sortDirectoriesRecursively()
+		})
 	}
 
 	get depth(): number {
-		return this.parent ? this.parent.depth + 1 : 0;
+		return this.parent ? this.parent.depth + 1 : 0
 	}
 
 	updateMetrics() {
-		this.metrics = createEmptyMetrics();
+		this.metrics = createEmptyMetrics()
 		this.children.forEach((child) => {
-			child.updateMetrics();
-			addMetrics(this.metrics, child.metrics);
-		});
+			child.updateMetrics()
+			addMetrics(this.metrics, child.metrics)
+		})
 		this.files.forEach((file) => {
-			file.updateMetrics();
-			addMetrics(this.metrics, file.metrics);
-		});
+			file.updateMetrics()
+			addMetrics(this.metrics, file.metrics)
+		})
 	}
 }
 
 interface InternalFormat {
-	version: "1.0";
-	root?: string;
-	directories: InternalDirectory[];
-	metrics: Metrics;
+	version: "1.0"
+	root?: string
+	directories: InternalDirectory[]
+	metrics: Metrics
 }
 
 const getMembers = (members: InternalDirectory[]): InternalDirectory[] => {
-	let children: InternalDirectory[] = [];
+	let children: InternalDirectory[] = []
 
 	return members
 		.map((m) => {
 			if (m.children?.length) {
-				children = [...children, ...m.children];
+				children = [...children, ...m.children]
 			}
-			return m;
+			return m
 		})
-		.concat(children.length ? getMembers(children) : children);
-};
+		.concat(children.length ? getMembers(children) : children)
+}
 
 export class InternalCoverage {
-	data: InternalFormat;
+	data: InternalFormat
 
 	constructor() {
 		this.data = {
 			version: "1.0",
 			directories: [],
 			metrics: createEmptyMetrics(),
-		};
+		}
 	}
 
 	sortDirectoriesRecursively() {
 		this.data.directories.sort((a, b) => {
-			return a.name.localeCompare(b.name);
-		});
+			return a.name.localeCompare(b.name)
+		})
 		this.data.directories.forEach((dir) => {
-			dir.sortDirectoriesRecursively();
-		});
+			dir.sortDirectoriesRecursively()
+		})
 	}
 
 	flattenDirectories() {
-		return getMembers(this.data.directories);
+		return getMembers(this.data.directories)
 	}
 
 	updateMetrics() {
-		this.sortDirectoriesRecursively();
-		this.data.metrics = createEmptyMetrics();
+		this.sortDirectoriesRecursively()
+		this.data.metrics = createEmptyMetrics()
 		this.data.directories.forEach((pack) => {
-			pack.updateMetrics();
-		});
+			pack.updateMetrics()
+		})
 		this.data.directories.forEach((pack) => {
-			addMetrics(this.data.metrics, pack.metrics);
-		});
+			addMetrics(this.data.metrics, pack.metrics)
+		})
 	}
 
 	public mergeCoverageString(
@@ -347,12 +350,8 @@ export class InternalCoverage {
 		stringCoverageData: string,
 		source?: string,
 	) {
-		const coverageData = CoverageData.fromString(stringCoverageData, source);
-		this.mergeCoverage(
-			packageName,
-			fileName,
-			coverageData.toInternalCoverage(),
-		);
+		const coverageData = CoverageData.fromString(stringCoverageData, source)
+		this.mergeCoverage(packageName, fileName, coverageData.toInternalCoverage())
 	}
 
 	public mergeCoverageBuffer(
@@ -360,89 +359,83 @@ export class InternalCoverage {
 		fileName: string,
 		buffer: Uint8Array,
 	) {
-		const coverageData = CoverageData.fromProtobuf(buffer);
-		this.mergeCoverage(
-			packageName,
-			fileName,
-			coverageData.toInternalCoverage(),
-		);
+		const coverageData = CoverageData.fromProtobuf(buffer)
+		this.mergeCoverage(packageName, fileName, coverageData.toInternalCoverage())
 	}
 
 	public locateDirectory(packageName: string) {
-		const packageParts = packageName.split(".");
-		let currentPart = packageParts.shift();
+		const packageParts = packageName.split(".")
+		let currentPart = packageParts.shift()
 		if (!currentPart) {
-			throw new Error(`No empty package names allowed: "${packageName}"`);
+			throw new Error(`No empty package names allowed: "${packageName}"`)
 		}
 		let currentPackage: InternalDirectory | undefined =
-			this.data.directories[0]?.children.find(
-				(dir) => dir.name === currentPart,
-			);
+			this.data.directories[0]?.children.find((dir) => dir.name === currentPart)
 		if (!currentPackage) {
-			return undefined;
+			return undefined
 		}
 
 		while (currentPart && currentPackage && packageParts.length > 0) {
-			currentPart = packageParts.shift();
+			currentPart = packageParts.shift()
 			if (!currentPart) {
-				throw new Error(`No empty package names allowed: "${packageName}"`);
+				throw new Error(`No empty package names allowed: "${packageName}"`)
 			}
 
 			const nextPackage: InternalDirectory | undefined =
-				currentPackage.children.find((dir) => dir.name === currentPart);
+				currentPackage.children.find((dir) => dir.name === currentPart)
 			if (!nextPackage) {
-				return undefined;
+				return undefined
 			}
-			currentPackage = nextPackage;
+			currentPackage = nextPackage
 		}
 
 		if (!currentPackage) {
-			throw new Error(`Could not find package: ${packageName}.`);
+			throw new Error(`Could not find package: ${packageName}.`)
 		}
 
-		return currentPackage;
+		return currentPackage
 	}
 
 	private locateOrCreateDirectory(packageName: string): InternalDirectory {
-		let rootDirectory = this.data.directories.find((dir) => dir.name === "");
+		let rootDirectory = this.data.directories.find((dir) => dir.name === "")
 		if (!rootDirectory) {
-			rootDirectory = new InternalDirectory(undefined, "");
-			this.data.directories.push(rootDirectory);
+			rootDirectory = new InternalDirectory(undefined, "")
+			this.data.directories.push(rootDirectory)
 		}
 
-		let currentPackage: InternalDirectory | undefined = rootDirectory;
-		const packageParts = packageName.split(".");
-		let currentPart = packageParts.shift();
+		let currentPackage: InternalDirectory | undefined = rootDirectory
+		const packageParts = packageName.split(".")
+		let currentPart = packageParts.shift()
 
 		if (!currentPart) {
 			// this is in root directory
-			return rootDirectory;
+			return rootDirectory
 		}
-		currentPackage = rootDirectory;
+		currentPackage = rootDirectory
 
 		while (currentPart && currentPackage) {
 			if (!currentPart) {
-				throw new Error(`No empty package names allowed: "${packageName}"`);
+				throw new Error(`No empty package names allowed: "${packageName}"`)
 			}
 
 			let nextPackage: InternalDirectory | undefined =
-				currentPackage.children.find((dir) => dir.name === currentPart);
+				currentPackage.children.find((dir) => dir.name === currentPart)
 			if (!nextPackage) {
-				nextPackage = new InternalDirectory(currentPackage, currentPart);
-				currentPackage.children.push(nextPackage);
+				nextPackage = new InternalDirectory(currentPackage, currentPart)
+				currentPackage.children.push(nextPackage)
 				currentPackage.children.sort((a, b) => {
-					return a.name.localeCompare(b.name);
-				});
+					return a.name.localeCompare(b.name)
+				})
 			}
-			currentPackage = nextPackage;
-			currentPart = packageParts.shift();
+			currentPackage = nextPackage
+			currentPart = packageParts.shift()
 		}
 
 		if (!currentPackage) {
-			throw new Error(`Could not create or find package: ${packageName}.`);
+			throw new Error(`Could not create or find package: ${packageName}.`)
 		}
 
-		return currentPackage;
+		return currentPackage
 	}
 
 	public mergeCoverage(
@@ -450,21 +443,21 @@ export class InternalCoverage {
 		fileName: string,
 		coverageData: InternalFileCoverage,
 	) {
-		const pkg = this.locateOrCreateDirectory(packageName);
+		const pkg = this.locateOrCreateDirectory(packageName)
 
-		let file = pkg.files.find((f) => f.name === fileName);
+		let file = pkg.files.find((f) => f.name === fileName)
 		if (!file) {
 			// if file does not exist yet, we don't need to merge anything, just make a new file for the current coverage
 			// data
 
-			file = new InternalFile(pkg, fileName);
-			pkg.files.push(file);
+			file = new InternalFile(pkg, fileName)
+			pkg.files.push(file)
 			pkg.files.sort((a, b) => {
-				return a.name.localeCompare(b.name);
-			});
+				return a.name.localeCompare(b.name)
+			})
 		}
 
-		file?.mergeCoverage(coverageData);
+		file?.mergeCoverage(coverageData)
 	}
 
 	public merge(coverageFile: InternalCoverage) {
@@ -474,8 +467,8 @@ export class InternalCoverage {
 					pkg.fileName.replaceAll("/", "."),
 					file.name,
 					file.coverage,
-				);
-			});
-		});
+				)
+			})
+		})
 	}
 }

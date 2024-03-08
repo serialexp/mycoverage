@@ -1,24 +1,24 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useMutation, useQuery } from "@blitzjs/rpc";
-import Link from "next/link";
-import updatePrComment from "src/coverage/mutations/updatePrComment";
-import getCommit from "src/coverage/queries/getCommit";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useMutation, useQuery } from "@blitzjs/rpc"
+import Link from "next/link"
+import updatePrComment from "src/coverage/mutations/updatePrComment"
+import getCommit from "src/coverage/queries/getCommit"
 
-import getPullRequest from "src/coverage/queries/getPullRequest";
-import getRecentCommits from "src/coverage/queries/getRecentCommits";
-import { Actions } from "src/library/components/Actions";
-import { Breadcrumbs } from "src/library/components/Breadcrumbs";
-import { BuildStatus } from "src/library/components/BuildStatus";
-import { CommitInfo } from "src/library/components/CommitInfo";
-import { CoverageSummary } from "src/library/components/CoverageSummary";
-import { Heading } from "src/library/components/Heading";
-import { Section } from "src/library/components/Section";
-import { Subheading } from "src/library/components/Subheading";
-import { TestResults } from "src/library/components/TestResults";
-import TimeAgo from "react-timeago";
-import { TestResultStatus } from "src/library/components/TestResultStatus";
-import { format } from "src/library/format";
-import Layout from "src/core/layouts/Layout";
+import getPullRequest from "src/coverage/queries/getPullRequest"
+import getRecentCommits from "src/coverage/queries/getRecentCommits"
+import { Actions } from "src/library/components/Actions"
+import { Breadcrumbs } from "src/library/components/Breadcrumbs"
+import { BuildStatus } from "src/library/components/BuildStatus"
+import { CommitInfo } from "src/library/components/CommitInfo"
+import { CoverageSummary } from "src/library/components/CoverageSummary"
+import { Heading } from "src/library/components/Heading"
+import { Section } from "src/library/components/Section"
+import { Subheading } from "src/library/components/Subheading"
+import { TestResults } from "src/library/components/TestResults"
+import TimeAgo from "react-timeago"
+import { TestResultStatus } from "src/library/components/TestResultStatus"
+import { format } from "src/library/format"
+import Layout from "src/core/layouts/Layout"
 import {
 	Alert,
 	AlertDescription,
@@ -32,40 +32,40 @@ import {
 	Tag,
 	Th,
 	useToast,
-} from "@chakra-ui/react";
-import getProject from "src/coverage/queries/getProject";
-import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo";
-import { Table, Td, Tr } from "@chakra-ui/react";
-import { FaCheck, FaClock } from "react-icons/fa";
-import { slugify } from "src/library/slugify";
+} from "@chakra-ui/react"
+import getProject from "src/coverage/queries/getProject"
+import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
+import { Table, Td, Tr } from "@chakra-ui/react"
+import { FaCheck, FaClock } from "react-icons/fa"
+import { slugify } from "src/library/slugify"
 
 const PullRequestPage: BlitzPage = () => {
-	const groupId = useParam("groupId", "string");
-	const projectId = useParam("projectId", "string");
-	const prId = useParam("prId", "number");
+	const groupId = useParam("groupId", "string")
+	const projectId = useParam("projectId", "string")
+	const prId = useParam("prId", "number")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
-	const [pullRequest] = useQuery(getPullRequest, { pullRequestId: prId });
+	const [project] = useQuery(getProject, { projectSlug: projectId })
+	const [pullRequest] = useQuery(getPullRequest, { pullRequestId: prId })
 
-	const toast = useToast();
+	const toast = useToast()
 
 	const [buildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id,
 		branchSlug: slugify(pullRequest?.branch), // branch is not a slug in the db
-	});
+	})
 	const [commit] = useQuery(getCommit, {
 		commitRef: pullRequest?.commit.ref,
-	});
+	})
 	const [baseBuildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id,
 		branchSlug: slugify(pullRequest?.baseBranch), // branch is not a slug in the db,
 		beforeDate: pullRequest?.baseCommit?.createdDate,
-	});
+	})
 	const [recentCommits] = useQuery(getRecentCommits, {
 		projectId: project?.id,
 		branch: pullRequest?.branch,
-	});
-	const [updatePrCommentMutation] = useMutation(updatePrComment);
+	})
+	const [updatePrCommentMutation] = useMutation(updatePrComment)
 
 	return groupId && projectId && prId && pullRequest && commit ? (
 		<>
@@ -108,11 +108,11 @@ const PullRequestPage: BlitzPage = () => {
 									status: "success",
 									duration: 2000,
 									isClosable: true,
-								});
+								})
 							})
 							.catch((error) => {
-								console.error(error);
-							});
+								console.error(error)
+							})
 					}}
 				>
 					Update PR Comment
@@ -314,16 +314,16 @@ const PullRequestPage: BlitzPage = () => {
 							</Td>
 							<Td isNumeric>{format.format(commit.coveredPercentage)}%</Td>
 						</Tr>
-					);
+					)
 				})}
 			</Table>
 		</>
-	) : null;
-};
+	) : null
+}
 
-PullRequestPage.suppressFirstRenderFlicker = true;
+PullRequestPage.suppressFirstRenderFlicker = true
 PullRequestPage.getLayout = (page) => (
 	<Layout title="Pull Request">{page}</Layout>
-);
+)
 
-export default PullRequestPage;
+export default PullRequestPage

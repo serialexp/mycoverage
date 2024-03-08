@@ -1,4 +1,4 @@
-import { Routes } from "@blitzjs/next";
+import { Routes } from "@blitzjs/next"
 import {
 	Table,
 	Tag,
@@ -8,13 +8,13 @@ import {
 	Link as ChakraLink,
 	Thead,
 	Tbody,
-} from "@chakra-ui/react";
-import Link from "next/link";
-import { combineIssueCount } from "src/library/combineIssueCount";
-import { BuildStatus } from "src/library/components/BuildStatus";
-import { Minibar } from "src/library/components/Minbar";
-import { format } from "src/library/format";
-import TimeAgo from "react-timeago";
+} from "@chakra-ui/react"
+import Link from "next/link"
+import { combineIssueCount } from "src/library/combineIssueCount"
+import { BuildStatus } from "src/library/components/BuildStatus"
+import { Minibar } from "src/library/components/Minbar"
+import { format } from "src/library/format"
+import TimeAgo from "react-timeago"
 import type {
 	Commit,
 	Project,
@@ -23,22 +23,22 @@ import type {
 	Test,
 	ExpectedResult,
 	CoverageProcessStatus,
-} from "db/dbtypes";
+} from "db/dbtypes"
 
 interface Props {
-	groupId: string;
-	project: Project & { ExpectedResult: ExpectedResult[] };
+	groupId: string
+	project: Project & { ExpectedResult: ExpectedResult[] }
 	commits:
 		| (Commit & {
-				CommitOnBranch: (CommitOnBranch & { Branch: Branch })[];
+				CommitOnBranch: (CommitOnBranch & { Branch: Branch })[]
 				Test: (Test & {
 					TestInstance: {
-						index: number;
-						coverageProcessStatus: CoverageProcessStatus;
-					}[];
-				})[];
+						index: number
+						coverageProcessStatus: CoverageProcessStatus
+					}[]
+				})[]
 		  })[]
-		| null;
+		| null
 }
 
 export const RecentCommitTable = (props: Props) => {
@@ -114,9 +114,9 @@ export const RecentCommitTable = (props: Props) => {
 								<TimeAgo live={false} date={commit.createdDate} />
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 			</Tbody>
 		</Table>
-	);
-};
+	)
+}

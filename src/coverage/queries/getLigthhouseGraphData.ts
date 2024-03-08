@@ -1,39 +1,39 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getLighthouseGraphData(args: {
-	groupId?: number;
-	projectId?: number;
+	groupId?: number
+	projectId?: number
 }): Promise<
 	| {
-			ref: string;
-			createdDate: Date;
+			ref: string
+			createdDate: Date
 			mobile?: {
-				performance: number;
-				accessibility: number;
-				bestPractices: number;
-				seo: number;
-				pwa: number | null;
-				average: number;
-			};
+				performance: number
+				accessibility: number
+				bestPractices: number
+				seo: number
+				pwa: number | null
+				average: number
+			}
 			desktop?: {
-				performance: number;
-				accessibility: number;
-				bestPractices: number;
-				seo: number;
-				pwa: number | null;
-				average: number;
-			};
+				performance: number
+				accessibility: number
+				bestPractices: number
+				seo: number
+				pwa: number | null
+				average: number
+			}
 	  }[]
 	| null
 > {
-	if (!args.groupId || !args.projectId) return null;
+	if (!args.groupId || !args.projectId) return null
 	const project = await db.project.findFirstOrThrow({
 		where: {
 			id: args.projectId,
 			groupId: args.groupId,
 		},
-	});
+	})
 
 	const commits = await db.commit.findMany({
 		where: {
@@ -55,14 +55,14 @@ export default async function getLighthouseGraphData(args: {
 			createdDate: "desc",
 		},
 		take: 500,
-	});
+	})
 	return commits.map((commit) => {
 		const mobile = commit.Lighthouse.find(
 			(lighthouse) => lighthouse.kind === "MOBILE",
-		);
+		)
 		const desktop = commit.Lighthouse.find(
 			(lighthouse) => lighthouse.kind === "DESKTOP",
-		);
+		)
 		return {
 			ref: commit.ref,
 			createdDate: commit.createdDate,
@@ -96,6 +96,6 @@ export default async function getLighthouseGraphData(args: {
 							4,
 				  }
 				: undefined,
-		};
-	});
+		}
+	})
 }

@@ -1,13 +1,13 @@
-import { BlitzPage, Routes, useParam, useRouterQuery } from "@blitzjs/next";
-import { usePaginatedQuery, useQuery } from "@blitzjs/rpc";
-import { Button, Table, Td, Tr } from "@chakra-ui/react";
-import Link from "next/link";
-import Layout from "src/core/layouts/Layout";
-import getCommit from "src/coverage/queries/getCommit";
-import getIssuesForCommit from "src/coverage/queries/getIssuesForCommit";
-import { Actions } from "src/library/components/Actions";
-import { Heading } from "src/library/components/Heading";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { BlitzPage, Routes, useParam, useRouterQuery } from "@blitzjs/next"
+import { usePaginatedQuery, useQuery } from "@blitzjs/rpc"
+import { Button, Table, Td, Tr } from "@chakra-ui/react"
+import Link from "next/link"
+import Layout from "src/core/layouts/Layout"
+import getCommit from "src/coverage/queries/getCommit"
+import getIssuesForCommit from "src/coverage/queries/getIssuesForCommit"
+import { Actions } from "src/library/components/Actions"
+import { Heading } from "src/library/components/Heading"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 const icons = {
 	BLOCKER: {
@@ -30,21 +30,21 @@ const icons = {
 		icon: <FontAwesomeIcon icon={"chevron-down"} />,
 		color: "transparent",
 	},
-};
+}
 
 const IssuesPage: BlitzPage = (props) => {
-	const commitRef = useParam("commitRef", "string");
-	const groupId = useParam("groupId", "string");
-	const projectId = useParam("projectId", "string");
-	const { severity } = useRouterQuery();
+	const commitRef = useParam("commitRef", "string")
+	const groupId = useParam("groupId", "string")
+	const projectId = useParam("projectId", "string")
+	const { severity } = useRouterQuery()
 
-	const [commit] = useQuery(getCommit, { commitRef: commitRef || "" });
+	const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
 	const [{ items, hasMore }] = usePaginatedQuery(getIssuesForCommit, {
 		commitId: commit?.id,
 		severity: severity as string,
 		skip: 0,
 		take: 100,
-	});
+	})
 
 	return commitRef && projectId && groupId ? (
 		<>
@@ -79,14 +79,14 @@ const IssuesPage: BlitzPage = (props) => {
 								{issue.codeIssue.message} [{issue.codeIssue.effort}]
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 			</Table>
 		</>
-	) : null;
-};
+	) : null
+}
 
-IssuesPage.suppressFirstRenderFlicker = true;
-IssuesPage.getLayout = (page) => <Layout title="Issues">{page}</Layout>;
+IssuesPage.suppressFirstRenderFlicker = true
+IssuesPage.getLayout = (page) => <Layout title="Issues">{page}</Layout>
 
-export default IssuesPage;
+export default IssuesPage

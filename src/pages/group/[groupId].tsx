@@ -1,5 +1,5 @@
-import { BlitzPage, Routes, useParams } from "@blitzjs/next";
-import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc";
+import { BlitzPage, Routes, useParams } from "@blitzjs/next"
+import { useMutation, usePaginatedQuery, useQuery } from "@blitzjs/rpc"
 import {
 	Box,
 	Table,
@@ -13,37 +13,37 @@ import {
 	Input,
 	FormHelperText,
 	Flex,
-} from "@chakra-ui/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import createGroupMutation from "src/coverage/mutations/createGroup";
-import getGroup from "src/coverage/queries/getGroup";
-import { Actions } from "src/library/components/Actions";
-import { Heading } from "src/library/components/Heading";
-import { Minibar } from "src/library/components/Minbar";
-import { Subheading } from "src/library/components/Subheading";
-import { format } from "src/library/format";
-import { Suspense, useState } from "react";
-import Layout from "src/core/layouts/Layout";
-import getProjects from "src/coverage/queries/getProjects";
-import createProjectMutation from "src/coverage/mutations/createProject";
+} from "@chakra-ui/react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import createGroupMutation from "src/coverage/mutations/createGroup"
+import getGroup from "src/coverage/queries/getGroup"
+import { Actions } from "src/library/components/Actions"
+import { Heading } from "src/library/components/Heading"
+import { Minibar } from "src/library/components/Minbar"
+import { Subheading } from "src/library/components/Subheading"
+import { format } from "src/library/format"
+import { Suspense, useState } from "react"
+import Layout from "src/core/layouts/Layout"
+import getProjects from "src/coverage/queries/getProjects"
+import createProjectMutation from "src/coverage/mutations/createProject"
 
 const GroupPage: BlitzPage = () => {
-	const params = useParams("string");
+	const params = useParams("string")
 
 	const [group] = useQuery(getGroup, {
 		groupSlug: params.groupId,
-	});
+	})
 
-	const router = useRouter();
-	const page = Number(router.query.page) || 1;
-	const search = router.query.search;
+	const router = useRouter()
+	const page = Number(router.query.page) || 1
+	const search = router.query.search
 	const [projects, projectsMeta] = usePaginatedQuery(getProjects, {
 		name: search,
 		groupId: params.groupId,
 		take: 20,
 		skip: (page - 1) * 20,
-	});
+	})
 
 	const goToPreviousPage = () =>
 		router.push(
@@ -52,7 +52,7 @@ const GroupPage: BlitzPage = () => {
 			{
 				scroll: false,
 			},
-		);
+		)
 	const goToNextPage = () =>
 		router.push(
 			{ pathname: window.location.pathname, query: { search, page: page + 1 } },
@@ -60,7 +60,7 @@ const GroupPage: BlitzPage = () => {
 			{
 				scroll: false,
 			},
-		);
+		)
 	const goToFirstPage = () =>
 		router.push(
 			{ pathname: window.location.pathname, query: { search, page: 1 } },
@@ -68,7 +68,7 @@ const GroupPage: BlitzPage = () => {
 			{
 				scroll: false,
 			},
-		);
+		)
 	const goToLastPage = () =>
 		router.push(
 			{
@@ -79,7 +79,7 @@ const GroupPage: BlitzPage = () => {
 			{
 				scroll: false,
 			},
-		);
+		)
 	const setSearch = (search: string) =>
 		router.push(
 			{ pathname: window.location.pathname, query: { search } },
@@ -87,15 +87,15 @@ const GroupPage: BlitzPage = () => {
 			{
 				scroll: false,
 			},
-		);
+		)
 
-	const [createProject] = useMutation(createProjectMutation);
+	const [createProject] = useMutation(createProjectMutation)
 
 	const [formFields, setFormFields] = useState({
 		name: "",
 		slug: "",
 		defaultBaseBranch: "",
-	});
+	})
 
 	return group ? (
 		<>
@@ -111,7 +111,7 @@ const GroupPage: BlitzPage = () => {
 					placeholder={"Search repository"}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
-							setSearch(e.currentTarget.value);
+							setSearch(e.currentTarget.value)
 						}
 					}}
 				/>
@@ -165,7 +165,7 @@ const GroupPage: BlitzPage = () => {
 								</>
 							)}
 						</Tr>
-					);
+					)
 				})}
 			</Table>
 			<Flex
@@ -194,10 +194,10 @@ const GroupPage: BlitzPage = () => {
 				</Button>
 			</Flex>
 		</>
-	) : null;
-};
+	) : null
+}
 
-GroupPage.suppressFirstRenderFlicker = true;
-GroupPage.getLayout = (page) => <Layout title="Group">{page}</Layout>;
+GroupPage.suppressFirstRenderFlicker = true
+GroupPage.getLayout = (page) => <Layout title="Group">{page}</Layout>
 
-export default GroupPage;
+export default GroupPage

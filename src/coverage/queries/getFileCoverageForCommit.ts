@@ -1,10 +1,10 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getFileCoverageForCommit(args: {
-	commitId?: number | null;
+	commitId?: number | null
 }) {
-	if (!args.commitId) return [];
+	if (!args.commitId) return []
 	const res = await db.packageCoverage.findMany({
 		where: {
 			commitId: args.commitId,
@@ -20,7 +20,7 @@ export default async function getFileCoverageForCommit(args: {
 				},
 			},
 		},
-	});
+	})
 
-	return res;
+	return res
 }

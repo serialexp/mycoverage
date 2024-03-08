@@ -1,54 +1,49 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
-import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults";
-import {
-	Commit,
-	ExpectedResult,
-	Test,
-	CoverageProcessStatus,
-} from "db/dbtypes";
+import { Box, Flex, Text } from "@chakra-ui/react"
+import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
+import { Commit, ExpectedResult, Test, CoverageProcessStatus } from "db/dbtypes"
 import {
 	FaCheck,
 	FaClock,
 	FaUpload,
 	FaXmark,
 	FaArrowUpWideShort,
-} from "react-icons/fa6";
+} from "react-icons/fa6"
 
 export const BuildStatus = (props: {
 	commit:
 		| (Commit & {
 				Test: (Test & {
 					TestInstance: {
-						index: number;
-						coverageProcessStatus: CoverageProcessStatus;
-					}[];
-				})[];
+						index: number
+						coverageProcessStatus: CoverageProcessStatus
+					}[]
+				})[]
 		  })
 		| null
-		| undefined;
-	expectedResults: ExpectedResult[] | undefined;
-	targetBranch: string;
+		| undefined
+	expectedResults: ExpectedResult[] | undefined
+	targetBranch: string
 }) => {
 	const result = satisfiesExpectedResults(
 		props.commit,
 		props.expectedResults || [],
 		props.targetBranch,
-	);
+	)
 
-	const count = result.totalExpected;
-	let processed = 0;
-	const uploaded = result.uploaded;
+	const count = result.totalExpected
+	let processed = 0
+	const uploaded = result.uploaded
 
-	props.commit?.Test.forEach((test) => {
-		const uniqueInstances: Record<number, boolean> = {};
-		test.TestInstance.filter(
+	for (const test of props.commit?.Test ?? []) {
+		const uniqueInstances: Record<number, boolean> = {}
+		for (const res of test.TestInstance.filter(
 			(testInstance) =>
 				testInstance.coverageProcessStatus === CoverageProcessStatus.FINISHED,
-		).forEach((res) => {
-			uniqueInstances[res.index] = true;
-		});
-		processed += Object.keys(uniqueInstances).length;
-	});
+		)) {
+			uniqueInstances[res.index] = true
+		}
+		processed += Object.keys(uniqueInstances).length
+	}
 
 	return props.commit?.coverageProcessStatus === "FAILED" ? (
 		<Flex
@@ -140,5 +135,5 @@ export const BuildStatus = (props: {
 		>
 			<FaCheck />
 		</Box>
-	);
-};
+	)
+}

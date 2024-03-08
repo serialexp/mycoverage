@@ -1,7 +1,7 @@
-import { Routes } from "@blitzjs/next";
-import { Link as ChakraLink } from "@chakra-ui/react";
-import { Table, Tag, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
-import TimeAgo from "react-timeago";
+import { Routes } from "@blitzjs/next"
+import { Link as ChakraLink } from "@chakra-ui/react"
+import { Table, Tag, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react"
+import TimeAgo from "react-timeago"
 import {
 	Commit,
 	CoverageProcessStatus,
@@ -9,28 +9,28 @@ import {
 	ExpectedResult,
 	Test,
 	PullRequest,
-} from "db/dbtypes";
-import Link from "next/link";
-import { combineIssueCount } from "src/library/combineIssueCount";
-import { BuildStatus } from "src/library/components/BuildStatus";
-import { Minibar } from "src/library/components/Minbar";
-import { format } from "src/library/format";
+} from "db/dbtypes"
+import Link from "next/link"
+import { combineIssueCount } from "src/library/combineIssueCount"
+import { BuildStatus } from "src/library/components/BuildStatus"
+import { Minibar } from "src/library/components/Minbar"
+import { format } from "src/library/format"
 
 interface Props {
-	groupId: string;
-	project: Project & { ExpectedResult: ExpectedResult[] };
+	groupId: string
+	project: Project & { ExpectedResult: ExpectedResult[] }
 	prs:
 		| (PullRequest & {
 				commit: Commit & {
 					Test: (Test & {
 						TestInstance: {
-							index: number;
-							coverageProcessStatus: CoverageProcessStatus;
-						}[];
-					})[];
-				};
+							index: number
+							coverageProcessStatus: CoverageProcessStatus
+						}[]
+					})[]
+				}
 		  })[]
-		| null;
+		| null
 }
 export const RecentPRTable = (props: Props) => {
 	return (
@@ -55,7 +55,7 @@ export const RecentPRTable = (props: Props) => {
 			</Thead>
 			<Tbody>
 				{props.prs?.map((pullRequest) => {
-					const commit = pullRequest.commit;
+					const commit = pullRequest.commit
 					return (
 						<Tr key={pullRequest.id}>
 							<Td>
@@ -106,9 +106,9 @@ export const RecentPRTable = (props: Props) => {
 								<TimeAgo live={false} date={commit.createdDate} />
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 			</Tbody>
 		</Table>
-	);
-};
+	)
+}

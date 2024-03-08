@@ -1,10 +1,10 @@
-import { InternalCoverage } from "src/library/InternalCoverage";
-import { coveredPercentage } from "src/library/coveredPercentage";
-import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3";
-import { insertCoverageData } from "src/library/insertCoverageData";
-import { log } from "src/library/log";
-import { Test, TestInstance, Commit } from "db";
-import db from "db";
+import { InternalCoverage } from "src/library/InternalCoverage"
+import { coveredPercentage } from "src/library/coveredPercentage"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
+import { insertCoverageData } from "src/library/insertCoverageData"
+import { log } from "src/library/log"
+import { Test, TestInstance, Commit } from "db"
+import db from "db"
 
 export const processAllTestInstances = async (commit: Commit) => {
 	const all = await db.test.findMany({
@@ -14,30 +14,30 @@ export const processAllTestInstances = async (commit: Commit) => {
 		include: {
 			TestInstance: true,
 		},
-	});
+	})
 
-	let totalItems = 0;
+	let totalItems = 0
 	all.forEach((test) => {
-		totalItems += test.TestInstance.length;
-	});
+		totalItems += test.TestInstance.length
+	})
 
-	let count = 0;
+	let count = 0
 	for (let i = 0; i < all.length; i++) {
-		const test = all[i];
-		if (!test) continue;
+		const test = all[i]
+		if (!test) continue
 
-		const testCoverage = new InternalCoverage();
+		const testCoverage = new InternalCoverage()
 
 		for (let j = 0; j < test.TestInstance.length; j++) {
-			count++;
+			count++
 
-			const testInstance = test.TestInstance[j];
-			if (!testInstance) continue;
+			const testInstance = test.TestInstance[j]
+			if (!testInstance) continue
 
 			if (!testInstance.coverageFileKey) {
 				throw new Error(
 					"Cannot combine coverage for a testInstance without a coverageFileKey",
-				);
+				)
 			}
 
 			await db.testInstance.update({
@@ -47,29 +47,29 @@ export const processAllTestInstances = async (commit: Commit) => {
 				data: {
 					coverageProcessStatus: "PROCESSING",
 				},
-			});
+			})
 
 			const { coverageFile: testInstanceCoverageFile } =
 				await createInternalCoverageFromS3(testInstance.coverageFileKey, {
 					repositoryRoot: testInstance.repositoryRoot ?? undefined,
 					workingDirectory: testInstance.workingDirectory ?? undefined,
-				});
+				})
 
 			log(
 				`test: Merging coverage information for for instance ${test.testName}:${testInstance.index} into test`,
-			);
-			const start = new Date();
+			)
+			const start = new Date()
 
-			const packages = 0;
-			const files = 0;
+			const packages = 0
+			const files = 0
 			// add new testCoverage object values from this testinstance, this is icky if we accidentally
 			// process twice, but much faster when there are many testinstances
-			testCoverage.merge(testInstanceCoverageFile);
+			testCoverage.merge(testInstanceCoverageFile)
 			log(
 				`test: Merged ${packages} packages and ${files} files for instance index ${
 					test.testName
 				}:${testInstance.index} in ${new Date().getTime() - start.getTime()}ms`,
-			);
+			)
 
 			await db.testInstance.update({
 				where: {
@@ -78,22 +78,22 @@ export const processAllTestInstances = async (commit: Commit) => {
 				data: {
 					coverageProcessStatus: "FINISHED",
 				},
-			});
+			})
 		}
-		testCoverage.updateMetrics();
+		testCoverage.updateMetrics()
 
 		log(
 			`test: Result of combining all tests instances: ${testCoverage.data.metrics?.coveredelements}/${testCoverage.data.metrics?.elements} for ${test.testName}`,
-		);
+		)
 
 		log(
 			`test: Deleting existing Package/File Coverage for test ${test.testName}`,
-		);
+		)
 		await db.packageCoverage.deleteMany({
 			where: {
 				testId: test.id,
 			},
-		});
+		})
 
 		await db.test.update({
 			where: {
@@ -112,14 +112,14 @@ export const processAllTestInstances = async (commit: Commit) => {
 				coveredElements: testCoverage.data.metrics?.coveredelements ?? 0,
 				coveredPercentage: coveredPercentage(testCoverage.data.metrics),
 			},
-		});
-		log(`test: Updated coverage summary data for test ${test.testName}`);
+		})
+		log(`test: Updated coverage summary data for test ${test.testName}`)
 
 		const res = await insertCoverageData(testCoverage, {
 			testId: test.id,
-		});
+		})
 		log(
 			`test: Inserted new package (${res.packageCount}) and file (${res.fileCount}) coverage for test ${test.testName} across ${res.batchCount} batches.`,
-		);
+		)
 	}
-};
+}

@@ -1,19 +1,19 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useMutation, useQuery } from "@blitzjs/rpc";
-import { WarningIcon } from "@chakra-ui/icons";
-import Link from "next/link";
-import combineCoverage from "src/coverage/mutations/combineCoverage";
-import getRecentCommits from "src/coverage/queries/getRecentCommits";
-import { Actions } from "src/library/components/Actions";
-import { Breadcrumbs } from "src/library/components/Breadcrumbs";
-import { CommitInfo } from "src/library/components/CommitInfo";
-import { CoverageSummary } from "src/library/components/CoverageSummary";
-import { Heading } from "src/library/components/Heading";
-import { RecentCommitTable } from "src/library/components/RecentCommitTable";
-import { Subheading } from "src/library/components/Subheading";
-import { TestResults } from "src/library/components/TestResults";
-import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults";
-import Layout from "src/core/layouts/Layout";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useMutation, useQuery } from "@blitzjs/rpc"
+import { WarningIcon } from "@chakra-ui/icons"
+import Link from "next/link"
+import combineCoverage from "src/coverage/mutations/combineCoverage"
+import getRecentCommits from "src/coverage/queries/getRecentCommits"
+import { Actions } from "src/library/components/Actions"
+import { Breadcrumbs } from "src/library/components/Breadcrumbs"
+import { CommitInfo } from "src/library/components/CommitInfo"
+import { CoverageSummary } from "src/library/components/CoverageSummary"
+import { Heading } from "src/library/components/Heading"
+import { RecentCommitTable } from "src/library/components/RecentCommitTable"
+import { Subheading } from "src/library/components/Subheading"
+import { TestResults } from "src/library/components/TestResults"
+import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
+import Layout from "src/core/layouts/Layout"
 import {
 	Alert,
 	AlertIcon,
@@ -21,31 +21,31 @@ import {
 	Box,
 	Button,
 	Code,
-} from "@chakra-ui/react";
-import getProject from "src/coverage/queries/getProject";
-import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo";
-import { FaClock } from "react-icons/fa";
-import { slugify } from "src/library/slugify";
+} from "@chakra-ui/react"
+import getProject from "src/coverage/queries/getProject"
+import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
+import { FaClock } from "react-icons/fa"
+import { slugify } from "src/library/slugify"
 
 const BranchPage: BlitzPage = () => {
-	const groupId = useParam("groupId", "string");
-	const projectId = useParam("projectId", "string");
-	const branchSlug = useParam("branchId", "string");
+	const groupId = useParam("groupId", "string")
+	const projectId = useParam("projectId", "string")
+	const branchSlug = useParam("branchId", "string")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
+	const [project] = useQuery(getProject, { projectSlug: projectId })
 	const [buildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id,
 		branchSlug: slugify(branchSlug),
-	});
+	})
 	const [baseBuildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id,
 		branchSlug: slugify(project?.defaultBaseBranch),
-	});
+	})
 	const [recentCommits] = useQuery(getRecentCommits, {
 		projectId: project?.id,
 		branch: buildInfo.branch?.name,
-	});
-	const [combineCoverageMutation] = useMutation(combineCoverage);
+	})
+	const [combineCoverageMutation] = useMutation(combineCoverage)
 
 	return groupId && projectId && branchSlug && project ? (
 		<>
@@ -80,8 +80,8 @@ const BranchPage: BlitzPage = () => {
 							combineCoverageMutation({
 								commitId: buildInfo.lastCommit.id,
 							}).catch((error) => {
-								console.error(error);
-							});
+								console.error(error)
+							})
 						}
 					}}
 				>
@@ -139,10 +139,10 @@ const BranchPage: BlitzPage = () => {
 				commits={recentCommits}
 			/>
 		</>
-	) : null;
-};
+	) : null
+}
 
-BranchPage.suppressFirstRenderFlicker = true;
-BranchPage.getLayout = (page) => <Layout title="Project">{page}</Layout>;
+BranchPage.suppressFirstRenderFlicker = true
+BranchPage.getLayout = (page) => <Layout title="Project">{page}</Layout>
 
-export default BranchPage;
+export default BranchPage

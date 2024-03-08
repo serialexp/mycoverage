@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
-import { fixQuery } from "src/library/fixQuery";
-import { hitsJsonSchema } from "src/library/HitsJsonSchema";
-import { log } from "src/library/log";
-import { slugify } from "src/library/slugify";
-import { SourceHits } from "src/library/types";
-import { uploadJob } from "src/queues/UploadQueue";
-import db, { CoverageProcessStatus } from "db";
-import { S3 } from "@aws-sdk/client-s3";
-import { z } from "zod";
+import { PrismaClient } from "@prisma/client"
+import { NextApiRequest, NextApiResponse } from "next"
+import { fixQuery } from "src/library/fixQuery"
+import { hitsJsonSchema } from "src/library/HitsJsonSchema"
+import { log } from "src/library/log"
+import { slugify } from "src/library/slugify"
+import { SourceHits } from "src/library/types"
+import { uploadJob } from "src/queues/UploadQueue"
+import db, { CoverageProcessStatus } from "db"
+import { S3 } from "@aws-sdk/client-s3"
+import { z } from "zod"
 
 const schema = z.object({
 	coverage: z.string(),
@@ -26,38 +26,38 @@ const schema = z.object({
 			}),
 		),
 	),
-});
+})
 
 interface RequestBody {
-	coverage: string;
-	hits: SourceHits;
+	coverage: string
+	hits: SourceHits
 }
 
 export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse,
 ) {
-	const startTime = new Date();
+	const startTime = new Date()
 
-	let timeForLast = new Date();
-	const requestId = Math.round(Math.random() * 900000 + 100000);
+	let timeForLast = new Date()
+	const requestId = Math.round(Math.random() * 900000 + 100000)
 	const timeSinceLast = <T>(...args: T[]) => {
-		const originalTime = timeForLast;
-		timeForLast = new Date();
-	};
+		const originalTime = timeForLast
+		timeForLast = new Date()
+	}
 	const measure = async <T>(what: string, fn: () => Promise<T>) => {
-		const startTime = new Date();
-		const result = await fn();
+		const startTime = new Date()
+		const result = await fn()
 
-		return result;
-	};
-
-	if (req.headers["content-type"] !== "application/json") {
-		return res.status(400).send("Content type must be application/json");
+		return result
 	}
 
-	timeSinceLast("serving upload-with-hits");
-	const query = fixQuery(req.query);
+	if (req.headers["content-type"] !== "application/json") {
+		return res.status(400).send("Content type must be application/json")
+	}
+
+	timeSinceLast("serving upload-with-hits")
+	const query = fixQuery(req.query)
 
 	const jobLog = await db.jobLog.create({
 		data: {
@@ -67,21 +67,21 @@ export default async function handler(
 			repository: query.projectId,
 			status: "started",
 		},
-	});
+	})
 
-	timeSinceLast("joblog created");
+	timeSinceLast("joblog created")
 
 	try {
 		await measure("parse schema", () => {
-			const result = hitsJsonSchema(req.body);
+			const result = hitsJsonSchema(req.body)
 
-			return Promise.resolve(result);
-		});
+			return Promise.resolve(result)
+		})
 	} catch (error) {
-		res.status(400).json(error);
-		return;
+		res.status(400).json(error)
+		return
 	}
-	timeSinceLast("parsed");
+	timeSinceLast("parsed")
 
 	await db.jobLog.update({
 		where: {
@@ -91,13 +91,13 @@ export default async function handler(
 			status: "validated",
 			timeTaken: new Date().getTime() - startTime.getTime(),
 		},
-	});
+	})
 
 	const testInstanceIndex = query.index
 		? parseInt(query.index)
-		: Math.floor(Math.random() * 1000000);
+		: Math.floor(Math.random() * 1000000)
 
-	const { hits, coverage } = req.body as RequestBody;
+	const { hits, coverage } = req.body as RequestBody
 	if (
 		query.projectId &&
 		query.branch &&
@@ -106,10 +106,10 @@ export default async function handler(
 		query.index
 	) {
 		try {
-			const mydb: PrismaClient = db;
+			const mydb: PrismaClient = db
 
-			timeSinceLast("find group");
-			const groupInteger = parseInt(query.groupId || "");
+			timeSinceLast("find group")
+			const groupInteger = parseInt(query.groupId || "")
 			const group = await mydb.group.findFirst({
 				where: {
 					OR: [
@@ -124,14 +124,14 @@ export default async function handler(
 						},
 					],
 				},
-			});
+			})
 
 			if (!group) {
-				throw new Error("Specified group does not exist");
+				throw new Error("Specified group does not exist")
 			}
 
-			timeSinceLast("find project");
-			const projectInteger = parseInt(query.projectId || "");
+			timeSinceLast("find project")
+			const projectInteger = parseInt(query.projectId || "")
 			const project = await mydb.project.findFirst({
 				where: {
 					OR: [
@@ -144,32 +144,32 @@ export default async function handler(
 						},
 					],
 				},
-			});
+			})
 
 			if (!project) {
-				throw new Error("Project does not exist");
+				throw new Error("Project does not exist")
 			}
 
 			if (!coverage) {
-				throw new Error("No coverage data posted");
+				throw new Error("No coverage data posted")
 			}
 			if (!hits || Object.keys(hits).length === 0) {
 				throw new Error(
 					"No hit information posted, in this case use the plain upload endpoint",
-				);
+				)
 			}
 
-			timeSinceLast("finding branch");
+			timeSinceLast("finding branch")
 
 			let branch = await mydb.branch.findFirst({
 				where: {
 					projectId: project.id,
 					slug: slugify(query.branch),
 				},
-			});
+			})
 
 			if (!branch) {
-				timeSinceLast("creating branch");
+				timeSinceLast("creating branch")
 				branch = await mydb.branch.create({
 					data: {
 						name: query.branch,
@@ -177,7 +177,7 @@ export default async function handler(
 						projectId: project.id,
 						baseBranch: query.baseBranch ?? project.defaultBaseBranch,
 					},
-				});
+				})
 			}
 
 			await db.jobLog.update({
@@ -188,8 +188,8 @@ export default async function handler(
 					status: "uploading",
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
-			timeSinceLast("uploading to s3");
+			})
+			timeSinceLast("uploading to s3")
 			// await new Promise((resolve, reject) => {
 			//   setTimeout(() => {
 			//     resolve(true)
@@ -198,17 +198,17 @@ export default async function handler(
 
 			const s3FileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${
 				project.slug
-			}/${query.ref}/instance-${query.testName}-${new Date().getTime()}.json`;
+			}/${query.ref}/instance-${query.testName}-${new Date().getTime()}.json`
 
-			const s3 = new S3({});
+			const s3 = new S3({})
 			await measure("upload to s3", () => {
 				return s3.putObject({
 					Bucket: process.env.S3_BUCKET || "",
 					Key: s3FileKey,
 					Body: JSON.stringify(req.body),
-				});
-			});
-			timeSinceLast("uploaded");
+				})
+			})
+			timeSinceLast("uploaded")
 
 			await measure("update branch operations joblog", () => {
 				return db.jobLog.update({
@@ -219,24 +219,24 @@ export default async function handler(
 						status: "branch operations",
 						timeTaken: new Date().getTime() - startTime.getTime(),
 					},
-				});
-			});
+				})
+			})
 
-			timeSinceLast("find commit");
+			timeSinceLast("find commit")
 			let commit = await mydb.commit.findFirst({
 				where: {
 					ref: query.ref,
 				},
-			});
-			timeSinceLast(`commit is ${commit?.ref}`);
+			})
+			timeSinceLast(`commit is ${commit?.ref}`)
 			if (!commit) {
-				timeSinceLast("creating commit");
+				timeSinceLast("creating commit")
 				commit = await mydb.commit.create({
 					data: {
 						ref: query.ref,
 						message: query.message,
 					},
-				});
+				})
 			} else {
 				await mydb.commit.update({
 					where: {
@@ -246,27 +246,27 @@ export default async function handler(
 						coverageProcessStatus: CoverageProcessStatus.PENDING,
 						message: query.message,
 					},
-				});
+				})
 			}
 
 			if (!commit)
-				throw new Error(`Could not create commit for ref ${query.ref}`);
+				throw new Error(`Could not create commit for ref ${query.ref}`)
 
 			try {
-				timeSinceLast("create commit on branch");
+				timeSinceLast("create commit on branch")
 				const commitBranch = await mydb.commitOnBranch.create({
 					data: {
 						commitId: commit.id,
 						branchId: branch.id,
 					},
-				});
+				})
 			} catch (error) {
 				if (
 					error instanceof Error &&
 					error?.message.includes("Unique constraint")
 				) {
 				} else {
-					throw error;
+					throw error
 				}
 			}
 
@@ -279,12 +279,12 @@ export default async function handler(
 				include: {
 					commit: true,
 				},
-			});
+			})
 			if (
 				correspondingPr &&
 				correspondingPr.commit.createdDate < commit.createdDate
 			) {
-				log("found corresponding PR, updating last commit");
+				log("found corresponding PR, updating last commit")
 				await mydb.pullRequest.update({
 					where: {
 						id: correspondingPr.id,
@@ -292,16 +292,16 @@ export default async function handler(
 					data: {
 						commitId: commit.id,
 					},
-				});
+				})
 			}
 
 			timeSinceLast(
 				"should update default?",
 				project.defaultBaseBranch,
 				branch.name,
-			);
+			)
 			if (project.defaultBaseBranch === branch.name) {
-				timeSinceLast("update last commit id");
+				timeSinceLast("update last commit id")
 				await mydb.project.update({
 					data: {
 						lastCommitId: commit.id || null,
@@ -309,17 +309,17 @@ export default async function handler(
 					where: {
 						id: project.id,
 					},
-				});
+				})
 			}
 
-			timeSinceLast("find first branch");
+			timeSinceLast("find first branch")
 			const baseBranch = await mydb.branch.findFirst({
 				where: {
 					name: branch.baseBranch,
 					projectId: project.id,
 				},
-			});
-			timeSinceLast("find commit on branch");
+			})
+			timeSinceLast("find commit on branch")
 			const firstCommit = await mydb.commitOnBranch.findFirst({
 				where: {
 					branchId: branch.id,
@@ -332,10 +332,10 @@ export default async function handler(
 						createdDate: "desc",
 					},
 				},
-			});
-			const baseCommit = firstCommit?.Commit;
+			})
+			const baseCommit = firstCommit?.Commit
 
-			timeSinceLast("create uploadjob");
+			timeSinceLast("create uploadjob")
 			await db.jobLog.update({
 				where: {
 					id: jobLog.id,
@@ -344,7 +344,7 @@ export default async function handler(
 					status: "send job",
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
+			})
 
 			uploadJob(
 				s3FileKey,
@@ -356,8 +356,8 @@ export default async function handler(
 				group.slug,
 				project.slug,
 			).catch((error) => {
-				log("error adding upload job", error);
-			});
+				log("error adding upload job", error)
+			})
 
 			await db.jobLog.update({
 				where: {
@@ -368,9 +368,9 @@ export default async function handler(
 					message: `Success uploading for ${query.testName}:${query.index}`,
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
+			})
 
-			res.status(200).json({ code: "OK", message: "Ok" });
+			res.status(200).json({ code: "OK", message: "Ok" })
 		} catch (error) {
 			await db.jobLog.update({
 				where: {
@@ -384,18 +384,18 @@ export default async function handler(
 					message: `Failure uploading ${error?.toString()}`,
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
+			})
 			res.status(500).json({
 				error: {
 					message: error?.toString(),
 				},
-			});
+			})
 		}
 	} else {
 		res.status(400).send({
 			message: "Missing either branch, ref, index or testName parameter",
 			query,
-		});
+		})
 	}
 }
 
@@ -405,4 +405,4 @@ export const config = {
 			sizeLimit: "50mb",
 		},
 	},
-};
+}

@@ -1,19 +1,19 @@
-import { Routes } from "@blitzjs/next";
-import { Button } from "@chakra-ui/react";
-import Link from "next/link";
-import { Actions } from "src/library/components/Actions";
-import type { Commit, Test } from "db";
+import { Routes } from "@blitzjs/next"
+import { Button } from "@chakra-ui/react"
+import Link from "next/link"
+import { Actions } from "src/library/components/Actions"
+import type { Commit, Test } from "db"
 
 interface Props {
-	groupId: string;
-	projectId: string;
-	commit: (Commit & { Test: Test[] }) | null;
-	baseCommitRef: string;
-	testId?: number;
+	groupId: string
+	projectId: string
+	commit: (Commit & { Test: Test[] }) | null
+	baseCommitRef: string
+	testId?: number
 }
 
 export const SpecificTestLinks = (props: Props) => {
-	const { groupId, projectId, commit, baseCommitRef, testId } = props;
+	const { groupId, projectId, commit, baseCommitRef, testId } = props
 
 	return (
 		<Actions>
@@ -48,8 +48,8 @@ export const SpecificTestLinks = (props: Props) => {
 							{test.testName}
 						</Button>
 					</Link>
-				);
+				)
 			})}
 		</Actions>
-	);
-};
+	)
+}

@@ -1,5 +1,4 @@
 // @ts-check
-const { withNextAuthAdapter } = require("@blitzjs/auth")
 const { withBlitz } = require("@blitzjs/next")
 
 /**
@@ -7,4 +6,4 @@ const { withBlitz } = require("@blitzjs/next")
  **/
 const config = {}
 
-module.exports = withBlitz(withNextAuthAdapter(config))
+module.exports = withBlitz(config)

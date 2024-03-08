@@ -1,26 +1,26 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getLastBuildInfo(args: {
-	projectId?: number;
-	branchSlug?: string;
-	beforeDate?: Date;
+	projectId?: number
+	branchSlug?: string
+	beforeDate?: Date
 }) {
-	if (!args.projectId) return { branch: undefined, lastCommit: undefined };
-	let branchSlug;
+	if (!args.projectId) return { branch: undefined, lastCommit: undefined }
+	let branchSlug: string | undefined
 	if (args.branchSlug) {
-		branchSlug = args.branchSlug;
+		branchSlug = args.branchSlug
 	} else {
 		const project = await db.project.findFirst({
 			where: { id: args.projectId },
-		});
+		})
 
-		branchSlug = project?.defaultBaseBranch;
+		branchSlug = project?.defaultBaseBranch
 	}
 
 	const branch = await db.branch.findFirst({
 		where: { projectId: args.projectId, slug: branchSlug },
-	});
+	})
 
 	const commit = await db.commit.findFirst({
 		where: {
@@ -56,7 +56,7 @@ export default async function getLastBuildInfo(args: {
 				},
 			},
 		},
-	});
+	})
 
 	const processedCommit = await db.commit.findFirst({
 		where: {
@@ -93,7 +93,7 @@ export default async function getLastBuildInfo(args: {
 				},
 			},
 		},
-	});
+	})
 
 	const commits = await db.commit.findMany({
 		where: {
@@ -123,12 +123,12 @@ export default async function getLastBuildInfo(args: {
 			},
 		},
 		take: 10,
-	});
+	})
 
 	return {
 		branch: branch,
 		lastCommit: commit,
 		lastProcessedCommit: processedCommit,
 		commits: commits,
-	};
+	}
 }

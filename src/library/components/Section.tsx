@@ -1,16 +1,16 @@
-import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { Box } from "@chakra-ui/react";
-import { PropsWithChildren, ReactElement, useState } from "react";
-import { Subheading } from "src/library/components/Subheading";
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons"
+import { Box } from "@chakra-ui/react"
+import { PropsWithChildren, ReactElement, useState } from "react"
+import { Subheading } from "src/library/components/Subheading"
 
 export const Section = (
 	props: PropsWithChildren<{
-		title: string;
-		defaultOpen?: boolean;
-		summary?: ReactElement;
+		title: string
+		defaultOpen?: boolean
+		summary?: ReactElement
 	}>,
 ) => {
-	const [collapsed, setCollapsed] = useState(!props.defaultOpen);
+	const [collapsed, setCollapsed] = useState(!props.defaultOpen)
 
 	return (
 		<>
@@ -23,5 +23,5 @@ export const Section = (
 			</Subheading>
 			{collapsed ? <>{props.summary}</> : props.children}
 		</>
-	);
-};
+	)
+}

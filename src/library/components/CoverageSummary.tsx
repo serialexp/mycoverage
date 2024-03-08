@@ -5,32 +5,32 @@ import {
 	StatHelpText,
 	StatLabel,
 	StatNumber,
-} from "@chakra-ui/react";
-import { DiffHelper } from "src/library/components/DiffHelper";
+} from "@chakra-ui/react"
+import { DiffHelper } from "src/library/components/DiffHelper"
 
 interface Metrics {
-	blockerSonarIssues?: number;
-	criticalSonarIssues?: number;
-	majorSonarIssues?: number;
-	minorSonarIssues?: number;
-	infoSonarIssues?: number;
-	statements: number;
-	conditionals: number;
-	methods: number;
-	elements: number;
-	coveredElements: number;
-	coveredStatements: number;
-	coveredConditionals: number;
-	coveredMethods: number;
-	coveredPercentage: number;
+	blockerSonarIssues?: number
+	criticalSonarIssues?: number
+	majorSonarIssues?: number
+	minorSonarIssues?: number
+	infoSonarIssues?: number
+	statements: number
+	conditionals: number
+	methods: number
+	elements: number
+	coveredElements: number
+	coveredStatements: number
+	coveredConditionals: number
+	coveredMethods: number
+	coveredPercentage: number
 }
 
-const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
 export const CoverageSummary = (props: {
-	metrics: Metrics;
-	baseMetrics?: Metrics;
-	processing: boolean;
+	metrics: Metrics
+	baseMetrics?: Metrics
+	processing: boolean
 }) => {
 	return props.processing ? (
 		<Flex m={4}>Not visible until processing for commit finishes</Flex>
@@ -145,5 +145,5 @@ export const CoverageSummary = (props: {
 				</Stat>
 			</Flex>
 		</>
-	);
-};
+	)
+}

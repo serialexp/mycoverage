@@ -1,20 +1,20 @@
-import { resolver } from "@blitzjs/rpc";
-import db, { Prisma } from "db";
-import { z } from "zod";
+import { resolver } from "@blitzjs/rpc"
+import db, { Prisma } from "db"
+import { z } from "zod"
 
 const UpdateProject = z.object({
 	id: z.number(),
 	defaultBaseBranch: z.string().optional(),
 	requireCoverageIncrease: z.boolean().optional(),
 	defaultLighthouseUrl: z.string().optional(),
-});
+})
 
 export default resolver.pipe(
 	resolver.zod(UpdateProject),
 	async ({ id, ...data }) => {
 		const updateData: Prisma.ProjectUpdateInput = {
 			...data,
-		};
+		}
 
 		if (data.defaultBaseBranch) {
 			// set the lastCommit on the project to the last one on the new branch
@@ -32,25 +32,25 @@ export default resolver.pipe(
 				orderBy: {
 					createdDate: "desc",
 				},
-			});
+			})
 			console.log(
 				"found last commit on ",
 				data.defaultBaseBranch,
 				lastCommit?.ref,
-			);
+			)
 
 			if (lastCommit) {
 				updateData.lastCommit = {
 					connect: {
 						id: lastCommit.id,
 					},
-				};
+				}
 				if (lastCommit.coverageProcessStatus === "FINISHED") {
 					updateData.lastProcessedCommit = {
 						connect: {
 							id: lastCommit.id,
 						},
-					};
+					}
 				}
 			}
 		}
@@ -59,8 +59,8 @@ export default resolver.pipe(
 		const project = await db.project.update({
 			where: { id },
 			data: updateData,
-		});
+		})
 
-		return project;
+		return project
 	},
-);
+)

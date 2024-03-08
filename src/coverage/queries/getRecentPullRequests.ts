@@ -1,11 +1,11 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getRecentCommits(
 	args: { projectId?: number; branch?: string; limit?: number },
 	{ session }: Ctx,
 ) {
-	if (!args.projectId) return null;
+	if (!args.projectId) return null
 	return db.pullRequest.findMany({
 		where: {
 			projectId: args.projectId,
@@ -33,5 +33,5 @@ export default async function getRecentCommits(
 			},
 		},
 		take: args.limit ?? 10,
-	});
+	})
 }

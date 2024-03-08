@@ -1,7 +1,7 @@
-import { Schema } from "ajv";
-import Ajv from "ajv";
+import { Schema } from "ajv"
+import Ajv from "ajv"
 
-const ajv = new Ajv();
+const ajv = new Ajv()
 
 const schema: Schema = {
 	type: "object",
@@ -65,6 +65,6 @@ const schema: Schema = {
 	},
 	required: ["coverage", "hits"],
 	additionalProperties: false,
-};
+}
 
-export const hitsJsonSchema = ajv.compile(schema);
+export const hitsJsonSchema = ajv.compile(schema)

@@ -1,4 +1,4 @@
-import { Routes } from "@blitzjs/next";
+import { Routes } from "@blitzjs/next"
 import {
 	Box,
 	Button,
@@ -7,24 +7,24 @@ import {
 	Card,
 	Link as ChakraLink,
 	CardBody,
-} from "@chakra-ui/react";
-import Head from "next/head";
-import packageConfig from "package.json";
-import { ReactNode } from "react";
-import { dom } from "@fortawesome/fontawesome-svg-core";
-import { Link } from "src/library/components/Link";
-import { useSession } from "@blitzjs/auth";
-import { useMutation } from "@blitzjs/rpc";
-import logout from "src/auth/mutations/logout";
+} from "@chakra-ui/react"
+import Head from "next/head"
+import packageConfig from "package.json"
+import { ReactNode } from "react"
+import { dom } from "@fortawesome/fontawesome-svg-core"
+import { Link } from "src/library/components/Link"
+import { useSession } from "@blitzjs/auth"
+import { useMutation } from "@blitzjs/rpc"
+import logout from "src/auth/mutations/logout"
 
 type LayoutProps = {
-	title?: string;
-	children: ReactNode;
-};
+	title?: string
+	children: ReactNode
+}
 
 const Layout = ({ title, children }: LayoutProps) => {
-	const session = useSession();
-	const [logoutMutation] = useMutation(logout);
+	const session = useSession()
+	const [logoutMutation] = useMutation(logout)
 
 	return (
 		<>
@@ -68,7 +68,7 @@ const Layout = ({ title, children }: LayoutProps) => {
 				</Card>
 			</Container>
 		</>
-	);
-};
+	)
+}
 
-export default Layout;
+export default Layout

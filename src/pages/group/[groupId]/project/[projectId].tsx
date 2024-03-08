@@ -1,28 +1,28 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { invoke, useQuery } from "@blitzjs/rpc";
-import Link from "next/link";
-import getCommitFromRef from "src/coverage/queries/getCommitFromRef";
-import getRecentCommits from "src/coverage/queries/getRecentCommits";
-import getRecentPullRequests from "src/coverage/queries/getRecentPullRequests";
-import getTestByCommitName from "src/coverage/queries/getTestByCommitName";
-import { Actions } from "src/library/components/Actions";
-import { Breadcrumbs } from "src/library/components/Breadcrumbs";
-import { BuildStatus } from "src/library/components/BuildStatus";
-import { CommitInfo } from "src/library/components/CommitInfo";
-import { CoverageGraph } from "src/library/components/CoverageGraph";
-import { CoverageSummary } from "src/library/components/CoverageSummary";
-import { Heading } from "src/library/components/Heading";
-import { Lighthouse } from "src/library/components/Lighthouse";
-import { LighthouseGraph } from "src/library/components/LighthouseGraph";
-import { Minibar } from "src/library/components/Minbar";
-import { RecentCommitTable } from "src/library/components/RecentCommitTable";
-import { RecentPRTable } from "src/library/components/RecentPRTable";
-import { Subheading } from "src/library/components/Subheading";
-import { TestResults } from "src/library/components/TestResults";
-import { TestResultStatus } from "src/library/components/TestResultStatus";
-import TreeMap from "src/library/components/TreeMap";
-import Layout from "src/core/layouts/Layout";
-import getProject from "../../../../coverage/queries/getProject";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { invoke, useQuery } from "@blitzjs/rpc"
+import Link from "next/link"
+import getCommitFromRef from "src/coverage/queries/getCommitFromRef"
+import getRecentCommits from "src/coverage/queries/getRecentCommits"
+import getRecentPullRequests from "src/coverage/queries/getRecentPullRequests"
+import getTestByCommitName from "src/coverage/queries/getTestByCommitName"
+import { Actions } from "src/library/components/Actions"
+import { Breadcrumbs } from "src/library/components/Breadcrumbs"
+import { BuildStatus } from "src/library/components/BuildStatus"
+import { CommitInfo } from "src/library/components/CommitInfo"
+import { CoverageGraph } from "src/library/components/CoverageGraph"
+import { CoverageSummary } from "src/library/components/CoverageSummary"
+import { Heading } from "src/library/components/Heading"
+import { Lighthouse } from "src/library/components/Lighthouse"
+import { LighthouseGraph } from "src/library/components/LighthouseGraph"
+import { Minibar } from "src/library/components/Minbar"
+import { RecentCommitTable } from "src/library/components/RecentCommitTable"
+import { RecentPRTable } from "src/library/components/RecentPRTable"
+import { Subheading } from "src/library/components/Subheading"
+import { TestResults } from "src/library/components/TestResults"
+import { TestResultStatus } from "src/library/components/TestResultStatus"
+import TreeMap from "src/library/components/TreeMap"
+import Layout from "src/core/layouts/Layout"
+import getProject from "../../../../coverage/queries/getProject"
 import {
 	Alert,
 	AlertDescription,
@@ -36,32 +36,32 @@ import {
 	Tbody,
 	Th,
 	Thead,
-} from "@chakra-ui/react";
-import getLastBuildInfo from "../../../../coverage/queries/getLastBuildInfo";
+} from "@chakra-ui/react"
+import getLastBuildInfo from "../../../../coverage/queries/getLastBuildInfo"
 import {
 	FaCodePullRequest,
 	FaCodeBranch,
 	FaGears,
 	FaCodeCommit,
-} from "react-icons/fa6";
-import { Section } from "src/library/components/Section";
+} from "react-icons/fa6"
+import { Section } from "src/library/components/Section"
 
-const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
 const ProjectPage: BlitzPage = () => {
-	const projectId = useParam("projectId", "string");
-	const groupId = useParam("groupId", "string");
+	const projectId = useParam("projectId", "string")
+	const groupId = useParam("groupId", "string")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
+	const [project] = useQuery(getProject, { projectSlug: projectId })
 	const [recentCommits] = useQuery(getRecentCommits, {
 		projectId: project?.id || 0,
-	});
+	})
 	const [recentPullRequests] = useQuery(getRecentPullRequests, {
 		projectId: project?.id || 0,
-	});
+	})
 	const [buildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id || 0,
-	});
+	})
 
 	return groupId && projectId && project ? (
 		<>
@@ -139,7 +139,7 @@ const ProjectPage: BlitzPage = () => {
 								groupId,
 								projectId,
 								commitRef: ref,
-							}).href;
+							}).href
 						}}
 					/>
 				</>
@@ -158,7 +158,7 @@ const ProjectPage: BlitzPage = () => {
 						groupId,
 						projectId,
 						commitRef: ref,
-					}).href;
+					}).href
 				}}
 			/>
 			<Section
@@ -202,10 +202,10 @@ const ProjectPage: BlitzPage = () => {
 				commits={recentCommits}
 			/>
 		</>
-	) : null;
-};
+	) : null
+}
 
-ProjectPage.suppressFirstRenderFlicker = true;
-ProjectPage.getLayout = (page) => <Layout title="Project">{page}</Layout>;
+ProjectPage.suppressFirstRenderFlicker = true
+ProjectPage.getLayout = (page) => <Layout title="Project">{page}</Layout>
 
-export default ProjectPage;
+export default ProjectPage

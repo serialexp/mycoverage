@@ -1,11 +1,11 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
-import Link from "next/link";
-import getBranches from "src/branches/queries/getBranches";
-import getProject from "src/coverage/queries/getProject";
-import { Actions } from "src/library/components/Actions";
-import { Heading } from "src/library/components/Heading";
-import Layout from "src/core/layouts/Layout";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
+import Link from "next/link"
+import getBranches from "src/branches/queries/getBranches"
+import getProject from "src/coverage/queries/getProject"
+import { Actions } from "src/library/components/Actions"
+import { Heading } from "src/library/components/Heading"
+import Layout from "src/core/layouts/Layout"
 import {
 	Button,
 	Table,
@@ -14,13 +14,13 @@ import {
 	Link as ChakraLink,
 	Th,
 	Thead,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react"
 
 const ProjectBranchesPage: BlitzPage = () => {
-	const projectId = useParam("projectId", "string");
-	const groupId = useParam("groupId", "string");
+	const projectId = useParam("projectId", "string")
+	const groupId = useParam("groupId", "string")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
+	const [project] = useQuery(getProject, { projectSlug: projectId })
 	const [branchData] = useQuery(getBranches, {
 		where: {
 			projectId: project?.id,
@@ -28,7 +28,7 @@ const ProjectBranchesPage: BlitzPage = () => {
 		orderBy: {
 			createdDate: "desc",
 		},
-	});
+	})
 
 	return groupId && projectId && project ? (
 		<>
@@ -68,12 +68,12 @@ const ProjectBranchesPage: BlitzPage = () => {
 				))}
 			</Table>
 		</>
-	) : null;
-};
+	) : null
+}
 
-ProjectBranchesPage.suppressFirstRenderFlicker = true;
+ProjectBranchesPage.suppressFirstRenderFlicker = true
 ProjectBranchesPage.getLayout = (page) => (
 	<Layout title="Branches">{page}</Layout>
-);
+)
 
-export default ProjectBranchesPage;
+export default ProjectBranchesPage

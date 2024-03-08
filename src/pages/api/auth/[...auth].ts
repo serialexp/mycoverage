@@ -1,10 +1,9 @@
-import { passportAuth } from "@blitzjs/auth";
-import { GithubProfile } from "next-auth/providers/github";
-import { Strategy as GithubStrategy } from "passport-github2";
-import { VerifyCallback } from "passport-oauth2";
-import { api } from "src/blitz-server";
-import db from "db";
-import { loadUserPermissions } from "src/library/loadUserPermissions";
+import { passportAuth } from "@blitzjs/auth"
+import { Strategy as GithubStrategy } from "passport-github2"
+import { VerifyCallback } from "passport-oauth2"
+import { api } from "src/blitz-server"
+import db from "db"
+import { loadUserPermissions } from "src/library/loadUserPermissions"
 
 const strategy = new GithubStrategy(
 	{
@@ -12,22 +11,30 @@ const strategy = new GithubStrategy(
 		clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
 		callbackURL: `${process.env.BASE}/api/auth/github/callback`,
 	},
-	async function (
+	async (
 		accessToken: string,
 		refreshToken: string,
-		profile: GithubProfile,
+		profile: {
+			email: string
+			displayName: string
+			username: string
+			_json: {
+				id: number
+				avatar_url: string
+			}
+		},
 		done: VerifyCallback,
-	) {
+	) => {
 		try {
 			console.log(
 				JSON.stringify({
 					message: "github profile",
 					profile,
 				}),
-			);
-			let email = profile.email;
+			)
+			let email = profile.email
 			if (!email) {
-				email = `${profile.username}@mycoverage.local`;
+				email = `${profile.username}@mycoverage.local`
 			}
 
 			const user = await db.user.upsert({
@@ -43,11 +50,11 @@ const strategy = new GithubStrategy(
 					name: profile.username,
 					email,
 				},
-			});
+			})
 
 			loadUserPermissions(user.id, accessToken).then(() => {
-				console.log(`Loaded permissions for user ${user.id}`);
-			});
+				console.log(`Loaded permissions for user ${user.id}`)
+			})
 
 			return done(null, {
 				publicData: {
@@ -61,12 +68,12 @@ const strategy = new GithubStrategy(
 					accessToken,
 					refreshToken,
 				},
-			});
+			})
 		} catch (error) {
-			done(error as Error);
+			done(error as Error)
 		}
 	},
-);
+)
 
 export default api(
 	passportAuth({
@@ -78,4 +85,4 @@ export default api(
 			},
 		],
 	}),
-);
+)

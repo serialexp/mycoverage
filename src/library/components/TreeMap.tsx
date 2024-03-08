@@ -1,4 +1,4 @@
-import { useQuery } from "@blitzjs/rpc";
+import { useQuery } from "@blitzjs/rpc"
 import {
 	Box,
 	Breadcrumb,
@@ -6,31 +6,30 @@ import {
 	BreadcrumbLink,
 	Button,
 	Flex,
-} from "@chakra-ui/react";
-import getTree from "src/coverage/queries/getTree";
-import NodeComponent from "src/library/components/NodeComponent";
-import { useRef, useState, Suspense } from "react";
-import { ResponsiveTreeMapHtml } from "@nivo/treemap";
+} from "@chakra-ui/react"
+import getTree from "src/coverage/queries/getTree"
+import NodeComponent from "src/library/components/NodeComponent"
+import { useRef, useState, Suspense } from "react"
+import { ResponsiveTreeMapHtml } from "@nivo/treemap"
 
 export interface TreeMapInputData {
-	title: string;
-	size?: number;
-	color?: string;
-	coverage?: number;
-	fullPath?: string;
-	children?: Array<TreeMapInputData>;
+	title: string
+	size?: number
+	color?: string
+	coverage?: number
+	fullPath?: string
+	children?: Array<TreeMapInputData>
 }
 
 function getChildSize(data?: TreeMapInputData) {
 	if (data?.children) {
-		let total = 0;
+		let total = 0
 		data.children.forEach((child) => {
-			total += getChildSize(child);
-		});
-		return total;
-	} else {
-		return data?.size || 0;
+			total += getChildSize(child)
+		})
+		return total
 	}
+	return data?.size || 0
 }
 
 function mapData(
@@ -44,31 +43,30 @@ function mapData(
 			children: data?.children?.map((item) =>
 				mapData(item, maxDepth, currentDepth + 1),
 			),
-		};
-	} else {
-		return {
-			...data,
-			size: getChildSize(data),
-			children: undefined,
-		};
+		}
+	}
+	return {
+		...data,
+		size: getChildSize(data),
+		children: undefined,
 	}
 }
 
 const TreeMap = (props: { commitId: number; processing: boolean }) => {
-	const [data] = useQuery(getTree, { commitId: props.commitId });
-	const [path, setPath] = useState<string[]>([]);
+	const [data] = useQuery(getTree, { commitId: props.commitId })
+	const [path, setPath] = useState<string[]>([])
 
-	let mappedData = data;
+	let mappedData = data
 	if (path.length > 0) {
 		path.forEach((pathSegment) => {
 			mappedData = mappedData?.children?.find(
 				(child) => child.title === pathSegment,
-			);
-		});
+			)
+		})
 	} else {
-		mappedData = mappedData;
+		mappedData = mappedData
 	}
-	mappedData = mapData(mappedData, 2);
+	mappedData = mapData(mappedData, 2)
 
 	return props.processing ? (
 		<Flex m={4}>Not visible until processing for commit finishes</Flex>
@@ -80,7 +78,7 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 						<BreadcrumbLink
 							color={"secondary.500"}
 							onClick={() => {
-								setPath([]);
+								setPath([])
 							}}
 						>
 							[base]
@@ -96,13 +94,13 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 								<BreadcrumbLink
 									color={"secondary.500"}
 									onClick={() => {
-										setPath(path.slice(0, index + 1));
+										setPath(path.slice(0, index + 1))
 									}}
 								>
 									{pathItem}
 								</BreadcrumbLink>
 							</BreadcrumbItem>
-						);
+						)
 					})}
 				</Breadcrumb>
 			) : null}
@@ -125,7 +123,7 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 									<div>{node.data.title}</div>
 								) : null}
 							</>
-						);
+						)
 					}}
 					onClick={(node) => {
 						setPath([
@@ -133,7 +131,7 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 							...(path.length === 0
 								? node.pathComponents.slice(1)
 								: node.pathComponents),
-						]);
+						])
 					}}
 					leavesOnly={false}
 					nodeOpacity={1}
@@ -146,14 +144,14 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 									? `: ${Math.round(node?.data.coverage * 100) / 100}%`
 									: ""}
 							</strong>
-						);
+						)
 					}}
 					colors={(node) => {
-						return node.data.color || "";
+						return node.data.color || ""
 					}}
 				/>
 			</Box>
 		</Suspense>
-	);
-};
-export default TreeMap;
+	)
+}
+export default TreeMap

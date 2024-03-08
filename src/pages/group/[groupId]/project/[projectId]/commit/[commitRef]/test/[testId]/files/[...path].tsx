@@ -1,29 +1,29 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
-import Layout from "src/core/layouts/Layout";
-import getPackageCoverageForTest from "src/coverage/queries/getPackageCoverageForTest";
-import getTest from "src/coverage/queries/getTest";
-import { DirectoryDisplay } from "src/library/components/DirectoryDisplay";
-import { FileDisplay } from "src/library/components/FileDisplay";
-import { Heading } from "src/library/components/Heading";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
+import Layout from "src/core/layouts/Layout"
+import getPackageCoverageForTest from "src/coverage/queries/getPackageCoverageForTest"
+import getTest from "src/coverage/queries/getTest"
+import { DirectoryDisplay } from "src/library/components/DirectoryDisplay"
+import { FileDisplay } from "src/library/components/FileDisplay"
+import { Heading } from "src/library/components/Heading"
 
 const TestFilesPage: BlitzPage = () => {
-	const groupId = useParam("groupId", "string");
-	const projectId = useParam("projectId", "string");
-	const commitRef = useParam("commitRef", "string");
-	const testId = useParam("testId", "number");
-	const path = useParam("path", "array");
+	const groupId = useParam("groupId", "string")
+	const projectId = useParam("projectId", "string")
+	const commitRef = useParam("commitRef", "string")
+	const testId = useParam("testId", "number")
+	const path = useParam("path", "array")
 
-	const [test] = useQuery(getTest, { testId: testId || 0 });
+	const [test] = useQuery(getTest, { testId: testId || 0 })
 
 	const [pack] = useQuery(getPackageCoverageForTest, {
 		testId: testId,
 		path: path?.join("."),
-	});
+	})
 	const [packForFile] = useQuery(getPackageCoverageForTest, {
 		testId: testId,
 		path: path?.slice(0, path.length - 1).join("."),
-	});
+	})
 
 	return groupId && projectId && commitRef && testId ? (
 		<>
@@ -40,7 +40,7 @@ const TestFilesPage: BlitzPage = () => {
 							commitRef: commitRef,
 							testId,
 							path,
-						});
+						})
 					}}
 					backRoute={() => {
 						return Routes.TestPage({
@@ -48,7 +48,7 @@ const TestFilesPage: BlitzPage = () => {
 							projectId,
 							commitRef: commitRef,
 							testId,
-						});
+						})
 					}}
 				/>
 			) : (
@@ -61,16 +61,16 @@ const TestFilesPage: BlitzPage = () => {
 							commitRef: commitRef,
 							testId,
 							path,
-						});
+						})
 					}}
 					commitRef={test?.commit.ref}
 				/>
 			)}
 		</>
-	) : null;
-};
+	) : null
+}
 
-TestFilesPage.suppressFirstRenderFlicker = true;
-TestFilesPage.getLayout = (page) => <Layout title={"Browsing"}>{page}</Layout>;
+TestFilesPage.suppressFirstRenderFlicker = true
+TestFilesPage.getLayout = (page) => <Layout title={"Browsing"}>{page}</Layout>
 
-export default TestFilesPage;
+export default TestFilesPage

@@ -1,11 +1,11 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getFile(
 	args: { packageCoverageId?: string; fileName?: string },
 	{ session }: Ctx,
 ) {
-	if (!args.packageCoverageId || !args.fileName) return null;
+	if (!args.packageCoverageId || !args.fileName) return null
 	const res = await db.fileCoverage.findFirstOrThrow({
 		where: {
 			packageCoverageId: Buffer.from(args.packageCoverageId, "base64"),
@@ -20,10 +20,15 @@ export default async function getFile(
 				},
 			},
 		},
-	});
+	})
 
-	return {
+	const data = {
 		...res,
+		CodeIssueOnFileCoverage: res.CodeIssueOnFileCoverage.map((c) => ({
+			...c,
+			fileCoverageId: c.fileCoverageId.toString("base64"),
+		})),
 		id: res.id.toString("base64"),
-	};
+	}
+	return data
 }

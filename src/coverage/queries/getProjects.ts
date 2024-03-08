@@ -1,7 +1,7 @@
-import { resolver } from "@blitzjs/rpc";
-import { Ctx, paginate } from "blitz";
-import db, { Prisma } from "db";
-import { z } from "zod";
+import { resolver } from "@blitzjs/rpc"
+import { Ctx, paginate } from "blitz"
+import db, { Prisma } from "db"
+import { z } from "zod"
 
 export default resolver.pipe(
 	resolver.authorize(),
@@ -14,16 +14,16 @@ export default resolver.pipe(
 		}),
 	),
 	async function getProjects(args, { session }: Ctx) {
-		const userId = session.userId;
-		if (!userId) throw new Error("User not logged in");
+		const userId = session.userId
+		if (!userId) throw new Error("User not logged in")
 
 		const searchCondition: Prisma.ProjectWhereInput = {
 			group: { slug: { equals: args.groupId } },
 			usersWithAccess: { some: { id: userId } },
-		};
+		}
 
 		if (args.name) {
-			searchCondition.name = { contains: args.name };
+			searchCondition.name = { contains: args.name }
 		}
 
 		const {
@@ -48,13 +48,13 @@ export default resolver.pipe(
 						},
 					},
 				}),
-		});
+		})
 
 		return {
 			projects,
 			nextPage,
 			hasMore,
 			count,
-		};
+		}
 	},
-);
+)

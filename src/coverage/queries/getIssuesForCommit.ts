@@ -1,17 +1,17 @@
-import { Ctx, paginate } from "blitz";
-import db from "db";
+import { Ctx, paginate } from "blitz"
+import db from "db"
 
 export default async function getIssuesForCommit(
 	args: {
-		commitId?: number;
-		path?: string;
-		severity?: string;
-		skip: number;
-		take: number;
+		commitId?: number
+		path?: string
+		severity?: string
+		skip: number
+		take: number
 	},
 	{ session }: Ctx,
 ) {
-	const { skip, take } = args;
+	const { skip, take } = args
 
 	const whereParams = {
 		commitId: args.commitId,
@@ -19,13 +19,13 @@ export default async function getIssuesForCommit(
 			file: args.path ? { startsWith: args.path } : undefined,
 			severity: args.severity,
 		},
-	};
+	}
 
 	const orderBy = {
 		codeIssue: {
 			severity: 1,
 		},
-	};
+	}
 
 	const { items, hasMore, nextPage, count } = await paginate({
 		skip,
@@ -42,12 +42,12 @@ export default async function getIssuesForCommit(
 				},
 				where: whereParams,
 			}),
-	});
+	})
 
 	return {
 		items,
 		hasMore,
 		nextPage,
 		count,
-	};
+	}
 }

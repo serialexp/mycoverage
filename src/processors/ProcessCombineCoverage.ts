@@ -1,26 +1,26 @@
-import { PrismaClient } from "@prisma/client";
-import { log } from "src/library/log";
-import { addEventListeners } from "src/processors/addEventListeners";
-import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances";
-import { processCommit } from "src/processors/ProcessCombineCoverage/processCommit";
-import { processTestInstance } from "src/processors/ProcessCombineCoverage/processTestInstance";
+import { PrismaClient } from "@prisma/client"
+import { log } from "src/library/log"
+import { addEventListeners } from "src/processors/addEventListeners"
+import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances"
+import { processCommit } from "src/processors/ProcessCombineCoverage/processCommit"
+import { processTestInstance } from "src/processors/ProcessCombineCoverage/processTestInstance"
 import {
 	combineCoverageJob,
 	combineCoverageQueue,
-} from "src/queues/CombineCoverage";
-import { queueConfig } from "src/queues/config";
-import { Worker } from "bullmq";
-import db, { Commit, Test, TestInstance } from "db";
+} from "src/queues/CombineCoverage"
+import { queueConfig } from "src/queues/config"
+import { Worker } from "bullmq"
+import db, { Commit, Test, TestInstance } from "db"
 
 export interface ProcessCombineCoveragePayload {
-	commit: Commit;
-	testInstance?: TestInstance;
-	namespaceSlug: string;
-	repositorySlug: string;
-	delay: number;
+	commit: Commit
+	testInstance?: TestInstance
+	namespaceSlug: string
+	repositorySlug: string
+	delay: number
 	options?: {
-		full?: boolean;
-	};
+		full?: boolean
+	}
 }
 
 export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
@@ -28,11 +28,11 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 	async (job) => {
 		// if we don't finish in 5 minutes, we'll kill the process
 		const timeout = setTimeout(async () => {
-			log("worker timed out, killing this process");
-			process.exit(1);
-		}, 300 * 1000);
+			log("worker timed out, killing this process")
+			process.exit(1)
+		}, 300 * 1000)
 
-		const startTime = new Date();
+		const startTime = new Date()
 		const {
 			commit,
 			testInstance,
@@ -40,14 +40,14 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 			repositorySlug,
 			delay,
 			options,
-		} = job.data;
+		} = job.data
 
-		log("Executing combine coverage job");
-		const mydb: PrismaClient = db;
+		log("Executing combine coverage job")
+		const mydb: PrismaClient = db
 
 		// do not run two jobs for the same commit at a time, since the job will be removing coverage data
-		const activeJobs = await combineCoverageQueue.getActive();
-		const nonNullJobs = activeJobs.filter((j) => j);
+		const activeJobs = await combineCoverageQueue.getActive()
+		const nonNullJobs = activeJobs.filter((j) => j)
 		log("current combine coverage jobs", {
 			id: job.id,
 			ref: commit.ref,
@@ -55,7 +55,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 				id: j.id,
 				ref: j.data.commit.ref,
 			})),
-		});
+		})
 		if (
 			nonNullJobs.find(
 				(j) => j.data.commit.ref === commit.ref && j.id !== job.id,
@@ -64,21 +64,21 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 			// delay by 10s
 			log(
 				`Delaying combine coverage job for commit "${commit.ref}" because it is already running`,
-			);
+			)
 			try {
 				// stick in a new job since we cannot delay the existing one, wait only 5 seconds so we quickly retry at the end of the line
 				combineCoverageJob({
 					...job.data,
 					delay: 5000,
 				}).catch((error) => {
-					log("error re-adding processCoverage job", error);
-				});
-				log("Delayed successfully");
+					log("error re-adding processCoverage job", error)
+				})
+				log("Delayed successfully")
 			} catch (error) {
-				log("Error moving combine coverage job to delayed: ", error);
+				log("Error moving combine coverage job to delayed: ", error)
 			}
-			clearTimeout(timeout);
-			return true;
+			clearTimeout(timeout)
+			return true
 		}
 
 		try {
@@ -89,22 +89,22 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 				data: {
 					coverageProcessStatus: "PROCESSING",
 				},
-			});
+			})
 
 			if (testInstance) {
-				await processTestInstance(testInstance);
+				await processTestInstance(testInstance)
 			} else if (options?.full) {
-				await processAllTestInstances(commit);
+				await processAllTestInstances(commit)
 			}
 
-			await job.updateProgress(60);
+			await job.updateProgress(60)
 
 			await processCommit({
 				commit,
 				namespaceSlug,
 				repositorySlug,
 				full: options?.full,
-			});
+			})
 
 			await mydb.jobLog.create({
 				data: {
@@ -117,12 +117,12 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 					}`,
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
+			})
 
-			clearTimeout(timeout);
-			return true;
+			clearTimeout(timeout)
+			return true
 		} catch (error) {
-			log("Failure processing test instance", error);
+			log("Failure processing test instance", error)
 			if (error instanceof Error) {
 				await db.jobLog.create({
 					data: {
@@ -135,10 +135,10 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 						}, error ${error.message}`,
 						timeTaken: new Date().getTime() - startTime.getTime(),
 					},
-				});
+				})
 			}
-			clearTimeout(timeout);
-			return false;
+			clearTimeout(timeout)
+			return false
 		}
 	},
 	{
@@ -148,6 +148,6 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
 		autorun: false,
 		stalledInterval: 300 * 1000,
 	},
-);
+)
 
-addEventListeners(combineCoverageWorker);
+addEventListeners(combineCoverageWorker)

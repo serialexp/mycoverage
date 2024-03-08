@@ -1,4 +1,4 @@
-import { useQuery } from "@blitzjs/rpc";
+import { useQuery } from "@blitzjs/rpc"
 import {
 	CircularProgress,
 	CircularProgressLabel,
@@ -9,10 +9,10 @@ import {
 	Thead,
 	Tr,
 	Box,
-} from "@chakra-ui/react";
-import { Lighthouse as DBLighthouse } from "db";
-import getLighthouse from "src/coverage/queries/getLighthouse";
-import { Subheading } from "src/library/components/Subheading";
+} from "@chakra-ui/react"
+import { Lighthouse as DBLighthouse } from "db"
+import getLighthouse from "src/coverage/queries/getLighthouse"
+import { Subheading } from "src/library/components/Subheading"
 
 const ProgressCircle = (props: { value: number | null }) => {
 	return (
@@ -22,18 +22,18 @@ const ProgressCircle = (props: { value: number | null }) => {
 				!props.value
 					? "gray.500"
 					: props.value > 0.89
-					? "green.500"
-					: props.value > 0.5
-					? "yellow.500"
-					: "red.500"
+					  ? "green.500"
+					  : props.value > 0.5
+						  ? "yellow.500"
+						  : "red.500"
 			}
 		>
 			<CircularProgressLabel>
 				{Math.round((props.value ?? 0) * 100)}%
 			</CircularProgressLabel>
 		</CircularProgress>
-	);
-};
+	)
+}
 
 const Results = (props: { results: DBLighthouse }) => {
 	return (
@@ -55,17 +55,17 @@ const Results = (props: { results: DBLighthouse }) => {
 				<ProgressCircle value={props.results.pwa} />
 			</Td>
 		</Tr>
-	);
-};
+	)
+}
 
 export const Lighthouse = (props: {
-	commitId?: number;
-	projectId?: number;
+	commitId?: number
+	projectId?: number
 }) => {
 	const [lighthouse] = useQuery(getLighthouse, {
 		projectId: props.projectId,
 		commitId: props.commitId,
-	});
+	})
 
 	if (!props.commitId || !lighthouse || lighthouse.length === 0)
 		return (
@@ -73,11 +73,11 @@ export const Lighthouse = (props: {
 				<Subheading>Lighthouse</Subheading>
 				<Box p={2}>No lighthouse information for commit.</Box>
 			</>
-		);
+		)
 
-	const results: Partial<Record<"MOBILE" | "DESKTOP", DBLighthouse>> = {};
+	const results: Partial<Record<"MOBILE" | "DESKTOP", DBLighthouse>> = {}
 	for (const item of lighthouse) {
-		results[item.kind] = item;
+		results[item.kind] = item
 	}
 
 	return (
@@ -110,5 +110,5 @@ export const Lighthouse = (props: {
 				</Tbody>
 			</Table>
 		</>
-	);
-};
+	)
+}

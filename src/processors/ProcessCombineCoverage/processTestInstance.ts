@@ -1,13 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-import { InternalCoverage } from "src/library/InternalCoverage";
-import { coveredPercentage } from "src/library/coveredPercentage";
-import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3";
-import { insertCoverageData } from "src/library/insertCoverageData";
-import { log } from "src/library/log";
-import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage";
-import { Test, TestInstance } from "db";
-import { Job } from "bullmq";
-import db from "db";
+import { PrismaClient } from "@prisma/client"
+import { InternalCoverage } from "src/library/InternalCoverage"
+import { coveredPercentage } from "src/library/coveredPercentage"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
+import { insertCoverageData } from "src/library/insertCoverageData"
+import { log } from "src/library/log"
+import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
+import { Test, TestInstance } from "db"
+import { Job } from "bullmq"
+import db from "db"
 
 export const processTestInstance = async (testInstance: TestInstance) => {
 	await db.testInstance.update({
@@ -17,10 +17,10 @@ export const processTestInstance = async (testInstance: TestInstance) => {
 		data: {
 			coverageProcessStatus: "PROCESSING",
 		},
-	});
+	})
 
-	log("common: Retrieving file coverage for test from database");
-	const mydb: PrismaClient = db;
+	log("common: Retrieving file coverage for test from database")
+	const mydb: PrismaClient = db
 
 	const test = await mydb.test.findFirst({
 		where: {
@@ -42,10 +42,10 @@ export const processTestInstance = async (testInstance: TestInstance) => {
 				},
 			},
 		},
-	});
+	})
 
 	if (!test)
-		throw new Error("Cannot combine coverage for testInstance without a test");
+		throw new Error("Cannot combine coverage for testInstance without a test")
 
 	// const settingValue = await getSetting("max-combine-coverage-size")
 	// const sizeInMegabytes = parseInt(settingValue || "100")
@@ -65,57 +65,57 @@ export const processTestInstance = async (testInstance: TestInstance) => {
 	if (!testInstance.coverageFileKey)
 		throw new Error(
 			"Cannot combine coverage for a testInstance without a coverageFileKey",
-		);
+		)
 
 	const { coverageFile: testInstanceCoverageFile } =
 		await createInternalCoverageFromS3(testInstance.coverageFileKey, {
 			repositoryRoot: testInstance.repositoryRoot ?? undefined,
 			workingDirectory: testInstance.workingDirectory ?? undefined,
-		});
+		})
 
-	log("test: Merging coverage information for for instance into test");
+	log("test: Merging coverage information for for instance into test")
 
-	const start = new Date();
+	const start = new Date()
 
-	const testCoverage = new InternalCoverage();
-	let packages = 0;
-	let files = 0;
+	const testCoverage = new InternalCoverage()
+	let packages = 0
+	let files = 0
 	// fill new testCoverage object with values in test
 	test.PackageCoverage.forEach((pkg) => {
-		packages++;
+		packages++
 		pkg.FileCoverage?.forEach((file) => {
-			files++;
-			testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData);
-		});
-	});
+			files++
+			testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
+		})
+	})
 	// add new testCoverage object values from this testinstance, this is icky if we accidentally
 	// process twice, but much faster when there are many testinstances
-	testCoverage.merge(testInstanceCoverageFile);
+	testCoverage.merge(testInstanceCoverageFile)
 
 	log(
 		`test: Merged ${packages} packages and ${files} files for instance index ${testInstance.index} id ${testInstance.id}`,
-	);
+	)
 
-	testCoverage.updateMetrics();
+	testCoverage.updateMetrics()
 
 	log(
 		`test: Combined coverage results for files in ${
 			new Date().getTime() - start.getTime()
 		}ms`,
-	);
+	)
 
 	log(
 		`test: Test instance combination with previous test instances result: ${testCoverage.data.metrics?.coveredelements}/${testCoverage.data.metrics?.elements}`,
-	);
+	)
 
-	log(`test: Deleting existing results for test ${test.testName}`);
+	log(`test: Deleting existing results for test ${test.testName}`)
 	await mydb.packageCoverage.deleteMany({
 		where: {
 			testId: test.id,
 		},
-	});
+	})
 
-	log(`test: Updating coverage summary data for test ${test.testName}`);
+	log(`test: Updating coverage summary data for test ${test.testName}`)
 	await mydb.test.update({
 		where: {
 			id: test.id,
@@ -132,15 +132,13 @@ export const processTestInstance = async (testInstance: TestInstance) => {
 			coveredElements: testCoverage.data.metrics?.coveredelements ?? 0,
 			coveredPercentage: coveredPercentage(testCoverage.data.metrics),
 		},
-	});
+	})
 
-	log(
-		`test: Inserting new package and file coverage for test ${test.testName}`,
-	);
+	log(`test: Inserting new package and file coverage for test ${test.testName}`)
 
 	await insertCoverageData(testCoverage, {
 		testId: test.id,
-	});
+	})
 
 	await db.testInstance.update({
 		where: {
@@ -149,5 +147,5 @@ export const processTestInstance = async (testInstance: TestInstance) => {
 		data: {
 			coverageProcessStatus: "FINISHED",
 		},
-	});
-};
+	})
+}

@@ -191,6 +191,14 @@ model TestInstance {
   @@index([testId])
 }
 
+enum ChangeRate {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
 model PackageCoverage {
   id                  Bytes          @id @db.Binary(16)
   name                String
@@ -211,6 +219,7 @@ model PackageCoverage {
   hits                Int            @default(0)
   codeIssues          Int            @default(0)
   changeRatio         Float          @default(0)
+  changeRate          ChangeRate     @default(MEDIUM)
   changes             Int            @default(0)
   commit              Commit?        @relation(fields: [commitId], references: [id])
   test                Test?          @relation(fields: [testId], references: [id], onDelete: Cascade)
@@ -238,6 +247,7 @@ model FileCoverage {
   hits                    Int                       @default(0)
   codeIssues              Int                       @default(0)
   changeRatio             Float                     @default(0)
+  changeRate              ChangeRate                @default(MEDIUM)
   changes                 Int                       @default(0)
   coverageData            Bytes
   packageCoverage         PackageCoverage?          @relation(fields: [packageCoverageId], references: [id], onDelete: Cascade)

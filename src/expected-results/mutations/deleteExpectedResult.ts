@@ -1,10 +1,10 @@
-import { resolver } from "@blitzjs/rpc";
-import db from "db";
-import { z } from "zod";
+import { resolver } from "@blitzjs/rpc"
+import db from "db"
+import { z } from "zod"
 
 const DeleteExpectedResult = z.object({
 	id: z.number(),
-});
+})
 
 export default resolver.pipe(
 	resolver.zod(DeleteExpectedResult),
@@ -12,8 +12,8 @@ export default resolver.pipe(
 		// TODO: in multi-tenant app, you must add validation to ensure correct tenant
 		const expectedResult = await db.expectedResult.deleteMany({
 			where: { id },
-		});
+		})
 
-		return expectedResult;
+		return expectedResult
 	},
-);
+)

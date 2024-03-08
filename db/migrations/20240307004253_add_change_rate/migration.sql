@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `PackageCoverage` ADD COLUMN `changeRate` ENUM('VERY_LOW', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH') NOT NULL DEFAULT 'MEDIUM';

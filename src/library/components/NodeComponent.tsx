@@ -1,6 +1,6 @@
-import { memo } from "react";
-import { animated } from "@react-spring/web";
-import { useTheme } from "@nivo/core";
+import { memo } from "react"
+import { animated } from "@react-spring/web"
+import { useTheme } from "@nivo/core"
 
 const TreeMapHtmlNode = ({
 	node,
@@ -9,15 +9,38 @@ const TreeMapHtmlNode = ({
 	enableLabel,
 	enableParentLabel,
 	labelSkipSize,
-}: any) => {
-	const theme = useTheme();
+}: {
+	node: {
+		width: number
+		height: number
+		isLeaf: boolean
+		isParent: boolean
+		path: string
+		borderColor: string
+		opacity: number
+		labelTextColor: string
+		parentLabelTextColor: string
+		label: string
+		parentLabel: string
+		onMouseEnter: () => void
+		onMouseMove: () => void
+		onMouseLeave: () => void
+		onClick: () => void
+	}
+	animatedProps: Record<string, string>
+	borderWidth: number
+	enableLabel: boolean
+	enableParentLabel: boolean
+	labelSkipSize: number
+}) => {
+	const theme = useTheme()
 
 	const showLabel =
 		enableLabel &&
 		node.isLeaf &&
-		(labelSkipSize === 0 || Math.min(node.width, node.height) > labelSkipSize);
+		(labelSkipSize === 0 || Math.min(node.width, node.height) > labelSkipSize)
 
-	const showParentLabel = enableParentLabel && node.isParent;
+	const showParentLabel = enableParentLabel && node.isParent
 	return node.height > 0 && node.width > 0 ? (
 		<animated.div
 			id={node.path.replace(/[^\w]/gi, "-")}
@@ -101,7 +124,7 @@ const TreeMapHtmlNode = ({
 				)}
 			</>
 		</animated.div>
-	) : null;
-};
+	) : null
+}
 
-export default memo(TreeMapHtmlNode);
+export default memo(TreeMapHtmlNode)

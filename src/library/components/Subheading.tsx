@@ -1,5 +1,5 @@
-import { Heading as ChakraHeading, HeadingProps } from "@chakra-ui/react";
-import { PropsWithChildren } from "react";
+import { Heading as ChakraHeading, HeadingProps } from "@chakra-ui/react"
+import { PropsWithChildren } from "react"
 
 export const Subheading = (props: PropsWithChildren<HeadingProps>) => {
 	return (
@@ -14,5 +14,5 @@ export const Subheading = (props: PropsWithChildren<HeadingProps>) => {
 		>
 			{props.children}
 		</ChakraHeading>
-	);
-};
+	)
+}

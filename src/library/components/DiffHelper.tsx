@@ -1,14 +1,14 @@
-import { StatArrow, Stat } from "@chakra-ui/react";
-import { format } from "src/library/format";
+import { StatArrow, Stat } from "@chakra-ui/react"
+import { format } from "src/library/format"
 
 export const DiffHelper = (props: {
-	from?: number;
-	to?: number;
-	fromAbsolute?: number;
-	isPercentage?: boolean;
+	from?: number
+	to?: number
+	fromAbsolute?: number
+	isPercentage?: boolean
 }) => {
-	if (!props.from || !props.to) return null;
-	if (props.from === props.to) return <>No change</>;
+	if (!props.from || !props.to) return null
+	if (props.from === props.to) return <>No change</>
 	return (
 		<>
 			<Stat>
@@ -22,5 +22,5 @@ export const DiffHelper = (props: {
 				  }`
 				: ""}
 		</>
-	);
-};
+	)
+}

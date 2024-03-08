@@ -1,43 +1,43 @@
-import { Link as ChakraLink, Tbody, Thead } from "@chakra-ui/react";
-import { Table, Td, Th, Tr, Tag } from "@chakra-ui/react";
-import Link from "next/link";
-import { Fragment } from "react";
-import { Minibar } from "src/library/components/Minbar";
-import { DiffHelper } from "src/library/components/DiffHelper";
-import type { Commit, Test, ExpectedResult } from "db";
-import { CoverageProcessStatus } from "db/dbtypes";
-import { Routes } from "@blitzjs/next";
+import { Link as ChakraLink, Tbody, Thead } from "@chakra-ui/react"
+import { Table, Td, Th, Tr, Tag } from "@chakra-ui/react"
+import Link from "next/link"
+import { Fragment } from "react"
+import { Minibar } from "src/library/components/Minbar"
+import { DiffHelper } from "src/library/components/DiffHelper"
+import type { Commit, Test, ExpectedResult } from "db"
+import { CoverageProcessStatus } from "db/dbtypes"
+import { Routes } from "@blitzjs/next"
 
 export const TestResults = (props: {
-	groupId: string;
-	projectId: string;
+	groupId: string
+	projectId: string
 	commit:
 		| (Commit & {
 				Test: (Test & {
 					TestInstance: {
-						index: number;
-						coverageProcessStatus: CoverageProcessStatus;
-						createdDate: Date;
-						id: number;
-					}[];
-				})[];
+						index: number
+						coverageProcessStatus: CoverageProcessStatus
+						createdDate: Date
+						id: number
+					}[]
+				})[]
 		  })
 		| null
-		| undefined;
+		| undefined
 	baseCommit?:
 		| (Commit & {
 				Test: (Test & {
 					TestInstance: {
-						index: number;
-						coverageProcessStatus: CoverageProcessStatus;
-						createdDate: Date;
-						id: number;
-					}[];
-				})[];
+						index: number
+						coverageProcessStatus: CoverageProcessStatus
+						createdDate: Date
+						id: number
+					}[]
+				})[]
 		  })
 		| null
-		| undefined;
-	expectedResult?: ExpectedResult[];
+		| undefined
+	expectedResult?: ExpectedResult[]
 }) => {
 	return (
 		<Table>
@@ -58,7 +58,7 @@ export const TestResults = (props: {
 							props.commit?.Test.find(
 								(test) => test.testName === er.testName,
 							) === undefined
-						);
+						)
 					})
 					.map((er) => {
 						return (
@@ -87,24 +87,24 @@ export const TestResults = (props: {
 													>
 														{index}
 													</Tag>
-												);
+												)
 											})}
 									</Td>
 								</Tr>
 							</Fragment>
-						);
+						)
 					})}
 				{props.commit?.Test.map((test) => {
 					const baseTest = props.baseCommit?.Test.find(
 						(base) => base.testName === test.testName,
-					);
-					const uniqueInstances: Record<number, boolean> = {};
+					)
+					const uniqueInstances: Record<number, boolean> = {}
 					test.TestInstance.forEach((instance) => {
-						uniqueInstances[instance.index] = true;
-					});
+						uniqueInstances[instance.index] = true
+					})
 					const expectedInstances = props.expectedResult?.find(
 						(er) => er.testName === test.testName,
-					)?.count;
+					)?.count
 					return (
 						<Fragment key={test.id}>
 							<Tr _hover={{ bg: "primary.50" }}>
@@ -155,7 +155,7 @@ export const TestResults = (props: {
 										.map((index) => {
 											const instance = test.TestInstance.find(
 												(i) => i.index === index,
-											);
+											)
 											return (
 												<Tag
 													key={index}
@@ -194,11 +194,11 @@ export const TestResults = (props: {
 														<>{index}</>
 													)}
 												</Tag>
-											);
+											)
 										})}
 									{test.TestInstance.map((instance) => {
 										if (instance.index <= (expectedInstances || 1)) {
-											return;
+											return
 										}
 										return (
 											<Tag key={instance.id} ml={2}>
@@ -215,14 +215,14 @@ export const TestResults = (props: {
 													</ChakraLink>
 												</Link>
 											</Tag>
-										);
+										)
 									})}
 								</Td>
 							</Tr>
 						</Fragment>
-					);
+					)
 				})}
 			</Tbody>
 		</Table>
-	);
-};
+	)
+}

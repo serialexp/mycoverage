@@ -1,27 +1,27 @@
-import { BlitzPage } from "@blitzjs/next";
-import { useMutation, useQuery } from "@blitzjs/rpc";
-import { Heading } from "src/library/components/Heading";
-import { Subheading } from "src/library/components/Subheading";
-import updateSetting from "src/settings/mutations/updateSetting";
-import getSetting from "src/settings/queries/getSetting";
-import Layout from "src/core/layouts/Layout";
+import { BlitzPage } from "@blitzjs/next"
+import { useMutation, useQuery } from "@blitzjs/rpc"
+import { Heading } from "src/library/components/Heading"
+import { Subheading } from "src/library/components/Subheading"
+import updateSetting from "src/settings/mutations/updateSetting"
+import getSetting from "src/settings/queries/getSetting"
+import Layout from "src/core/layouts/Layout"
 import {
 	Box,
 	Input,
 	FormControl,
 	FormLabel,
 	FormHelperText,
-} from "@chakra-ui/react";
-import { useState } from "react";
+} from "@chakra-ui/react"
+import { useState } from "react"
 
 const SettingsPage: BlitzPage = () => {
-	const [baseUrlRow] = useQuery(getSetting, { name: "baseUrl" });
+	const [baseUrlRow] = useQuery(getSetting, { name: "baseUrl" })
 	const [maxCombineCoverage] = useQuery(getSetting, {
 		name: "max-combine-coverage-size",
-	});
-	const [updateSettingMutation] = useMutation(updateSetting);
-	const [baseUrl, setBaseUrl] = useState(baseUrlRow?.value);
-	const [maxSize, setMaxSize] = useState(maxCombineCoverage?.value || "100");
+	})
+	const [updateSettingMutation] = useMutation(updateSetting)
+	const [baseUrl, setBaseUrl] = useState(baseUrlRow?.value)
+	const [maxSize, setMaxSize] = useState(maxCombineCoverage?.value || "100")
 
 	return (
 		<>
@@ -34,15 +34,15 @@ const SettingsPage: BlitzPage = () => {
 						type="text"
 						value={baseUrl}
 						onChange={(e) => {
-							setBaseUrl(e.target.value);
+							setBaseUrl(e.target.value)
 						}}
 						onBlur={() => {
 							updateSettingMutation({
 								name: "baseUrl",
 								value: baseUrl || "",
 							}).catch((error) => {
-								console.error(error);
-							});
+								console.error(error)
+							})
 						}}
 					/>
 					<FormHelperText>
@@ -56,15 +56,15 @@ const SettingsPage: BlitzPage = () => {
 						type="text"
 						value={maxSize}
 						onChange={(e) => {
-							setMaxSize(e.target.value);
+							setMaxSize(e.target.value)
 						}}
 						onBlur={() => {
 							updateSettingMutation({
 								name: "max-combine-coverage-size",
 								value: maxSize || "100",
 							}).catch((error) => {
-								console.error(error);
-							});
+								console.error(error)
+							})
 						}}
 					/>
 					<FormHelperText>
@@ -76,12 +76,12 @@ const SettingsPage: BlitzPage = () => {
 				</FormControl>
 			</Box>
 		</>
-	);
-};
+	)
+}
 
-SettingsPage.suppressFirstRenderFlicker = true;
+SettingsPage.suppressFirstRenderFlicker = true
 SettingsPage.getLayout = (page) => (
 	<Layout title="System Settings">{page}</Layout>
-);
+)
 
-export default SettingsPage;
+export default SettingsPage

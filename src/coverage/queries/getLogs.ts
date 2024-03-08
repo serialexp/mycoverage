@@ -1,11 +1,11 @@
-import { Ctx } from "blitz";
-import db, { Prisma } from "db";
+import { Ctx } from "blitz"
+import db, { Prisma } from "db"
 
 export default async function getLogs(
 	args: { filter?: string; minDate: Date; maxDate: Date; commitRef?: string },
 	{ session }: Ctx,
 ) {
-	const conditions: Prisma.JobLogWhereInput = {};
+	const conditions: Prisma.JobLogWhereInput = {}
 
 	if (args.filter) {
 		conditions.OR = [
@@ -27,16 +27,16 @@ export default async function getLogs(
 					contains: args.filter,
 				},
 			},
-		];
+		]
 	}
 	if (args.minDate || args.maxDate) {
 		conditions.createdDate = {
 			gte: args.minDate ?? undefined,
 			lte: args.maxDate ?? undefined,
-		};
+		}
 	}
 	if (args.commitRef) {
-		conditions.commitRef = args.commitRef;
+		conditions.commitRef = args.commitRef
 	}
 
 	return db.jobLog.findMany({
@@ -45,5 +45,5 @@ export default async function getLogs(
 		},
 		where: conditions,
 		take: 100,
-	});
+	})
 }

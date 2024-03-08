@@ -1,11 +1,11 @@
-import { resolver } from "@blitzjs/rpc";
-import db from "db";
-import { z } from "zod";
+import { resolver } from "@blitzjs/rpc"
+import db from "db"
+import { z } from "zod"
 
 const UpdateExpectedResult = z.object({
 	id: z.number(),
 	testName: z.string(),
-});
+})
 
 export default resolver.pipe(
 	resolver.zod(UpdateExpectedResult),
@@ -14,8 +14,8 @@ export default resolver.pipe(
 		const expectedResult = await db.expectedResult.update({
 			where: { id },
 			data,
-		});
+		})
 
-		return expectedResult;
+		return expectedResult
 	},
-);
+)

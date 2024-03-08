@@ -1,23 +1,23 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
-import Link from "next/link";
-import getProject from "src/coverage/queries/getProject";
-import getRecentCommits from "src/coverage/queries/getRecentCommits";
-import { Actions } from "src/library/components/Actions";
-import { Heading } from "src/library/components/Heading";
-import { RecentCommitTable } from "src/library/components/RecentCommitTable";
-import Layout from "src/core/layouts/Layout";
-import { Button } from "@chakra-ui/react";
+import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
+import Link from "next/link"
+import getProject from "src/coverage/queries/getProject"
+import getRecentCommits from "src/coverage/queries/getRecentCommits"
+import { Actions } from "src/library/components/Actions"
+import { Heading } from "src/library/components/Heading"
+import { RecentCommitTable } from "src/library/components/RecentCommitTable"
+import Layout from "src/core/layouts/Layout"
+import { Button } from "@chakra-ui/react"
 
 const ProjectCommitsPage: BlitzPage = () => {
-	const projectId = useParam("projectId", "string");
-	const groupId = useParam("groupId", "string");
+	const projectId = useParam("projectId", "string")
+	const groupId = useParam("groupId", "string")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId });
+	const [project] = useQuery(getProject, { projectSlug: projectId })
 	const [recentCommits] = useQuery(getRecentCommits, {
 		projectId: project?.id || 0,
 		take: 100,
-	});
+	})
 
 	return groupId && projectId && project ? (
 		<>
@@ -38,12 +38,10 @@ const ProjectCommitsPage: BlitzPage = () => {
 				groupId={groupId}
 			/>
 		</>
-	) : null;
-};
+	) : null
+}
 
-ProjectCommitsPage.suppressFirstRenderFlicker = true;
-ProjectCommitsPage.getLayout = (page) => (
-	<Layout title="Commits">{page}</Layout>
-);
+ProjectCommitsPage.suppressFirstRenderFlicker = true
+ProjectCommitsPage.getLayout = (page) => <Layout title="Commits">{page}</Layout>
 
-export default ProjectCommitsPage;
+export default ProjectCommitsPage

@@ -1,23 +1,23 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { fixQuery } from "src/library/fixQuery";
-import { log } from "src/library/log";
-import { SonarIssue } from "src/library/types";
-import { sonarqubeJob } from "src/queues/SonarQubeQueue";
+import { NextApiRequest, NextApiResponse } from "next"
+import { fixQuery } from "src/library/fixQuery"
+import { log } from "src/library/log"
+import { SonarIssue } from "src/library/types"
+import { sonarqubeJob } from "src/queues/SonarQubeQueue"
 
-import db from "db";
+import db from "db"
 
 export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse,
 ) {
 	if (req.headers["content-type"] !== "application/json") {
-		return res.status(400).send("Content type must be application/json");
+		return res.status(400).send("Content type must be application/json")
 	}
 
-	const startTime = new Date();
+	const startTime = new Date()
 
-	const query = fixQuery(req.query);
-	const groupInteger = parseInt(query.groupId || "");
+	const query = fixQuery(req.query)
+	const groupInteger = parseInt(query.groupId || "")
 
 	try {
 		const group = await db.group.findFirst({
@@ -31,13 +31,13 @@ export default async function handler(
 					},
 				],
 			},
-		});
+		})
 
 		if (!group) {
-			throw new Error("Specified group does not exist");
+			throw new Error("Specified group does not exist")
 		}
 
-		const projectInteger = parseInt(query.projectId || "");
+		const projectInteger = parseInt(query.projectId || "")
 		const project = await db.project.findFirst({
 			where: {
 				OR: [
@@ -50,30 +50,30 @@ export default async function handler(
 					},
 				],
 			},
-		});
+		})
 
 		if (!project) {
-			throw new Error("Project does not exist");
+			throw new Error("Project does not exist")
 		}
 
 		if (!req.body) {
-			throw new Error("No lighthouse data posted");
+			throw new Error("No lighthouse data posted")
 		}
 
 		const commit = await db.commit.findFirst({
 			where: {
 				ref: query.ref,
 			},
-		});
+		})
 
 		if (!commit) {
-			throw new Error("Commit with this id does not exist");
+			throw new Error("Commit with this id does not exist")
 		}
 
 		const kind =
-			req.body.configSettings.formFactor === "mobile" ? "MOBILE" : "DESKTOP";
-		const url = req.body.requestedUrl;
-		const isPwa = req.body.audits["installable-manifest"].score > 0;
+			req.body.configSettings.formFactor === "mobile" ? "MOBILE" : "DESKTOP"
+		const url = req.body.requestedUrl
+		const isPwa = req.body.audits["installable-manifest"].score > 0
 
 		await db.lighthouse.upsert({
 			where: {
@@ -114,7 +114,7 @@ export default async function handler(
 				totalBlockingTime: req.body.audits["total-blocking-time"].score,
 				cumulativeLayoutShift: req.body.audits["cumulative-layout-shift"].score,
 			},
-		});
+		})
 
 		await db.jobLog.create({
 			data: {
@@ -125,11 +125,11 @@ export default async function handler(
 				message: "Success uploading lighthouse",
 				timeTaken: new Date().getTime() - startTime.getTime(),
 			},
-		});
+		})
 
-		return res.status(200).send("Thanks");
+		return res.status(200).send("Thanks")
 	} catch (error) {
-		log("error in lighthouse processing", error);
+		log("error in lighthouse processing", error)
 		await db.jobLog.create({
 			data: {
 				name: "upload-lighthouse",
@@ -139,11 +139,11 @@ export default async function handler(
 				message: `Failure uploading lighthouse ${error?.toString()}`,
 				timeTaken: new Date().getTime() - startTime.getTime(),
 			},
-		});
+		})
 
 		return res.status(500).send({
 			message: error?.toString(),
-		});
+		})
 	}
 }
 
@@ -153,4 +153,4 @@ export const config = {
 			sizeLimit: "25mb",
 		},
 	},
-};
+}

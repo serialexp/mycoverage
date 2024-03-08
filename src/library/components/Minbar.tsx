@@ -1,25 +1,25 @@
-import { Box, Flex, Tooltip } from "@chakra-ui/react";
-import { format } from "src/library/format";
+import { Box, Flex, Tooltip } from "@chakra-ui/react"
+import { format } from "src/library/format"
 
 export const Minibar = (props: { progress: number }) => {
-	const boxes: { name: string; color: string }[] = [];
+	const boxes: { name: string; color: string }[] = []
 	for (let i = 0; i < 3; i++) {
 		boxes.push({
 			name: `red${i}`,
 			color: "red.500",
-		});
+		})
 	}
 	for (let i = 0; i < 3; i++) {
 		boxes.push({
 			name: `yellow${i}`,
 			color: "yellow.500",
-		});
+		})
 	}
 	for (let i = 0; i < 4; i++) {
 		boxes.push({
 			name: `green${i}`,
 			color: "green.500",
-		});
+		})
 	}
 	return (
 		<Tooltip label={`${format.format(props.progress * 100)}%`}>
@@ -36,9 +36,9 @@ export const Minibar = (props: { progress: number }) => {
 							}
 							opacity={index < props.progress * boxes.length ? 1 : 0.3}
 						/>
-					);
+					)
 				})}
 			</Flex>
 		</Tooltip>
-	);
-};
+	)
+}

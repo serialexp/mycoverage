@@ -1,16 +1,16 @@
-import { InternalCoverage, CloverMetrics } from "src/library/InternalCoverage";
-import { log } from "src/library/log";
-import { SourceHits } from "src/library/types";
-import { queueConfig } from "src/queues/config";
-import db, { Test, Commit, TestInstance } from "db";
-import { Queue } from "bullmq";
+import { InternalCoverage, CloverMetrics } from "src/library/InternalCoverage"
+import { log } from "src/library/log"
+import { SourceHits } from "src/library/types"
+import { queueConfig } from "src/queues/config"
+import db, { Test, Commit, TestInstance } from "db"
+import { Queue } from "bullmq"
 
 export const uploadQueue = new Queue("upload", {
 	connection: queueConfig,
 	defaultJobOptions: {
 		removeOnFail: true,
 	},
-});
+})
 
 export const uploadJob = async (
 	coverageFileKey: string,
@@ -30,9 +30,9 @@ export const uploadJob = async (
 		testInstanceIndex,
 		namespaceSlug,
 		repositorySlug,
-	});
-	const activeJobs = await uploadQueue.getActive();
-	log("Active jobs", activeJobs);
+	})
+	const activeJobs = await uploadQueue.getActive()
+	log("Active jobs", activeJobs)
 	const res = await uploadQueue.add(
 		"upload",
 		{
@@ -49,7 +49,7 @@ export const uploadJob = async (
 			removeOnComplete: true,
 			removeOnFail: 3,
 		},
-	);
-	log("Added upload job to queue", res);
-	return res;
-};
+	)
+	log("Added upload job to queue", res)
+	return res
+}

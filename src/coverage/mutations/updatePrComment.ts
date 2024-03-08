@@ -1,10 +1,10 @@
-import { getAppOctokit } from "src/library/github";
-import { updatePR } from "src/library/updatePR";
-import { Ctx } from "blitz";
-import db, { TestInstance } from "db";
+import { getAppOctokit } from "src/library/github"
+import { updatePR } from "src/library/updatePR"
+import { Ctx } from "blitz"
+import db, { TestInstance } from "db"
 
 export default async function updatePrComment(args: { prId?: number }) {
-	if (!args.prId) return false;
+	if (!args.prId) return false
 
 	const pr = await db.pullRequest.findFirst({
 		where: {
@@ -18,11 +18,11 @@ export default async function updatePrComment(args: { prId?: number }) {
 			},
 			commit: true,
 		},
-	});
+	})
 
-	if (!pr) return false;
+	if (!pr) return false
 
-	await updatePR(pr);
+	await updatePR(pr)
 
-	return true;
+	return true
 }

@@ -1,48 +1,48 @@
-import { Flex, Link as ChakraLink, Tbody, Th, Thead } from "@chakra-ui/react";
-import { Table, Td, Tr } from "@chakra-ui/react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
-import { Minibar } from "src/library/components/Minbar";
-import { RouteUrlObject } from "blitz";
-import type { FileCoverage, PackageCoverage } from "db";
-import { format, shortFormat } from "src/library/format";
+import { Flex, Link as ChakraLink, Tbody, Th, Thead } from "@chakra-ui/react"
+import { Table, Td, Tr } from "@chakra-ui/react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Link from "next/link"
+import { Minibar } from "src/library/components/Minbar"
+import { RouteUrlObject } from "blitz"
+import type { FileCoverage, PackageCoverage } from "db"
+import { format, shortFormat } from "src/library/format"
 
 export const PackageFileTable = (props: {
 	packages: {
-		id: string;
-		name: string;
-		testId: number | null;
-		createdDate: Date;
-		updatedDate: Date;
-		statements: number;
-		conditionals: number;
-		methods: number;
-		coveredStatements: number;
-		coveredConditionals: number;
-		coveredMethods: number;
-		coveredPercentage: number;
-		depth: number;
-		coveredElements: number;
-		elements: number;
-		commitId: number | null;
-		hits: number;
-		codeIssues: number;
-		changeRatio: number;
-		changes: number;
-	}[];
+		id: string
+		name: string
+		testId: number | null
+		createdDate: Date
+		updatedDate: Date
+		statements: number
+		conditionals: number
+		methods: number
+		coveredStatements: number
+		coveredConditionals: number
+		coveredMethods: number
+		coveredPercentage: number
+		depth: number
+		coveredElements: number
+		elements: number
+		commitId: number | null
+		hits: number
+		codeIssues: number
+		changeRatio: number
+		changes: number
+	}[]
 	files: {
-		id: string;
-		name: string;
-		coveredPercentage: number;
-		elements: number;
-		coveredElements: number;
-		hits: number;
-		codeIssues: number;
-		changeRatio: number;
-	}[];
-	fileRoute: (parts: string[]) => RouteUrlObject;
-	dirRoute: (parts: string[]) => RouteUrlObject;
-	processing: boolean;
+		id: string
+		name: string
+		coveredPercentage: number
+		elements: number
+		coveredElements: number
+		hits: number
+		codeIssues: number
+		changeRatio: number
+	}[]
+	fileRoute: (parts: string[]) => RouteUrlObject
+	dirRoute: (parts: string[]) => RouteUrlObject
+	processing: boolean
 }) => {
 	return props.processing ? (
 		<Flex m={4}>Not visible until processing for commit finishes</Flex>
@@ -87,7 +87,7 @@ export const PackageFileTable = (props: {
 								<Minibar progress={pack.coveredPercentage / 100} />
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 				{props.files.map((file) => {
 					return (
@@ -108,9 +108,9 @@ export const PackageFileTable = (props: {
 								<Minibar progress={file.coveredPercentage / 100} />
 							</Td>
 						</Tr>
-					);
+					)
 				})}
 			</Tbody>
 		</Table>
-	);
-};
+	)
+}

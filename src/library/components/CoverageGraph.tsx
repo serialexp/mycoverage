@@ -1,27 +1,27 @@
-import { Routes } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
-import { Box } from "@chakra-ui/react";
-import { ResponsiveLine, Point } from "@nivo/line";
-import { useRouter } from "next/router";
-import getCoverageGraphData from "src/coverage/queries/getCoverageGraphData";
-import { format } from "src/library/format";
+import { Routes } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
+import { Box } from "@chakra-ui/react"
+import { ResponsiveLine, Point } from "@nivo/line"
+import { useRouter } from "next/router"
+import getCoverageGraphData from "src/coverage/queries/getCoverageGraphData"
+import { format } from "src/library/format"
 
 type Props = {
-	groupId: number;
-	projectId: number;
-	testName?: string;
-	currentTime: Date;
+	groupId: number
+	projectId: number
+	testName?: string
+	currentTime: Date
 	clickRedirect?: (
 		ref: string,
-	) => string | Promise<string | undefined> | undefined;
-};
+	) => string | Promise<string | undefined> | undefined
+}
 
 interface OurPoint {
-	x: number;
-	y: number;
+	x: number
+	y: number
 	data: {
-		ref: string;
-	};
+		ref: string
+	}
 }
 
 export const CoverageGraph = (props: Props) => {
@@ -29,11 +29,11 @@ export const CoverageGraph = (props: Props) => {
 		groupId: props.groupId,
 		projectId: props.projectId,
 		testName: props.testName,
-	});
-	const router = useRouter();
+	})
+	const router = useRouter()
 
 	const coverageForTests = queryData?.map((commit) => {
-		const percent = commit?.coveredPercentage ?? 0;
+		const percent = commit?.coveredPercentage ?? 0
 		return {
 			x: commit?.createdDate,
 			y: commit?.coveredPercentage,
@@ -42,10 +42,10 @@ export const CoverageGraph = (props: Props) => {
 				percent > 60
 					? "var(--chakra-colors-green-500)"
 					: percent > 30
-					? "var(--chakra-colors-yellow-500)"
-					: "var(--chakra-colors-red-500)",
-		};
-	});
+					  ? "var(--chakra-colors-yellow-500)"
+					  : "var(--chakra-colors-red-500)",
+		}
+	})
 
 	return (
 		<Box width={"100%"} height={"200px"}>
@@ -100,11 +100,11 @@ export const CoverageGraph = (props: Props) => {
 					},
 				]}
 				onClick={async (data: Point) => {
-					const ourPoint: OurPoint = data as unknown as OurPoint;
+					const ourPoint: OurPoint = data as unknown as OurPoint
 					if (props.clickRedirect) {
-						const url = await props.clickRedirect(ourPoint.data.ref);
+						const url = await props.clickRedirect(ourPoint.data.ref)
 						if (url) {
-							router.push(url);
+							router.push(url)
 						}
 					}
 				}}
@@ -130,11 +130,11 @@ export const CoverageGraph = (props: Props) => {
 								%
 							</div>
 						</div>
-					);
+					)
 				}}
 				onMouseEnter={(_datum, event) => {
-					const eventtarget = event.currentTarget as HTMLDivElement;
-					eventtarget.style.cursor = "pointer";
+					const eventtarget = event.currentTarget as HTMLDivElement
+					eventtarget.style.cursor = "pointer"
 				}}
 				lineWidth={1}
 				pointSymbol={(e) => {
@@ -147,11 +147,11 @@ export const CoverageGraph = (props: Props) => {
 							strokeWidth="0"
 							fill={e.datum.color}
 						/>
-					);
+					)
 				}}
 				pointLabelYOffset={-12}
 				useMesh={true}
 			/>
 		</Box>
-	);
-};
+	)
+}

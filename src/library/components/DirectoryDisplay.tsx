@@ -1,42 +1,42 @@
-import { useQuery } from "@blitzjs/rpc";
-import { Input, Link as ChakraLink } from "@chakra-ui/react";
-import { Box, Button, Heading, Table, Td, Tr } from "@chakra-ui/react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import getFiles from "src/coverage/queries/getFiles";
-import getPackagesForCommit from "src/coverage/queries/getPackagesForCommit";
-import getPackagesForTest from "src/coverage/queries/getPackagesForTest";
-import { Actions } from "src/library/components/Actions";
-import { CoverageSummary } from "src/library/components/CoverageSummary";
-import { PackageFileTable } from "src/library/components/PackageFileTable";
-import { Subheading } from "src/library/components/Subheading";
-import type { PackageCoverage } from "db";
-import { RouteUrlObject } from "blitz";
-import { useParam } from "@blitzjs/next";
+import { useQuery } from "@blitzjs/rpc"
+import { Input, Link as ChakraLink } from "@chakra-ui/react"
+import { Box, Button, Heading, Table, Td, Tr } from "@chakra-ui/react"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import getFiles from "src/coverage/queries/getFiles"
+import getPackagesForCommit from "src/coverage/queries/getPackagesForCommit"
+import getPackagesForTest from "src/coverage/queries/getPackagesForTest"
+import { Actions } from "src/library/components/Actions"
+import { CoverageSummary } from "src/library/components/CoverageSummary"
+import { PackageFileTable } from "src/library/components/PackageFileTable"
+import { Subheading } from "src/library/components/Subheading"
+import type { PackageCoverage } from "db"
+import { RouteUrlObject } from "blitz"
+import { useParam } from "@blitzjs/next"
 
 export const DirectoryDisplay = (props: {
-	pack: Omit<PackageCoverage, "id"> & { id?: string };
-	route: (path: string[]) => RouteUrlObject;
-	backRoute: () => RouteUrlObject;
+	pack: Omit<PackageCoverage, "id"> & { id?: string }
+	route: (path: string[]) => RouteUrlObject
+	backRoute: () => RouteUrlObject
 }) => {
-	const groupId = useParam("groupId", "string");
-	const projectId = useParam("projectId", "string");
-	const path = useParam("path", "array");
+	const groupId = useParam("groupId", "string")
+	const projectId = useParam("projectId", "string")
+	const path = useParam("path", "array")
 
-	const router = useRouter();
+	const router = useRouter()
 
 	const [packagesForTest] = useQuery(getPackagesForTest, {
 		testId: props.pack.testId ?? undefined,
 		path: path?.join("."),
-	});
+	})
 	const [packagesForCommit] = useQuery(getPackagesForCommit, {
 		commitId: props.pack.commitId ?? undefined,
 		path: path?.join("."),
-	});
-	const [files] = useQuery(getFiles, { packageCoverageId: props.pack.id });
+	})
+	const [files] = useQuery(getFiles, { packageCoverageId: props.pack.id })
 
 	const packages =
-		packagesForCommit.length > 0 ? packagesForCommit : packagesForTest;
+		packagesForCommit.length > 0 ? packagesForCommit : packagesForTest
 
 	return groupId && projectId && path ? (
 		<>
@@ -63,7 +63,7 @@ export const DirectoryDisplay = (props: {
 					placeholder={"Jump to path"}
 					onKeyDown={async (e) => {
 						if (e.key === "Enter") {
-							await router.push(props.route(e.currentTarget.value.split("/")));
+							await router.push(props.route(e.currentTarget.value.split("/")))
 						}
 					}}
 				/>
@@ -87,5 +87,5 @@ export const DirectoryDisplay = (props: {
 				dirRoute={props.route}
 			/>
 		</>
-	) : null;
-};
+	) : null
+}

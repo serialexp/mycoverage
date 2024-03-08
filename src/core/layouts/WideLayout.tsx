@@ -1,14 +1,14 @@
-import { Routes } from "@blitzjs/next";
-import { Box, Container, Link as ChakraLink } from "@chakra-ui/react";
-import Head from "next/head";
-import { ReactNode } from "react";
-import { dom } from "@fortawesome/fontawesome-svg-core";
-import { Link } from "src/library/components/Link";
+import { Routes } from "@blitzjs/next"
+import { Box, Container, Link as ChakraLink } from "@chakra-ui/react"
+import Head from "next/head"
+import { ReactNode } from "react"
+import { dom } from "@fortawesome/fontawesome-svg-core"
+import { Link } from "src/library/components/Link"
 
 type LayoutProps = {
-	title?: string;
-	children: ReactNode;
-};
+	title?: string
+	children: ReactNode
+}
 
 const WideLayout = ({ title, children }: LayoutProps) => {
 	return (
@@ -34,7 +34,7 @@ const WideLayout = ({ title, children }: LayoutProps) => {
 				{children}
 			</Box>
 		</>
-	);
-};
+	)
+}
 
-export default WideLayout;
+export default WideLayout

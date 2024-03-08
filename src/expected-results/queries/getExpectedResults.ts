@@ -1,11 +1,11 @@
-import { resolver } from "@blitzjs/rpc";
-import { paginate } from "blitz";
-import db, { Prisma } from "db";
+import { resolver } from "@blitzjs/rpc"
+import { paginate } from "blitz"
+import db, { Prisma } from "db"
 
 type GetExpectedResultsInput = Pick<
 	Prisma.ExpectedResultFindManyArgs,
 	"where" | "orderBy" | "skip" | "take"
->;
+>
 
 export default resolver.pipe(
 	async ({ where, orderBy, skip = 0, take = 100 }: GetExpectedResultsInput) => {
@@ -21,13 +21,13 @@ export default resolver.pipe(
 			count: () => db.expectedResult.count({ where }),
 			query: (paginateArgs) =>
 				db.expectedResult.findMany({ ...paginateArgs, where, orderBy }),
-		});
+		})
 
 		return {
 			expectedResults,
 			nextPage,
 			hasMore,
 			count,
-		};
+		}
 	},
-);
+)

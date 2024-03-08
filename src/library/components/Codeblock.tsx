@@ -1,5 +1,5 @@
-import { Box } from "@chakra-ui/react";
-import { PropsWithChildren } from "react";
+import { Box } from "@chakra-ui/react"
+import { PropsWithChildren } from "react"
 
 export const Codeblock = (props: PropsWithChildren) => {
 	return (
@@ -14,5 +14,5 @@ export const Codeblock = (props: PropsWithChildren) => {
 		>
 			{props.children}
 		</Box>
-	);
-};
+	)
+}

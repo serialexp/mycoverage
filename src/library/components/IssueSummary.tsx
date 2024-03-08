@@ -1,15 +1,15 @@
-import { Routes } from "@blitzjs/next";
-import { Flex, Stat, StatLabel, StatNumber } from "@chakra-ui/react";
-import Link from "next/link";
-import { format } from "src/library/format";
-import type { Commit } from "db";
+import { Routes } from "@blitzjs/next"
+import { Flex, Stat, StatLabel, StatNumber } from "@chakra-ui/react"
+import Link from "next/link"
+import { format } from "src/library/format"
+import type { Commit } from "db"
 
 export const IssueSummary = (props: {
-	commit: Commit;
-	groupId: string;
-	projectId: string;
+	commit: Commit
+	groupId: string
+	projectId: string
 }) => {
-	const { groupId, projectId, commit } = props;
+	const { groupId, projectId, commit } = props
 
 	return (
 		<>
@@ -25,7 +25,7 @@ export const IssueSummary = (props: {
 								severity: "BLOCKER",
 							})}
 						>
-							{format.format(commit.blockerSonarIssues)}
+							{format.format(commit.blockerSonarIssues, true)}
 						</Link>
 					</StatNumber>
 				</Stat>
@@ -40,7 +40,7 @@ export const IssueSummary = (props: {
 								severity: "CRITICAL",
 							})}
 						>
-							{format.format(commit.criticalSonarIssues)}
+							{format.format(commit.criticalSonarIssues, true)}
 						</Link>
 					</StatNumber>
 				</Stat>
@@ -55,7 +55,7 @@ export const IssueSummary = (props: {
 								severity: "MAJOR",
 							})}
 						>
-							{format.format(commit.majorSonarIssues)}
+							{format.format(commit.majorSonarIssues, true)}
 						</Link>
 					</StatNumber>
 				</Stat>
@@ -70,7 +70,7 @@ export const IssueSummary = (props: {
 								severity: "MINOR",
 							})}
 						>
-							{format.format(commit.minorSonarIssues)}
+							{format.format(commit.minorSonarIssues, true)}
 						</Link>
 					</StatNumber>
 				</Stat>
@@ -85,11 +85,11 @@ export const IssueSummary = (props: {
 								severity: "INFO",
 							})}
 						>
-							{format.format(commit.infoSonarIssues)}
+							{format.format(commit.infoSonarIssues, true)}
 						</Link>
 					</StatNumber>
 				</Stat>
 			</Flex>
 		</>
-	);
-};
+	)
+}

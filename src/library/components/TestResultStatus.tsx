@@ -1,7 +1,7 @@
-import { Alert, AlertIcon, AlertTitle, Box } from "@chakra-ui/react";
+import { Alert, AlertIcon, AlertTitle, Box } from "@chakra-ui/react"
 
 export const TestResultStatus = (props: {
-	status?: "PENDING" | "PROCESSING" | "FINISHED" | "FAILED";
+	status?: "PENDING" | "PROCESSING" | "FINISHED" | "FAILED"
 }) => {
 	return (
 		<Box p={2}>
@@ -30,5 +30,5 @@ export const TestResultStatus = (props: {
 				</Alert>
 			) : null}
 		</Box>
-	);
-};
+	)
+}

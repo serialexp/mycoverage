@@ -1,11 +1,11 @@
-import { Ctx } from "blitz";
-import db from "db";
+import { Ctx } from "blitz"
+import db from "db"
 
 export default async function getProject(
 	args: { projectSlug?: string },
 	{ session }: Ctx,
 ) {
-	if (!args.projectSlug) return null;
+	if (!args.projectSlug) return null
 	return db.project.findFirst({
 		where: { slug: args.projectSlug },
 		include: {
@@ -31,5 +31,5 @@ export default async function getProject(
 			},
 			ExpectedResult: true,
 		},
-	});
+	})
 }

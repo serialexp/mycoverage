@@ -3,53 +3,53 @@ import {
 	ErrorComponent,
 	ErrorBoundary,
 	AppProps,
-} from "@blitzjs/next";
+} from "@blitzjs/next"
 import {
 	ChakraProvider,
 	extendTheme,
 	theme as defaultTheme,
-} from "@chakra-ui/react";
-import { AuthenticationError, AuthorizationError } from "blitz";
-import React, { Suspense } from "react";
-import { withBlitz } from "src/blitz-client";
-import "src/styles/globals.css";
-import "react-datetime/css/react-datetime.css";
-import "prismjs/themes/prism-solarizedlight.css";
+} from "@chakra-ui/react"
+import { AuthenticationError, AuthorizationError } from "blitz"
+import React, { Suspense } from "react"
+import { withBlitz } from "src/blitz-client"
+import "src/styles/globals.css"
+import "react-datetime/css/react-datetime.css"
+import "prismjs/themes/prism-solarizedlight.css"
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { fas } from "@fortawesome/free-solid-svg-icons"
 
-library.add(fas);
+library.add(fas)
 
 const theme = extendTheme({
 	colors: {
 		primary: defaultTheme.colors.orange,
 		secondary: defaultTheme.colors.linkedin,
 	},
-});
+})
 
 function RootErrorFallback({ error }: ErrorFallbackProps) {
 	if (error instanceof AuthenticationError) {
-		return <div>Error: You are not authenticated</div>;
-	} else if (error instanceof AuthorizationError) {
+		return <div>Error: You are not authenticated</div>
+	}
+	if (error instanceof AuthorizationError) {
 		return (
 			<ErrorComponent
 				statusCode={error.statusCode}
 				title="Sorry, you are not authorized to access this"
 			/>
-		);
-	} else {
-		return (
-			<ErrorComponent
-				statusCode={error?.statusCode || 400}
-				title={error.message || error.name}
-			/>
-		);
+		)
 	}
+	return (
+		<ErrorComponent
+			statusCode={error?.statusCode || 400}
+			title={error.message || error.name}
+		/>
+	)
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
-	const getLayout = Component.getLayout || ((page) => page);
+	const getLayout = Component.getLayout || ((page) => page)
 	return (
 		<ChakraProvider theme={theme}>
 			<ErrorBoundary FallbackComponent={RootErrorFallback}>
@@ -176,7 +176,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				</Suspense>
 			</ErrorBoundary>
 		</ChakraProvider>
-	);
+	)
 }
 
-export default withBlitz(MyApp);
+export default withBlitz(MyApp)

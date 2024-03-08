@@ -1,5 +1,5 @@
-import { BlitzPage } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
+import { BlitzPage } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
 import {
 	Box,
 	Table,
@@ -12,15 +12,15 @@ import {
 	StatLabel,
 	StatNumber,
 	Progress,
-} from "@chakra-ui/react";
+} from "@chakra-ui/react"
 
-import getQueues from "src/coverage/queries/getQueues";
-import { Heading } from "src/library/components/Heading";
+import getQueues from "src/coverage/queries/getQueues"
+import { Heading } from "src/library/components/Heading"
 
-import { Subsubheading } from "src/library/components/Subsubheading";
+import { Subsubheading } from "src/library/components/Subsubheading"
 
-import Layout from "src/core/layouts/Layout";
-import { useEffect, useState } from "react";
+import Layout from "src/core/layouts/Layout"
+import { useEffect, useState } from "react"
 
 /*
  * This file is just for a pleasant getting started page for your new app.
@@ -28,20 +28,20 @@ import { useEffect, useState } from "react";
  */
 
 const Queues: BlitzPage = () => {
-	const [queues, queuesMeta] = useQuery(getQueues, {});
+	const [queues, queuesMeta] = useQuery(getQueues, {})
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			queuesMeta.refetch().catch((error) => {
-				console.error(error);
-			});
-		}, 1000);
+				console.error(error)
+			})
+		}, 1000)
 		return () => {
-			clearInterval(interval);
-		};
-	});
+			clearInterval(interval)
+		}
+	})
 
-	return (
+	return queues ? (
 		<>
 			<Heading>Queues</Heading>
 			{queues.jobs.map((queue) => {
@@ -94,17 +94,17 @@ const Queues: BlitzPage = () => {
 										<Td>{job.data.commit.ref.substr(0, 10)}</Td>
 										<Td>{new Date(job.timestamp).toLocaleString()}</Td>
 									</Tr>
-								) : null;
+								) : null
 							})}
 						</Table>
 					</Box>
-				);
+				)
 			})}
 		</>
-	);
-};
+	) : null
+}
 
-Queues.suppressFirstRenderFlicker = true;
-Queues.getLayout = (page) => <Layout title="Queues">{page}</Layout>;
+Queues.suppressFirstRenderFlicker = true
+Queues.getLayout = (page) => <Layout title="Queues">{page}</Layout>
 
-export default Queues;
+export default Queues

@@ -7,17 +7,17 @@ import {
 	Td,
 	Th,
 	Tr,
-} from "@chakra-ui/react";
-import { RouteUrlObject } from "blitz";
-import { Link } from "src/library/components/Link";
-import { CoverageDifference, Diff } from "src/library/generateDifferences";
-import { Subheading } from "src/library/components/Subheading";
-import { format } from "src/library/format";
+} from "@chakra-ui/react"
+import { RouteUrlObject } from "blitz"
+import { Link } from "src/library/components/Link"
+import { CoverageDifference, Diff } from "src/library/generateDifferences"
+import { Subheading } from "src/library/components/Subheading"
+import { format } from "src/library/format"
 
 const RowItem = (
 	props: { diff: Diff } & { link?: (path?: string) => RouteUrlObject | string },
 ) => {
-	const isIncrease = props.diff.change > 0;
+	const isIncrease = props.diff.change > 0
 
 	return (
 		<Tr>
@@ -52,8 +52,8 @@ const RowItem = (
 				{format.format(props.diff.change, true)}
 			</Td>
 		</Tr>
-	);
-};
+	)
+}
 
 const DeleteRowItem = (props: { diff: Diff }) => {
 	return (
@@ -77,8 +77,8 @@ const DeleteRowItem = (props: { diff: Diff }) => {
 				</Tr>
 			) : null}
 		</>
-	);
-};
+	)
+}
 
 const AddRowItem = (props: { diff: Diff }) => {
 	return (
@@ -106,14 +106,14 @@ const AddRowItem = (props: { diff: Diff }) => {
 				</Tr>
 			) : null}
 		</>
-	);
-};
+	)
+}
 
 export const CoverageDifferences = (props: {
-	diff: CoverageDifference | null;
-	link?: (path?: string) => RouteUrlObject | string;
+	diff: CoverageDifference | null
+	link?: (path?: string) => RouteUrlObject | string
 }) => {
-	const fileDifferences = props.diff;
+	const fileDifferences = props.diff
 
 	return (
 		<>
@@ -134,7 +134,7 @@ export const CoverageDifferences = (props: {
 							</Th>
 						</Tr>
 						{fileDifferences?.remove.map((file) => {
-							return <DeleteRowItem key={file.base?.name} diff={file} />;
+							return <DeleteRowItem key={file.base?.name} diff={file} />
 						})}
 					</Table>
 				</>
@@ -155,7 +155,7 @@ export const CoverageDifferences = (props: {
 							</Th>
 						</Tr>
 						{fileDifferences?.add.map((file) => {
-							return <AddRowItem key={file.next?.name} diff={file} />;
+							return <AddRowItem key={file.next?.name} diff={file} />
 						})}
 					</Table>
 				</>
@@ -174,9 +174,7 @@ export const CoverageDifferences = (props: {
 					</Th>
 				</Tr>
 				{fileDifferences?.decrease.map((diff, i) => {
-					return (
-						<RowItem key={diff.base?.name} diff={diff} link={props.link} />
-					);
+					return <RowItem key={diff.base?.name} diff={diff} link={props.link} />
 				})}
 			</Table>
 			<Subheading mt={4} size={"md"}>
@@ -193,11 +191,9 @@ export const CoverageDifferences = (props: {
 					</Th>
 				</Tr>
 				{fileDifferences?.increase.map((diff, i) => {
-					return (
-						<RowItem key={diff.base?.name} diff={diff} link={props.link} />
-					);
+					return <RowItem key={diff.base?.name} diff={diff} link={props.link} />
 				})}
 			</Table>
 		</>
-	);
-};
+	)
+}

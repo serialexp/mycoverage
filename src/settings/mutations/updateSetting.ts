@@ -1,11 +1,11 @@
-import { resolver } from "@blitzjs/rpc";
-import db from "db";
-import { z } from "zod";
+import { resolver } from "@blitzjs/rpc"
+import db from "db"
+import { z } from "zod"
 
 const UpdateSetting = z.object({
 	value: z.string(),
 	name: z.string(),
-});
+})
 
 export default resolver.pipe(
 	resolver.zod(UpdateSetting),
@@ -15,8 +15,8 @@ export default resolver.pipe(
 			where: { name },
 			create: { name, ...data },
 			update: { value: data.value },
-		});
+		})
 
-		return setting;
+		return setting
 	},
-);
+)

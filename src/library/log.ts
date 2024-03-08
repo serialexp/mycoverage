@@ -8,11 +8,10 @@ export function log(message: string, ...args: unknown[]) {
 						name: arg.name,
 						message: arg.message,
 						stack: arg.stack,
-					};
-				} else {
-					return arg;
+					}
 				}
+				return arg
 			}),
 		}),
-	);
+	)
 }

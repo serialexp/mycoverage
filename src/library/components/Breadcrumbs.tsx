@@ -1,17 +1,17 @@
-import { Routes } from "@blitzjs/next";
-import { ChevronRightIcon } from "@chakra-ui/icons";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react";
-import type { Group, Project, PullRequest, Commit, Branch, Test } from "db";
-import Link from "next/link";
+import { Routes } from "@blitzjs/next"
+import { ChevronRightIcon } from "@chakra-ui/icons"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react"
+import type { Group, Project, PullRequest, Commit, Branch, Test } from "db"
+import Link from "next/link"
 
 interface Props {
-	group?: Group | null;
-	project?: Project | null;
-	pullRequest?: PullRequest | null;
-	commit?: Commit | null;
-	branch?: Branch | null;
-	baseCommit?: Commit | null;
-	test?: Test | null;
+	group?: Group | null
+	project?: Project | null
+	pullRequest?: PullRequest | null
+	commit?: Commit | null
+	branch?: Branch | null
+	baseCommit?: Commit | null
+	test?: Test | null
 }
 
 export const Breadcrumbs = (props: Props) => {
@@ -131,5 +131,5 @@ export const Breadcrumbs = (props: Props) => {
 				</BreadcrumbItem>
 			) : null}
 		</Breadcrumb>
-	);
-};
+	)
+}

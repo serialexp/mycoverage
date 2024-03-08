@@ -1,6 +1,6 @@
-import fs from "fs";
-import { generateDifferences } from "src/library/generateDifferences";
-import db from "db";
+import fs from "fs"
+import { generateDifferences } from "src/library/generateDifferences"
+import db from "db"
 
 export const getDifferences = async (
 	baseCommitId: number,
@@ -39,19 +39,19 @@ export const getDifferences = async (
 				codeIssues: true,
 			},
 		},
-	};
+	}
 
 	const base = await db.packageCoverage.findMany({
 		where: { commitId: baseCommitId },
 		select: selectValues,
-	});
+	})
 
 	const next = await db.packageCoverage.findMany({
 		where: { commitId: commitId },
 		select: selectValues,
-	});
+	})
 
 	// fs.writeFileSync("base.json", JSON.stringify(base, null, 2))
 	// fs.writeFileSync("next.json", JSON.stringify(next, null, 2))
-	return generateDifferences(base, next, expectedChangePaths, removedPaths);
-};
+	return generateDifferences(base, next, expectedChangePaths, removedPaths)
+}

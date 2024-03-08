@@ -1,4 +1,4 @@
-import { Commit, Test, ExpectedResult } from "db";
+import { Commit, Test, ExpectedResult } from "db"
 
 export const satisfiesIncreaseConditions = (
 	commit:
@@ -12,7 +12,7 @@ export const satisfiesIncreaseConditions = (
 	expectedResults: ExpectedResult[],
 	baseBranchName: string,
 ) => {
-	let isOk = true;
+	let isOk = true
 	expectedResults
 		.filter(
 			(res) => !res.branchPattern || baseBranchName.match(res.branchPattern),
@@ -21,21 +21,19 @@ export const satisfiesIncreaseConditions = (
 			if (result.requireIncrease) {
 				const originalTest = baseCommit?.Test.find(
 					(t) => t.testName === result.testName,
-				);
-				const newTest = commit?.Test.find(
-					(t) => t.testName === result.testName,
-				);
+				)
+				const newTest = commit?.Test.find((t) => t.testName === result.testName)
 
 				if (
 					(originalTest?.coveredPercentage ?? 0) >
 					(newTest?.coveredPercentage ?? 0)
 				) {
-					isOk = false;
+					isOk = false
 				}
 			}
-		});
+		})
 
 	return {
 		isOk,
-	};
-};
+	}
+}

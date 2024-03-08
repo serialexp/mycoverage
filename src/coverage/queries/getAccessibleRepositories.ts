@@ -1,13 +1,10 @@
-import { Ctx } from "blitz";
+import { Ctx } from "blitz"
 
 import {
 	getFileData as getGithubFileData,
 	getGithubAccessibleRepositories,
-} from "src/library/github";
+} from "src/library/github"
 
-export default async function getAccessibleRepositories(
-	args: {},
-	{ session }: Ctx,
-) {
-	return getGithubAccessibleRepositories();
+export default async function getAccessibleRepositories() {
+	return getGithubAccessibleRepositories()
 }

@@ -1,6 +1,6 @@
-import handler from "./upload-sonarqube";
+import handler from "./upload-sonarqube"
 
-export default handler;
+export default handler
 
 export const config = {
 	api: {
@@ -8,4 +8,4 @@ export const config = {
 			sizeLimit: "25mb",
 		},
 	},
-};
+}

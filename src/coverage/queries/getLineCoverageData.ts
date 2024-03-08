@@ -1,6 +1,6 @@
-import { Ctx } from "blitz";
-import db from "db";
-import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData";
+import { Ctx } from "blitz"
+import db from "db"
+import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData"
 
 export default async function getLineCoverageData(
 	args: { fileCoverageId?: string },
@@ -9,9 +9,9 @@ export default async function getLineCoverageData(
 	if (!args.fileCoverageId) {
 		return {
 			coveragePerLine: {},
-			issueOnLine: {},
+			issuesOnLine: {},
 			raw: "",
-		};
+		}
 	}
 
 	const fileCoverage = await db.fileCoverage.findFirst({
@@ -25,7 +25,7 @@ export default async function getLineCoverageData(
 				},
 			},
 		},
-	});
+	})
 
-	return getInternalLineCoverageData(fileCoverage);
+	return getInternalLineCoverageData(fileCoverage)
 }

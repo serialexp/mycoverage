@@ -1,26 +1,26 @@
-import { PrismaClient } from "@prisma/client";
-import { coveredPercentage } from "src/library/coveredPercentage";
-import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3";
-import { log } from "src/library/log";
-import { addEventListeners } from "src/processors/addEventListeners";
-import { combineCoverageJob } from "src/queues/CombineCoverage";
-import { queueConfig } from "src/queues/config";
-import db, { Commit } from "db";
-import { Worker } from "bullmq";
+import { PrismaClient } from "@prisma/client"
+import { coveredPercentage } from "src/library/coveredPercentage"
+import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
+import { log } from "src/library/log"
+import { addEventListeners } from "src/processors/addEventListeners"
+import { combineCoverageJob } from "src/queues/CombineCoverage"
+import { queueConfig } from "src/queues/config"
+import db, { Commit } from "db"
+import { Worker } from "bullmq"
 
 export const uploadWorker = new Worker<{
-	coverageFileKey: string;
-	commit: Commit;
-	testName: string;
-	repositoryRoot: string | undefined;
-	workingDirectory: string | undefined;
-	testInstanceIndex: number;
-	namespaceSlug: string;
-	repositorySlug: string;
+	coverageFileKey: string
+	commit: Commit
+	testName: string
+	repositoryRoot: string | undefined
+	workingDirectory: string | undefined
+	testInstanceIndex: number
+	namespaceSlug: string
+	repositorySlug: string
 }>(
 	"upload",
 	async (job) => {
-		const startTime = new Date();
+		const startTime = new Date()
 		const {
 			coverageFileKey,
 			commit,
@@ -30,15 +30,15 @@ export const uploadWorker = new Worker<{
 			testInstanceIndex,
 			namespaceSlug,
 			repositorySlug,
-		} = job.data;
+		} = job.data
 		try {
 			const timeout = setTimeout(() => {
-				log("worker timed out, killing this process");
-				process.exit(1);
-			}, 30000);
+				log("worker timed out, killing this process")
+				process.exit(1)
+			}, 30000)
 
-			log("Executing process upload job");
-			const mydb: PrismaClient = db;
+			log("Executing process upload job")
+			const mydb: PrismaClient = db
 
 			let test = await mydb.test.upsert({
 				where: {
@@ -58,7 +58,7 @@ export const uploadWorker = new Worker<{
 					coveredConditionals: 0,
 					coveredMethods: 0,
 				},
-			});
+			})
 
 			let testInstance = await mydb.testInstance.create({
 				data: {
@@ -74,28 +74,28 @@ export const uploadWorker = new Worker<{
 					coveredConditionals: 0,
 					coveredMethods: 0,
 				},
-			});
+			})
 
-			await job.updateProgress(10);
+			await job.updateProgress(10)
 
 			const { coverageFile, contentLength } =
 				await createInternalCoverageFromS3(coverageFileKey, {
 					repositoryRoot,
 					workingDirectory,
-				});
+				})
 
-			await job.updateProgress(40);
+			await job.updateProgress(40)
 
-			const covInfo = coverageFile.data;
+			const covInfo = coverageFile.data
 
 			if (!covInfo) {
 				throw new Error(
 					"No coverage information in the input file, cannot read first project.",
-				);
+				)
 			}
 
 			if (!covInfo.metrics) {
-				throw new Error("Could not calculate metrics for input file.");
+				throw new Error("Could not calculate metrics for input file.")
 			}
 
 			test = await mydb.test.update({
@@ -116,7 +116,7 @@ export const uploadWorker = new Worker<{
 					coveredElements: covInfo.metrics.coveredelements,
 					coveredPercentage: coveredPercentage(covInfo.metrics),
 				},
-			});
+			})
 
 			// let testInstance = await mydb.testInstance.find({
 			//   where: {
@@ -141,21 +141,21 @@ export const uploadWorker = new Worker<{
 					coveredPercentage: coveredPercentage(covInfo.metrics),
 					dataSize: contentLength,
 				},
-			});
+			})
 
 			if (!covInfo) {
 				throw new Error(
 					"No coverage information in the input file, cannot read first project.",
-				);
+				)
 			}
 
-			log("Creating package and file information for test instance");
+			log("Creating package and file information for test instance")
 
-			await job.updateProgress(50);
+			await job.updateProgress(50)
 
-			await job.updateProgress(80);
+			await job.updateProgress(80)
 
-			log("Inserted all package and file information");
+			log("Inserted all package and file information")
 
 			await mydb.jobLog.create({
 				data: {
@@ -173,7 +173,7 @@ export const uploadWorker = new Worker<{
 					}`,
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
+			})
 
 			combineCoverageJob({
 				commit,
@@ -182,12 +182,12 @@ export const uploadWorker = new Worker<{
 				testInstance,
 				delay: 0,
 			}).catch((error) => {
-				log("error adding combinecoverage job", error);
-			});
+				log("error adding combinecoverage job", error)
+			})
 
-			clearTimeout(timeout);
+			clearTimeout(timeout)
 		} catch (error) {
-			log("error processing combinecoverage job", error);
+			log("error processing combinecoverage job", error)
 			if (
 				error instanceof Error &&
 				error.message.includes(
@@ -196,8 +196,8 @@ export const uploadWorker = new Worker<{
 			) {
 				log(
 					"Shutting down worker immediately due to connection pool error, hopefully we can restart.",
-				);
-				process.exit(1);
+				)
+				process.exit(1)
 			}
 
 			await db.jobLog.create({
@@ -209,8 +209,8 @@ export const uploadWorker = new Worker<{
 					message: `Failure processing upload ${error?.toString()}`,
 					timeTaken: new Date().getTime() - startTime.getTime(),
 				},
-			});
-			return false;
+			})
+			return false
 		}
 	},
 	{
@@ -220,6 +220,6 @@ export const uploadWorker = new Worker<{
 		autorun: false,
 		stalledInterval: 60 * 1000,
 	},
-);
+)
 
-addEventListeners(uploadWorker);
+addEventListeners(uploadWorker)

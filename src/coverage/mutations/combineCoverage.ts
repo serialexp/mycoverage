@@ -1,12 +1,12 @@
-import { log } from "src/library/log";
-import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances";
-import { processCommit } from "src/processors/ProcessCombineCoverage/processCommit";
+import { log } from "src/library/log"
+import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances"
+import { processCommit } from "src/processors/ProcessCombineCoverage/processCommit"
 import {
 	combineCoverageJob,
 	combineCoverageQueue,
-} from "src/queues/CombineCoverage";
-import { Ctx } from "blitz";
-import db, { TestInstance } from "db";
+} from "src/queues/CombineCoverage"
+import { Ctx } from "blitz"
+import db, { TestInstance } from "db"
 
 export default async function combineCoverage(
 	args: { commitId: number; sync?: boolean },
@@ -36,17 +36,17 @@ export default async function combineCoverage(
 				},
 			},
 		},
-	});
+	})
 
 	if (!commit) {
-		throw new Error("Commit to re-combine coverage for not found.");
+		throw new Error("Commit to re-combine coverage for not found.")
 	}
 
 	await db.packageCoverage.deleteMany({
 		where: {
 			commitId: args.commitId,
 		},
-	});
+	})
 
 	await Promise.all(
 		commit.Test.map((test) => {
@@ -54,17 +54,17 @@ export default async function combineCoverage(
 				where: {
 					testId: test.id,
 				},
-			});
+			})
 		}),
-	);
+	)
 
 	for (let i = 0; i < commit.Test.length; i++) {
-		const test = commit.Test[i];
-		if (!test) continue;
+		const test = commit.Test[i]
+		if (!test) continue
 
 		for (let j = 0; j < test.TestInstance.length; j++) {
-			const testInstance = test.TestInstance[j];
-			if (!testInstance) continue;
+			const testInstance = test.TestInstance[j]
+			if (!testInstance) continue
 			await db.testInstance.update({
 				where: {
 					id: testInstance.id,
@@ -72,7 +72,7 @@ export default async function combineCoverage(
 				data: {
 					coverageProcessStatus: "PENDING",
 				},
-			});
+			})
 		}
 	}
 
@@ -83,22 +83,22 @@ export default async function combineCoverage(
 		data: {
 			coverageProcessStatus: "PENDING",
 		},
-	});
+	})
 
 	if (args.sync) {
-		log("Synchrously processing coverage");
+		log("Synchrously processing coverage")
 		try {
-			await processAllTestInstances(commit);
+			await processAllTestInstances(commit)
 			await processCommit({
 				commit,
 				namespaceSlug:
 					commit.CommitOnBranch[0]?.Branch.project.group?.slug || "",
 				repositorySlug: commit.CommitOnBranch[0]?.Branch.project.slug || "",
 				full: true,
-			});
+			})
 		} catch (error) {
-			log("Error processing coverage", error);
-			return true;
+			log("Error processing coverage", error)
+			return true
 		}
 	} else {
 		// process all the testinstances for this commit in one go
@@ -111,11 +111,11 @@ export default async function combineCoverage(
 				full: true,
 			},
 		}).catch((error) => {
-			log("error in combine coverage", error);
-		});
+			log("error in combine coverage", error)
+		})
 
-		log("Recombining coverage for commit", { commitRef: commit.ref });
+		log("Recombining coverage for commit", { commitRef: commit.ref })
 
-		return true;
+		return true
 	}
 }

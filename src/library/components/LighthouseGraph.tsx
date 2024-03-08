@@ -1,38 +1,38 @@
-import { useQuery } from "@blitzjs/rpc";
-import { Box } from "@chakra-ui/react";
-import { ResponsiveLine, Point } from "@nivo/line";
-import { useRouter } from "next/router";
-import getLighthouseGraphData from "src/coverage/queries/getLigthhouseGraphData";
-import { format } from "src/library/format";
+import { useQuery } from "@blitzjs/rpc"
+import { Box } from "@chakra-ui/react"
+import { ResponsiveLine, Point } from "@nivo/line"
+import { useRouter } from "next/router"
+import getLighthouseGraphData from "src/coverage/queries/getLigthhouseGraphData"
+import { format } from "src/library/format"
 
 type Props = {
-	groupId: number;
-	projectId: number;
-	testName?: string;
-	currentTime?: Date;
+	groupId: number
+	projectId: number
+	testName?: string
+	currentTime?: Date
 	clickRedirect?: (
 		ref: string,
-	) => string | Promise<string | undefined> | undefined;
-};
+	) => string | Promise<string | undefined> | undefined
+}
 
 interface OurPoint {
-	x: number;
-	y: number;
+	x: number
+	y: number
 	data: {
-		ref: string;
-	};
+		ref: string
+	}
 }
 
 export const LighthouseGraph = (props: Props) => {
 	const [queryData] = useQuery(getLighthouseGraphData, {
 		groupId: props.groupId,
 		projectId: props.projectId,
-	});
+	})
 
-	const router = useRouter();
+	const router = useRouter()
 
 	if (!queryData || queryData.length === 0) {
-		return null;
+		return null
 	}
 
 	const coverageForTests = (
@@ -40,8 +40,8 @@ export const LighthouseGraph = (props: Props) => {
 		stat: "average" | "performance",
 	) => {
 		return queryData?.map((commit) => {
-			const val = commit?.[kind]?.[stat];
-			const percent = val ? val * 100 : undefined;
+			const val = commit?.[kind]?.[stat]
+			const percent = val ? val * 100 : undefined
 			return {
 				x: commit?.createdDate,
 				y: percent ?? 0,
@@ -49,13 +49,13 @@ export const LighthouseGraph = (props: Props) => {
 				color: !percent
 					? "var(--chakra-colors-gray-500)"
 					: percent > 89
-					? "var(--chakra-colors-green-500)"
-					: percent > 50
-					? "var(--chakra-colors-yellow-500)"
-					: "var(--chakra-colors-red-500)",
-			};
-		});
-	};
+					  ? "var(--chakra-colors-green-500)"
+					  : percent > 50
+						  ? "var(--chakra-colors-yellow-500)"
+						  : "var(--chakra-colors-red-500)",
+			}
+		})
+	}
 
 	return (
 		<Box width={"100%"} height={"200px"}>
@@ -118,11 +118,11 @@ export const LighthouseGraph = (props: Props) => {
 						: []
 				}
 				onClick={async (data: Point) => {
-					const ourPoint: OurPoint = data as unknown as OurPoint;
+					const ourPoint: OurPoint = data as unknown as OurPoint
 					if (props.clickRedirect) {
-						const url = await props.clickRedirect(ourPoint.data.ref);
+						const url = await props.clickRedirect(ourPoint.data.ref)
 						if (url) {
-							router.push(url);
+							router.push(url)
 						}
 					}
 				}}
@@ -151,11 +151,11 @@ export const LighthouseGraph = (props: Props) => {
 								%
 							</div>
 						</div>
-					);
+					)
 				}}
 				onMouseEnter={(_datum, event) => {
-					const eventtarget = event.currentTarget as HTMLDivElement;
-					eventtarget.style.cursor = "pointer";
+					const eventtarget = event.currentTarget as HTMLDivElement
+					eventtarget.style.cursor = "pointer"
 				}}
 				pointSymbol={(e) => {
 					return (
@@ -167,11 +167,11 @@ export const LighthouseGraph = (props: Props) => {
 							strokeWidth="0"
 							fill={e.datum.color}
 						/>
-					);
+					)
 				}}
 				pointLabelYOffset={-12}
 				useMesh={true}
 			/>
 		</Box>
-	);
-};
+	)
+}

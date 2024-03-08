@@ -1,11 +1,11 @@
-import { CloverMetrics } from "src/library/InternalCoverage";
+import { CloverMetrics } from "src/library/InternalCoverage"
 
 export const coveredPercentage = (d?: CloverMetrics) => {
-	if (!d) return 0;
+	if (!d) return 0
 
 	const result =
 		((d.coveredstatements + d.coveredconditionals + d.coveredmethods) /
 			(d.statements + d.conditionals + d.methods)) *
-		100;
-	return Number.isNaN(result) ? 0 : result ?? 0;
-};
+		100
+	return Number.isNaN(result) ? 0 : result ?? 0
+}

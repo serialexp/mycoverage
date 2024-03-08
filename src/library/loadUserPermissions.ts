@@ -1,5 +1,5 @@
-import { Octokit } from "@octokit/rest";
-import db from "db";
+import { Octokit } from "@octokit/rest"
+import db from "db"
 
 export const loadUserPermissions = async (
 	userId: number,
@@ -7,7 +7,7 @@ export const loadUserPermissions = async (
 ) => {
 	const octokit = new Octokit({
 		auth: accessToken,
-	});
+	})
 	return octokit
 		.request("GET /user/installations", {
 			headers: {
@@ -17,16 +17,16 @@ export const loadUserPermissions = async (
 		.then(async (installations) => {
 			console.log(
 				`Found ${installations.data.total_count} installations of mycoverage for ${userId}`,
-			);
+			)
 			const allInstallationRepositories = await Promise.all(
 				installations.data.installations.map(async (installation) => {
 					let allRepositories: {
-						full_name: string;
-						default_branch: string;
-					}[] = [];
+						full_name: string
+						default_branch: string
+					}[] = []
 					console.log(
 						`Get page 1 of repositories for installation ${installation.id}`,
-					);
+					)
 					const res = await octokit.request(
 						"GET /user/installations/{installation_id}/repositories",
 						{
@@ -34,22 +34,22 @@ export const loadUserPermissions = async (
 							installation_id: installation.id,
 							headers: {},
 						},
-					);
+					)
 
 					allRepositories = allRepositories.concat(
 						res.data.repositories.map((r) => ({
 							full_name: r.full_name,
 							default_branch: r.default_branch,
 						})),
-					);
-					const totalPages = Math.ceil(res.data.total_count / 100);
-					let page = 2;
+					)
+					const totalPages = Math.ceil(res.data.total_count / 100)
+					let page = 2
 					// make concurrent request for all pages
-					const promises = [];
+					const promises = []
 					while (page <= totalPages) {
 						console.log(
 							`Get page ${page} of repositories for installation ${installation.id}`,
-						);
+						)
 						promises.push(
 							octokit.request(
 								"GET /user/installations/{installation_id}/repositories",
@@ -60,38 +60,38 @@ export const loadUserPermissions = async (
 									headers: {},
 								},
 							),
-						);
-						page++;
+						)
+						page++
 					}
-					const responses = await Promise.all(promises);
+					const responses = await Promise.all(promises)
 					for (const res of responses) {
 						allRepositories = allRepositories.concat(
 							res.data.repositories.map((r) => ({
 								full_name: r.full_name,
 								default_branch: r.default_branch,
 							})),
-						);
+						)
 					}
 
-					return allRepositories;
+					return allRepositories
 				}),
-			);
+			)
 
 			const repositoriesPerOwner = new Map<
 				string,
 				{ owner: string; name: string; default_branch: string }[]
-			>();
+			>()
 			for (const installation of allInstallationRepositories) {
 				for (const repository of installation) {
-					const [owner, name] = repository.full_name.split("/");
+					const [owner, name] = repository.full_name.split("/")
 					if (owner && name) {
-						const repositories = repositoriesPerOwner.get(owner) ?? [];
+						const repositories = repositoriesPerOwner.get(owner) ?? []
 						repositories.push({
 							name,
 							owner,
 							default_branch: repository.default_branch,
-						});
-						repositoriesPerOwner.set(owner, repositories);
+						})
+						repositoriesPerOwner.set(owner, repositories)
 					}
 				}
 			}
@@ -107,7 +107,7 @@ export const loadUserPermissions = async (
 						githubName: owner,
 					},
 					update: {},
-				});
+				})
 
 				const existingRepositories = await db.project.findMany({
 					where: {
@@ -116,14 +116,14 @@ export const loadUserPermissions = async (
 						},
 						groupId: existingOwner.id,
 					},
-				});
+				})
 
 				const existingRepositoryNames = new Set(
 					existingRepositories.map((r) => r.name),
-				);
+				)
 				const newRepositories = repositories.filter(
 					(r) => !existingRepositoryNames.has(r.name),
-				);
+				)
 				await db.project.createMany({
 					data: newRepositories.map((r) => ({
 						name: r.name,
@@ -132,7 +132,7 @@ export const loadUserPermissions = async (
 						slug: r.name,
 						githubName: r.name,
 					})),
-				});
+				})
 				const accessibleRepositories = await db.project.findMany({
 					select: {
 						id: true,
@@ -142,7 +142,7 @@ export const loadUserPermissions = async (
 							in: repositories.map((r) => r.name),
 						},
 					},
-				});
+				})
 
 				await db.user.update({
 					where: {
@@ -160,7 +160,7 @@ export const loadUserPermissions = async (
 							},
 						},
 					},
-				});
+				})
 			}
-		});
-};
+		})
+}

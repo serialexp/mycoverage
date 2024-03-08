@@ -1,5 +1,5 @@
-import { BlitzPage, Routes } from "@blitzjs/next";
-import { useQuery } from "@blitzjs/rpc";
+import { BlitzPage, Routes } from "@blitzjs/next"
+import { useQuery } from "@blitzjs/rpc"
 import {
 	Box,
 	Table,
@@ -10,13 +10,13 @@ import {
 	Link as ChakraLink,
 	Input,
 	Flex,
-} from "@chakra-ui/react";
-import Link from "next/link";
-import getLogs from "src/coverage/queries/getLogs";
-import { Heading } from "src/library/components/Heading";
-import Layout from "src/core/layouts/Layout";
-import { useEffect, useState } from "react";
-import Datetime from "react-datetime";
+} from "@chakra-ui/react"
+import Link from "next/link"
+import getLogs from "src/coverage/queries/getLogs"
+import { Heading } from "src/library/components/Heading"
+import Layout from "src/core/layouts/Layout"
+import { useEffect, useState } from "react"
+import Datetime from "react-datetime"
 
 /*
  * This file is just for a pleasant getting started page for your new app.
@@ -24,18 +24,18 @@ import Datetime from "react-datetime";
  */
 
 const Logs: BlitzPage = () => {
-	const [filter, setFilter] = useState("");
-	const [minDate, setMinDate] = useState<Date>(new Date(0));
-	const [maxDate, setMaxDate] = useState<Date>(new Date(0));
+	const [filter, setFilter] = useState("")
+	const [minDate, setMinDate] = useState<Date>(new Date(0))
+	const [maxDate, setMaxDate] = useState<Date>(new Date(0))
 	useEffect(() => {
-		setMinDate(new Date(Date.now() - 86400000));
-		setMaxDate(new Date());
-	}, []);
+		setMinDate(new Date(Date.now() - 86400000))
+		setMaxDate(new Date())
+	}, [])
 	const [logs] = useQuery(getLogs, {
 		minDate,
 		maxDate,
 		filter: filter,
-	});
+	})
 
 	return (
 		<>
@@ -45,7 +45,7 @@ const Logs: BlitzPage = () => {
 					<Datetime
 						value={minDate}
 						onChange={(e) => {
-							setMinDate(typeof e === "string" ? new Date(e) : e.toDate());
+							setMinDate(typeof e === "string" ? new Date(e) : e.toDate())
 						}}
 					/>
 				</Box>
@@ -53,18 +53,18 @@ const Logs: BlitzPage = () => {
 					<Datetime
 						value={maxDate}
 						onChange={(e) => {
-							setMaxDate(typeof e === "string" ? new Date(e) : e.toDate());
+							setMaxDate(typeof e === "string" ? new Date(e) : e.toDate())
 						}}
 					/>
 				</Box>
 				<Input
 					placeholder={"Filter"}
 					onBlur={(e) => {
-						setFilter(e.currentTarget.value);
+						setFilter(e.currentTarget.value)
 					}}
 					onKeyDown={(e) => {
 						if (e.code === "Enter") {
-							setFilter(e.currentTarget.value);
+							setFilter(e.currentTarget.value)
 						}
 					}}
 				/>
@@ -107,7 +107,7 @@ const Logs: BlitzPage = () => {
 							<Td>{g.createdDate.toLocaleString()}</Td>
 							<Td>{Math.round(g.timeTaken / 100) / 10}s</Td>
 						</Tr>
-					);
+					)
 				})}
 				{logs.length === 0 ? (
 					<Tr>
@@ -116,10 +116,10 @@ const Logs: BlitzPage = () => {
 				) : null}
 			</Table>
 		</>
-	);
-};
+	)
+}
 
-Logs.suppressFirstRenderFlicker = true;
-Logs.getLayout = (page) => <Layout title="Logs">{page}</Layout>;
+Logs.suppressFirstRenderFlicker = true
+Logs.getLayout = (page) => <Layout title="Logs">{page}</Layout>
 
-export default Logs;
+export default Logs

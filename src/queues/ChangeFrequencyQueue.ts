@@ -1,15 +1,15 @@
-import { log } from "src/library/log";
-import { ChangeFrequencyData } from "src/library/types";
-import { queueConfig } from "src/queues/config";
-import { Commit } from "db";
-import { Queue } from "bullmq";
+import { log } from "src/library/log"
+import { ChangeFrequencyData } from "src/library/types"
+import { queueConfig } from "src/queues/config"
+import { Commit } from "db"
+import { Queue } from "bullmq"
 
 export const changeFrequencyQueue = new Queue("changefrequency", {
 	connection: queueConfig,
 	defaultJobOptions: {
 		removeOnFail: true,
 	},
-});
+})
 
 export const changeFrequencyJob = (
 	postData: ChangeFrequencyData,
@@ -17,7 +17,7 @@ export const changeFrequencyJob = (
 	namespaceSlug: string,
 	repositorySlug: string,
 ) => {
-	log("Adding changefrequency job to queue");
+	log("Adding changefrequency job to queue")
 	return changeFrequencyQueue.add(
 		"changefrequency",
 		{
@@ -30,5 +30,5 @@ export const changeFrequencyJob = (
 			removeOnComplete: true,
 			removeOnFail: 3,
 		},
-	);
-};
+	)
+}

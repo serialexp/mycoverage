@@ -1,4 +1,4 @@
-import { useQuery } from "@blitzjs/rpc";
+import { useQuery } from "@blitzjs/rpc"
 import {
 	Badge,
 	Box,
@@ -9,12 +9,12 @@ import {
 	Table,
 	Td,
 	Tr,
-} from "@chakra-ui/react";
-import getLineCoverageData from "src/coverage/queries/getLineCoverageData";
-import { format } from "src/library/format";
-import { LineData, LineInformation } from "src/library/getLineCoverageData";
-import { ReactNode } from "react";
-import type { CodeIssueOnFileCoverage, CodeIssue } from "db/dbtypes";
+} from "@chakra-ui/react"
+import getLineCoverageData from "src/coverage/queries/getLineCoverageData"
+import { format } from "src/library/format"
+import { LineData, LineInformation } from "src/library/getLineCoverageData"
+import { ReactNode } from "react"
+import type { CodeIssueOnFileCoverage, CodeIssue } from "db/dbtypes"
 
 const priorityColor = {
 	INFO: "blue.500",
@@ -22,47 +22,52 @@ const priorityColor = {
 	MAJOR: "orange.500",
 	CRITICAL: "red.500",
 	BLOCKER: "red.600",
-};
+}
 
 const typeToString = (line: LineData) => {
 	if (line.type === "cond") {
-		return `${line.type}(${line.covered}/${line.total})`;
-	} else {
-		return line.type;
+		return `${line.type}(${line.covered}/${line.total})`
 	}
-};
+	return line.type
+}
 
 export const FileCoverageDisplay = (props: {
-	fileData?: string | null;
+	fileData?: string | null
 	file:
 		| ({ id: string; name: string } & {
-				CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & {
-					CodeIssue: CodeIssue;
-				})[];
+				CodeIssueOnFileCoverage: (Omit<
+					CodeIssueOnFileCoverage,
+					"fileCoverageId"
+				> & {
+					CodeIssue: CodeIssue
+				})[]
 		  })
-		| null;
+		| null
 	baseFile?:
 		| ({ id: string; name: string } & {
-				CodeIssueOnFileCoverage: (CodeIssueOnFileCoverage & {
-					CodeIssue: CodeIssue;
-				})[];
+				CodeIssueOnFileCoverage: (Omit<
+					CodeIssueOnFileCoverage,
+					"fileCoverageId"
+				> & {
+					CodeIssue: CodeIssue
+				})[]
 		  })
-		| null;
-	hideIssues?: boolean;
-	isShowRaw: boolean;
+		| null
+	hideIssues?: boolean
+	isShowRaw: boolean
 }) => {
 	const [data] = useQuery(getLineCoverageData, {
 		fileCoverageId: props.file?.id,
-	});
+	})
 	const [baseCoverageData] = useQuery(getLineCoverageData, {
 		fileCoverageId: props.baseFile?.id,
-	});
+	})
 
-	const { issueOnLine, coveragePerLine, raw } = data || {};
-	const { coveragePerLine: baseCoveragePerLine } = baseCoverageData || {};
+	const { issuesOnLine, coveragePerLine, raw } = data || {}
+	const { coveragePerLine: baseCoveragePerLine } = baseCoverageData || {}
 
-	const lines = props.fileData?.split("\n");
-	const lineHeight = 5;
+	const lines = props.fileData?.split("\n")
+	const lineHeight = 5
 
 	return (
 		<Flex bg={"gray.50"} m={2}>
@@ -82,12 +87,12 @@ export const FileCoverageDisplay = (props: {
 						borderRightColor={"gray.400"}
 					>
 						{lines?.map((line, lineNr) => {
-							let element: ReactNode = null;
-							const codeIssue = props.hideIssues
+							let element: ReactNode = null
+							const codeIssues = props.hideIssues
 								? undefined
-								: issueOnLine[lineNr + 1];
+								: issuesOnLine[lineNr + 1]
 							const lineData: LineInformation | undefined =
-								coveragePerLine[lineNr + 1];
+								coveragePerLine[lineNr + 1]
 							if (lineData?.coverageItems.length) {
 								element = (
 									<Box
@@ -103,7 +108,7 @@ export const FileCoverageDisplay = (props: {
 											.map((l) => typeToString(l))
 											.join(", ")}
 									</Box>
-								);
+								)
 							} else {
 								element = (
 									<Box
@@ -116,25 +121,27 @@ export const FileCoverageDisplay = (props: {
 											{lineNr + 1}
 										</Box>{" "}
 									</Box>
-								);
+								)
 							}
 							return (
 								<>
 									{element}
-									{codeIssue ? <Box h={14} /> : null}
+									{codeIssues && codeIssues.length > 0
+										? codeIssues.map((issue) => <Box h={14} />)
+										: null}
 								</>
-							);
+							)
 						})}
 					</Box>
-					<Box overflowX={"auto"}>
+					<Box overflowX={"auto"} flex={1}>
 						{lines?.map((line, lineNr) => {
-							let color = "transparent";
-							const codeIssue = props.hideIssues
+							let color = "transparent"
+							const codeIssues = props.hideIssues
 								? undefined
-								: issueOnLine[lineNr + 1];
-							let element: ReactNode = null;
-							const lineData = coveragePerLine[lineNr + 1];
-							const baseLineData = baseCoveragePerLine[lineNr + 1];
+								: issuesOnLine[lineNr + 1]
+							let element: ReactNode = null
+							const lineData = coveragePerLine[lineNr + 1]
+							const baseLineData = baseCoveragePerLine[lineNr + 1]
 							if (lineData) {
 								if (lineData.coverageItems.length) {
 									if (
@@ -142,13 +149,13 @@ export const FileCoverageDisplay = (props: {
 											l.type === "cond" ? l.covered < l.total : l.count === 0,
 										).length === 0
 									) {
-										color = "green.200";
+										color = "green.200"
 									} else if (
 										lineData.coverageItems.some((l) => l.count && l.count > 0)
 									) {
-										color = "yellow.200";
+										color = "yellow.200"
 									} else {
-										color = "red.200";
+										color = "red.200"
 									}
 									element = (
 										<Box
@@ -181,15 +188,16 @@ export const FileCoverageDisplay = (props: {
 																	{l.sourceData
 																		?.split(";")
 																		.map((l, i) => {
-																			const item = l.split("=");
+																			const item = l.split("=")
 																			if (item[1] && !item[1].includes("|")) {
 																				return (
 																					<Tr key={item[0]}>
 																						<Td>{item[0]}</Td>
 																						<Td isNumeric>{item[1]}</Td>
 																					</Tr>
-																				);
-																			} else if (item[1]?.includes("|")) {
+																				)
+																			}
+																			if (item[1]?.includes("|")) {
 																				return (
 																					<Tr key={item[0]}>
 																						<Td>{item[0]}</Td>
@@ -206,10 +214,9 @@ export const FileCoverageDisplay = (props: {
 																								.join(", ")}
 																						</Td>
 																					</Tr>
-																				);
-																			} else {
-																				return undefined;
+																				)
 																			}
+																			return undefined
 																		})
 																		.filter((i) => i)}
 																</Table>
@@ -219,7 +226,7 @@ export const FileCoverageDisplay = (props: {
 												</Popover>
 											))}
 										</Box>
-									);
+									)
 								} else {
 									element = (
 										<Box
@@ -232,7 +239,7 @@ export const FileCoverageDisplay = (props: {
 										>
 											{line ? line : <>&nbsp;</>}
 										</Box>
-									);
+									)
 								}
 							} else {
 								element = (
@@ -246,32 +253,34 @@ export const FileCoverageDisplay = (props: {
 									>
 										{line ? line : <>&nbsp;</>}
 									</Box>
-								);
+								)
 							}
 							return (
 								<>
 									{element}
-									{codeIssue ? (
-										<Box
-											bg={
-												priorityColor[
-													codeIssue.severity as keyof typeof priorityColor
-												]
-											}
-											boxShadow={"inset 2px 2px 3px 0px rgba(0,0,0,0.2)"}
-											color={"white"}
-											p={4}
-											h={14}
-										>
-											{codeIssue.severity}: {codeIssue.message}
-										</Box>
-									) : null}
+									{codeIssues && codeIssues.length > 0
+										? codeIssues.map((codeIssue) => (
+												<Box
+													bg={
+														priorityColor[
+															codeIssue.severity as keyof typeof priorityColor
+														]
+													}
+													boxShadow={"inset 2px 2px 3px 0px rgba(0,0,0,0.2)"}
+													color={"white"}
+													p={4}
+													h={14}
+												>
+													{codeIssue.severity}: {codeIssue.message}
+												</Box>
+										  ))
+										: null}
 								</>
-							);
+							)
 						})}
 					</Box>
 				</>
 			)}
 		</Flex>
-	);
-};
+	)
+}

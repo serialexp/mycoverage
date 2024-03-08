@@ -1,10 +1,10 @@
-import { Box } from "@chakra-ui/react";
-import { Commit } from "db/dbtypes";
-import TimeAgo from "react-timeago";
+import { Box } from "@chakra-ui/react"
+import { Commit } from "db/dbtypes"
+import TimeAgo from "react-timeago"
 
 export const CommitInfo = (props: {
-	lastCommit?: Commit | null;
-	lastProcessedCommit?: Commit | null;
+	lastCommit?: Commit | null
+	lastProcessedCommit?: Commit | null
 }) => {
 	return (
 		<>
@@ -33,5 +33,5 @@ export const CommitInfo = (props: {
 				</Box>
 			) : null}
 		</>
-	);
-};
+	)
+}
