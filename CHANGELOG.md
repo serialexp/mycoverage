@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/serialexp/mycoverage/compare/v1.34.1...v1.34.2) (2024-03-25)
+
+
+### Bug Fixes
+
+* use proper identifier to get github pr ([283b38f](https://github.com/serialexp/mycoverage/commit/283b38f1afb6f544dca1a54e05778eb3eda649fc))
+
 ## [1.34.1](https://github.com/serialexp/mycoverage/compare/v1.34.0...v1.34.1) (2024-03-25)
 
 
