@@ -10,9 +10,7 @@ import { Octokit } from "@octokit/rest"
 import path from "path"
 import { slugify } from "src/library/slugify"
 
-export async function updatePR(
-  pullRequest: PullRequest & { project: Project & { group: Group } },
-) {
+export async function updatePR(pullRequest: PullRequest & { project: Project & { group: Group } }) {
   const octokit = await getAppOctokit()
 
   const baseUrl = await getSetting("baseUrl")
@@ -30,10 +28,7 @@ export async function updatePR(
   })
 
   const coverageComments = comments.data.filter((comment) => {
-    return (
-      comment.body?.includes("**Coverage quality gate**") &&
-      comment.user?.type === "Bot"
-    )
+    return comment.body?.includes("**Coverage quality gate**") && comment.user?.type === "Bot"
   })
 
   if (coverageComments.length > 0) {
@@ -76,8 +71,7 @@ export async function updatePR(
         },
       },
     })
-    const coverageCommit =
-      pullRequestResult?.mergeCommit || pullRequestResult?.commit
+    const coverageCommit = pullRequestResult?.mergeCommit || pullRequestResult?.commit
 
     if (
       !pullRequestResult ||
@@ -149,7 +143,7 @@ export async function updatePR(
         noBaseCommit = "not_found"
       } else {
         log(
-          `switching base commit to last successful commit on ${pullRequest.baseBranch} to ${baseBuildInfo.lastProcessedCommit.ref}`,
+          `switching base commit to last successful commit on ${pullRequest.baseBranch} to ${baseBuildInfo.lastProcessedCommit.ref}`
         )
         baseCommit = baseBuildInfo.lastProcessedCommit
         switchedBaseCommit = true
@@ -175,7 +169,7 @@ ${message}`,
             "project",
             pullRequest.project.slug,
             "commit",
-            baseCommit.ref,
+            baseCommit.ref
           )
         const check = await octokit.checks.create({
           owner: pullRequest.project.group.name,
@@ -201,10 +195,7 @@ ${message}`,
             ],
           },
         })
-        log(
-          `Check successfully created for commit ${coverageCommit.ref}`,
-          check.data.id,
-        )
+        log(`Check successfully created for commit ${coverageCommit.ref}`, check.data.id)
       } catch (error) {
         log("could not create check", error)
       }
@@ -220,9 +211,7 @@ ${baseCommitMessage}
 
 Check why there are no commits with a completely processed set coverage on the [${
           pullRequest.baseBranch
-        }](/${pullRequest.project.group.githubName}/${
-          pullRequest.project.slug
-        }/tree/${
+        }](/${pullRequest.project.group.githubName}/${pullRequest.project.slug}/tree/${
           pullRequest.baseBranch
         }) branch before ${checkCommit.createdDate.toLocaleString()}
 ${
@@ -233,9 +222,7 @@ ${
 Qualifying commits coverage processing status:
 ${baseBuildInfo?.commits
   ?.map((baseCommitOption) => {
-    return `* ${baseCommitOption.ref}: [${
-      baseCommitOption.coverageProcessStatus
-    }](${
+    return `* ${baseCommitOption.ref}: [${baseCommitOption.coverageProcessStatus}](${
       baseUrl +
       path.join(
         "group",
@@ -243,7 +230,7 @@ ${baseBuildInfo?.commits
         "project",
         pullRequest.project.slug,
         "commit",
-        baseCommitOption.ref,
+        baseCommitOption.ref
       )
     }) (${baseCommitOption.createdDate.toLocaleString()})`
   })
@@ -258,7 +245,7 @@ ${baseBuildInfo?.commits
             "project",
             pullRequest.project.slug,
             "commit",
-            baseCommit.ref,
+            baseCommit.ref
           )
         const check = await octokit.checks.create({
           owner: pullRequest.project.group.name,
@@ -284,10 +271,7 @@ ${baseBuildInfo?.commits
             ],
           },
         })
-        log(
-          `Check successfully created for commit ${pullRequestResult.commit.ref}`,
-          check.data.id,
-        )
+        log(`Check successfully created for commit ${pullRequestResult.commit.ref}`, check.data.id)
       } catch (error) {
         log("could not create check", error)
       }
@@ -302,7 +286,7 @@ ${baseBuildInfo?.commits
           "commit",
           coverageCommit.ref,
           "compare",
-          baseCommit.ref,
+          baseCommit.ref
         )
 
       const expectedChanges = changedFiles.data.map((f) => f.filename)
@@ -313,24 +297,18 @@ ${baseBuildInfo?.commits
         baseCommit.id,
         coverageCommit.id,
         expectedChanges,
-        removedPaths,
+        removedPaths
       )
 
       const state =
-        differences.averageChange > 0
-          ? "BETTER"
-          : differences.averageChange < 0
-            ? "WORSE"
-            : "SAME"
-      const overallDiff =
-        coverageCommit.coveredPercentage - baseCommit.coveredPercentage
-      const overallState =
-        overallDiff === 0 ? "SAME" : overallDiff > 0 ? "BETTER" : "WORSE"
+        differences.averageChange > 0 ? "BETTER" : differences.averageChange < 0 ? "WORSE" : "SAME"
+      const overallDiff = coverageCommit.coveredPercentage - baseCommit.coveredPercentage
+      const overallState = overallDiff === 0 ? "SAME" : overallDiff > 0 ? "BETTER" : "WORSE"
 
       const satisfied = satisfiesExpectedResults(
         coverageCommit,
         project.ExpectedResult,
-        pullRequest.baseBranch,
+        pullRequest.baseBranch
       )
 
       const testResults: {
@@ -342,8 +320,7 @@ ${baseBuildInfo?.commits
       let similarTestsResults = 0
       for (const test of coverageCommit.Test) {
         const baseCoverage =
-          baseCommit.Test.find((t) => t.testName === test.testName)
-            ?.coveredPercentage || 0
+          baseCommit.Test.find((t) => t.testName === test.testName)?.coveredPercentage || 0
         const diff = (test.coveredPercentage - baseCoverage) / baseCoverage
 
         if (baseCoverage !== test.coveredPercentage) {
@@ -358,9 +335,7 @@ ${baseBuildInfo?.commits
         }
       }
       for (const test of baseCommit.Test) {
-        const testResultIsMissing = satisfied.missing.some(
-          (m) => m.test === test.testName,
-        )
+        const testResultIsMissing = satisfied.missing.some((m) => m.test === test.testName)
         if (testResultIsMissing) {
           testResults.push({
             name: test.testName,
@@ -403,9 +378,9 @@ ${baseBuildInfo?.commits
 Issues:
 ${satisfied.missing
   .map((test) => {
-    return `- Missing ${test.count} ${
-      test.count === 1 ? "result" : "results"
-    } for *${test.test}*, expected ${test.expected}`
+    return `- Missing ${test.count} ${test.count === 1 ? "result" : "results"} for *${
+      test.test
+    }*, expected ${test.expected}`
   })
   .join("\n")}
 
@@ -416,26 +391,25 @@ Preliminary commit coverage:
 
 Difference: ${format.format(
           coverageCommit.coveredPercentage - baseCommit.coveredPercentage,
-          true,
+          true
         )}% (${format.format(
           coverageCommit.coveredElements - baseCommit.coveredElements,
-          true,
+          true
         )} elements)
 
 ${testResults
   .map((result) => {
-    return `- *${result.name}*: ${format.format(
-      result.before,
-      true,
-    )}% -> ${format.format(result.after, true)}% (${format.format(
-      result.difference * 100,
-      true,
-    )}%)`
+    return `- *${result.name}*: ${format.format(result.before, true)}% -> ${format.format(
+      result.after,
+      true
+    )}% (${format.format(result.difference * 100, true)}%)`
   })
   .join("\n")}
 - ${similarTestsResults} tests which have the same result`
       } else {
-        resultString = `**Coverage quality gate**
+        resultString = `**Coverage quality gate** ([MyCoverage](${baseUrl}group/${
+          pullRequest.project.group.slug
+        }/project/${pullRequest.project.slug}/pullrequest/${pullRequest.id}))
 
 ${
   ["SAME", "BETTER"].includes(state)
@@ -446,61 +420,47 @@ ${
   switchedBaseCommit
     ? `\n_Base commit for comparison was switched from ${pullRequestResult.baseCommit.ref.substring(
         0,
-        10,
-      )} to last successfully processed commit ${baseCommit.ref.substring(
-        0,
-        10,
-      )}_\n`
+        10
+      )} to last successfully processed commit ${baseCommit.ref.substring(0, 10)}_\n`
     : ""
 }
 Commit Coverage:
 
 - Base: ${format.format(baseCommit.coveredPercentage, true)}% (${format.format(
-          baseCommit.coveredElements,
-        )} / ${format.format(baseCommit.elements)}, ${
-          baseCommit.ref
-        }, ${timeAgo(baseCommit.createdDate)})
-- New: ${format.format(
-          coverageCommit.coveredPercentage,
-          true,
-        )}% (${format.format(coverageCommit.coveredElements)} / ${format.format(
-          coverageCommit.elements,
-        )}, ${coverageCommit.ref})
+          baseCommit.coveredElements
+        )} / ${format.format(baseCommit.elements)}, ${baseCommit.ref}, ${timeAgo(
+          baseCommit.createdDate
+        )})
+- New: ${format.format(coverageCommit.coveredPercentage, true)}% (${format.format(
+          coverageCommit.coveredElements
+        )} / ${format.format(coverageCommit.elements)}, ${coverageCommit.ref})
 
 ${format.format(
   coverageCommit.coveredElements - baseCommit.coveredElements,
-  true,
-)} covered, ${format.format(
-          coverageCommit.elements - baseCommit.elements,
-          true,
-        )} total elements
+  true
+)} covered, ${format.format(coverageCommit.elements - baseCommit.elements, true)} total elements
 
-Changed Files: ${
-          state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"
-        } ${format.format(differences.averageChange, true)}%
+Changed Files: ${state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"} ${format.format(
+          differences.averageChange,
+          true
+        )}%
 Overall Difference: ${
           overallState === "BETTER"
             ? "🥰"
             : overallState === "SAME"
-              ? "🙂"
-              : state === "BETTER"
-                ? // the commit is good, but the overall is worse
-                  "😅"
-                : "🙁"
-        } ${format.format(
-          coverageCommit.coveredPercentage - baseCommit.coveredPercentage,
-          true,
-        )}%
+            ? "🙂"
+            : state === "BETTER"
+            ? // the commit is good, but the overall is worse
+              "😅"
+            : "🙁"
+        } ${format.format(coverageCommit.coveredPercentage - baseCommit.coveredPercentage, true)}%
 
 ${testResults
   .map((result) => {
-    return `- *${result.name}*: ${format.format(
-      result.before,
-      true,
-    )}% -> ${format.format(result.after, true)}% (${format.format(
-      result.difference * 100,
-      true,
-    )}%)`
+    return `- *${result.name}*: ${format.format(result.before, true)}% -> ${format.format(
+      result.after,
+      true
+    )}% (${format.format(result.difference * 100, true)}%)`
   })
   .join("\n")}
 - ${similarTestsResults} tests which have the same result
@@ -515,8 +475,8 @@ ${
   state === "SAME"
     ? "New Commit is **the same** as Base Commit"
     : state === "BETTER"
-      ? "New Commit is **better** than Base Commit"
-      : "New Commit is **worse** than Base Commit"
+    ? "New Commit is **better** than Base Commit"
+    : "New Commit is **worse** than Base Commit"
 }
 
 ${
@@ -541,7 +501,7 @@ ${
           "project",
           pullRequest.project.slug,
           "pullrequest",
-          pullRequest.id.toString(),
+          pullRequest.id.toString()
         )
 
       const addedFilesText = `### New files
@@ -563,24 +523,20 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
           conclusion: !requireIncrease
             ? "success"
             : ["SAME", "BETTER"].includes(state)
-              ? "success"
-              : "failure",
+            ? "success"
+            : "failure",
           completed_at: new Date().toISOString(),
           output: {
             title: "Coverage",
-            summary: `${format.format(
-              baseCommit.coveredPercentage,
-            )}% -> ${format.format(coverageCommit.coveredPercentage)}%`,
+            summary: `${format.format(baseCommit.coveredPercentage)}% -> ${format.format(
+              coverageCommit.coveredPercentage
+            )}%`,
             text: `### Coverage increase
 
-${differences.increase
-  .map((diff) => `- ${diff.base?.name}: +${diff.change}`)
-  .join("\n")}
+${differences.increase.map((diff) => `- ${diff.base?.name}: +${diff.change}`).join("\n")}
 
 ### Coverage decrease
-${differences.decrease
-  .map((diff) => `- ${diff.base?.name}: ${diff.change}`)
-  .join("\n")}
+${differences.decrease.map((diff) => `- ${diff.base?.name}: ${diff.change}`).join("\n")}
 
 ${differences.add.length > 0 ? addedFilesText : ""}
 ${differences.remove.length > 0 ? removedFilesText : ""}
@@ -598,7 +554,7 @@ ${differences.remove.length > 0 ? removedFilesText : ""}
         })
         log(
           `Check successfully created for commit ${checkCommit.ref} using coverage from ${coverageCommit.ref}`,
-          check.data.id,
+          check.data.id
         )
       } catch (error) {
         log("could not create check", error)

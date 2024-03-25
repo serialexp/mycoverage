@@ -54,7 +54,7 @@ const PullRequestPage: BlitzPage = () => {
     branchSlug: slugify(pullRequest?.branch), // branch is not a slug in the db
   })
   const [commit] = useQuery(getCommit, {
-    commitRef: pullRequest?.commit.ref,
+    commitRef: pullRequest?.mergeCommit?.ref ?? pullRequest?.commit.ref,
   })
   const [baseBuildInfo] = useQuery(getLastBuildInfo, {
     projectId: project?.id,
@@ -70,11 +70,7 @@ const PullRequestPage: BlitzPage = () => {
   return groupId && projectId && prId && pullRequest && commit ? (
     <>
       <Heading>PR: {pullRequest?.name}</Heading>
-      <Breadcrumbs
-        project={project}
-        group={project?.group}
-        pullRequest={pullRequest}
-      />
+      <Breadcrumbs project={project} group={project?.group} pullRequest={pullRequest} />
       <Actions>
         <Link href={Routes.ProjectPage({ groupId, projectId })}>
           <Button>Back</Button>
@@ -87,9 +83,7 @@ const PullRequestPage: BlitzPage = () => {
           })}
         >
           <Button
-            isDisabled={
-              buildInfo.lastCommit?.ref !== buildInfo.lastProcessedCommit?.ref
-            }
+            isDisabled={buildInfo.lastCommit?.ref !== buildInfo.lastProcessedCommit?.ref}
             colorScheme={"secondary"}
             ml={2}
           >
@@ -117,13 +111,12 @@ const PullRequestPage: BlitzPage = () => {
         >
           Update PR Comment
         </Button>
-        {baseBuildInfo.lastProcessedCommit?.ref &&
-        buildInfo.lastCommit?.ref === buildInfo.lastProcessedCommit?.ref ? (
+        {baseBuildInfo.lastProcessedCommit?.ref && commit.coverageProcessStatus === "FINISHED" ? (
           <Link
             href={Routes.CompareBranchPage({
               groupId,
               projectId,
-              commitRef: pullRequest.commit.ref,
+              commitRef: commit.ref,
               baseCommitRef: baseBuildInfo.lastProcessedCommit?.ref || "",
             })}
           >
@@ -143,11 +136,7 @@ const PullRequestPage: BlitzPage = () => {
       </Subheading>
       <Flex m={4} justifyContent={"space-between"}>
         <Box>
-          <ChakraLink
-            target={"_blank"}
-            href={pullRequest?.url}
-            color={"blue.500"}
-          >
+          <ChakraLink target={"_blank"} href={pullRequest?.url} color={"blue.500"}>
             #{pullRequest?.sourceIdentifier}
           </ChakraLink>
         </Box>
@@ -177,9 +166,7 @@ const PullRequestPage: BlitzPage = () => {
                 commitRef: pullRequest?.commit?.ref || "",
               })}
             >
-              <ChakraLink color={"blue.500"}>
-                {pullRequest?.commit?.ref.substr(0, 10)}
-              </ChakraLink>
+              <ChakraLink color={"blue.500"}>{pullRequest?.commit?.ref.substr(0, 10)}</ChakraLink>
             </Link>
             )
           </Tag>
@@ -189,22 +176,17 @@ const PullRequestPage: BlitzPage = () => {
         </Tag>
       </Flex>
       {baseBuildInfo.lastProcessedCommit?.ref &&
-      baseBuildInfo.lastCommit?.ref !==
-        baseBuildInfo.lastProcessedCommit?.ref ? (
+      baseBuildInfo.lastCommit?.ref !== baseBuildInfo.lastProcessedCommit?.ref ? (
         <Box px={4}>
           <Alert status={"error"}>
             <AlertIcon />
             <AlertTitle>No suitable base commit found</AlertTitle>
             <AlertDescription>
               Using older commit{" "}
-              <Code>
-                {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
-              </Code>{" "}
-              (
-              <TimeAgo date={baseBuildInfo.lastProcessedCommit.createdDate} />)
-              for <Code>{pullRequest?.baseBranch}</Code> coverage on this page,
-              as status for base commit{" "}
-              <Code>{baseBuildInfo.lastCommit?.ref.substring(0, 10)}</Code> (
+              <Code>{baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}</Code> (
+              <TimeAgo date={baseBuildInfo.lastProcessedCommit.createdDate} />) for{" "}
+              <Code>{pullRequest?.baseBranch}</Code> coverage on this page, as status for base
+              commit <Code>{baseBuildInfo.lastCommit?.ref.substring(0, 10)}</Code> (
               <TimeAgo date={baseBuildInfo.lastCommit?.createdDate ?? 0} />) is{" "}
               <BuildStatus
                 commit={baseBuildInfo.lastCommit}
@@ -223,8 +205,7 @@ const PullRequestPage: BlitzPage = () => {
             <AlertTitle>No suitable base commit found</AlertTitle>
             <AlertDescription>
               Please make sure coverage is correctly processed for commit{" "}
-              <Code>{pullRequest.baseCommit?.ref.substring(0, 10)}</Code> on the
-              target branch.{" "}
+              <Code>{pullRequest.baseCommit?.ref.substring(0, 10)}</Code> on the target branch.{" "}
               <BuildStatus
                 commit={baseBuildInfo.lastCommit}
                 expectedResults={project?.ExpectedResult}
@@ -239,13 +220,10 @@ const PullRequestPage: BlitzPage = () => {
         <div>Head: {pullRequest.commit?.ref.substring(0, 10)}</div>
         <div>Merge: {pullRequest.mergeCommit?.ref.substring(0, 10)}</div>
         <div>Base: {pullRequest.baseCommit?.ref.substring(0, 10)}</div>
-        <div>
-          Base processed:{" "}
-          {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
-        </div>
+        <div>Base processed: {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}</div>
       </Box>
       <Subheading mt={4} size={"md"}>
-        Last Commit
+        {pullRequest?.mergeCommit?.ref ? "Last Merge Commit (used for PR's)" : "Last Commit"}
       </Subheading>
       <CommitInfo lastCommit={commit} />
 
@@ -304,9 +282,7 @@ const PullRequestPage: BlitzPage = () => {
                     commitRef: commit.ref,
                   })}
                 >
-                  <ChakraLink color={"blue.500"}>
-                    {commit.ref.substr(0, 10)}
-                  </ChakraLink>
+                  <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
                 </Link>
               </Td>
               <Td>{commit.message}</Td>
@@ -319,8 +295,7 @@ const PullRequestPage: BlitzPage = () => {
                 />
               </Td>
               <Td isNumeric>
-                {format.format(commit.coveredElements)}/
-                {format.format(commit.elements)}
+                {format.format(commit.coveredElements)}/{format.format(commit.elements)}
               </Td>
               <Td isNumeric>{format.format(commit.coveredPercentage)}%</Td>
             </Tr>
@@ -332,8 +307,6 @@ const PullRequestPage: BlitzPage = () => {
 }
 
 PullRequestPage.suppressFirstRenderFlicker = true
-PullRequestPage.getLayout = (page) => (
-  <Layout title="Pull Request">{page}</Layout>
-)
+PullRequestPage.getLayout = (page) => <Layout title="Pull Request">{page}</Layout>
 
 export default PullRequestPage
