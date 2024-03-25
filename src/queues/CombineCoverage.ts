@@ -4,20 +4,20 @@ import { queueConfig } from "src/queues/config"
 import { Queue } from "bullmq"
 
 export const combineCoverageQueue = new Queue<ProcessCombineCoveragePayload>(
-	"combinecoverage",
-	{
-		connection: queueConfig,
-		defaultJobOptions: {
-			removeOnFail: true,
-		},
-	},
+  "combinecoverage",
+  {
+    connection: queueConfig,
+    defaultJobOptions: {
+      removeOnFail: true,
+    },
+  },
 )
 
 export const combineCoverageJob = (payload: ProcessCombineCoveragePayload) => {
-	log(`Adding new combine coverage job for ${payload.commit.ref}`)
-	return combineCoverageQueue.add("combinecoverage", payload, {
-		removeOnComplete: true,
-		removeOnFail: true,
-		delay: payload.delay,
-	})
+  log(`Adding new combine coverage job for ${payload.commit.ref}`)
+  return combineCoverageQueue.add("combinecoverage", payload, {
+    removeOnComplete: true,
+    removeOnFail: true,
+    delay: payload.delay,
+  })
 }

@@ -1,10 +1,10 @@
 import { Ctx } from "blitz"
 
 import {
-	getFileData as getGithubFileData,
-	getGithubAccessibleRepositories,
+  getFileData as getGithubFileData,
+  getGithubAccessibleRepositories,
 } from "src/library/github"
 
 export default async function getAccessibleRepositories() {
-	return getGithubAccessibleRepositories()
+  return getGithubAccessibleRepositories()
 }

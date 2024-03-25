@@ -3,29 +3,29 @@ import db from "db"
 import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData"
 
 export default async function getLineCoverageData(
-	args: { fileCoverageId?: string },
-	{ session }: Ctx,
+  args: { fileCoverageId?: string },
+  { session }: Ctx,
 ) {
-	if (!args.fileCoverageId) {
-		return {
-			coveragePerLine: {},
-			issuesOnLine: {},
-			raw: "",
-		}
-	}
+  if (!args.fileCoverageId) {
+    return {
+      coveragePerLine: {},
+      issuesOnLine: {},
+      raw: "",
+    }
+  }
 
-	const fileCoverage = await db.fileCoverage.findFirst({
-		where: {
-			id: Buffer.from(args.fileCoverageId, "base64"),
-		},
-		include: {
-			CodeIssueOnFileCoverage: {
-				include: {
-					CodeIssue: true,
-				},
-			},
-		},
-	})
+  const fileCoverage = await db.fileCoverage.findFirst({
+    where: {
+      id: Buffer.from(args.fileCoverageId, "base64"),
+    },
+    include: {
+      CodeIssueOnFileCoverage: {
+        include: {
+          CodeIssue: true,
+        },
+      },
+    },
+  })
 
-	return getInternalLineCoverageData(fileCoverage)
+  return getInternalLineCoverageData(fileCoverage)
 }

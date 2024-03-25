@@ -1,15 +1,15 @@
 import { useMutation, useQuery } from "@blitzjs/rpc"
 import {
-	Box,
-	Table,
-	Td,
-	Tr,
-	Link as ChakraLink,
-	FormLabel,
-	Input,
-	FormHelperText,
-	FormControl,
-	Button,
+  Box,
+  Table,
+  Td,
+  Tr,
+  Link as ChakraLink,
+  FormLabel,
+  Input,
+  FormHelperText,
+  FormControl,
+  Button,
 } from "@chakra-ui/react"
 import Link from "next/link"
 import { Heading } from "src/library/components/Heading"
@@ -28,94 +28,94 @@ import getAccessibleRepositories from "src/coverage/queries/getAccessibleReposit
  */
 
 const Home: BlitzPage = () => {
-	const [groups, groupsMeta] = useQuery(getGroups, null)
-	const [createGroup] = useMutation(createGroupMutation)
-	const [formFields, setFormFields] = useState({
-		name: "",
-		slug: "",
-		githubName: "",
-	})
+  const [groups, groupsMeta] = useQuery(getGroups, null)
+  const [createGroup] = useMutation(createGroupMutation)
+  const [formFields, setFormFields] = useState({
+    name: "",
+    slug: "",
+    githubName: "",
+  })
 
-	return (
-		<>
-			<Heading>Owner</Heading>
-			<Table>
-				{groups.map((g) => {
-					return (
-						<Tr key={g.id} _hover={{ bg: "primary.50" }}>
-							<Td>
-								<Link href={Routes.GroupPage({ groupId: g.slug })}>
-									<ChakraLink color={"blue.500"}>{g.name}</ChakraLink>
-								</Link>
-							</Td>
-							<Td>{g._count?.Project} repositories</Td>
-						</Tr>
-					)
-				})}
-			</Table>
-			<Subheading mt={4}>Add namespace</Subheading>
-			<Box p={4}>
-				<FormControl id="name">
-					<FormLabel>Name</FormLabel>
-					<Input
-						type="text"
-						value={formFields.name}
-						onChange={(e) => {
-							setFormFields((ff) => ({ ...ff, name: e.target.value }))
-						}}
-					/>
-					<FormHelperText>The name of the namespace</FormHelperText>
-				</FormControl>
-				<FormControl id="slug">
-					<FormLabel>Slug</FormLabel>
-					<Input
-						type="text"
-						value={formFields.slug}
-						onChange={(e) => {
-							setFormFields((ff) => ({ ...ff, slug: e.target.value }))
-						}}
-					/>
-					<FormHelperText>Slug used for the URL</FormHelperText>
-				</FormControl>
-				<FormControl id="githubName">
-					<FormLabel>Github Name</FormLabel>
-					<Input
-						type="text"
-						value={formFields.githubName}
-						onChange={(e) => {
-							setFormFields((ff) => ({ ...ff, githubName: e.target.value }))
-						}}
-					/>
-					<FormHelperText>
-						The name of the github organisation/user this namespace corresponds
-						to
-					</FormHelperText>
-				</FormControl>
-				<Button
-					mt={2}
-					colorScheme={"green"}
-					onClick={() => {
-						createGroup(formFields)
-							.then(() => {
-								setFormFields({
-									name: "",
-									slug: "",
-									githubName: "",
-								})
-								groupsMeta.refetch().catch((error) => {
-									console.error(error)
-								})
-							})
-							.catch((error) => {
-								console.error(error)
-							})
-					}}
-				>
-					Create
-				</Button>
-			</Box>
-		</>
-	)
+  return (
+    <>
+      <Heading>Owner</Heading>
+      <Table>
+        {groups.map((g) => {
+          return (
+            <Tr key={g.id} _hover={{ bg: "primary.50" }}>
+              <Td>
+                <Link href={Routes.GroupPage({ groupId: g.slug })}>
+                  <ChakraLink color={"blue.500"}>{g.name}</ChakraLink>
+                </Link>
+              </Td>
+              <Td>{g._count?.Project} repositories</Td>
+            </Tr>
+          )
+        })}
+      </Table>
+      <Subheading mt={4}>Add namespace</Subheading>
+      <Box p={4}>
+        <FormControl id="name">
+          <FormLabel>Name</FormLabel>
+          <Input
+            type="text"
+            value={formFields.name}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, name: e.target.value }))
+            }}
+          />
+          <FormHelperText>The name of the namespace</FormHelperText>
+        </FormControl>
+        <FormControl id="slug">
+          <FormLabel>Slug</FormLabel>
+          <Input
+            type="text"
+            value={formFields.slug}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, slug: e.target.value }))
+            }}
+          />
+          <FormHelperText>Slug used for the URL</FormHelperText>
+        </FormControl>
+        <FormControl id="githubName">
+          <FormLabel>Github Name</FormLabel>
+          <Input
+            type="text"
+            value={formFields.githubName}
+            onChange={(e) => {
+              setFormFields((ff) => ({ ...ff, githubName: e.target.value }))
+            }}
+          />
+          <FormHelperText>
+            The name of the github organisation/user this namespace corresponds
+            to
+          </FormHelperText>
+        </FormControl>
+        <Button
+          mt={2}
+          colorScheme={"green"}
+          onClick={() => {
+            createGroup(formFields)
+              .then(() => {
+                setFormFields({
+                  name: "",
+                  slug: "",
+                  githubName: "",
+                })
+                groupsMeta.refetch().catch((error) => {
+                  console.error(error)
+                })
+              })
+              .catch((error) => {
+                console.error(error)
+              })
+          }}
+        >
+          Create
+        </Button>
+      </Box>
+    </>
+  )
 }
 
 Home.suppressFirstRenderFlicker = true

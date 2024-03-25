@@ -16,59 +16,59 @@ import { Button, Code, Box } from "@chakra-ui/react"
 import getCommit from "src/coverage/queries/getCommit"
 
 const TestInstanceRawDataPage: BlitzPage = () => {
-	const commitRef = useParam("commitRef", "string")
-	const groupId = useParam("groupId", "string")
-	const projectId = useParam("projectId", "string")
-	const testInstanceId = useParam("testInstanceId", "number")
+  const commitRef = useParam("commitRef", "string")
+  const groupId = useParam("groupId", "string")
+  const projectId = useParam("projectId", "string")
+  const testInstanceId = useParam("testInstanceId", "number")
 
-	const [project] = useQuery(getProject, { projectSlug: projectId })
-	const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
-	const [testInstance] = useQuery(getTestInstance, {
-		testInstanceId: testInstanceId,
-	})
-	const [testInstanceData] = useQuery(getTestInstanceData, {
-		testInstanceId: testInstanceId,
-	})
+  const [project] = useQuery(getProject, { projectSlug: projectId })
+  const [commit] = useQuery(getCommit, { commitRef: commitRef || "" })
+  const [testInstance] = useQuery(getTestInstance, {
+    testInstanceId: testInstanceId,
+  })
+  const [testInstanceData] = useQuery(getTestInstanceData, {
+    testInstanceId: testInstanceId,
+  })
 
-	const [combineCoverageMutation] = useMutation(combineCoverage)
+  const [combineCoverageMutation] = useMutation(combineCoverage)
 
-	return commit &&
-		commitRef &&
-		projectId &&
-		groupId &&
-		project &&
-		testInstance ? (
-		<>
-			<Heading>
-				Test instance {testInstanceId} on {commit.ref.substr(0, 10)}
-			</Heading>
-			<Actions>
-				<Link
-					href={Routes.TestInstancePage({
-						groupId,
-						projectId,
-						commitRef: commitRef,
-						testInstanceId: testInstance.id,
-					})}
-				>
-					<Button>Back</Button>
-				</Link>
-			</Actions>
-			<Subheading mt={4} size={"md"}>
-				Test Data
-			</Subheading>
-			<Codeblock>{JSON.stringify(testInstance, null, 2)}</Codeblock>
-			<Subheading mt={4} size={"md"}>
-				Coverage Data
-			</Subheading>
-			<Codeblock>{testInstanceData}</Codeblock>
-		</>
-	) : null
+  return commit &&
+    commitRef &&
+    projectId &&
+    groupId &&
+    project &&
+    testInstance ? (
+    <>
+      <Heading>
+        Test instance {testInstanceId} on {commit.ref.substr(0, 10)}
+      </Heading>
+      <Actions>
+        <Link
+          href={Routes.TestInstancePage({
+            groupId,
+            projectId,
+            commitRef: commitRef,
+            testInstanceId: testInstance.id,
+          })}
+        >
+          <Button>Back</Button>
+        </Link>
+      </Actions>
+      <Subheading mt={4} size={"md"}>
+        Test Data
+      </Subheading>
+      <Codeblock>{JSON.stringify(testInstance, null, 2)}</Codeblock>
+      <Subheading mt={4} size={"md"}>
+        Coverage Data
+      </Subheading>
+      <Codeblock>{testInstanceData}</Codeblock>
+    </>
+  ) : null
 }
 
 TestInstanceRawDataPage.suppressFirstRenderFlicker = true
 TestInstanceRawDataPage.getLayout = (page) => (
-	<Layout title="Test instance raw">{page}</Layout>
+  <Layout title="Test instance raw">{page}</Layout>
 )
 
 export default TestInstanceRawDataPage
