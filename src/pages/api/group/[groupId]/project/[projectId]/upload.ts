@@ -7,10 +7,7 @@ import { uploadJob, uploadQueue } from "src/queues/UploadQueue"
 import db, { CoverageProcessStatus } from "db"
 import { S3 } from "@aws-sdk/client-s3"
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const startTime = new Date()
   const query = fixQuery(req.query)
   if (query.projectId && query.branch && query.testName && query.ref) {
@@ -69,9 +66,9 @@ export default async function handler(
         throw new Error("No coverage data posted")
       }
 
-      const coverageFileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${
-        project.slug
-      }/${query.ref}/instance-${query.testName}-${new Date().getTime()}.data`
+      const coverageFileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${project.slug}/${
+        query.ref
+      }/instance-${query.testName}-${new Date().getTime()}.data`
 
       const s3 = new S3({})
       await s3.putObject({
@@ -140,8 +137,7 @@ export default async function handler(
         })
       }
 
-      if (!commit)
-        throw new Error(`Could not create commit for ref ${query.ref}`)
+      if (!commit) throw new Error(`Could not create commit for ref ${query.ref}`)
 
       try {
         const commitBranch = await mydb.commitOnBranch.create({
@@ -151,10 +147,7 @@ export default async function handler(
           },
         })
       } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.includes("Unique constraint")
-        ) {
+        if (error instanceof Error && error.message.includes("Unique constraint")) {
           log("commit already on branch")
         } else {
           throw error
@@ -170,17 +163,14 @@ export default async function handler(
         const correspondingPr = await mydb.pullRequest.findFirst({
           where: {
             projectId: project.id,
-            sourceId: parseInt(prNumber),
+            sourceIdentifier: prNumber,
             state: "open",
           },
           include: {
             commit: true,
           },
         })
-        if (
-          correspondingPr &&
-          correspondingPr.commit.createdDate < commit.createdDate
-        ) {
+        if (correspondingPr && correspondingPr.commit.createdDate < commit.createdDate) {
           log("found corresponding PR, updating last commit")
           await mydb.pullRequest.update({
             where: {
@@ -190,6 +180,8 @@ export default async function handler(
               mergeCommitId: commit.id,
             },
           })
+        } else {
+          log(`no corresponding PR found for merge branch with id ${prNumber}`)
         }
       } else {
         const correspondingPr = await mydb.pullRequest.findFirst({
@@ -201,10 +193,7 @@ export default async function handler(
             commit: true,
           },
         })
-        if (
-          correspondingPr &&
-          correspondingPr.commit.createdDate < commit.createdDate
-        ) {
+        if (correspondingPr && correspondingPr.commit.createdDate < commit.createdDate) {
           log("found corresponding PR, updating last commit")
           await mydb.pullRequest.update({
             where: {
@@ -217,11 +206,7 @@ export default async function handler(
         }
       }
 
-      log(
-        "does the default branch match",
-        project.defaultBaseBranch,
-        branch.name,
-      )
+      log("does the default branch match", project.defaultBaseBranch, branch.name)
       if (project.defaultBaseBranch === branch.name) {
         log("update last commit id")
         await mydb.project.update({
@@ -243,7 +228,7 @@ export default async function handler(
         query.workingDirectory,
         testInstanceIndex,
         group.slug,
-        project.slug,
+        project.slug
       ).catch((error) => {
         log("error adding upload job", error)
       })
