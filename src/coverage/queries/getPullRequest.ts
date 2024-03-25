@@ -11,6 +11,7 @@ export default async function getPullRequest(
 		include: {
 			commit: true,
 			baseCommit: true,
+			mergeCommit: true,
 		},
 	})
 

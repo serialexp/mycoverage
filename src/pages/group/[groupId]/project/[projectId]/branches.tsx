@@ -1,6 +1,7 @@
 import { BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { useQuery } from "@blitzjs/rpc"
 import Link from "next/link"
+import TimeAgo from "react-timeago"
 import getBranches from "src/branches/queries/getBranches"
 import getProject from "src/coverage/queries/getProject"
 import { Actions } from "src/library/components/Actions"
@@ -26,7 +27,7 @@ const ProjectBranchesPage: BlitzPage = () => {
 			projectId: project?.id,
 		},
 		orderBy: {
-			createdDate: "desc",
+			updatedDate: "desc",
 		},
 	})
 
@@ -47,7 +48,7 @@ const ProjectBranchesPage: BlitzPage = () => {
 				<Thead>
 					<Tr>
 						<Th>Name</Th>
-						<Th isNumeric>Created</Th>
+						<Th isNumeric>Updated</Th>
 					</Tr>
 				</Thead>
 				{branchData.branches.map((branch) => (
@@ -63,7 +64,9 @@ const ProjectBranchesPage: BlitzPage = () => {
 								<ChakraLink color={"blue.500"}>{branch.name}</ChakraLink>
 							</Link>
 						</Td>
-						<Td isNumeric>{branch.createdDate.toLocaleString()}</Td>
+						<Td isNumeric>
+							<TimeAgo live={false} date={branch.updatedDate} />
+						</Td>
 					</Tr>
 				))}
 			</Table>

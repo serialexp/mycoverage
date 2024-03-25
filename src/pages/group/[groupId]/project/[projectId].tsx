@@ -22,6 +22,7 @@ import { TestResults } from "src/library/components/TestResults"
 import { TestResultStatus } from "src/library/components/TestResultStatus"
 import TreeMap from "src/library/components/TreeMap"
 import Layout from "src/core/layouts/Layout"
+import { slugify } from "src/library/slugify"
 import getProject from "../../../../coverage/queries/getProject"
 import {
 	Alert,
@@ -61,6 +62,7 @@ const ProjectPage: BlitzPage = () => {
 	})
 	const [buildInfo] = useQuery(getLastBuildInfo, {
 		projectId: project?.id || 0,
+		branchSlug: slugify(project?.defaultBaseBranch),
 	})
 
 	return groupId && projectId && project ? (
@@ -84,18 +86,21 @@ const ProjectPage: BlitzPage = () => {
 					<Button leftIcon={<FaGears />}>Settings</Button>
 				</Link>
 			</Actions>
-			<Subheading>Main branch ({project.defaultBaseBranch})</Subheading>
-			<Box m={4}>
+			<Subheading>
+				Main branch (
 				<Link
 					href={Routes.BranchPage({
 						groupId,
 						projectId,
-						branchId: buildInfo.branch?.name || "",
+						branchId: slugify(project.defaultBaseBranch) || "",
 					})}
 				>
-					<ChakraLink color={"blue.500"}>{buildInfo.branch?.name}</ChakraLink>
+					<ChakraLink color={"blue.500"}>
+						{project.defaultBaseBranch}
+					</ChakraLink>
 				</Link>
-			</Box>
+				)
+			</Subheading>
 			<CommitInfo
 				lastCommit={buildInfo?.lastCommit}
 				lastProcessedCommit={buildInfo?.lastProcessedCommit}

@@ -234,6 +234,16 @@ const PullRequestPage: BlitzPage = () => {
 					</Alert>
 				</Box>
 			) : null}
+			<Subheading>Pull Request Commits</Subheading>
+			<Box p={4}>
+				<div>Head: {pullRequest.commit?.ref.substring(0, 10)}</div>
+				<div>Merge: {pullRequest.mergeCommit?.ref.substring(0, 10)}</div>
+				<div>Base: {pullRequest.baseCommit?.ref.substring(0, 10)}</div>
+				<div>
+					Base processed:{" "}
+					{baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
+				</div>
+			</Box>
 			<Subheading mt={4} size={"md"}>
 				Last Commit
 			</Subheading>

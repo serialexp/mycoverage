@@ -86,6 +86,7 @@ model Commit {
   BasePullRequest  PullRequest[]       @relation("baseCommit")
   CoverageSource   CoverageSource[]
   Lighthouse       Lighthouse[]
+  MergePullRequest PullRequest[]       @relation("mergeCommit")
 }
 
 enum LighthouseKind {
@@ -385,6 +386,8 @@ model PullRequest {
   name             String
   baseBranch       String
   branch           String
+  mergeCommitId    Int?
+  mergeCommit      Commit?  @relation(name: "mergeCommit", map: "mergeCommit", references: [id], onDelete: Cascade, fields: [mergeCommitId])
   commitId         Int
   commit           Commit   @relation(name: "commit", map: "commit", references: [id], onDelete: Cascade, fields: [commitId])
   baseCommitId     Int?

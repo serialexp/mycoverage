@@ -10,8 +10,10 @@ import { CommitInfo } from "src/library/components/CommitInfo"
 import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { Heading } from "src/library/components/Heading"
 import { RecentCommitTable } from "src/library/components/RecentCommitTable"
+import { Section } from "src/library/components/Section"
 import { Subheading } from "src/library/components/Subheading"
 import { TestResults } from "src/library/components/TestResults"
+import { TestResultStatus } from "src/library/components/TestResultStatus"
 import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
 import Layout from "src/core/layouts/Layout"
 import {
@@ -108,28 +110,25 @@ const BranchPage: BlitzPage = () => {
 					baseMetrics={baseBuildInfo?.lastProcessedCommit ?? undefined}
 				/>
 			) : null}
-			<Subheading mt={4} size={"md"}>
-				Test results ({buildInfo?.lastCommit?.Test.length})
-			</Subheading>
-			{!satisfiesExpectedResults(
-				buildInfo?.lastCommit,
-				project?.ExpectedResult || [],
-				buildInfo?.branch?.baseBranch || "",
-			).isOk ? (
-				<Box p={2}>
-					<Alert status={"error"}>
-						<AlertIcon />
-						<AlertTitle>Build not yet complete</AlertTitle>
-					</Alert>
-				</Box>
-			) : null}
-			<TestResults
-				groupId={groupId}
-				projectId={projectId}
-				commit={buildInfo?.lastCommit}
-				expectedResult={project?.ExpectedResult}
-				baseCommit={baseBuildInfo?.lastCommit ?? undefined}
-			/>
+			<Section
+				title={`Test results (${buildInfo?.lastCommit?.Test.length})`}
+				summary={
+					<TestResultStatus
+						status={buildInfo?.lastCommit?.coverageProcessStatus}
+					/>
+				}
+			>
+				<TestResultStatus
+					status={buildInfo?.lastCommit?.coverageProcessStatus}
+				/>
+				<TestResults
+					groupId={groupId}
+					projectId={projectId}
+					commit={buildInfo?.lastCommit}
+					baseCommit={baseBuildInfo?.lastCommit ?? undefined}
+					expectedResult={project?.ExpectedResult}
+				/>
+			</Section>
 			<Subheading mt={4} size={"md"}>
 				Recent Commits
 			</Subheading>

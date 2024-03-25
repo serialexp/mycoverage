@@ -96,6 +96,16 @@ export default async function handler(
 						baseBranch: query.baseBranch ?? project.defaultBaseBranch,
 					},
 				})
+			} else {
+				log("updating branch")
+				await mydb.branch.update({
+					where: {
+						id: branch.id,
+					},
+					data: {
+						updatedDate: new Date(),
+					},
+				})
 			}
 
 			let commit = await mydb.commit.findFirst({
@@ -152,28 +162,59 @@ export default async function handler(
 			}
 
 			// TODO: This is not accurate if there is more than one PR per branch
-			const correspondingPr = await mydb.pullRequest.findFirst({
-				where: {
-					branch: branch.slug,
-					state: "open",
-				},
-				include: {
-					commit: true,
-				},
-			})
-			if (
-				correspondingPr &&
-				correspondingPr.commit.createdDate < commit.createdDate
-			) {
-				log("found corresponding PR, updating last commit")
-				await mydb.pullRequest.update({
+			if (query.branch.startsWith("refs/pull/")) {
+				const [, , prNumber] = query.branch.split("/")
+				if (!prNumber) {
+					throw new Error("Could not find PR number in branch name")
+				}
+				const correspondingPr = await mydb.pullRequest.findFirst({
 					where: {
-						id: correspondingPr.id,
+						projectId: project.id,
+						sourceId: parseInt(prNumber),
+						state: "open",
 					},
-					data: {
-						commitId: commit.id,
+					include: {
+						commit: true,
 					},
 				})
+				if (
+					correspondingPr &&
+					correspondingPr.commit.createdDate < commit.createdDate
+				) {
+					log("found corresponding PR, updating last commit")
+					await mydb.pullRequest.update({
+						where: {
+							id: correspondingPr.id,
+						},
+						data: {
+							mergeCommitId: commit.id,
+						},
+					})
+				}
+			} else {
+				const correspondingPr = await mydb.pullRequest.findFirst({
+					where: {
+						branch: branch.slug,
+						state: "open",
+					},
+					include: {
+						commit: true,
+					},
+				})
+				if (
+					correspondingPr &&
+					correspondingPr.commit.createdDate < commit.createdDate
+				) {
+					log("found corresponding PR, updating last commit")
+					await mydb.pullRequest.update({
+						where: {
+							id: correspondingPr.id,
+						},
+						data: {
+							commitId: commit.id,
+						},
+					})
+				}
 			}
 
 			log(

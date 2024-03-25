@@ -72,6 +72,9 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
 				.length === 0
 
 		if (allCompleted) {
+			log(
+				`All workflows completed for ${payload.workflow_job.workflow_name}, find commit for ref ${payload.workflow_job.head_sha} on ${payload.workflow_job.head_branch}`,
+			)
 			const commit = await db.commit.findFirstOrThrow({
 				where: {
 					ref: payload.workflow_job.head_sha,
@@ -106,18 +109,18 @@ export const handleWorkflowJobEvent = async (event: WorkflowJobEvent) => {
 			if (pullRequest) {
 				await updatePR(pullRequest)
 			}
-
-			await db.jobLog.create({
-				data: {
-					name: "hook",
-					commitRef: payload.workflow_job.head_sha,
-					namespace: payload.repository.owner.name,
-					repository: payload.repository.name,
-					message: `Processed workflow job ${payload.action} hook for ${payload.workflow_job.workflow_name}`,
-					timeTaken: new Date().getTime() - startTime,
-				},
-			})
 		}
+
+		await db.jobLog.create({
+			data: {
+				name: "hook",
+				commitRef: payload.workflow_job.head_sha,
+				namespace: payload.repository.owner.name,
+				repository: payload.repository.name,
+				message: `Processed workflow job ${payload.action} hook for ${payload.workflow_job.workflow_name}`,
+				timeTaken: new Date().getTime() - startTime,
+			},
+		})
 
 		return true
 	}

@@ -1,5 +1,5 @@
 import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
-import { format } from "src/library/format"
+import { format, timeAgo } from "src/library/format"
 import { getDifferences } from "src/library/getDifferences"
 import { getAppOctokit } from "src/library/github"
 import { log } from "src/library/log"
@@ -60,6 +60,15 @@ export async function updatePR(
 						},
 					},
 				},
+				mergeCommit: {
+					include: {
+						Test: {
+							include: {
+								TestInstance: true,
+							},
+						},
+					},
+				},
 				baseCommit: {
 					include: {
 						Test: true,
@@ -67,14 +76,20 @@ export async function updatePR(
 				},
 			},
 		})
+		const coverageCommit =
+			pullRequestResult?.mergeCommit || pullRequestResult?.commit
 
 		if (
 			!pullRequestResult ||
+			!coverageCommit ||
 			!pullRequestResult.commit ||
 			!pullRequestResult.baseCommit
 		) {
 			throw new Error("Could not find commits linked to pull request")
 		}
+
+		let baseCommit = pullRequestResult.baseCommit
+		const checkCommit = pullRequestResult.commit
 
 		const project = await db.project.findFirstOrThrow({
 			where: {
@@ -85,14 +100,12 @@ export async function updatePR(
 			},
 		})
 
-		let baseCommit = pullRequestResult.baseCommit
-		const commit = pullRequestResult.commit
 		let switchedBaseCommit = false
 		let noBaseCommit: false | "first_commit" | "not_found" = false
 		let baseBuildInfo
 		let baseBuildInfoWithoutLimits
 
-		if (pullRequestResult.commit.coverageProcessStatus !== "FINISHED") {
+		if (coverageCommit.coverageProcessStatus !== "FINISHED") {
 			const lastSuccessfulCommit = await db.commit.findFirst({
 				where: {
 					coverageProcessStatus: "FINISHED",
@@ -167,7 +180,7 @@ ${message}`,
 				const check = await octokit.checks.create({
 					owner: pullRequest.project.group.name,
 					repo: pullRequest.project.name,
-					head_sha: commit.ref,
+					head_sha: checkCommit.ref,
 					details_url: statusUrl,
 					status: "completed",
 					name: "Coverage",
@@ -189,7 +202,7 @@ ${message}`,
 					},
 				})
 				log(
-					`Check successfully created for commit ${commit.ref}`,
+					`Check successfully created for commit ${coverageCommit.ref}`,
 					check.data.id,
 				)
 			} catch (error) {
@@ -211,7 +224,7 @@ Check why there are no commits with a completely processed set coverage on the [
 					pullRequest.project.slug
 				}/tree/${
 					pullRequest.baseBranch
-				}) branch before ${pullRequestResult.commit.createdDate.toLocaleString()}
+				}) branch before ${checkCommit.createdDate.toLocaleString()}
 ${
 	baseBuildInfoWithoutLimits?.lastProcessedCommit
 		? `\n**There is a newer commit ${baseBuildInfoWithoutLimits.lastProcessedCommit.ref} on the base branch that is not a parent of this PR. Try to rebase!**\n`
@@ -219,8 +232,10 @@ ${
 }
 Qualifying commits coverage processing status:
 ${baseBuildInfo?.commits
-	?.map((commit) => {
-		return `* ${commit.ref}: [${commit.coverageProcessStatus}](${
+	?.map((baseCommitOption) => {
+		return `* ${baseCommitOption.ref}: [${
+			baseCommitOption.coverageProcessStatus
+		}](${
 			baseUrl +
 			path.join(
 				"group",
@@ -228,9 +243,9 @@ ${baseBuildInfo?.commits
 				"project",
 				pullRequest.project.slug,
 				"commit",
-				commit.ref,
+				baseCommitOption.ref,
 			)
-		}) (${commit.createdDate.toLocaleString()})`
+		}) (${baseCommitOption.createdDate.toLocaleString()})`
 	})
 	.join("\n")}`,
 			})
@@ -248,7 +263,7 @@ ${baseBuildInfo?.commits
 				const check = await octokit.checks.create({
 					owner: pullRequest.project.group.name,
 					repo: pullRequest.project.name,
-					head_sha: commit.ref,
+					head_sha: pullRequestResult.commit.ref,
 					details_url: statusUrl,
 					status: "completed",
 					name: "Coverage",
@@ -270,7 +285,7 @@ ${baseBuildInfo?.commits
 					},
 				})
 				log(
-					`Check successfully created for commit ${commit.ref}`,
+					`Check successfully created for commit ${pullRequestResult.commit.ref}`,
 					check.data.id,
 				)
 			} catch (error) {
@@ -285,7 +300,7 @@ ${baseBuildInfo?.commits
 					"project",
 					pullRequest.project.slug,
 					"commit",
-					commit.ref,
+					coverageCommit.ref,
 					"compare",
 					baseCommit.ref,
 				)
@@ -296,7 +311,7 @@ ${baseBuildInfo?.commits
 				.map((f) => f.filename)
 			const differences = await getDifferences(
 				baseCommit.id,
-				commit.id,
+				coverageCommit.id,
 				expectedChanges,
 				removedPaths,
 			)
@@ -308,12 +323,12 @@ ${baseBuildInfo?.commits
 					  ? "WORSE"
 					  : "SAME"
 			const overallDiff =
-				commit.coveredPercentage - baseCommit.coveredPercentage
+				coverageCommit.coveredPercentage - baseCommit.coveredPercentage
 			const overallState =
 				overallDiff === 0 ? "SAME" : overallDiff > 0 ? "BETTER" : "WORSE"
 
 			const satisfied = satisfiesExpectedResults(
-				commit,
+				coverageCommit,
 				project.ExpectedResult,
 				pullRequest.baseBranch,
 			)
@@ -325,7 +340,7 @@ ${baseBuildInfo?.commits
 				difference: number
 			}[] = []
 			let similarTestsResults = 0
-			for (const test of commit.Test) {
+			for (const test of coverageCommit.Test) {
 				const baseCoverage =
 					baseCommit.Test.find((t) => t.testName === test.testName)
 						?.coveredPercentage || 0
@@ -397,13 +412,13 @@ ${satisfied.missing
 Preliminary commit coverage:
 
 - Base: ${format.format(baseCommit.coveredPercentage, true)}%
-- New: ${format.format(commit.coveredPercentage, true)}%
+- New: ${format.format(coverageCommit.coveredPercentage, true)}%
 
 Difference: ${format.format(
-					commit.coveredPercentage - baseCommit.coveredPercentage,
+					coverageCommit.coveredPercentage - baseCommit.coveredPercentage,
 					true,
 				)}% (${format.format(
-					commit.coveredElements - baseCommit.coveredElements,
+					coverageCommit.coveredElements - baseCommit.coveredElements,
 					true,
 				)} elements)
 
@@ -442,15 +457,23 @@ Commit Coverage:
 
 - Base: ${format.format(baseCommit.coveredPercentage, true)}% (${format.format(
 					baseCommit.coveredElements,
-				)} / ${format.format(baseCommit.elements)})
-- New: ${format.format(commit.coveredPercentage, true)}% (${format.format(
-					commit.coveredElements,
-				)} / ${format.format(commit.elements)})
+				)} / ${format.format(baseCommit.elements)}, ${
+					baseCommit.ref
+				}, ${timeAgo(baseCommit.createdDate)})
+- New: ${format.format(
+					coverageCommit.coveredPercentage,
+					true,
+				)}% (${format.format(coverageCommit.coveredElements)} / ${format.format(
+					coverageCommit.elements,
+				)}, ${coverageCommit.ref})
 
 ${format.format(
-	commit.coveredElements - baseCommit.coveredElements,
+	coverageCommit.coveredElements - baseCommit.coveredElements,
 	true,
-)} covered, ${format.format(commit.elements - baseCommit.elements, true)} total elements
+)} covered, ${format.format(
+					coverageCommit.elements - baseCommit.elements,
+					true,
+				)} total elements
 
 Changed Files: ${
 					state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"
@@ -465,7 +488,7 @@ Overall Difference: ${
 								  "😅"
 							  : "🙁"
 				} ${format.format(
-					commit.coveredPercentage - baseCommit.coveredPercentage,
+					coverageCommit.coveredPercentage - baseCommit.coveredPercentage,
 					true,
 				)}%
 
@@ -533,7 +556,7 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
 				const check = await octokit.checks.create({
 					owner: pullRequest.project.group.name,
 					repo: pullRequest.project.name,
-					head_sha: commit.ref,
+					head_sha: checkCommit.ref,
 					status: "completed",
 					name: "Coverage",
 					details_url: detailsUrl,
@@ -547,7 +570,7 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
 						title: "Coverage",
 						summary: `${format.format(
 							baseCommit.coveredPercentage,
-						)}% -> ${format.format(commit.coveredPercentage)}%`,
+						)}% -> ${format.format(coverageCommit.coveredPercentage)}%`,
 						text: `### Coverage increase
 
 ${differences.increase
@@ -574,7 +597,7 @@ ${differences.remove.length > 0 ? removedFilesText : ""}
 					},
 				})
 				log(
-					`Check successfully created for commit ${commit.ref}`,
+					`Check successfully created for commit ${checkCommit.ref} using coverage from ${coverageCommit.ref}`,
 					check.data.id,
 				)
 			} catch (error) {

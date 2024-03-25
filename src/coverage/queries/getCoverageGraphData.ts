@@ -29,7 +29,7 @@ export default async function getCoverageGraphData(
 						some: {
 							Branch: {
 								projectId: args.projectId,
-								slug: project.defaultBaseBranch,
+								name: project.defaultBaseBranch,
 							},
 						},
 					},
@@ -78,7 +78,7 @@ export default async function getCoverageGraphData(
 				some: {
 					Branch: {
 						projectId: args.projectId,
-						slug: project.defaultBaseBranch,
+						name: project.defaultBaseBranch,
 					},
 				},
 			},
