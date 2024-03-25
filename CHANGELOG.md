@@ -1,3 +1,10 @@
+## [1.34.3](https://github.com/serialexp/mycoverage/compare/v1.34.2...v1.34.3) (2024-03-25)
+
+
+### Bug Fixes
+
+* use correct commit on PR page for display and add link to mycoverage on comment ([d91a0cf](https://github.com/serialexp/mycoverage/commit/d91a0cf0e8e70ac6c6e03b9da536201ef1a783c1))
+
 ## [1.34.2](https://github.com/serialexp/mycoverage/compare/v1.34.1...v1.34.2) (2024-03-25)
 
 
