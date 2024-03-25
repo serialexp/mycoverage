@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/serialexp/mycoverage/compare/v1.33.4...v1.34.0) (2024-03-25)
+
+
+### Features
+
+* modifies the pull request entity to keep separate track of pull_request/push builds ([e1e8495](https://github.com/serialexp/mycoverage/commit/e1e84957f7e7b6f7c1892e00c75ec3d428aed96c))
+
 ## [1.33.4](https://github.com/serialexp/mycoverage/compare/v1.33.3...v1.33.4) (2024-03-08)
 
 
