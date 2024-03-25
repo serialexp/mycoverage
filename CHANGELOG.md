@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/serialexp/mycoverage/compare/v1.34.0...v1.34.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* remove console log and output base branch error ([7f536b9](https://github.com/serialexp/mycoverage/commit/7f536b9508c53a566464dbed41fa28f1f3ab60fb))
+
 # [1.34.0](https://github.com/serialexp/mycoverage/compare/v1.33.4...v1.34.0) (2024-03-25)
 
 
