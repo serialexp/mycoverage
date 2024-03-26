@@ -1,3 +1,10 @@
+## [1.34.4](https://github.com/serialexp/mycoverage/compare/v1.34.3...v1.34.4) (2024-03-26)
+
+
+### Bug Fixes
+
+* allow upload-sonarqube to create a commit ([920d888](https://github.com/serialexp/mycoverage/commit/920d888ad5df17375536a0282c95687bd8440ca9))
+
 ## [1.34.3](https://github.com/serialexp/mycoverage/compare/v1.34.2...v1.34.3) (2024-03-25)
 
 
