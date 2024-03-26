@@ -4,12 +4,9 @@ import { log } from "src/library/log"
 import type { SonarIssue } from "src/library/types"
 import { sonarqubeJob } from "src/queues/SonarQubeQueue"
 
-import db from "db"
+import db, { CoverageProcessStatus } from "db"
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.headers["content-type"] !== "application/json") {
     return res.status(400).send("Content type must be application/json")
   }
@@ -56,19 +53,45 @@ export default async function handler(
       throw new Error("Project does not exist")
     }
 
+    if (!query.ref) {
+      throw new Error("No commit sha specified")
+    }
+
     if (!req.body) {
       throw new Error("No sonarqube data posted")
     }
 
-    const commit = await db.commit.findFirst({
+    let commit = await db.commit.findFirst({
       where: {
         ref: query.ref,
       },
     })
-
     if (!commit) {
-      throw new Error("Commit with this id does not exist")
+      log("creating commit with ref", {
+        ref: query.ref,
+        message: query.message,
+      })
+      commit = await db.commit.create({
+        data: {
+          ref: query.ref,
+          message: query.message,
+        },
+      })
+    } else {
+      log("updating commit with ref", {
+        ref: query.ref,
+      })
+      await db.commit.update({
+        where: {
+          id: commit.id,
+        },
+        data: {
+          updatedDate: new Date(),
+        },
+      })
     }
+
+    if (!commit) throw new Error(`Could not create commit for ref ${query.ref}`)
 
     const issues: SonarIssue[] = req.body
 

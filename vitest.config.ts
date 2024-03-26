@@ -9,7 +9,13 @@ loadEnvConfig(projectDir)
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [
+    react(),
+    tsconfigPaths({
+      root: "./",
+      projects: ["./tsconfig.json"],
+    }),
+  ],
   test: {
     dir: "./",
     globals: true,

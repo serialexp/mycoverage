@@ -23,6 +23,6 @@
       "src/*": ["src/*"]
     }
   },
-  "exclude": ["node_modules", "**/*.e2e.ts", "cypress"],
+  "exclude": ["node_modules", "**/*.e2e.ts", "cypress", "docs/**/*"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types"]
 }
