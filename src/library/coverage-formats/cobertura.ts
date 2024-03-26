@@ -1,10 +1,10 @@
 import Joi from "zod"
 import { CoverageData } from "src/library/CoverageData"
-import {
+import type {
   CoberturaFileFormat,
   InternalCoverage,
 } from "src/library/InternalCoverage"
-import { SourceHits } from "src/library/types"
+import type { SourceHits } from "src/library/types"
 import { parseString } from "xml2js"
 
 const joiMetrics = Joi.object({
@@ -139,21 +139,21 @@ export const fillFromCobertura = async (
 
                     if (args.branch === "true") {
                       return {
-                        hits: parseInt(args.hits),
-                        number: parseInt(args.number),
+                        hits: Number.parseInt(args.hits),
+                        number: Number.parseInt(args.number),
                         branch: true,
                         conditions: args.conditions
-                          ? parseInt(args.conditions)
+                          ? Number.parseInt(args.conditions)
                           : undefined,
                         coveredConditions: args.coveredConditions
-                          ? parseInt(args.coveredConditions)
+                          ? Number.parseInt(args.coveredConditions)
                           : undefined,
                         "condition-coverage": args["condition-coverage"],
                       }
                     }
                     return {
-                      hits: parseInt(args.hits),
-                      number: parseInt(args.number),
+                      hits: Number.parseInt(args.hits),
+                      number: Number.parseInt(args.number),
                       branch: false,
                     }
                   }) || [],
@@ -165,9 +165,9 @@ export const fillFromCobertura = async (
                     }
                     return {
                       name: funcData.name,
-                      hits: parseInt(funcData.hits),
+                      hits: Number.parseInt(funcData.hits),
                       signature: funcData.signature,
-                      number: parseInt(funcData.number),
+                      number: Number.parseInt(funcData.number),
                     }
                   }) || [],
               }

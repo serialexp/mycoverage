@@ -1,9 +1,12 @@
-import { PrismaClient } from "db"
-import { InternalCoverage, CoberturaFile } from "src/library/InternalCoverage"
+import type { PrismaClient } from "db"
+import {
+  type InternalCoverage,
+  CoberturaFile,
+} from "src/library/InternalCoverage"
 import { CoverageData } from "src/library/CoverageData"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { SourceHits } from "src/library/types"
-import db, { Commit, Test, TestInstance, Prisma } from "db"
+import db, { Commit, Test, TestInstance, type Prisma } from "db"
 import { uuidv7obj } from "uuidv7"
 
 export const insertCoverageData = async (

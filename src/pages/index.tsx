@@ -14,7 +14,7 @@ import {
 import Link from "next/link"
 import { Heading } from "src/library/components/Heading"
 import { Subheading } from "src/library/components/Subheading"
-import { BlitzPage, Routes } from "@blitzjs/next"
+import { type BlitzPage, Routes } from "@blitzjs/next"
 import Layout from "src/core/layouts/Layout"
 import { useState } from "react"
 import getGroups from "../coverage/queries/getGroups"

@@ -2,7 +2,7 @@ import { Routes } from "@blitzjs/next"
 import { Link as ChakraLink } from "@chakra-ui/react"
 import { Table, Tag, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react"
 import TimeAgo from "react-timeago"
-import {
+import type {
   Commit,
   CoverageProcessStatus,
   Project,

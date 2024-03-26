@@ -1,11 +1,11 @@
 import db from "db"
-import {
+import type {
   MergeGroupEvent,
   PullRequestEvent,
   PushEvent,
   WorkflowJobEvent,
 } from "@octokit/webhooks-types"
-import { NextApiRequest, NextApiResponse } from "next"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { handleMergeGroupEvent } from "src/library/github/handle-merge-group-event"
 import { handlePullRequestEvent } from "src/library/github/handle-pull-request-event"
 import { handlePushEvent } from "src/library/github/handle-push-event"

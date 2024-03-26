@@ -1,5 +1,5 @@
 import { Flex } from "@chakra-ui/react"
-import { PropsWithChildren } from "react"
+import type { PropsWithChildren } from "react"
 
 export const Actions = (props: PropsWithChildren) => {
   return (

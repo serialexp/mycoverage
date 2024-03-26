@@ -1,4 +1,4 @@
-import { NextApiRequest } from "next"
+import type { NextApiRequest } from "next"
 
 export function fixQuery(query: NextApiRequest["query"]) {
   const result: { [key: string]: string | undefined } = {}

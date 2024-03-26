@@ -1,6 +1,6 @@
 import { CoverageData } from "src/library/CoverageData"
-import { InternalCoverage } from "src/library/InternalCoverage"
-import { SourceHits } from "src/library/types"
+import type { InternalCoverage } from "src/library/InternalCoverage"
+import type { SourceHits } from "src/library/types"
 
 export interface LcovRecord {
   functions: {
@@ -117,7 +117,7 @@ export const fillFromLcov = async (
           throw new Error(`Missing line or function name on line ${i}`)
         record.functions.push({
           name,
-          line: parseInt(line),
+          line: Number.parseInt(line),
           hits: 0,
         })
         break
@@ -131,7 +131,7 @@ export const fillFromLcov = async (
           throw new Error(
             `Could not find function "${functionName}" referenced on line ${i}`,
           )
-        fn.hits = parseInt(hits)
+        fn.hits = Number.parseInt(hits)
         break
       }
       case "DA": {
@@ -140,8 +140,8 @@ export const fillFromLcov = async (
         if (!line || !hits)
           throw new Error(`Missing line or hit count on line ${i}`)
         record.lines.push({
-          line: parseInt(line),
-          hits: parseInt(hits),
+          line: Number.parseInt(line),
+          hits: Number.parseInt(hits),
         })
         break
       }
@@ -151,45 +151,47 @@ export const fillFromLcov = async (
           throw new Error(
             `Missing line, block, branch or hit count on line ${i}`,
           )
-        let lineData = record.lines.find((l) => l.line === parseInt(line))
+        let lineData = record.lines.find(
+          (l) => l.line === Number.parseInt(line),
+        )
         if (!lineData) {
           lineData = {
-            line: parseInt(line),
+            line: Number.parseInt(line),
             hits: 0,
           }
           record.lines.push(lineData)
         }
-        if (!startedBranches[parseInt(line)] && lineData.hits > 0) {
+        if (!startedBranches[Number.parseInt(line)] && lineData.hits > 0) {
           lineData.hits = 0
         }
-        startedBranches[parseInt(line)] = true
+        startedBranches[Number.parseInt(line)] = true
 
-        lineData.hits += parseInt(hits)
+        lineData.hits += Number.parseInt(hits)
         if (!lineData.branches) lineData.branches = {}
         const branchValue = lineData.branches[branch]
         lineData.branches[branch] =
           branchValue !== undefined
-            ? branchValue + parseInt(hits)
-            : parseInt(hits)
+            ? branchValue + Number.parseInt(hits)
+            : Number.parseInt(hits)
         break
       }
       case "LF":
-        record.lineCount = parseInt(value)
+        record.lineCount = Number.parseInt(value)
         break
       case "LH":
-        record.lineHitCount = parseInt(value)
+        record.lineHitCount = Number.parseInt(value)
         break
       case "BRF":
-        record.branchesCount = parseInt(value)
+        record.branchesCount = Number.parseInt(value)
         break
       case "BRH":
-        record.branchesHitCount = parseInt(value)
+        record.branchesHitCount = Number.parseInt(value)
         break
       case "FNF":
-        record.functionCount = parseInt(value)
+        record.functionCount = Number.parseInt(value)
         break
       case "FNH":
-        record.functionHitCount = parseInt(value)
+        record.functionHitCount = Number.parseInt(value)
         break
       default:
         throw new Error(`Unknown lcov entity type "${key}" on line ${i}`)

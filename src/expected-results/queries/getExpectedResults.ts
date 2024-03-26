@@ -1,6 +1,6 @@
 import { resolver } from "@blitzjs/rpc"
 import { paginate } from "blitz"
-import db, { Prisma } from "db"
+import db, { type Prisma } from "db"
 
 type GetExpectedResultsInput = Pick<
   Prisma.ExpectedResultFindManyArgs,

@@ -1,4 +1,4 @@
-import { Ctx } from "blitz"
+import type { Ctx } from "blitz"
 
 import { getFileData as getGithubFileData } from "src/library/github"
 

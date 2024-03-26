@@ -1,7 +1,7 @@
 import { Routes } from "@blitzjs/next"
 import { useQuery } from "@blitzjs/rpc"
 import { Box } from "@chakra-ui/react"
-import { ResponsiveLine, Point } from "@nivo/line"
+import { ResponsiveLine, type Point } from "@nivo/line"
 import { useRouter } from "next/router"
 import getCoverageGraphData from "src/coverage/queries/getCoverageGraphData"
 import { format } from "src/library/format"

@@ -1,4 +1,4 @@
-import { CodeIssue, CodeIssueOnFileCoverage, FileCoverage } from "db"
+import type { CodeIssue, CodeIssueOnFileCoverage, FileCoverage } from "db"
 import { CoverageData } from "./CoverageData"
 
 export enum CoverageStatus {
@@ -63,9 +63,9 @@ export function getLineCoverageData(
       if (type && ["stmt", "cond", "func"].includes(type)) {
         const lineData: LineData = {
           type: type as LineData["type"],
-          count: rowData[2] ? parseInt(rowData[2]) : 0,
-          covered: rowData[3] ? parseInt(rowData[3]) : 0,
-          total: rowData[4] ? parseInt(rowData[4]) : 0,
+          count: rowData[2] ? Number.parseInt(rowData[2]) : 0,
+          covered: rowData[3] ? Number.parseInt(rowData[3]) : 0,
+          total: rowData[4] ? Number.parseInt(rowData[4]) : 0,
           sourceData,
         }
         const lineNrCoverage = coveragePerLine[lineNr]

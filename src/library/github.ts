@@ -57,7 +57,7 @@ export async function getPRFiles(org: string, repo: string, prId: string) {
   const res = await (await getAppOctokit()).pulls.listFiles({
     owner: org,
     repo,
-    pull_number: parseInt(prId),
+    pull_number: Number.parseInt(prId),
     per_page: 100,
   })
 

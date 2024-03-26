@@ -1,8 +1,8 @@
 import {
-  ErrorFallbackProps,
+  type ErrorFallbackProps,
   ErrorComponent,
   ErrorBoundary,
-  AppProps,
+  type AppProps,
 } from "@blitzjs/next"
 import {
   ChakraProvider,

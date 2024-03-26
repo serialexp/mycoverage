@@ -1,6 +1,6 @@
 import { passportAuth } from "@blitzjs/auth"
 import { Strategy as GithubStrategy } from "passport-github2"
-import { VerifyCallback } from "passport-oauth2"
+import type { VerifyCallback } from "passport-oauth2"
 import { api } from "src/blitz-server"
 import db from "db"
 import { loadUserPermissions } from "src/library/loadUserPermissions"

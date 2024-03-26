@@ -1,4 +1,4 @@
-import { Schema } from "ajv"
+import type { Schema } from "ajv"
 import Ajv from "ajv"
 
 const ajv = new Ajv()

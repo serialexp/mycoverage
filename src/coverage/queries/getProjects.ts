@@ -1,6 +1,6 @@
 import { resolver } from "@blitzjs/rpc"
-import { Ctx, paginate } from "blitz"
-import db, { Prisma } from "db"
+import { type Ctx, paginate } from "blitz"
+import db, { type Prisma } from "db"
 import { z } from "zod"
 
 export default resolver.pipe(

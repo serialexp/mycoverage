@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client"
-import { NextApiRequest, NextApiResponse } from "next"
+import type { PrismaClient } from "@prisma/client"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { fixQuery } from "src/library/fixQuery"
 import { format } from "src/library/format"
 import { log } from "src/library/log"
@@ -23,7 +23,7 @@ export default async function handler(
       const mydb: PrismaClient = db
 
       log("find group")
-      const groupInteger = parseInt(query.groupId || "")
+      const groupInteger = Number.parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
           OR: [
@@ -42,7 +42,7 @@ export default async function handler(
       }
 
       log("find project")
-      const projectInteger = parseInt(query.projectId || "")
+      const projectInteger = Number.parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
           OR: [

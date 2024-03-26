@@ -1,4 +1,4 @@
-import { Ctx, paginate } from "blitz"
+import { type Ctx, paginate } from "blitz"
 import db from "db"
 
 export default async function getIssuesForCommit(

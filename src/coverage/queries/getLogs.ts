@@ -1,5 +1,5 @@
-import { Ctx } from "blitz"
-import db, { Prisma } from "db"
+import type { Ctx } from "blitz"
+import db, { type Prisma } from "db"
 
 export default async function getLogs(
   args: { filter?: string; minDate: Date; maxDate: Date; commitRef?: string },

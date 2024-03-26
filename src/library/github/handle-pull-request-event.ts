@@ -1,4 +1,4 @@
-import { PullRequestEvent } from "@octokit/webhooks-types"
+import type { PullRequestEvent } from "@octokit/webhooks-types"
 import db from "db"
 import { log } from "src/library/log"
 import { slugify } from "src/library/slugify"

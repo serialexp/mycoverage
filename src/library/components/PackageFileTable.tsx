@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
 import { ActivityIcon } from "src/library/components/ActivityIcon"
 import { Minibar } from "src/library/components/Minbar"
-import { RouteUrlObject } from "blitz"
+import type { RouteUrlObject } from "blitz"
 import type { FileCoverage, PackageCoverage, ChangeRate } from "db"
 import { format, shortFormat } from "src/library/format"
 

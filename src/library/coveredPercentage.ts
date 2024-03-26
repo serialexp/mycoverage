@@ -1,4 +1,4 @@
-import { CloverMetrics } from "src/library/InternalCoverage"
+import type { CloverMetrics } from "src/library/InternalCoverage"
 
 export const coveredPercentage = (d?: CloverMetrics) => {
   if (!d) return 0

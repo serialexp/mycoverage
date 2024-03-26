@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 import { describe, expect, it } from "vitest"
 import { fillFromCobertura } from "src/library/coverage-formats/cobertura"
 import { fillFromLcov } from "src/library/coverage-formats/lcov"

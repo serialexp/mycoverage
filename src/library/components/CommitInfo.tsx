@@ -1,5 +1,5 @@
 import { Box } from "@chakra-ui/react"
-import { Commit } from "db/dbtypes"
+import type { Commit } from "db/dbtypes"
 import TimeAgo from "react-timeago"
 
 export const CommitInfo = (props: {

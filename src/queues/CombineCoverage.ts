@@ -1,5 +1,5 @@
 import { log } from "src/library/log"
-import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
+import type { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
 import { queueConfig } from "src/queues/config"
 import { Queue } from "bullmq"
 

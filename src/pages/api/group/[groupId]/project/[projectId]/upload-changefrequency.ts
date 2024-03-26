@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { fixQuery } from "src/library/fixQuery"
 import { log } from "src/library/log"
-import { ChangeFrequencyData } from "src/library/types"
+import type { ChangeFrequencyData } from "src/library/types"
 import { changeFrequencyJob } from "src/queues/ChangeFrequencyQueue"
 import db from "db"
 
@@ -16,7 +16,7 @@ export default async function handler(
   const startTime = new Date()
 
   const query = fixQuery(req.query)
-  const groupInteger = parseInt(query.groupId || "")
+  const groupInteger = Number.parseInt(query.groupId || "")
 
   try {
     const group = await db.group.findFirst({
@@ -36,7 +36,7 @@ export default async function handler(
       throw new Error("Specified group does not exist")
     }
 
-    const projectInteger = parseInt(query.projectId || "")
+    const projectInteger = Number.parseInt(query.projectId || "")
     const project = await db.project.findFirst({
       where: {
         OR: [

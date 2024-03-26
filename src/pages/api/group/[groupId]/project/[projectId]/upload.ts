@@ -1,13 +1,16 @@
-import { PrismaClient } from "@prisma/client"
-import { NextApiRequest, NextApiResponse } from "next"
+import type { PrismaClient } from "@prisma/client"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { fixQuery } from "src/library/fixQuery"
 import { log } from "src/library/log"
 import { slugify } from "src/library/slugify"
 import { uploadJob, uploadQueue } from "src/queues/UploadQueue"
 import db, { CoverageProcessStatus } from "db"
-import { S3 } from "@aws-sdk/client-s3"
+import { putS3File } from "src/library/s3"
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   const startTime = new Date()
   const query = fixQuery(req.query)
   if (query.projectId && query.branch && query.testName && query.ref) {
@@ -15,10 +18,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const mydb: PrismaClient = db
 
       const testInstanceIndex = query.index
-        ? parseInt(query.index)
+        ? Number.parseInt(query.index)
         : Math.floor(Math.random() * 1000000)
 
-      const groupInteger = parseInt(query.groupId || "")
+      const groupInteger = Number.parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
           OR: [
@@ -39,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw new Error(`Group ${query.groupId} does not exist`)
       }
 
-      const projectInteger = parseInt(query.projectId || "")
+      const projectInteger = Number.parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
           OR: [
@@ -66,16 +69,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw new Error("No coverage data posted")
       }
 
-      const coverageFileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${project.slug}/${
-        query.ref
-      }/instance-${query.testName}-${new Date().getTime()}.data`
+      const coverageFileKey = `${process.env.S3_KEY_PREFIX}${group.slug}/${
+        project.slug
+      }/${query.ref}/instance-${query.testName}-${new Date().getTime()}.data`
 
-      const s3 = new S3({})
-      await s3.putObject({
-        Bucket: process.env.S3_BUCKET || "",
-        Key: coverageFileKey,
-        Body: req.body,
-      })
+      await putS3File(coverageFileKey, req.body)
 
       let branch = await mydb.branch.findFirst({
         where: {
@@ -137,7 +135,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
 
-      if (!commit) throw new Error(`Could not create commit for ref ${query.ref}`)
+      if (!commit)
+        throw new Error(`Could not create commit for ref ${query.ref}`)
 
       try {
         const commitBranch = await mydb.commitOnBranch.create({
@@ -147,7 +146,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         })
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Unique constraint")) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Unique constraint")
+        ) {
           log("commit already on branch")
         } else {
           throw error
@@ -170,7 +172,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             commit: true,
           },
         })
-        if (correspondingPr && correspondingPr.commit.createdDate < commit.createdDate) {
+        if (
+          correspondingPr &&
+          correspondingPr.commit.createdDate < commit.createdDate
+        ) {
           log("found corresponding PR, updating last commit")
           await mydb.pullRequest.update({
             where: {
@@ -193,7 +198,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             commit: true,
           },
         })
-        if (correspondingPr && correspondingPr.commit.createdDate < commit.createdDate) {
+        if (
+          correspondingPr &&
+          correspondingPr.commit.createdDate < commit.createdDate
+        ) {
           log("found corresponding PR, updating last commit")
           await mydb.pullRequest.update({
             where: {
@@ -206,7 +214,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      log("does the default branch match", project.defaultBaseBranch, branch.name)
+      log(
+        "does the default branch match",
+        project.defaultBaseBranch,
+        branch.name,
+      )
       if (project.defaultBaseBranch === branch.name) {
         log("update last commit id")
         await mydb.project.update({
@@ -228,7 +240,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         query.workingDirectory,
         testInstanceIndex,
         group.slug,
-        project.slug
+        project.slug,
       ).catch((error) => {
         log("error adding upload job", error)
       })

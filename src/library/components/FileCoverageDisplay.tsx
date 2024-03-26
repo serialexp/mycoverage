@@ -12,8 +12,8 @@ import {
 } from "@chakra-ui/react"
 import getLineCoverageData from "src/coverage/queries/getLineCoverageData"
 import { format } from "src/library/format"
-import { LineData, LineInformation } from "src/library/getLineCoverageData"
-import { ReactNode } from "react"
+import type { LineData, LineInformation } from "src/library/getLineCoverageData"
+import type { ReactNode } from "react"
 import type { CodeIssueOnFileCoverage, CodeIssue } from "db/dbtypes"
 
 const priorityColor = {
@@ -207,7 +207,7 @@ export const FileCoverageDisplay = (props: {
                                                 .map(
                                                   (i) =>
                                                     `x${format.format(
-                                                      parseInt(i),
+                                                      Number.parseInt(i),
                                                       true,
                                                     )}`,
                                                 )

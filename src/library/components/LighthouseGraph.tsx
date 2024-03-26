@@ -1,6 +1,6 @@
 import { useQuery } from "@blitzjs/rpc"
 import { Box } from "@chakra-ui/react"
-import { ResponsiveLine, Point } from "@nivo/line"
+import { ResponsiveLine, type Point } from "@nivo/line"
 import { useRouter } from "next/router"
 import getLighthouseGraphData from "src/coverage/queries/getLigthhouseGraphData"
 import { format } from "src/library/format"

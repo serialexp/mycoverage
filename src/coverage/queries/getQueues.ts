@@ -2,8 +2,8 @@ import { changeFrequencyQueue } from "src/queues/ChangeFrequencyQueue"
 import { combineCoverageQueue } from "src/queues/CombineCoverage"
 import { sonarqubeQueue } from "src/queues/SonarQubeQueue"
 import { uploadQueue } from "src/queues/UploadQueue"
-import { Ctx } from "blitz"
-import { Job, Queue } from "bullmq"
+import type { Ctx } from "blitz"
+import type { Job, Queue } from "bullmq"
 
 export default async function getQueues(args: unknown, { session }: Ctx) {
   const queues: Queue[] = [

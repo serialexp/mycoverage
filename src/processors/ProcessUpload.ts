@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { log } from "src/library/log"
 import { addEventListeners } from "src/processors/addEventListeners"
 import { combineCoverageJob } from "src/queues/CombineCoverage"
 import { queueConfig } from "src/queues/config"
-import db, { Commit } from "db"
+import db, { type Commit } from "db"
 import { Worker } from "bullmq"
 
 export const uploadWorker = new Worker<{

@@ -1,6 +1,6 @@
 import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons"
 import { Box } from "@chakra-ui/react"
-import { PropsWithChildren, ReactElement, useState } from "react"
+import { type PropsWithChildren, type ReactElement, useState } from "react"
 import { Subheading } from "src/library/components/Subheading"
 
 export const Section = (

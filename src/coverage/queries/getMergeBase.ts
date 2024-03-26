@@ -1,7 +1,7 @@
 import axios from "axios"
-import { Ctx } from "blitz"
+import type { Ctx } from "blitz"
 import db from "db"
-import * as https from "https"
+import * as https from "node:https"
 import { log } from "src/library/log"
 
 const apiPath = process.env.GITLAB_API_URL

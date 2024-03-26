@@ -1,7 +1,7 @@
 import { log } from "src/library/log"
-import { SonarIssue } from "src/library/types"
+import type { SonarIssue } from "src/library/types"
 import { queueConfig } from "src/queues/config"
-import db, { Test, Commit, TestInstance } from "db"
+import db, { Test, type Commit, TestInstance } from "db"
 import { Queue } from "bullmq"
 
 export const sonarqubeQueue = new Queue("sonarqube", {

@@ -8,7 +8,7 @@ import {
   Input,
   Tooltip,
 } from "@chakra-ui/react"
-import { RouteUrlObject } from "blitz"
+import type { RouteUrlObject } from "blitz"
 import Link from "next/link"
 import { Router, useRouter } from "next/router"
 import getFile from "src/coverage/queries/getFile"

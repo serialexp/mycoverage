@@ -3,8 +3,8 @@ import { changefrequencyWorker } from "src/processors/ProcessChangefrequency"
 import { sonarqubeWorker } from "src/processors/ProcessSonarqube"
 import { uploadWorker } from "src/processors/ProcessUpload"
 import { combineCoverageWorker } from "src/processors/ProcessCombineCoverage"
-import { Worker } from "bullmq"
-import http from "http"
+import type { Worker } from "bullmq"
+import http from "node:http"
 
 const argv = require("minimist")(process.argv)
 
@@ -37,7 +37,7 @@ if (process.env.HEALTHCHECK_PORT) {
 
   const host = "localhost"
   const port = process.env.HEALTHCHECK_PORT || "8080"
-  server.listen(parseInt(port), host, 5, () => {
+  server.listen(Number.parseInt(port), host, 5, () => {
     log(`Health check is running on http://${host}:${port}`)
   })
 }

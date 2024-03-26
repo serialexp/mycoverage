@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 import { generateDifferences } from "src/library/generateDifferences"
 import db from "db"
 

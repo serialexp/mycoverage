@@ -3,7 +3,7 @@ import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
-import { Test, TestInstance, Commit } from "db"
+import { Test, TestInstance, type Commit } from "db"
 import db from "db"
 
 export const processAllTestInstances = async (commit: Commit) => {

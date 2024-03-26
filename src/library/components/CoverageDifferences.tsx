@@ -8,9 +8,9 @@ import {
   Th,
   Tr,
 } from "@chakra-ui/react"
-import { RouteUrlObject } from "blitz"
+import type { RouteUrlObject } from "blitz"
 import { Link } from "src/library/components/Link"
-import { CoverageDifference, Diff } from "src/library/generateDifferences"
+import type { CoverageDifference, Diff } from "src/library/generateDifferences"
 import { Subheading } from "src/library/components/Subheading"
 import { format } from "src/library/format"
 

@@ -1,6 +1,6 @@
 import { theme } from "@chakra-ui/theme"
-import { Ctx } from "blitz"
-import { TreeMapInputData } from "src/library/components/TreeMap"
+import type { Ctx } from "blitz"
+import type { TreeMapInputData } from "src/library/components/TreeMap"
 import db from "db"
 import { scaleLinear } from "d3-scale"
 

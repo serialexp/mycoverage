@@ -1,5 +1,5 @@
 import { Box } from "@chakra-ui/react"
-import { PropsWithChildren } from "react"
+import type { PropsWithChildren } from "react"
 
 export const Codeblock = (props: PropsWithChildren) => {
   return (

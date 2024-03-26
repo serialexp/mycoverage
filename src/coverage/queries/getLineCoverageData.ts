@@ -1,4 +1,4 @@
-import { Ctx } from "blitz"
+import type { Ctx } from "blitz"
 import db from "db"
 import { getLineCoverageData as getInternalLineCoverageData } from "src/library/getLineCoverageData"
 

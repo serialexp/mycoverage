@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 import { InternalCoverage } from "src/library/InternalCoverage"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
 import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
-import { Test, TestInstance } from "db"
+import { Test, type TestInstance } from "db"
 import { Job } from "bullmq"
 import db from "db"
 

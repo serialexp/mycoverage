@@ -1,4 +1,4 @@
-import { PrismaClient, Commit } from "@prisma/client"
+import type { PrismaClient, Commit } from "@prisma/client"
 import db from "db"
 import { coveredPercentage } from "src/library/coveredPercentage"
 import { areRefWorkflowsAllComplete } from "src/library/github"

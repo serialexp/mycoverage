@@ -1,4 +1,4 @@
-import { Worker } from "bullmq"
+import type { Worker } from "bullmq"
 import { log } from "src/library/log"
 
 export const addEventListeners = (worker: Worker) => {

@@ -10,7 +10,7 @@ import {
   Tr,
   Box,
 } from "@chakra-ui/react"
-import { Lighthouse as DBLighthouse } from "db"
+import type { Lighthouse as DBLighthouse } from "db"
 import getLighthouse from "src/coverage/queries/getLighthouse"
 import { Subheading } from "src/library/components/Subheading"
 

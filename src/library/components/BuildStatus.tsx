@@ -1,6 +1,11 @@
 import { Box, Flex, Text } from "@chakra-ui/react"
 import { satisfiesExpectedResults } from "src/library/satisfiesExpectedResults"
-import { Commit, ExpectedResult, Test, CoverageProcessStatus } from "db/dbtypes"
+import {
+  type Commit,
+  type ExpectedResult,
+  type Test,
+  CoverageProcessStatus,
+} from "db/dbtypes"
 import {
   FaCheck,
   FaClock,

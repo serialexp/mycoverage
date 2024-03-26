@@ -200,7 +200,7 @@ class InternalFile {
         }
         const hitsFromSource = existingItem.hitsFromSource
         Object.entries(newItem.hitsFromSource).forEach(([source, hits]) => {
-          const sourceName = coverage.sourcesNames[parseInt(source)]
+          const sourceName = coverage.sourcesNames[Number.parseInt(source)]
           if (sourceName) {
             if (this.coverage.sourcesNames.indexOf(sourceName) === -1) {
               this.coverage.sourcesNames.push(sourceName)

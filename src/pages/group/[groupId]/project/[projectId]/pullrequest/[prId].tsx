@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { useMutation, useQuery } from "@blitzjs/rpc"
 import Link from "next/link"
 import updatePrComment from "src/coverage/mutations/updatePrComment"
@@ -38,6 +38,7 @@ import getLastBuildInfo from "src/coverage/queries/getLastBuildInfo"
 import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaCheck, FaClock } from "react-icons/fa"
 import { slugify } from "src/library/slugify"
+import syncGithubState from "src/coverage/mutations/syncGithubState"
 
 const PullRequestPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
@@ -45,7 +46,9 @@ const PullRequestPage: BlitzPage = () => {
   const prId = useParam("prId", "number")
 
   const [project] = useQuery(getProject, { projectSlug: projectId })
-  const [pullRequest] = useQuery(getPullRequest, { pullRequestId: prId })
+  const [pullRequest, pullRequestMeta] = useQuery(getPullRequest, {
+    pullRequestId: prId,
+  })
 
   const toast = useToast()
 
@@ -65,12 +68,18 @@ const PullRequestPage: BlitzPage = () => {
     projectId: project?.id,
     branch: pullRequest?.branch,
   })
-  const [updatePrCommentMutation] = useMutation(updatePrComment)
+  const [updatePrCommentMutation, updatePrCommentMeta] =
+    useMutation(updatePrComment)
+  const [syncGithubStateMutation, syncGithubMeta] = useMutation(syncGithubState)
 
   return groupId && projectId && prId && pullRequest && commit ? (
     <>
       <Heading>PR: {pullRequest?.name}</Heading>
-      <Breadcrumbs project={project} group={project?.group} pullRequest={pullRequest} />
+      <Breadcrumbs
+        project={project}
+        group={project?.group}
+        pullRequest={pullRequest}
+      />
       <Actions>
         <Link href={Routes.ProjectPage({ groupId, projectId })}>
           <Button>Back</Button>
@@ -83,15 +92,16 @@ const PullRequestPage: BlitzPage = () => {
           })}
         >
           <Button
-            isDisabled={buildInfo.lastCommit?.ref !== buildInfo.lastProcessedCommit?.ref}
+            isDisabled={
+              buildInfo.lastCommit?.ref !== buildInfo.lastProcessedCommit?.ref
+            }
             colorScheme={"secondary"}
-            ml={2}
           >
             Browse file coverage
           </Button>
         </Link>
         <Button
-          ml={2}
+          isLoading={updatePrCommentMeta.isLoading}
           leftIcon={<FaClock />}
           onClick={() => {
             updatePrCommentMutation({ prId: pullRequest?.id })
@@ -111,7 +121,37 @@ const PullRequestPage: BlitzPage = () => {
         >
           Update PR Comment
         </Button>
-        {baseBuildInfo.lastProcessedCommit?.ref && commit.coverageProcessStatus === "FINISHED" ? (
+        <Button
+          isLoading={syncGithubMeta.isLoading}
+          leftIcon={<FaClock />}
+          onClick={() => {
+            syncGithubStateMutation({ prId: pullRequest?.id })
+              .then((result) => {
+                pullRequestMeta.refetch()
+                toast({
+                  title: "State synced with Github",
+                  description: "Current status should reflect Github.",
+                  status: "success",
+                  duration: 2000,
+                  isClosable: true,
+                })
+              })
+              .catch((error) => {
+                toast({
+                  title: "Error syncing state",
+                  description: "Check the console for more information.",
+                  status: "error",
+                  duration: 2000,
+                  isClosable: true,
+                })
+                console.error(error)
+              })
+          }}
+        >
+          Sync Github State
+        </Button>
+        {baseBuildInfo.lastProcessedCommit?.ref &&
+        commit.coverageProcessStatus === "FINISHED" ? (
           <Link
             href={Routes.CompareBranchPage({
               groupId,
@@ -120,15 +160,13 @@ const PullRequestPage: BlitzPage = () => {
               baseCommitRef: baseBuildInfo.lastProcessedCommit?.ref || "",
             })}
           >
-            <Button ml={2}>Compare</Button>
+            <Button>Compare</Button>
           </Link>
         ) : (
-          <Button ml={2} isDisabled={true}>
-            Compare
-          </Button>
+          <Button isDisabled={true}>Compare</Button>
         )}
         <Link target={"_blank"} href={pullRequest?.url}>
-          <Button ml={2}>Github</Button>
+          <Button>Github</Button>
         </Link>
       </Actions>
       <Subheading mt={4} size={"md"}>
@@ -136,7 +174,11 @@ const PullRequestPage: BlitzPage = () => {
       </Subheading>
       <Flex m={4} justifyContent={"space-between"}>
         <Box>
-          <ChakraLink target={"_blank"} href={pullRequest?.url} color={"blue.500"}>
+          <ChakraLink
+            target={"_blank"}
+            href={pullRequest?.url}
+            color={"blue.500"}
+          >
             #{pullRequest?.sourceIdentifier}
           </ChakraLink>
         </Box>
@@ -166,7 +208,9 @@ const PullRequestPage: BlitzPage = () => {
                 commitRef: pullRequest?.commit?.ref || "",
               })}
             >
-              <ChakraLink color={"blue.500"}>{pullRequest?.commit?.ref.substr(0, 10)}</ChakraLink>
+              <ChakraLink color={"blue.500"}>
+                {pullRequest?.commit?.ref.substr(0, 10)}
+              </ChakraLink>
             </Link>
             )
           </Tag>
@@ -176,17 +220,22 @@ const PullRequestPage: BlitzPage = () => {
         </Tag>
       </Flex>
       {baseBuildInfo.lastProcessedCommit?.ref &&
-      baseBuildInfo.lastCommit?.ref !== baseBuildInfo.lastProcessedCommit?.ref ? (
+      baseBuildInfo.lastCommit?.ref !==
+        baseBuildInfo.lastProcessedCommit?.ref ? (
         <Box px={4}>
           <Alert status={"error"}>
             <AlertIcon />
             <AlertTitle>No suitable base commit found</AlertTitle>
             <AlertDescription>
               Using older commit{" "}
-              <Code>{baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}</Code> (
-              <TimeAgo date={baseBuildInfo.lastProcessedCommit.createdDate} />) for{" "}
-              <Code>{pullRequest?.baseBranch}</Code> coverage on this page, as status for base
-              commit <Code>{baseBuildInfo.lastCommit?.ref.substring(0, 10)}</Code> (
+              <Code>
+                {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
+              </Code>{" "}
+              (
+              <TimeAgo date={baseBuildInfo.lastProcessedCommit.createdDate} />)
+              for <Code>{pullRequest?.baseBranch}</Code> coverage on this page,
+              as status for base commit{" "}
+              <Code>{baseBuildInfo.lastCommit?.ref.substring(0, 10)}</Code> (
               <TimeAgo date={baseBuildInfo.lastCommit?.createdDate ?? 0} />) is{" "}
               <BuildStatus
                 commit={baseBuildInfo.lastCommit}
@@ -205,7 +254,8 @@ const PullRequestPage: BlitzPage = () => {
             <AlertTitle>No suitable base commit found</AlertTitle>
             <AlertDescription>
               Please make sure coverage is correctly processed for commit{" "}
-              <Code>{pullRequest.baseCommit?.ref.substring(0, 10)}</Code> on the target branch.{" "}
+              <Code>{pullRequest.baseCommit?.ref.substring(0, 10)}</Code> on the
+              target branch.{" "}
               <BuildStatus
                 commit={baseBuildInfo.lastCommit}
                 expectedResults={project?.ExpectedResult}
@@ -220,10 +270,15 @@ const PullRequestPage: BlitzPage = () => {
         <div>Head: {pullRequest.commit?.ref.substring(0, 10)}</div>
         <div>Merge: {pullRequest.mergeCommit?.ref.substring(0, 10)}</div>
         <div>Base: {pullRequest.baseCommit?.ref.substring(0, 10)}</div>
-        <div>Base processed: {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}</div>
+        <div>
+          Base processed:{" "}
+          {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
+        </div>
       </Box>
       <Subheading mt={4} size={"md"}>
-        {pullRequest?.mergeCommit?.ref ? "Last Merge Commit (used for PR's)" : "Last Commit"}
+        {pullRequest?.mergeCommit?.ref
+          ? "Last Merge Commit (used for PR's)"
+          : "Last Commit"}
       </Subheading>
       <CommitInfo lastCommit={commit} />
 
@@ -282,7 +337,9 @@ const PullRequestPage: BlitzPage = () => {
                     commitRef: commit.ref,
                   })}
                 >
-                  <ChakraLink color={"blue.500"}>{commit.ref.substr(0, 10)}</ChakraLink>
+                  <ChakraLink color={"blue.500"}>
+                    {commit.ref.substr(0, 10)}
+                  </ChakraLink>
                 </Link>
               </Td>
               <Td>{commit.message}</Td>
@@ -295,7 +352,8 @@ const PullRequestPage: BlitzPage = () => {
                 />
               </Td>
               <Td isNumeric>
-                {format.format(commit.coveredElements)}/{format.format(commit.elements)}
+                {format.format(commit.coveredElements)}/
+                {format.format(commit.elements)}
               </Td>
               <Td isNumeric>{format.format(commit.coveredPercentage)}%</Td>
             </Tr>
@@ -307,6 +365,8 @@ const PullRequestPage: BlitzPage = () => {
 }
 
 PullRequestPage.suppressFirstRenderFlicker = true
-PullRequestPage.getLayout = (page) => <Layout title="Pull Request">{page}</Layout>
+PullRequestPage.getLayout = (page) => (
+  <Layout title="Pull Request">{page}</Layout>
+)
 
 export default PullRequestPage

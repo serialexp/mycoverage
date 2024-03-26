@@ -1,15 +1,15 @@
-import { LcovRecord } from "src/library/coverage-formats/lcov"
-import {
+import type { LcovRecord } from "src/library/coverage-formats/lcov"
+import type {
   CoberturaBranchLine,
   CoberturaFile,
   CoberturaFunction,
   CoberturaLine,
   InternalFileCoverage,
 } from "src/library/InternalCoverage"
-import { SourceHit, SourceHits } from "src/library/types"
+import { type SourceHit, SourceHits } from "src/library/types"
 import {
   Coverage as ProtobufCoverage,
-  LineInformation,
+  type LineInformation,
   LineInformation_LineType,
 } from "./proto_coverage"
 
@@ -161,7 +161,7 @@ export class CoverageData {
     coverage.items.forEach((item) => {
       const hitsBySource: HitsBySource = {}
       Object.keys(item.hitsFromSource).forEach((index) => {
-        const source = coverage.sourcesNames[parseInt(index)]
+        const source = coverage.sourcesNames[Number.parseInt(index)]
         const hitsValue = item.hitsFromSource[index]
         if (source && hitsValue) {
           hitsBySource[source] = [hitsValue]
@@ -362,7 +362,9 @@ export class CoverageData {
           .reduce(
             (map, current, index): HitsBySource => {
               if (current[0] && current[1]) {
-                map[current[0]] = current[1]?.split("|").map((v) => parseInt(v))
+                map[current[0]] = current[1]
+                  ?.split("|")
+                  .map((v) => Number.parseInt(v))
               }
               return map
             },
@@ -377,10 +379,10 @@ export class CoverageData {
       switch (fields[0]) {
         case "stmt": {
           const hitsBySource = getHitsBySource(fields[3])
-          const hits = parseInt(fields[2] || "")
+          const hits = Number.parseInt(fields[2] || "")
           data.addCoverage(fields[1] || "", {
             type: "statement",
-            line: parseInt(fields[1] || ""),
+            line: Number.parseInt(fields[1] || ""),
             hits,
             hitsBySource: hitsBySource
               ? hitsBySource
@@ -392,10 +394,10 @@ export class CoverageData {
         }
         case "cond": {
           const hitsBySource = getHitsBySource(fields[5])
-          const hits = parseInt(fields[2] || "")
+          const hits = Number.parseInt(fields[2] || "")
 
-          let conditionals = parseInt(fields[4] || "")
-          let coveredConditionals = parseInt(fields[3] || "")
+          let conditionals = Number.parseInt(fields[4] || "")
+          let coveredConditionals = Number.parseInt(fields[3] || "")
 
           // pull info from hitsBySource if possible
           if (hitsBySource && Object.keys(hitsBySource).length > 0) {
@@ -411,8 +413,8 @@ export class CoverageData {
           }
           data.addCoverage(fields[1] || "", {
             type: "branch",
-            line: parseInt(fields[1] || ""),
-            hits: parseInt(fields[2] || ""),
+            line: Number.parseInt(fields[1] || ""),
+            hits: Number.parseInt(fields[2] || ""),
             conditionals: conditionalsObj,
             hitsBySource: hitsBySource
               ? hitsBySource
@@ -424,11 +426,11 @@ export class CoverageData {
         }
         case "func": {
           const hitsBySource = getHitsBySource(fields[5])
-          const hits = parseInt(fields[2] || "")
+          const hits = Number.parseInt(fields[2] || "")
           data.addCoverage(fields[1] || "", {
             type: "function",
-            line: parseInt(fields[1] || ""),
-            hits: parseInt(fields[2] || ""),
+            line: Number.parseInt(fields[1] || ""),
+            hits: Number.parseInt(fields[2] || ""),
             signature: fields[3] || "",
             name: fields[4] || "",
             hitsBySource: hitsBySource
@@ -574,7 +576,7 @@ export class CoverageData {
             branches: 0,
             coveredBranches: 0,
             hitsBySource,
-            lineNumber: parseInt(lineNr),
+            lineNumber: Number.parseInt(lineNr),
           })
         } else if (line.type === "statement") {
           lineInfo.push({
@@ -583,7 +585,7 @@ export class CoverageData {
             branches: 0,
             coveredBranches: 0,
             hitsBySource,
-            lineNumber: parseInt(lineNr),
+            lineNumber: Number.parseInt(lineNr),
           })
         } else {
           lineInfo.push({
@@ -594,7 +596,7 @@ export class CoverageData {
               (v) => v > 0,
             ).length,
             hitsBySource,
-            lineNumber: parseInt(lineNr),
+            lineNumber: Number.parseInt(lineNr),
           })
         }
       })

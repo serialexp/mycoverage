@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { invoke, useQuery } from "@blitzjs/rpc"
 import Link from "next/link"
 import getCommitFromRef from "src/coverage/queries/getCommitFromRef"

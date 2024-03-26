@@ -1,4 +1,4 @@
-import db, { Prisma } from "db"
+import db, { type Prisma } from "db"
 
 export async function getPathToPackageFileIds(
   where: Prisma.PackageCoverageWhereInput,

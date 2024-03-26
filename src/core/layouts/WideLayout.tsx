@@ -1,7 +1,7 @@
 import { Routes } from "@blitzjs/next"
 import { Box, Container, Link as ChakraLink } from "@chakra-ui/react"
 import Head from "next/head"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 import { dom } from "@fortawesome/fontawesome-svg-core"
 import { Link } from "src/library/components/Link"
 

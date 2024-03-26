@@ -1,4 +1,4 @@
-import { MergeGroupEvent, PullRequestEvent } from "@octokit/webhooks-types"
+import { type MergeGroupEvent, PullRequestEvent } from "@octokit/webhooks-types"
 import db from "db"
 import { getAppOctokit } from "src/library/github"
 import { log } from "src/library/log"

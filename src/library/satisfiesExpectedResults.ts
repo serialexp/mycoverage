@@ -1,4 +1,4 @@
-import { Commit, Test, ExpectedResult } from "db"
+import type { Commit, Test, ExpectedResult } from "db"
 
 export const satisfiesExpectedResults = (
   commit:

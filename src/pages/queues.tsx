@@ -1,4 +1,4 @@
-import { BlitzPage } from "@blitzjs/next"
+import type { BlitzPage } from "@blitzjs/next"
 import { useQuery } from "@blitzjs/rpc"
 import {
   Box,

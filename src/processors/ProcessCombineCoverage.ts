@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 import { log } from "src/library/log"
 import { addEventListeners } from "src/processors/addEventListeners"
 import { processAllTestInstances } from "src/processors/ProcessCombineCoverage/processAllTestInstances"
@@ -10,7 +10,7 @@ import {
 } from "src/queues/CombineCoverage"
 import { queueConfig } from "src/queues/config"
 import { Worker } from "bullmq"
-import db, { Commit, Test, TestInstance } from "db"
+import db, { type Commit, Test, type TestInstance } from "db"
 
 export interface ProcessCombineCoveragePayload {
   commit: Commit

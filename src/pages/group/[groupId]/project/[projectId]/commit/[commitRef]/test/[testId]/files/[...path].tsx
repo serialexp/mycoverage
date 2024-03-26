@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { useQuery } from "@blitzjs/rpc"
 import Layout from "src/core/layouts/Layout"
 import getPackageCoverageForTest from "src/coverage/queries/getPackageCoverageForTest"

@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { useQuery } from "@blitzjs/rpc"
 import { Box, Button, Flex, Tag, Tooltip } from "@chakra-ui/react"
 import Link from "next/link"
@@ -20,7 +20,7 @@ import { FileCoverageDisplay } from "src/library/components/FileCoverageDisplay"
 import { Heading } from "src/library/components/Heading"
 import {
   CoverageStatus,
-  LineInformation,
+  type LineInformation,
 } from "src/library/getLineCoverageData"
 import { useState } from "react"
 import cn from "classnames"

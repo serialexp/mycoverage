@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client"
-import { NextApiRequest, NextApiResponse } from "next"
+import type { PrismaClient } from "@prisma/client"
+import type { NextApiRequest, NextApiResponse } from "next"
 import { fixQuery } from "src/library/fixQuery"
 import { hitsJsonSchema } from "src/library/HitsJsonSchema"
 import { log } from "src/library/log"
 import { slugify } from "src/library/slugify"
-import { SourceHits } from "src/library/types"
+import type { SourceHits } from "src/library/types"
 import { uploadJob } from "src/queues/UploadQueue"
 import db, { CoverageProcessStatus } from "db"
-import { S3 } from "@aws-sdk/client-s3"
 import { z } from "zod"
+import { putS3File } from "src/library/s3"
 
 const schema = z.object({
   coverage: z.string(),
@@ -94,7 +94,7 @@ export default async function handler(
   })
 
   const testInstanceIndex = query.index
-    ? parseInt(query.index)
+    ? Number.parseInt(query.index)
     : Math.floor(Math.random() * 1000000)
 
   const { hits, coverage } = req.body as RequestBody
@@ -109,7 +109,7 @@ export default async function handler(
       const mydb: PrismaClient = db
 
       timeSinceLast("find group")
-      const groupInteger = parseInt(query.groupId || "")
+      const groupInteger = Number.parseInt(query.groupId || "")
       const group = await mydb.group.findFirst({
         where: {
           OR: [
@@ -131,7 +131,7 @@ export default async function handler(
       }
 
       timeSinceLast("find project")
-      const projectInteger = parseInt(query.projectId || "")
+      const projectInteger = Number.parseInt(query.projectId || "")
       const project = await mydb.project.findFirst({
         where: {
           OR: [
@@ -200,13 +200,8 @@ export default async function handler(
         project.slug
       }/${query.ref}/instance-${query.testName}-${new Date().getTime()}.json`
 
-      const s3 = new S3({})
       await measure("upload to s3", () => {
-        return s3.putObject({
-          Bucket: process.env.S3_BUCKET || "",
-          Key: s3FileKey,
-          Body: JSON.stringify(req.body),
-        })
+        return putS3File(s3FileKey, JSON.stringify(req.body))
       })
       timeSinceLast("uploaded")
 

@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react"
 import Head from "next/head"
 import packageConfig from "package.json"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 import { dom } from "@fortawesome/fontawesome-svg-core"
 import { Link } from "src/library/components/Link"
 import { useSession } from "@blitzjs/auth"

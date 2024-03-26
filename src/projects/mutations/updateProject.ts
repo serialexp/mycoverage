@@ -1,5 +1,5 @@
 import { resolver } from "@blitzjs/rpc"
-import db, { Prisma } from "db"
+import db, { type Prisma } from "db"
 import { z } from "zod"
 
 const UpdateProject = z.object({

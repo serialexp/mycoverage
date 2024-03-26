@@ -1,4 +1,4 @@
-import { BlitzPage } from "@blitzjs/next"
+import type { BlitzPage } from "@blitzjs/next"
 import { useMutation, useQuery } from "@blitzjs/rpc"
 import { Heading } from "src/library/components/Heading"
 import { Subheading } from "src/library/components/Subheading"

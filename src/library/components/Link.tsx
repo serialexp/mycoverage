@@ -1,8 +1,8 @@
-import { LinkProps } from "@chakra-ui/react"
+import type { LinkProps } from "@chakra-ui/react"
 import { Link as ChakraLink } from "@chakra-ui/react"
-import { RouteUrlObject } from "blitz"
+import type { RouteUrlObject } from "blitz"
 import { useRouter } from "next/router"
-import { PropsWithChildren } from "react"
+import type { PropsWithChildren } from "react"
 
 export const Link = (
   props: PropsWithChildren<

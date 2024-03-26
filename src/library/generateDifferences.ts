@@ -1,5 +1,5 @@
 import db from "db"
-import fs from "fs"
+import fs from "node:fs"
 import { CoverageData } from "src/library/CoverageData"
 
 export type CoverageDifference = {

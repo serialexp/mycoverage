@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam, useRouterQuery } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam, useRouterQuery } from "@blitzjs/next"
 import { usePaginatedQuery, useQuery } from "@blitzjs/rpc"
 import { Button, Table, Td, Tr } from "@chakra-ui/react"
 import Link from "next/link"

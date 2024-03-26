@@ -5,7 +5,7 @@ import {
   combineCoverageJob,
   combineCoverageQueue,
 } from "src/queues/CombineCoverage"
-import { Ctx } from "blitz"
+import type { Ctx } from "blitz"
 import db, { TestInstance } from "db"
 
 export default async function combineCoverage(

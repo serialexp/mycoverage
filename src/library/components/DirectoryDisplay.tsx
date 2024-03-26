@@ -11,7 +11,7 @@ import { CoverageSummary } from "src/library/components/CoverageSummary"
 import { PackageFileTable } from "src/library/components/PackageFileTable"
 import { Subheading } from "src/library/components/Subheading"
 import type { PackageCoverage } from "db"
-import { RouteUrlObject } from "blitz"
+import type { RouteUrlObject } from "blitz"
 import { useParam } from "@blitzjs/next"
 
 export const DirectoryDisplay = (props: {

@@ -1,5 +1,5 @@
 import { getDifferences } from "src/library/getDifferences"
-import { Ctx } from "blitz"
+import type { Ctx } from "blitz"
 
 export default async function getCommitFileDifferences(
   args: { baseCommitId?: number; commitId?: number },

@@ -1,4 +1,4 @@
-import { PushEvent } from "@octokit/webhooks-types"
+import type { PushEvent } from "@octokit/webhooks-types"
 import db from "db"
 import { slugify } from "src/library/slugify"
 

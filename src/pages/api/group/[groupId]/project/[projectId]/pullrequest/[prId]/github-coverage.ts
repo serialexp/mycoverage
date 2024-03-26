@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next"
+import type { NextApiRequest, NextApiResponse } from "next"
 import getFileCoverageForCommit from "src/coverage/queries/getFileCoverageForCommit"
 import { fixQuery } from "src/library/fixQuery"
 
@@ -11,7 +11,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const query = fixQuery(req.query)
-  const groupInteger = parseInt(query.groupId || "")
+  const groupInteger = Number.parseInt(query.groupId || "")
 
   try {
     const group = await db.group.findFirst({
@@ -34,7 +34,7 @@ export default async function handler(
       throw new Error("Specified group does not exist")
     }
 
-    const projectInteger = parseInt(query.projectId || "")
+    const projectInteger = Number.parseInt(query.projectId || "")
     const project = await db.project.findFirst({
       where: {
         OR: [
@@ -83,7 +83,7 @@ export default async function handler(
     const changedFiles = await octokit.pulls.listFiles({
       owner: group.name,
       repo: project.name,
-      pull_number: parseInt(pullRequest.sourceIdentifier),
+      pull_number: Number.parseInt(pullRequest.sourceIdentifier),
     })
     const paths = changedFiles.data.map((file) => file.filename)
 

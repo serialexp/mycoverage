@@ -2,10 +2,10 @@ import { executeForEachSubpath } from "src/library/executeForEachSubpath"
 import { getPathToPackageFileIds } from "src/library/getPathToPackageFileIds"
 import { log } from "src/library/log"
 
-import { ChangeFrequencyData } from "src/library/types"
+import type { ChangeFrequencyData } from "src/library/types"
 import { addEventListeners } from "src/processors/addEventListeners"
 import { queueConfig } from "src/queues/config"
-import db, { Commit, ChangeRate } from "db"
+import db, { type Commit, ChangeRate } from "db"
 import { Worker } from "bullmq"
 
 const jobName = "changefrequency"

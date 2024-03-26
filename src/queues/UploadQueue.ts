@@ -2,7 +2,7 @@ import { InternalCoverage, CloverMetrics } from "src/library/InternalCoverage"
 import { log } from "src/library/log"
 import { SourceHits } from "src/library/types"
 import { queueConfig } from "src/queues/config"
-import db, { Test, Commit, TestInstance } from "db"
+import db, { Test, type Commit, TestInstance } from "db"
 import { Queue } from "bullmq"
 
 export const uploadQueue = new Queue("upload", {

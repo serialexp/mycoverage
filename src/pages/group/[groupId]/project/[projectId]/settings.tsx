@@ -1,4 +1,4 @@
-import { BlitzPage, Routes, useParam } from "@blitzjs/next"
+import { type BlitzPage, Routes, useParam } from "@blitzjs/next"
 import { useMutation, useQuery } from "@blitzjs/rpc"
 import Link from "next/link"
 import getProject from "src/coverage/queries/getProject"
@@ -225,7 +225,7 @@ const ProjectSettingsPage: BlitzPage = () => {
                   branchPattern: fields.branchPattern,
                   requireIncrease: fields.requireIncrease,
                   testName: fields.testName,
-                  count: parseInt(fields.instanceCount),
+                  count: Number.parseInt(fields.instanceCount),
                 })
                   .then(() => {
                     setFields({

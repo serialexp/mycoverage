@@ -1,4 +1,7 @@
-import { PullRequestEvent, WorkflowJobEvent } from "@octokit/webhooks-types"
+import {
+  PullRequestEvent,
+  type WorkflowJobEvent,
+} from "@octokit/webhooks-types"
 import db, { CoverageProcessStatus } from "db"
 import { getAppOctokit } from "src/library/github"
 import { log } from "src/library/log"

@@ -1,5 +1,5 @@
 import { Stat, StatLabel, StatNumber, Flex } from "@chakra-ui/react"
-import { CoverageDifference, Diff } from "src/library/generateDifferences"
+import { type CoverageDifference, Diff } from "src/library/generateDifferences"
 import { format } from "src/library/format"
 
 export const CoverageDifferencesSummary = (props: {
