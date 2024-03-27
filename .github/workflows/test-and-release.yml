@@ -26,7 +26,53 @@ jobs:
         uses: serialexp/mycoverage-action@v1
         with:
           endpoint: https://mycoverage.se1.serial-experiments.com/
-
+  sonarqube:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    services:
+      sonarqube:
+        image: sonarqube
+        ports:
+          - 9000:9000
+    env:
+      NODE_OPTIONS: '--max-old-space-size=5384'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+      - name: Wait a bit for service to come up
+        run: sleep 60
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+      - name: Check index
+        run: wget -qO- http://localhost:9000/batch/index
+      - name: Run Sonarqube
+        run: npx sonar-scanner -X -Dsonar.host.url=http://localhost:9000/ -Dsonar.login=admin -Dsonar.password=admin -Dsonar.projectKey=project
+      - name: Give sonarqube time to process
+        run: sleep 5
+      - name: Upload sonarqube results to MyCoverage
+        uses: serialexp/mycoverage-action@v2
+        with:
+          endpoint: https://mycoverage.se1.serial-experiments.net/
+          kind: sonarqube
+          sonarqubeServer: http://localhost:9000/
+          sonarqubeLogin: admin
+          sonarqubePassword: admin
+      - name: Upload changefrequency to MyCoverage
+        uses: serialexp/mycoverage-action@v2
+        with:
+          endpoint: https://mycoverage.se1.serial-experiments.net/
+          kind: changefrequency
   typescript:
     name: Typescript
     runs-on: ubuntu-latest

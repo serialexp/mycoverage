@@ -14,9 +14,9 @@ mycoverage is a tool to help you keep track of your test coverage and other code
 
 I wanted a tool that would be openly available, and at the time [Codecov](https://about.codecov.io/) had not open sourced their stuff yet, so I built my own.
 
-The big difference right from the start, is that mycoverage is really good at dealing with coverage that comes from many different sources, and needs to be combined on the server. If you have 50 different integration test jobs, and you want them all to be combined into a single report for 'integration', then mycoverage can help you.
+The big difference right from the start, is that mycoverage is good at dealing with coverage that comes from many different sources, and needs to be combined on the server. If you have 50 different integration test jobs, and you want them all to be combined into a single report for 'integration', then mycoverage can do that for you.
 
-I also think that the interface and pull request reporting format are a bit more user friendly, but that's subjective.
+I also think that the interface and pull request reporting format are a bit more user-friendly, but that's subjective.
 
 It's important to know that mycoverage only works with Github, and a single coverage format (lcov). This is because I built it for my own use, and I only use Github and lcov, so if you need compatibility with different providers, go use Codecov.
 

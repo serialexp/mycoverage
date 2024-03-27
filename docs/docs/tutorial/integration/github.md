@@ -19,3 +19,7 @@ You can use the publicly available Github action to send coverage (and other) in
     # you are required to specify an endpoint, even if you want to use the global instance
     endpoint: https://mycoverage.dev/
 ```
+
+After the coverage information has been processed, the Github app will be used to place a new comment on your pull request with changed coverage information.
+
+It'll also add a new check results to the commit. This check will be called `coverage`, and you can set that to required for to ensure coverage either increases or stays the same.

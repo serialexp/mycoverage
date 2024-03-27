@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Components
+# Overview
 
 A mycoverage installation consists of several components. The main components are:
 
@@ -11,6 +11,7 @@ A mycoverage installation consists of several components. The main components ar
 - Database (MySQL)
 - Redis (Job Queue)
 - S3 compatible storage (AWS, minio, etc)
+- Github App
 
 ## Webinterface & Workers
 
@@ -34,3 +35,11 @@ The database is just a standard MySQL database that's managed and connected to u
 ## Redis
 
 Redis is used only for the job queues. You can see the status of the job queues when signed in at the `/queues` URL (also available from a link in the interface).
+
+## S3 Compatible Storage
+
+The S3 compatible storage is used to store the original coverage files. This is done to reduce the load on the database, and to allow for easy scaling of the storage.
+
+## Github App
+
+The Github App is used to receive webhooks from Github. It's also used to authenticate users and to get file contents from Github, so they don't need to be stored by the mycoverage system.

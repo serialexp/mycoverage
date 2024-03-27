@@ -128,9 +128,9 @@ const ProjectSettingsPage: BlitzPage = () => {
             }}
           />
           <FormHelperText>
-            If this is set invoking the /check endpoint will return status 400
-            instead of 200 if the coverage is not higher than the base branch
-            for that commit.
+            If this is set then the coverage on a PR has to be higher than, or
+            the same as the current coverage for a PR check reported to Github
+            to succeed. If this is false, the check will always be a success.
           </FormHelperText>
         </FormControl>
       </Box>
@@ -149,9 +149,9 @@ const ProjectSettingsPage: BlitzPage = () => {
           return (
             <Tr key={result.id}>
               <Td>{result.testName}</Td>
-              <Td>{result.branchPattern}</Td>
+              {/*<Td>{result.branchPattern}</Td>*/}
               <Td>{result.count}</Td>
-              <Td>{result.requireIncrease ? "Yes" : 0}</Td>
+              {/*<Td>{result.requireIncrease ? "Yes" : 0}</Td>*/}
               <Td>
                 <Button
                   colorScheme={"red"}
@@ -179,18 +179,18 @@ const ProjectSettingsPage: BlitzPage = () => {
               }
             />
           </Td>
-          <Td>
-            <Input
-              placeholder={"Branch pattern (regular expression)"}
-              value={fields.branchPattern}
-              onChange={(e) =>
-                setFields((fields) => ({
-                  ...fields,
-                  branchPattern: e.target.value,
-                }))
-              }
-            />
-          </Td>
+          {/*<Td>*/}
+          {/*  <Input*/}
+          {/*    placeholder={"Branch pattern (regular expression)"}*/}
+          {/*    value={fields.branchPattern}*/}
+          {/*    onChange={(e) =>*/}
+          {/*      setFields((fields) => ({*/}
+          {/*        ...fields,*/}
+          {/*        branchPattern: e.target.value,*/}
+          {/*      }))*/}
+          {/*    }*/}
+          {/*  />*/}
+          {/*</Td>*/}
           <Td>
             <Input
               placeholder={"Instance count"}
@@ -204,19 +204,19 @@ const ProjectSettingsPage: BlitzPage = () => {
               }
             />
           </Td>
-          <Td>
-            <Checkbox
-              isChecked={fields.requireIncrease}
-              onChange={(e) => {
-                setFields((fields) => ({
-                  ...fields,
-                  requireIncrease: e.target.checked,
-                }))
-              }}
-            >
-              Require Increase
-            </Checkbox>
-          </Td>
+          {/*<Td>*/}
+          {/*  <Checkbox*/}
+          {/*    isChecked={fields.requireIncrease}*/}
+          {/*    onChange={(e) => {*/}
+          {/*      setFields((fields) => ({*/}
+          {/*        ...fields,*/}
+          {/*        requireIncrease: e.target.checked,*/}
+          {/*      }))*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    Require Increase*/}
+          {/*  </Checkbox>*/}
+          {/*</Td>*/}
           <Td>
             <Button
               onClick={async () => {
