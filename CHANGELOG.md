@@ -1,3 +1,10 @@
+## [1.35.1](https://github.com/serialexp/mycoverage/compare/v1.35.0...v1.35.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* **cicd:** cache pnpm dependencies ([c4f72d2](https://github.com/serialexp/mycoverage/commit/c4f72d24bc08185a2147b732366f55585184ae25))
+
 # [1.35.0](https://github.com/serialexp/mycoverage/compare/v1.34.4...v1.35.0) (2024-03-27)
 
 
