@@ -63,7 +63,7 @@ jobs:
       - name: Run Sonarqube
         run: npx sonar-scanner -X -Dsonar.host.url=http://localhost:9000/ -Dsonar.login=admin -Dsonar.password=admin -Dsonar.projectKey=project
       - name: Give sonarqube time to process
-        run: sleep 5
+        run: sleep 15
       - name: Upload sonarqube results to MyCoverage
         uses: serialexp/mycoverage-action@v2
         with:
@@ -94,7 +94,7 @@ jobs:
           node-version: "lts/*"
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install && node_modules/.bin/prisma generate
       - name: Run typescript
         run: pnpm run test:tsc
   lint:
