@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/serialexp/mycoverage/compare/v1.34.4...v1.35.0) (2024-03-27)
+
+
+### Features
+
+* **cicd:** run sonarqube and changefrequency on mycoverage ([4a25cc7](https://github.com/serialexp/mycoverage/commit/4a25cc71f7bbc569d10c0528439f46c8285e7283))
+
 ## [1.34.4](https://github.com/serialexp/mycoverage/compare/v1.34.3...v1.34.4) (2024-03-26)
 
 
