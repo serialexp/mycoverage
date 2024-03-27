@@ -1,0 +1,1 @@
+© 2tsX6hr*src/coverage/queries/getIssuesForCommit.ts

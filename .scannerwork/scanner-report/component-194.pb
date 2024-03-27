@@ -1,0 +1,1 @@
+Â 2tsXhr src/library/coveredPercentage.ts

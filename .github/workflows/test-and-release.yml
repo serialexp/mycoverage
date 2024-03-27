@@ -61,9 +61,7 @@ jobs:
       - name: Check index
         run: wget -qO- http://localhost:9000/batch/index
       - name: Run Sonarqube
-        run: npx sonar-scanner -X -Dsonar.host.url=http://localhost:9000/ -Dsonar.login=admin -Dsonar.password=admin -Dsonar.projectKey=project
-      - name: Give sonarqube time to process
-        run: sleep 15
+        run: pnpx sonar-scanner -X -Dsonar.host.url=http://localhost:9000/ -Dsonar.login=admin -Dsonar.password=admin -Dsonar.projectKey=project
       - name: Upload sonarqube results to MyCoverage
         uses: serialexp/mycoverage-action@v2
         with:
