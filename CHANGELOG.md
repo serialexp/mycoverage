@@ -1,3 +1,10 @@
+## [1.35.2](https://github.com/serialexp/mycoverage/compare/v1.35.1...v1.35.2) (2024-03-27)
+
+
+### Bug Fixes
+
+* **cicd:** use proper url ([daf3fc1](https://github.com/serialexp/mycoverage/commit/daf3fc1b8b91aba75d9c509ce64fe57fa5924af9))
+
 ## [1.35.1](https://github.com/serialexp/mycoverage/compare/v1.35.0...v1.35.1) (2024-03-27)
 
 
