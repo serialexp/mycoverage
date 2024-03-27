@@ -67,7 +67,7 @@ jobs:
       - name: Upload sonarqube results to MyCoverage
         uses: serialexp/mycoverage-action@v2
         with:
-          endpoint: https://mycoverage.se1.serial-experiments.net/
+          endpoint: https://mycoverage.se1.serial-experiments.com/
           kind: sonarqube
           sonarqubeServer: http://localhost:9000/
           sonarqubeLogin: admin
@@ -75,7 +75,7 @@ jobs:
       - name: Upload changefrequency to MyCoverage
         uses: serialexp/mycoverage-action@v2
         with:
-          endpoint: https://mycoverage.se1.serial-experiments.net/
+          endpoint: https://mycoverage.se1.serial-experiments.com/
           kind: changefrequency
   typescript:
     name: Typescript
