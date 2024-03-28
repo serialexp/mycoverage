@@ -1,1 +1,0 @@
-¨ 2tsXfhr.src/coverage/queries/getLigthhouseGraphData.ts

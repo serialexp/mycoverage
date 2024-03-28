@@ -1,1 +1,0 @@
-x 2tsXhrvitest.config.ts

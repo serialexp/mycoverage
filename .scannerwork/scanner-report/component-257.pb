@@ -1,1 +1,0 @@
-Å 2tsXåhrEsrc/pages/api/group/[groupId]/project/[projectId]/upload-sonarqube.ts

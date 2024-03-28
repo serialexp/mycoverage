@@ -1,1 +1,0 @@
-° 2tsXhr0src/coverage/queries/getFileCoverageForCommit.ts

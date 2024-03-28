@@ -1,1 +1,0 @@
-ø 2tsXÙhr1src/pages/group/[groupId]/project/[projectId].tsx

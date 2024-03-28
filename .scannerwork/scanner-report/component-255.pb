@@ -1,1 +1,0 @@
-ÿ 2tsXhrGsrc/pages/api/group/[groupId]/project/[projectId]/upload-codeclimate.ts

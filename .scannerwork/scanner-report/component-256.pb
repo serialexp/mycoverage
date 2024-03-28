@@ -1,1 +1,0 @@
-€ 2tsXhrAsrc/pages/api/group/[groupId]/project/[projectId]/upload-sonar.ts

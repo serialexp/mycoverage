@@ -1,1 +1,0 @@
-ä 2tsX}hrsrc/pages/index.tsx
