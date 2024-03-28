@@ -1,6 +1,6 @@
 {
   "name": "mycoverage",
-  "version": "1.35.2",
+  "version": "1.35.3",
   "scripts": {
     "dev": "blitz dev --port 3002",
     "dev:worker": "nodemon --exec 'npm run build:worker && npm run start:worker' src/worker.ts",
@@ -33,7 +33,10 @@
     "printWidth": 100
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": ["biome check", "biome format"]
+    "*.{js,ts,tsx}": [
+      "biome check",
+      "biome format"
+    ]
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",

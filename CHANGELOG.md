@@ -1,3 +1,10 @@
+## [1.35.3](https://github.com/serialexp/mycoverage/compare/v1.35.2...v1.35.3) (2024-03-28)
+
+
+### Bug Fixes
+
+* correct all remaining lint issues ([#6](https://github.com/serialexp/mycoverage/issues/6)) ([77f434f](https://github.com/serialexp/mycoverage/commit/77f434f74a5f0eceeefb1abdce93255e7e39efda))
+
 ## [1.35.2](https://github.com/serialexp/mycoverage/compare/v1.35.1...v1.35.2) (2024-03-27)
 
 
