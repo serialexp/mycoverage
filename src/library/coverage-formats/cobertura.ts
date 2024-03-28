@@ -75,6 +75,93 @@ const schema = Joi.object({
     ).min(1),
   }),
 })
+
+type Result = {
+  coverage: {
+    $: {
+      "lines-valid": string
+      "lines-covered": string
+      "line-rate": string
+      "branches-valid": string
+      "branches-covered": string
+      "branch-rate": string
+      timestamp: string
+      complexity: string
+      version: string
+    }
+    sources: {
+      source: string[]
+    }[]
+    metrics: {
+      statements: string
+      coveredstatements: string
+      conditionals: string
+      coveredconditionals: string
+      methods: string
+      coveredmethods: string
+      elements: string
+      hits: string
+      coveredelements: string
+    }[]
+    packages: {
+      package: {
+        $: {
+          name: string
+          "line-rate"?: string
+          "branch-rate"?: string
+          complexity: string
+        }
+        classes: {
+          class: XmlFile[]
+        }[]
+      }[]
+    }[]
+  }
+}
+
+type XmlFile = {
+  classes: {
+    class: string
+  }[]
+  $: {
+    name: string
+    filename: string
+    "line-rate"?: string
+    "branch-rate"?: string
+    complexity: string
+  }
+  lines: {
+    line: {
+      $: {
+        number: string
+        hits: string
+        branch: string
+        "condition-coverage"?: string
+        conditions?: string
+        coveredConditions?: string
+      }
+    }[]
+  }[]
+  methods: {
+    method: {
+      $: {
+        name: string
+        hits: string
+        signature: string
+        number: string
+      }
+      lines: {
+        line: {
+          $: {
+            number: string
+            hits: string
+          }
+        }[]
+      }[]
+    }[]
+  }[]
+}
+
 export const fillFromCobertura = async (
   coverage: InternalCoverage,
   options: {
@@ -88,15 +175,15 @@ export const fillFromCobertura = async (
   const sourceHits = options.sourceHits ?? {}
 
   return new Promise((resolve, reject) => {
-    parseString(data, (err, result) => {
+    parseString(data, (err, result: Result) => {
       if (err) {
         reject(err)
       }
 
-      let extraPath = result.coverage.sources[0].source[0]
-        .replace(repositoryRoot, "")
+      let extraPath = result.coverage.sources[0]?.source[0]
+        ?.replace(repositoryRoot ?? "", "")
         .split("/")
-        .filter((p: any) => p)
+        .filter((p: string) => p)
         .join(".")
       if (options.workingDirectory && options.repositoryRoot) {
         extraPath = options.workingDirectory
@@ -107,15 +194,15 @@ export const fillFromCobertura = async (
       }
 
       // transform data to remove all '$' attribute properties.
-      const packages = result.coverage.packages[0].package?.map((pack: any) => {
+      const packages = result.coverage.packages[0]?.package?.map((pack) => {
         const packagePath = extraPath
           ? [extraPath, pack.$.name].join(".")
           : pack.$.name
         const packData = {
           ...pack.$,
           name: packagePath,
-          files: pack.classes[0].class
-            ?.map((file: any) => {
+          files: pack.classes[0]?.class
+            ?.map((file: XmlFile) => {
               const filePath = `${packagePath.replace(/\./g, "/")}/${
                 file.$.name
               }`
@@ -123,7 +210,7 @@ export const fillFromCobertura = async (
                 ...file.$,
                 filename: filePath,
                 lines:
-                  file.lines[0]?.line?.map((l: any) => {
+                  file.lines[0]?.line?.map((l) => {
                     const args = l.$
                     if (args["condition-coverage"]) {
                       const matches = /\(([0-9]+\/[0-9]+)\)/.exec(
@@ -158,10 +245,10 @@ export const fillFromCobertura = async (
                     }
                   }) || [],
                 functions:
-                  file.methods[0]?.method?.map((meth: any) => {
+                  file.methods[0]?.method?.map((meth) => {
                     const funcData = {
                       ...meth.$,
-                      ...meth.lines[0].line[0].$,
+                      ...meth.lines[0]?.line[0]?.$,
                     }
                     return {
                       name: funcData.name,
@@ -176,6 +263,7 @@ export const fillFromCobertura = async (
               return {
                 ...fileData,
                 coverageData: CoverageData.fromCoberturaFile(
+                  // @ts-expect-error: do not care about cobertura madness any more
                   fileData,
                   sourceHits[filePath],
                 ),
@@ -189,7 +277,7 @@ export const fillFromCobertura = async (
         packData["branch-rate"] = undefined
         return packData
       })
-      packages.sort((a: { name: string }, b: { name: string }) => {
+      packages?.sort((a: { name: string }, b: { name: string }) => {
         return a.name.localeCompare(b.name)
       })
 
@@ -197,16 +285,17 @@ export const fillFromCobertura = async (
         coverage: {
           ...result.coverage.$,
           sources: {
-            source: result.coverage.sources[0].source[0],
+            source: result.coverage.sources[0]?.source[0],
           },
+          // @ts-expect-error: do not care about cobertura madness any more
           packages,
         },
       }
 
       const validatedData = schema.parse(newData)
 
-      validatedData.coverage.packages.forEach((pack) => {
-        pack.files.forEach((file) => {
+      for (const pack of validatedData.coverage.packages) {
+        for (const file of pack.files) {
           const path = `${pack.name.replaceAll(".", "/")}/${file.name}`
 
           const covData = CoverageData.fromCoberturaFile(
@@ -218,8 +307,8 @@ export const fillFromCobertura = async (
             file.name,
             covData.toInternalCoverage(),
           )
-        })
-      })
+        }
+      }
       coverage.updateMetrics()
 
       resolve(coverage)

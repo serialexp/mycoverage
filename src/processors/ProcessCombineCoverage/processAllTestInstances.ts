@@ -3,7 +3,7 @@ import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
-import { Test, TestInstance, type Commit } from "db"
+import type { Commit } from "db"
 import db from "db"
 
 export const processAllTestInstances = async (commit: Commit) => {
@@ -17,9 +17,9 @@ export const processAllTestInstances = async (commit: Commit) => {
   })
 
   let totalItems = 0
-  all.forEach((test) => {
+  for (const test of all) {
     totalItems += test.TestInstance.length
-  })
+  }
 
   let count = 0
   for (let i = 0; i < all.length; i++) {

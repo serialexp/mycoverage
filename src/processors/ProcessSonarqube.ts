@@ -2,12 +2,10 @@ import { executeForEachSubpath } from "src/library/executeForEachSubpath"
 import { getPathToPackageFileIds } from "src/library/getPathToPackageFileIds"
 import { log } from "src/library/log"
 import type { SonarIssue } from "src/library/types"
-import { addEventListeners } from "src/processors/addEventListeners"
-import { changefrequencyWorker } from "src/processors/ProcessChangefrequency"
-import { uploadWorker } from "src/processors/ProcessUpload"
-import { queueConfig } from "src/queues/config"
 import db, { type CodeIssueOnFileCoverage, type Commit, type Prisma } from "db"
 import { Worker } from "bullmq"
+import { queueConfig } from "src/queues/config"
+import { addEventListeners } from "src/processors/addEventListeners"
 
 const jobName = "sonarqube"
 
@@ -26,10 +24,10 @@ export const sonarqubeWorker = new Worker<{
 
       log("starting to insert")
       const severities: Record<string, number> = {}
-      issues.forEach((issue) => {
+      for (const issue of issues) {
         if (!severities[issue.severity]) severities[issue.severity] = 0
         severities[issue.severity]++
-      })
+      }
 
       const hashes = issues
         .filter((issue) => issue.hash)
@@ -38,10 +36,10 @@ export const sonarqubeWorker = new Worker<{
         `Posted ${issues.length} issues, ${hashes.length} of which have a hash`,
       )
       const hashDeduplicated: Record<string, unknown> = {}
-      issues.forEach((issue) => {
+      for (const issue of issues) {
         if (!issue.hash) {
           log("Issue does not have key!", issue)
-          return
+          continue
         }
         if (!hashDeduplicated[issue.hash]) {
           hashDeduplicated[issue.hash] = issue
@@ -53,7 +51,7 @@ export const sonarqubeWorker = new Worker<{
           )
           throw new Error("Cannot handle file with duplicates")
         }
-      })
+      }
       log(
         `${
           Object.keys(hashDeduplicated).length
@@ -85,14 +83,14 @@ export const sonarqubeWorker = new Worker<{
       let skippedNoHash = 0
       let skippedExisting = 0
 
-      issues.forEach((issue: SonarIssue) => {
+      for (const issue of issues) {
         if (!issue.hash) {
           skippedNoHash++
-          return
+          continue
         }
         if (existingHashes.includes(issue.hash)) {
           skippedExisting++
-          return
+          continue
         }
 
         let line = issue.line
@@ -111,7 +109,7 @@ export const sonarqubeWorker = new Worker<{
           severity: issue.severity,
           tags: issue.tags.join(","),
         })
-      })
+      }
       log(`Creating ${newIssues.length} new issues`)
       //execute in batches
       const perPage = 1000
@@ -157,14 +155,14 @@ export const sonarqubeWorker = new Worker<{
       )
 
       const links: { commitId: number; codeIssueId: number }[] = []
-      refreshedIssues.forEach((issue) => {
+      for (const issue of refreshedIssues) {
         if (!existingIssueIdsForCommit.includes(issue.id)) {
           links.push({
             commitId: commit.id,
             codeIssueId: issue.id,
           })
         }
-      })
+      }
 
       log(`Connecting ${links.length} new issues to this commit`)
 
@@ -193,7 +191,7 @@ export const sonarqubeWorker = new Worker<{
 
       const totalIssuesOnFile: Record<string, number> = {}
       const changesPerPackage: Record<string, number> = {}
-      refreshedIssues.forEach((issue) => {
+      for (const issue of refreshedIssues) {
         const fileIdBuffer = pathToFileId[issue.file]
         const fileId = pathToFileId[issue.file]?.toString("base64")
         if (fileId && fileIdBuffer) {
@@ -223,7 +221,7 @@ export const sonarqubeWorker = new Worker<{
             changesPerPackage[packageId] += 1
           }
         })
-      })
+      }
 
       log(
         `Found ${newFileCoverages.length} new code issues to attach to file coverage`,

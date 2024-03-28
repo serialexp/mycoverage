@@ -6,7 +6,10 @@ import { sonarqubeJob } from "src/queues/SonarQubeQueue"
 
 import db, { CoverageProcessStatus } from "db"
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.headers["content-type"] !== "application/json") {
     return res.status(400).send("Content type must be application/json")
   }

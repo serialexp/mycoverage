@@ -1,10 +1,11 @@
 import { Box, Flex, Text } from "@chakra-ui/react"
 import { ChangeRate } from "db"
+import type { ReactElement } from "react"
 
 export const ActivityIcon = (props: { activity: ChangeRate; rate: string }) => {
-  let icon
-  let title
-  let color
+  let icon: ReactElement = <></>
+  let title = "Unknown activity"
+  let color = "gray.500"
   switch (props.activity) {
     case ChangeRate.VERY_LOW:
       color = "green.400"

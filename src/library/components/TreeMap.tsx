@@ -4,13 +4,13 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Button,
   Flex,
 } from "@chakra-ui/react"
 import getTree from "src/coverage/queries/getTree"
 import NodeComponent from "src/library/components/NodeComponent"
-import { useRef, useState, Suspense } from "react"
+import { useState, Suspense } from "react"
 import { ResponsiveTreeMapHtml } from "@nivo/treemap"
+import { CoverageData } from "src/library/CoverageData"
 
 export interface TreeMapInputData {
   title: string
@@ -24,9 +24,9 @@ export interface TreeMapInputData {
 function getChildSize(data?: TreeMapInputData) {
   if (data?.children) {
     let total = 0
-    data.children.forEach((child) => {
+    for (const child of data.children) {
       total += getChildSize(child)
-    })
+    }
     return total
   }
   return data?.size || 0
@@ -36,10 +36,11 @@ function mapData(
   data: TreeMapInputData | undefined,
   maxDepth: number,
   currentDepth = 0,
-): any {
+): TreeMapInputData {
   if (currentDepth < maxDepth) {
     return {
       ...data,
+      title: data?.title || "[blank]",
       children: data?.children?.map((item) =>
         mapData(item, maxDepth, currentDepth + 1),
       ),
@@ -47,6 +48,7 @@ function mapData(
   }
   return {
     ...data,
+    title: data?.title || "[blank]",
     size: getChildSize(data),
     children: undefined,
   }
@@ -58,13 +60,11 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
 
   let mappedData = data
   if (path.length > 0) {
-    path.forEach((pathSegment) => {
+    for (const pathSegment of path) {
       mappedData = mappedData?.children?.find(
         (child) => child.title === pathSegment,
       )
-    })
-  } else {
-    mappedData = mappedData
+    }
   }
   mappedData = mapData(mappedData, 2)
 
@@ -136,7 +136,11 @@ const TreeMap = (props: { commitId: number; processing: boolean }) => {
           leavesOnly={false}
           nodeOpacity={1}
           animate={false}
-          tooltip={({ node }: any) => {
+          tooltip={({
+            node,
+          }: {
+            node: { pathComponents: string[]; data: TreeMapInputData }
+          }) => {
             return (
               <strong style={{ color: "#333" }}>
                 {node.pathComponents.join("/")}

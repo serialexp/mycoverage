@@ -13,25 +13,23 @@ export const satisfiesIncreaseConditions = (
   baseBranchName: string,
 ) => {
   let isOk = true
-  expectedResults
-    .filter(
-      (res) => !res.branchPattern || baseBranchName.match(res.branchPattern),
-    )
-    .forEach((result) => {
-      if (result.requireIncrease) {
-        const originalTest = baseCommit?.Test.find(
-          (t) => t.testName === result.testName,
-        )
-        const newTest = commit?.Test.find((t) => t.testName === result.testName)
+  for (const result of expectedResults.filter(
+    (res) => !res.branchPattern || baseBranchName.match(res.branchPattern),
+  )) {
+    if (result.requireIncrease) {
+      const originalTest = baseCommit?.Test.find(
+        (t) => t.testName === result.testName,
+      )
+      const newTest = commit?.Test.find((t) => t.testName === result.testName)
 
-        if (
-          (originalTest?.coveredPercentage ?? 0) >
-          (newTest?.coveredPercentage ?? 0)
-        ) {
-          isOk = false
-        }
+      if (
+        (originalTest?.coveredPercentage ?? 0) >
+        (newTest?.coveredPercentage ?? 0)
+      ) {
+        isOk = false
       }
-    })
+    }
+  }
 
   return {
     isOk,

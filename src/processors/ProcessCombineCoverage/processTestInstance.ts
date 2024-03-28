@@ -4,9 +4,7 @@ import { coveredPercentage } from "src/library/coveredPercentage"
 import { createInternalCoverageFromS3 } from "src/library/createInternalCoverageFromS3"
 import { insertCoverageData } from "src/library/insertCoverageData"
 import { log } from "src/library/log"
-import { ProcessCombineCoveragePayload } from "src/processors/ProcessCombineCoverage"
 import { Test, type TestInstance } from "db"
-import { Job } from "bullmq"
 import db from "db"
 
 export const processTestInstance = async (testInstance: TestInstance) => {
@@ -81,13 +79,13 @@ export const processTestInstance = async (testInstance: TestInstance) => {
   let packages = 0
   let files = 0
   // fill new testCoverage object with values in test
-  test.PackageCoverage.forEach((pkg) => {
+  for (const pkg of test.PackageCoverage) {
     packages++
-    pkg.FileCoverage?.forEach((file) => {
+    for (const file of pkg.FileCoverage) {
       files++
       testCoverage.mergeCoverageBuffer(pkg.name, file.name, file.coverageData)
-    })
-  })
+    }
+  }
   // add new testCoverage object values from this testinstance, this is icky if we accidentally
   // process twice, but much faster when there are many testinstances
   testCoverage.merge(testInstanceCoverageFile)

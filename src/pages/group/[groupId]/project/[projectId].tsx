@@ -46,6 +46,7 @@ import {
   FaCodeCommit,
 } from "react-icons/fa6"
 import { Section } from "src/library/components/Section"
+import { IssueSummary } from "src/library/components/IssueSummary"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
@@ -154,18 +155,19 @@ const ProjectPage: BlitzPage = () => {
         commitId={buildInfo.lastProcessedCommit?.id}
         projectId={project.id}
       />
-      <LighthouseGraph
-        groupId={project.groupId}
-        projectId={project.id}
-        currentTime={buildInfo.lastCommit?.createdDate}
-        clickRedirect={async (ref: string) => {
-          return Routes.CommitPage({
-            groupId,
-            projectId,
-            commitRef: ref,
-          }).href
-        }}
-      />
+
+      {buildInfo.lastCommit ? (
+        <>
+          <Subheading mt={4} size={"md"}>
+            Issues
+          </Subheading>
+          <IssueSummary
+            commit={buildInfo.lastCommit}
+            projectId={projectId}
+            groupId={groupId}
+          />
+        </>
+      ) : null}
       <Section
         title={`Test results (${buildInfo?.lastProcessedCommit?.Test.length})`}
         summary={

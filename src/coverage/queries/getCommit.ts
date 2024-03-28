@@ -2,12 +2,12 @@ import type { Ctx } from "blitz"
 import db from "db"
 
 export default async function getCommit(
-  args: { commitRef?: string },
+  args: { commitRef?: string; commitId?: number },
   { session }: Ctx,
 ) {
-  if (!args.commitRef) return null
+  if (!args.commitRef && !args.commitId) return null
   return db.commit.findFirst({
-    where: { ref: args.commitRef },
+    where: { OR: [{ ref: args.commitRef }, { id: args.commitId }] },
     include: {
       CommitOnBranch: {
         include: {

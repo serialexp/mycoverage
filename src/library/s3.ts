@@ -1,4 +1,5 @@
 import { S3 } from "@aws-sdk/client-s3"
+import type { StreamingBlobPayloadInputTypes } from "@smithy/types"
 
 export const createS3 = () => {
   return new S3({
@@ -19,7 +20,10 @@ export const getCoverageFileFromS3 = async (coverageFileKey: string) => {
   }
 }
 
-export const putS3File = async (coverageFileKey: string, data: any) => {
+export const putS3File = async (
+  coverageFileKey: string,
+  data: StreamingBlobPayloadInputTypes,
+) => {
   const s3 = new S3({})
   await s3.putObject({
     Bucket: process.env.S3_BUCKET || "",

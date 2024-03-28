@@ -72,7 +72,7 @@ export interface CoberturaFileFormat {
     complexity?: number
     version: string
     sources?: {
-      source: string
+      source?: string
     }
     metrics?: Metrics
     packages: {
@@ -151,7 +151,7 @@ class InternalFile {
   }
 
   updateMetrics() {
-    this.coverage.items.forEach((item) => {
+    for (const item of this.coverage.items) {
       if (item.type === "statement") {
         this.metrics.statements++
         this.metrics.elements++
@@ -177,11 +177,11 @@ class InternalFile {
           this.metrics.coveredelements++
         }
       }
-    })
+    }
   }
 
   mergeCoverage(coverage: InternalFileCoverage) {
-    coverage.items.forEach((newItem) => {
+    for (const newItem of coverage.items) {
       const existingItem = this.coverage.items.find((existingItem) => {
         return (
           existingItem.type === newItem.type &&
@@ -194,12 +194,12 @@ class InternalFile {
           newItem.type === "conditional" &&
           existingItem.type === "conditional"
         ) {
-          Object.entries(newItem.hitsPerBranch).forEach(([branch, hits]) => {
+          for (const [branch, hits] of Object.entries(newItem.hitsPerBranch)) {
             existingItem.hitsPerBranch[branch] += hits
-          })
+          }
         }
         const hitsFromSource = existingItem.hitsFromSource
-        Object.entries(newItem.hitsFromSource).forEach(([source, hits]) => {
+        for (const [source, hits] of Object.entries(newItem.hitsFromSource)) {
           const sourceName = coverage.sourcesNames[Number.parseInt(source)]
           if (sourceName) {
             if (this.coverage.sourcesNames.indexOf(sourceName) === -1) {
@@ -212,11 +212,11 @@ class InternalFile {
               hitsFromSource[newIndex] = hits
             }
           }
-        })
+        }
       } else {
         this.coverage.items.push(newItem)
       }
-    })
+    }
   }
 }
 
@@ -267,9 +267,9 @@ class InternalDirectory {
     this.children.sort((a, b) => {
       return a.name.localeCompare(b.name)
     })
-    this.children.forEach((dir) => {
+    for (const dir of this.children) {
       dir.sortDirectoriesRecursively()
-    })
+    }
   }
 
   get depth(): number {
@@ -278,14 +278,14 @@ class InternalDirectory {
 
   updateMetrics() {
     this.metrics = createEmptyMetrics()
-    this.children.forEach((child) => {
+    for (const child of this.children) {
       child.updateMetrics()
       addMetrics(this.metrics, child.metrics)
-    })
-    this.files.forEach((file) => {
+    }
+    for (const file of this.files) {
       file.updateMetrics()
       addMetrics(this.metrics, file.metrics)
-    })
+    }
   }
 }
 
@@ -324,9 +324,9 @@ export class InternalCoverage {
     this.data.directories.sort((a, b) => {
       return a.name.localeCompare(b.name)
     })
-    this.data.directories.forEach((dir) => {
+    for (const dir of this.data.directories) {
       dir.sortDirectoriesRecursively()
-    })
+    }
   }
 
   flattenDirectories() {
@@ -336,12 +336,12 @@ export class InternalCoverage {
   updateMetrics() {
     this.sortDirectoriesRecursively()
     this.data.metrics = createEmptyMetrics()
-    this.data.directories.forEach((pack) => {
+    for (const pack of this.data.directories) {
       pack.updateMetrics()
-    })
-    this.data.directories.forEach((pack) => {
+    }
+    for (const pack of this.data.directories) {
       addMetrics(this.data.metrics, pack.metrics)
-    })
+    }
   }
 
   public mergeCoverageString(
@@ -461,14 +461,14 @@ export class InternalCoverage {
   }
 
   public merge(coverageFile: InternalCoverage) {
-    coverageFile.flattenDirectories().forEach((pkg) => {
-      pkg.files.forEach((file: InternalFile) => {
+    for (const pkg of coverageFile.flattenDirectories()) {
+      for (const file of pkg.files) {
         this.mergeCoverage(
           pkg.fileName.replaceAll("/", "."),
           file.name,
           file.coverage,
         )
-      })
-    })
+      }
+    }
   }
 }

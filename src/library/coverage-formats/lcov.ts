@@ -59,7 +59,7 @@ export const fillFromLcov = async (
   let i = 1
   let startedBranches: Record<number, boolean> = {}
 
-  let extraPath
+  let extraPath: string | undefined
   if (options.workingDirectory && options.repositoryRoot) {
     extraPath = options.workingDirectory
       .replace(options.repositoryRoot, "")
@@ -201,8 +201,8 @@ export const fillFromLcov = async (
 
   coverage.data.root = repositoryRoot
 
-  tests.forEach((test) => {
-    test.records.forEach((record) => {
+  for (const test of tests) {
+    for (const record of test.records) {
       const path = record.path.split("/")
       const fileName = path[path.length - 1]
       const packageName = path.slice(0, path.length - 1).join(".")
@@ -216,8 +216,8 @@ export const fillFromLcov = async (
         fileName,
         CoverageData.fromLcovRecord(record, test.name).toInternalCoverage(),
       )
-    })
-  })
+    }
+  }
   coverage.updateMetrics()
 
   return coverage
