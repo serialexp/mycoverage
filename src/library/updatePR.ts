@@ -12,7 +12,7 @@ import { slugify } from "src/library/slugify"
 
 export async function updatePR(
   pullRequest: PullRequest & { project: Project & { group: Group } },
-) {
+): Promise<boolean> {
   const octokit = await getAppOctokit()
 
   const baseUrl = await getSetting("baseUrl")
@@ -160,6 +160,7 @@ export async function updatePR(
 
     if (noBaseCommit === "first_commit") {
       const message = `We cannot compare coverage yet, since the target branch (\`${pullRequest.baseBranch}\`) has no processed commits.`
+
       await octokit.issues.createComment({
         owner: pullRequest.project.group.name,
         repo: pullRequest.project.name,
@@ -179,6 +180,7 @@ ${message}`,
             "commit",
             baseCommit.ref,
           )
+
         const check = await octokit.checks.create({
           owner: pullRequest.project.group.name,
           repo: pullRequest.project.name,
@@ -207,11 +209,14 @@ ${message}`,
           `Check successfully created for commit ${coverageCommit.ref}`,
           check.data.id,
         )
+        return true
       } catch (error) {
         log("could not create check", error)
+        return false
       }
     } else if (noBaseCommit === "not_found") {
       const baseCommitMessage = `THE BASE COMMIT ${pullRequestResult.baseCommit.ref} HAS NOT BEEN PROCESSED YET, AND NO OTHER SUITABLE BASE COMMIT FOR COMPARISON EXISTS.`
+
       await octokit.issues.createComment({
         owner: pullRequest.project.group.name,
         repo: pullRequest.project.name,
@@ -262,6 +267,7 @@ ${baseBuildInfo?.commits
             "commit",
             baseCommit.ref,
           )
+
         const check = await octokit.checks.create({
           owner: pullRequest.project.group.name,
           repo: pullRequest.project.name,
@@ -290,8 +296,10 @@ ${baseBuildInfo?.commits
           `Check successfully created for commit ${pullRequestResult.commit.ref}`,
           check.data.id,
         )
+        return true
       } catch (error) {
         log("could not create check", error)
+        return false
       }
     } else {
       const differencesUrl =
@@ -480,7 +488,7 @@ ${format.format(
         )} total elements
 
 Changed Files: ${
-          state === "BETTER" ? "✅" : state === "SAME" ? "✔️" : "❌"
+          state === "BETTER" ? "✅" : state === "SAME" ? "√" : "❌"
         } ${format.format(differences.averageChange, true)}%
 Overall Difference: ${
           overallState === "BETTER"
@@ -604,11 +612,14 @@ ${differences.remove.length > 0 ? removedFilesText : ""}
           `Check successfully created for commit ${checkCommit.ref} using coverage from ${coverageCommit.ref}`,
           check.data.id,
         )
+        return true
       } catch (error) {
         log("could not create check", error)
+        return false
       }
     }
   } catch (e) {
     log("could not create comment", e)
+    return false
   }
 }

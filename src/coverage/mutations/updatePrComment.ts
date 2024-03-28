@@ -22,7 +22,7 @@ export default async function updatePrComment(args: { prId?: number }) {
 
   if (!pr) return false
 
-  await updatePR(pr)
+  const result = await updatePR(pr)
 
-  return true
+  return result
 }

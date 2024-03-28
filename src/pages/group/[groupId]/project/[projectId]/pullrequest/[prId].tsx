@@ -106,13 +106,23 @@ const PullRequestPage: BlitzPage = () => {
           onClick={() => {
             updatePrCommentMutation({ prId: pullRequest?.id })
               .then((result) => {
-                toast({
-                  title: "PR comment updated",
-                  description: "Check your PR on Github.",
-                  status: "success",
-                  duration: 2000,
-                  isClosable: true,
-                })
+                if (result === true) {
+                  toast({
+                    title: "PR comment updated",
+                    description: "Check your PR on Github.",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+                } else {
+                  toast({
+                    title: "Error updating PR comment",
+                    description: "Check the server logs for more information.",
+                    status: "error",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+                }
               })
               .catch((error) => {
                 console.error(error)
