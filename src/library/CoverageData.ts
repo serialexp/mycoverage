@@ -69,15 +69,15 @@ export class CoverageData {
     }
   }
 
-  public getLineSummary() {
+  public getLineSummary(): Record<string, "c" | "p" | "u"> {
     const summary: Record<string, "c" | "p" | "u"> = {}
-    Object.keys(this.coverage).forEach((lineNr) => {
+    for (const lineNr of Object.keys(this.coverage)) {
       const line = this.coverage[lineNr]
       let status = "c"
-      line?.forEach((item) => {
+      for (const item of line ?? []) {
         if (item.hits === 0 && status === "c") {
           status = "u"
-          return
+          continue
         }
         if (
           item.type === "branch" &&
@@ -85,9 +85,9 @@ export class CoverageData {
         ) {
           status = "p"
         }
-      })
+      }
       summary[lineNr] = status as "c" | "p" | "u"
-    })
+    }
 
     return summary
   }
@@ -103,24 +103,24 @@ export class CoverageData {
 
   public getAllHitSources() {
     const sources: Record<string, true> = {}
-    Object.values(this.coverage).forEach((line) => {
-      line.forEach((item) => {
-        Object.keys(item.hitsBySource).forEach((source) => {
+    for (const line of Object.values(this.coverage)) {
+      for (const item of line) {
+        for (const source of Object.keys(item.hitsBySource)) {
           sources[source] = true
-        })
-      })
-    })
+        }
+      }
+    }
     return Object.keys(sources)
   }
 
   static getConditionalCoverageFromSourceHits(hitsBySource: HitsBySource) {
     const totalHits: Record<number, number> = {}
-    Object.values(hitsBySource).forEach((source) => {
+    for (const source of Object.values(hitsBySource)) {
       source.forEach((hit, index) => {
         if (!totalHits[index]) totalHits[index] = 0
         totalHits[index] += hit
       })
-    })
+    }
     return {
       total: Object.values(totalHits).length,
       covered: Object.values(totalHits).filter((hit) => hit > 0).length,
@@ -130,27 +130,27 @@ export class CoverageData {
   static fromLcovRecord(record: LcovRecord, testName: string): CoverageData {
     const coverage = new CoverageData()
 
-    record.lines.forEach((line) => {
+    for (const line of record.lines) {
       if (!line.branches) {
         coverage.addStatement(line.line, line.hits, {
           [testName]: [line.hits],
         })
       }
-    })
+    }
 
-    record.functions.forEach((func) => {
+    for (const func of record.functions) {
       coverage.addFunction(func.line, func.hits, func.name, func.name, {
         [testName]: [func.hits],
       })
-    })
+    }
 
-    record.lines.forEach((branch) => {
+    for (const branch of record.lines) {
       if (branch.branches) {
         coverage.addBranch(branch.line, branch.hits, branch.branches, {
           [testName]: [branch.hits],
         })
       }
-    })
+    }
 
     return coverage
   }
@@ -158,15 +158,15 @@ export class CoverageData {
   static fromInternalCoverage(coverage: InternalFileCoverage): CoverageData {
     const data = new CoverageData()
 
-    coverage.items.forEach((item) => {
+    for (const item of coverage.items) {
       const hitsBySource: HitsBySource = {}
-      Object.keys(item.hitsFromSource).forEach((index) => {
+      for (const index of Object.keys(item.hitsFromSource)) {
         const source = coverage.sourcesNames[Number.parseInt(index)]
         const hitsValue = item.hitsFromSource[index]
         if (source && hitsValue) {
           hitsBySource[source] = [hitsValue]
         }
-      })
+      }
       if (item.type === "statement") {
         data.addStatement(item.lineNr, item.hits, hitsBySource)
       } else if (item.type === "conditional") {
@@ -180,7 +180,7 @@ export class CoverageData {
           hitsBySource,
         )
       }
-    })
+    }
 
     return data
   }
@@ -191,14 +191,14 @@ export class CoverageData {
       items: [],
     }
 
-    Object.keys(this.coverage).forEach((lineNr) => {
+    for (const lineNr of Object.keys(this.coverage)) {
       const lineData = this.coverage[lineNr]
-      lineData?.forEach((item) => {
+      for (const item of lineData ?? []) {
         const assocHitsBySource: Record<number, number> = {}
-        Object.keys(item.hitsBySource).forEach((source) => {
+        for (const source of Object.keys(item.hitsBySource)) {
           assocHitsBySource[interCoverage.sourcesNames.indexOf(source)] =
             item.hitsBySource[source]?.[0] ?? 0
-        })
+        }
         if (item.type === "statement") {
           interCoverage.items.push({
             type: "statement",
@@ -223,8 +223,8 @@ export class CoverageData {
             hitsFromSource: assocHitsBySource,
           })
         }
-      })
-    })
+      }
+    }
 
     return interCoverage
   }
@@ -245,11 +245,11 @@ export class CoverageData {
     ) => {
       const hitsBySource: HitsBySource = {}
 
-      sources?.forEach((source) => {
+      for (const source of sources ?? []) {
         if (type === "b") {
           const lineData = source[type][lineNr]
 
-          if (!lineData) return
+          if (!lineData) continue
           // @ts-expect-error typescript doesn't narrow this down correctly
           hitsBySource[source.source] = Array.isArray(lineData[0])
             ? lineData[instance]
@@ -260,24 +260,24 @@ export class CoverageData {
               [source[type][lineNr]?.[instance]]
             : [source[type][lineNr]]
         }
-      })
+      }
       return hitsBySource
     }
 
     const branchLineIndex: Record<number, number> = {}
     const statementLineIndex: Record<number, number> = {}
     const functionLineIndex: Record<number, number> = {}
-    file.lines?.forEach((line) => {
+    for (const line of file.lines ?? []) {
       if (line.branch) {
         branchLineIndex[line.number] =
           typeof branchLineIndex[line.number] === "number"
-            ? branchLineIndex[line.number]! + 1
+            ? (branchLineIndex[line.number] ?? 0) + 1
             : 0
         const hitsBySource = pullHitInfo(
           sources,
           "b",
           line.number,
-          branchLineIndex[line.number]!,
+          branchLineIndex[line.number] ?? 0,
         )
 
         let conditionals = line.conditions ? line.conditions : 0
@@ -303,39 +303,39 @@ export class CoverageData {
           line: line.number,
           hits: line.hits,
           conditionals: conditionalsObj,
-          hitsBySource,
+          hitsBySource: hitsBySource ?? {},
         })
       } else {
         statementLineIndex[line.number] =
           typeof statementLineIndex[line.number] === "number"
-            ? statementLineIndex[line.number]! + 1
+            ? (statementLineIndex[line.number] ?? 0) + 1
             : 0
         const hitsBySource = pullHitInfo(
           sources,
           "s",
           line.number,
-          statementLineIndex[line.number]!,
+          statementLineIndex[line.number] ?? 0,
         )
 
         data.addCoverage(line.number.toString(), {
           type: "statement",
           line: line.number,
           hits: line.hits,
-          hitsBySource,
+          hitsBySource: hitsBySource ?? {},
         })
       }
-    })
+    }
 
-    file.functions?.forEach((func) => {
+    for (const func of file.functions ?? []) {
       functionLineIndex[func.number] =
         typeof functionLineIndex[func.number] === "number"
-          ? functionLineIndex[func.number]! + 1
+          ? (functionLineIndex[func.number] ?? 0) + 1
           : 0
       const hitsBySource = pullHitInfo(
         sources,
         "f",
         func.number,
-        functionLineIndex[func.number]!,
+        functionLineIndex[func.number] ?? 0,
       )
 
       data.addCoverage(func.number.toString(), {
@@ -344,9 +344,9 @@ export class CoverageData {
         hits: func.hits,
         signature: func.signature,
         name: func.name,
-        hitsBySource,
+        hitsBySource: hitsBySource ?? {},
       })
-    })
+    }
 
     return data
   }
@@ -374,7 +374,7 @@ export class CoverageData {
     }
 
     const lines = str.split("\n")
-    lines.forEach((line) => {
+    for (const line of lines) {
       const fields = line.trim().split(",")
       switch (fields[0]) {
         case "stmt": {
@@ -442,7 +442,7 @@ export class CoverageData {
           break
         }
       }
-    })
+    }
 
     return data
   }
@@ -493,12 +493,12 @@ export class CoverageData {
 
     const coverage = new CoverageData()
 
-    parsed.lineInfo.forEach((line) => {
+    for (const line of parsed.lineInfo) {
       const newHits: HitsBySource = {}
-      line.hitsBySource.forEach((item) => {
+      for (const item of line.hitsBySource) {
         const sourceName = parsed.sources[item.sourceIndex] || "?"
         newHits[sourceName] = item.hits
-      })
+      }
       if (line.type === LineInformation_LineType.BRANCH) {
         const conditionalsObj: Record<number, number> = {}
         for (let i = 0; i < line.branches; i++) {
@@ -510,7 +510,7 @@ export class CoverageData {
       } else {
         coverage.addStatement(line.lineNumber, line.hits, newHits)
       }
-    })
+    }
 
     return coverage
   }
@@ -519,8 +519,8 @@ export class CoverageData {
     const lines: LcovRecord["lines"] = []
     const functions: LcovRecord["functions"] = []
 
-    Object.keys(this.coverage)?.forEach((lineNr) => {
-      this.coverage[lineNr]?.forEach((line) => {
+    for (const lineNr of Object.keys(this.coverage)) {
+      for (const line of this.coverage[lineNr] ?? []) {
         if (line.type === "statement") {
           lines.push({
             line: line.line,
@@ -540,8 +540,8 @@ export class CoverageData {
             name: line.name,
           })
         }
-      })
-    })
+      }
+    }
 
     return {
       lines,
@@ -551,18 +551,18 @@ export class CoverageData {
 
   public toProtobuf() {
     const allSources: string[] = []
-    Object.keys(this.coverage).forEach((lineNr) => {
-      this.coverage[lineNr]?.forEach((line) => {
-        Object.keys(line.hitsBySource).forEach((source) => {
+    for (const lineNr of Object.keys(this.coverage)) {
+      for (const line of this.coverage[lineNr] ?? []) {
+        for (const source of Object.keys(line.hitsBySource)) {
           if (!allSources.includes(source)) {
             allSources.push(source)
           }
-        })
-      })
-    })
+        }
+      }
+    }
     const lineInfo: LineInformation[] = []
-    Object.keys(this.coverage).forEach((lineNr) => {
-      this.coverage[lineNr]?.forEach((line) => {
+    for (const lineNr of Object.keys(this.coverage)) {
+      for (const line of this.coverage[lineNr] ?? []) {
         const hitsBySource = Object.keys(line.hitsBySource).map((source) => {
           return {
             sourceIndex: allSources.indexOf(source),
@@ -599,8 +599,8 @@ export class CoverageData {
             lineNumber: Number.parseInt(lineNr),
           })
         }
-      })
-    })
+      }
+    }
 
     return ProtobufCoverage.encode({
       sources: allSources,
@@ -615,37 +615,37 @@ export class CoverageData {
     const lines: (CoberturaLine | CoberturaBranchLine)[] = []
     const functions: CoberturaFunction[] = []
 
-    Object.keys(this.coverage)?.forEach((lineNr) => {
-      this.coverage[lineNr]
-        ?.sort((a, b) => a.type.localeCompare(b.type))
-        .forEach((line) => {
-          const type = this.typeToStringMap[line.type]
-          if (line.type === "statement") {
-            lines.push({
-              branch: false,
-              number: line.line,
-              hits: line.hits,
-            })
-          } else if (line.type === "branch") {
-            lines.push({
-              branch: true,
-              number: line.line,
-              hits: line.hits,
-              conditions: Object.keys(line.conditionals).length,
-              coveredConditions: Object.values(line.conditionals).filter(
-                (v) => v > 0,
-              ).length,
-            })
-          } else if (line.type === "function") {
-            functions.push({
-              name: line.name,
-              number: line.line,
-              hits: line.hits,
-              signature: line.signature,
-            })
-          }
-        })
-    })
+    for (const lineNr of Object.keys(this.coverage)) {
+      for (const line of this.coverage[lineNr]?.sort((a, b) =>
+        a.type.localeCompare(b.type),
+      ) ?? []) {
+        const type = this.typeToStringMap[line.type]
+        if (line.type === "statement") {
+          lines.push({
+            branch: false,
+            number: line.line,
+            hits: line.hits,
+          })
+        } else if (line.type === "branch") {
+          lines.push({
+            branch: true,
+            number: line.line,
+            hits: line.hits,
+            conditions: Object.keys(line.conditionals).length,
+            coveredConditions: Object.values(line.conditionals).filter(
+              (v) => v > 0,
+            ).length,
+          })
+        } else if (line.type === "function") {
+          functions.push({
+            name: line.name,
+            number: line.line,
+            hits: line.hits,
+            signature: line.signature,
+          })
+        }
+      }
+    }
 
     return {
       lines,
@@ -655,8 +655,8 @@ export class CoverageData {
 
   public toString(): string {
     const lines: string[] = []
-    Object.keys(this.coverage)?.forEach((lineNr) => {
-      this.coverage[lineNr]?.forEach((line) => {
+    for (const lineNr of Object.keys(this.coverage)) {
+      for (const line of this.coverage[lineNr] ?? []) {
         const type = this.typeToStringMap[line.type]
         const hitsBySource = Object.keys(line.hitsBySource)
           .sort((a, b) => a.localeCompare(b))
@@ -681,14 +681,14 @@ export class CoverageData {
             `${type},${line.line},${line.hits},${line.signature},${line.name},${hitsBySource}`,
           )
         }
-      })
-    })
+      }
+    }
 
     return lines.join("\n")
   }
 
   public merge(data: CoverageData) {
-    Object.keys(data.coverage).forEach((lineNr) => {
+    for (const lineNr of Object.keys(data.coverage)) {
       const existingItems = this.coverage[lineNr]
       const newItems = data.coverage[lineNr]
 
@@ -711,7 +711,7 @@ export class CoverageData {
           }
 
           if (existingItem) {
-            Object.keys(newItem.hitsBySource).forEach((key) => {
+            for (const key of Object.keys(newItem.hitsBySource)) {
               if (!existingItem) {
                 throw new Error("No item")
               }
@@ -727,16 +727,16 @@ export class CoverageData {
                     (val, index) => val + (newVal[index] ?? 0),
                   ) || []
               }
-            })
+            }
             existingItem.hits = existingItem.hits + newItem.hits
             if (existingItem.type === "branch" && newItem.type === "branch") {
               const newConditions: Record<string, number> =
                 existingItem.conditionals
-              Object.keys(newItem.conditionals).forEach((conditional) => {
+              for (const conditional of Object.keys(newItem.conditionals)) {
                 newConditions[conditional] =
                   (newConditions[conditional] ?? 0) +
                   (newItem.conditionals[conditional] ?? 0)
-              })
+              }
 
               existingItem.conditionals = newConditions
             }
@@ -745,10 +745,10 @@ export class CoverageData {
           }
         })
       } else {
-        newItems?.forEach((item) => {
+        for (const item of newItems ?? []) {
           this.addCoverage(lineNr, item)
-        })
+        }
       }
-    })
+    }
   }
 }

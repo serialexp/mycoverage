@@ -12,17 +12,19 @@ export const satisfiesExpectedResults = (
   const missing: { test: string; count: number; expected: number }[] = []
   let totalExpected = 0
   let uploaded = 0
-  expectedResults.forEach((result) => {
+  for (const result of expectedResults) {
     totalExpected += result.count
     const resultIndexNrForTest: number[] = []
 
-    commit?.Test.find(
+    const instancesForTest = commit?.Test.find(
       (t) => t.testName === result.testName,
-    )?.TestInstance?.forEach((i) => {
+    )?.TestInstance
+
+    for (const i of instancesForTest ?? []) {
       if (!resultIndexNrForTest.includes(i.index)) {
         resultIndexNrForTest.push(i.index)
       }
-    })
+    }
 
     if (resultIndexNrForTest.length < result.count) {
       isOk = false
@@ -32,12 +34,12 @@ export const satisfiesExpectedResults = (
         expected: result.count,
       })
     }
-  })
-  commit?.Test.forEach((test) => {
+  }
+  for (const test of commit?.Test ?? []) {
     const uniqueInstances: Record<number, boolean> = {}
-    test.TestInstance.forEach((inst) => {
+    for (const inst of test.TestInstance) {
       uniqueInstances[inst.index] = true
-    })
+    }
     const matchingExpected = expectedResults.find(
       (e) => e.testName === test.testName,
     )
@@ -46,7 +48,7 @@ export const satisfiesExpectedResults = (
       totalExpected += Object.keys(uniqueInstances).length
     }
     uploaded += Object.keys(uniqueInstances).length
-  })
+  }
 
   return {
     isOk,

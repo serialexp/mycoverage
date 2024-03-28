@@ -261,7 +261,7 @@ describe("InternalCoverage", () => {
 
         const packageNames = coberturaCoverage
           .flattenDirectories()
-          .map((p: any) => p.fileName)
+          .map((p) => p.fileName)
 
         expect(packageNames).toContain("src/packages/package1/extra/super")
         const superPackage = coberturaCoverage.locateDirectory(
@@ -366,7 +366,7 @@ end_of_record`,
 
         const packageNames = internalCoverage
           .flattenDirectories()
-          .map((p: any) => p.fileName)
+          .map((p) => p.fileName)
 
         expect(packageNames).toContain("src/pack")
         const superPackage = internalCoverage.locateDirectory("src.pack")
@@ -459,7 +459,7 @@ end_of_record`,
 
     const packageNames = internalCoverage
       .flattenDirectories()
-      .map((p: any) => p.fileName)
+      .map((p) => p.fileName)
 
     expect(packageNames).toContain("")
     expect(internalCoverage.data.directories[0]?.files[0]?.name).toEqual(

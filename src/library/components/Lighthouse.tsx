@@ -13,6 +13,9 @@ import {
 import type { Lighthouse as DBLighthouse } from "db"
 import getLighthouse from "src/coverage/queries/getLighthouse"
 import { Subheading } from "src/library/components/Subheading"
+import { Routes } from "@blitzjs/next"
+import { LighthouseGraph } from "src/library/components/LighthouseGraph"
+import getProject from "src/coverage/queries/getProject"
 
 const ProgressCircle = (props: { value: number | null }) => {
   return (
@@ -62,6 +65,7 @@ export const Lighthouse = (props: {
   commitId?: number
   projectId?: number
 }) => {
+  const [project] = useQuery(getProject, { projectId: props.projectId })
   const [lighthouse] = useQuery(getLighthouse, {
     projectId: props.projectId,
     commitId: props.commitId,
@@ -109,6 +113,19 @@ export const Lighthouse = (props: {
           {results.DESKTOP ? <Results results={results.DESKTOP} /> : null}
         </Tbody>
       </Table>
+      {project ? (
+        <LighthouseGraph
+          groupId={project.groupId}
+          projectId={project.id}
+          clickRedirect={async (ref: string) => {
+            return Routes.CommitPage({
+              groupId: project.groupId,
+              projectId: project.id,
+              commitRef: ref,
+            }).href
+          }}
+        />
+      ) : null}
     </>
   )
 }

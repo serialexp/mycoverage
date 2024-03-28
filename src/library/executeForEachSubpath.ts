@@ -6,10 +6,10 @@ export const executeForEachSubpath = (
 ) => {
   const parts = originalPath.split("/")
   const currentPath: string[] = []
-  parts.forEach((part) => {
+  for (const part of parts) {
     currentPath.push(part)
     const stringPath = path.join(...currentPath)
 
     callback(stringPath)
-  })
+  }
 }

@@ -45,6 +45,7 @@ lib-cov
 .eslintcache
 .node_repl_history
 .yarn-integrity
+.scannerwork
 
 # Serverless directories
 .serverless/

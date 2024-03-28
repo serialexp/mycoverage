@@ -11,7 +11,8 @@
     "enabled": true,
     "rules": {
       "recommended": true
-    }
+    },
+    "ignore": ["proto_coverage.ts"]
   },
   "javascript": {
     "formatter": {

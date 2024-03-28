@@ -13,11 +13,11 @@ export async function getPathToPackageFileIds(
     where,
   })
   const packageCoverageIds = packagesCoverages.map((res) => res.id)
-  packagesCoverages.forEach((pk) => {
+  for (const pk of packagesCoverages) {
     const name = pk.name.replace(/\./g, "/")
     packageIdToPath[pk.id.toString("base64")] = name
     packagePathToId[name] = pk.id.toString("base64")
-  })
+  }
 
   const fileCoverages = await db.fileCoverage.findMany({
     select: {
@@ -33,14 +33,14 @@ export async function getPathToPackageFileIds(
   })
 
   const pathToFileId: Record<string, Buffer> = {}
-  fileCoverages.forEach((coverage) => {
+  for (const coverage of fileCoverages) {
     const originalPath = coverage.packageCoverageId
       ? packageIdToPath[coverage.packageCoverageId.toString("base64")]
       : undefined
     if (originalPath) {
       pathToFileId[`${originalPath}/${coverage.name}`] = coverage.id
     }
-  })
+  }
 
   return {
     packageIdToPath,

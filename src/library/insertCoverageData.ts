@@ -82,9 +82,9 @@ export const insertCoverageData = async (
     },
   })
   const packageCoverageIds: Record<string, Buffer> = {}
-  packagesCoverages.forEach((coverage) => {
+  for (const coverage of packagesCoverages) {
     packageCoverageIds[coverage.name] = coverage.id
-  })
+  }
   for (const pkg of covInfo.flattenDirectories()) {
     for (const file of pkg.files) {
       const pkgName = pkg.fileName.replaceAll("/", ".")

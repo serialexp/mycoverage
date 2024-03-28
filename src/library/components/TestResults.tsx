@@ -99,9 +99,9 @@ export const TestResults = (props: {
             (base) => base.testName === test.testName,
           )
           const uniqueInstances: Record<number, boolean> = {}
-          test.TestInstance.forEach((instance) => {
+          for (const instance of test.TestInstance) {
             uniqueInstances[instance.index] = true
-          })
+          }
           const expectedInstances = props.expectedResult?.find(
             (er) => er.testName === test.testName,
           )?.count

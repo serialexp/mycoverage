@@ -102,8 +102,10 @@ export async function updatePR(
 
     let switchedBaseCommit = false
     let noBaseCommit: false | "first_commit" | "not_found" = false
-    let baseBuildInfo
-    let baseBuildInfoWithoutLimits
+    let baseBuildInfo: Awaited<ReturnType<typeof getLastBuildInfo>> | undefined
+    let baseBuildInfoWithoutLimits:
+      | Awaited<ReturnType<typeof getLastBuildInfo>>
+      | undefined
 
     if (coverageCommit.coverageProcessStatus !== "FINISHED") {
       const lastSuccessfulCommit = await db.commit.findFirst({

@@ -9,14 +9,14 @@ export function transformToCoverageSummary(
   onlyPaths?: string[],
 ) {
   const result: Record<string, Record<number, "c" | "p" | "u">> = {}
-  data.forEach((pkg) => {
-    pkg.FileCoverage.forEach((fileCoverage) => {
+  for (const pkg of data) {
+    for (const fileCoverage of pkg.FileCoverage) {
       const covData = CoverageData.fromProtobuf(fileCoverage.coverageData)
       const filePath = `${pkg.name.replaceAll(".", "/")}/${fileCoverage.name}`
       if (!onlyPaths || onlyPaths.includes(filePath)) {
         result[filePath] = covData.getLineSummary()
       }
-    })
-  })
+    }
+  }
   return result
 }

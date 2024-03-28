@@ -168,7 +168,10 @@ export const FileCoverageDisplay = (props: {
                     >
                       {line ? line : <>&nbsp;</>}
                       {lineData.coverageItems?.map((l, i) => (
-                        <Popover key={`${lineNr}-${i}`} aria-label="A tooltip">
+                        <Popover
+                          key={`${lineNr}-${l.type}`}
+                          aria-label="A tooltip"
+                        >
                           <PopoverTrigger>
                             <Badge
                               cursor={"pointer"}
