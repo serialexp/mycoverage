@@ -1,1 +1,0 @@
-G 2jsX hrrelease.config.js

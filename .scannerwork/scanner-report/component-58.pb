@@ -1,1 +1,0 @@
-: 2tsX4hrdocs/src/pages/index.tsx

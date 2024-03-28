@@ -1,1 +1,0 @@
-ý 2tsXkhrWsrc/pages/api/group/[groupId]/project/[projectId]/pullrequest/[prId]/github-coverage.ts

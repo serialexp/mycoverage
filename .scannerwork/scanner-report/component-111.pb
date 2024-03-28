@@ -1,1 +1,0 @@
-o 2tsXhrdb/seeds.ts

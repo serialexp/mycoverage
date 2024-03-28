@@ -1,1 +1,0 @@
- 2tsX#hr#src/settings/queries/getSettings.ts

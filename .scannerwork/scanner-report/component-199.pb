@@ -1,1 +1,0 @@
-Ç 2xmlX„hr-src/library/coverage/mock-coverage/clover.xml

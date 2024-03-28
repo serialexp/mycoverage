@@ -1,1 +1,0 @@
-· 2tsX2hrsrc/coverage/queries/getLogs.ts

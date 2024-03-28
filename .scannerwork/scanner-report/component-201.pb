@@ -1,1 +1,0 @@
-É 2xmlXÝ3hr9src/library/coverage/mock-coverage/cobertura-coverage.xml

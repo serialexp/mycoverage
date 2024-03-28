@@ -1,1 +1,0 @@
-Ö 2tsXùhrFsrc/pages/api/group/[groupId]/project/[projectId]/upload-lighthouse.ts

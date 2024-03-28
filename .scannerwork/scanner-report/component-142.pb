@@ -1,1 +1,0 @@
-Ž 2tsXáhr$src/library/coverage-formats/lcov.ts
