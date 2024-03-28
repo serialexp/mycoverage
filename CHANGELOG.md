@@ -1,3 +1,10 @@
+## [1.35.4](https://github.com/serialexp/mycoverage/compare/v1.35.3...v1.35.4) (2024-03-28)
+
+
+### Bug Fixes
+
+* indicate whether pr comment creation succeeds or not ([f8bf540](https://github.com/serialexp/mycoverage/commit/f8bf5408a28123cd292b9bf51d41732c1cc192b1))
+
 ## [1.35.3](https://github.com/serialexp/mycoverage/compare/v1.35.2...v1.35.3) (2024-03-28)
 
 
