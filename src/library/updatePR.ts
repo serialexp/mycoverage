@@ -450,7 +450,7 @@ ${testResults
         }/project/${pullRequest.project.slug}/pullrequest/${pullRequest.id}))
 
 ${
-  ["SAME", "BETTER"].includes(state)
+  ["SAME", "BETTER"].includes(state) || overallState === "BETTER"
     ? "![passed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/passed-16px.png)"
     : "![passed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/failed-16px.png)"
 }
@@ -574,7 +574,7 @@ ${differences.remove.map((diff) => `- ${diff.base?.name}`).join("\n")}`
           details_url: detailsUrl,
           conclusion: !requireIncrease
             ? "success"
-            : ["SAME", "BETTER"].includes(state)
+            : ["SAME", "BETTER"].includes(state) || overallState === "BETTER"
               ? "success"
               : "failure",
           completed_at: new Date().toISOString(),
