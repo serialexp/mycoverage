@@ -1,3 +1,10 @@
+## [1.35.5](https://github.com/serialexp/mycoverage/compare/v1.35.4...v1.35.5) (2024-05-24)
+
+
+### Bug Fixes
+
+* global increase of coverage should pass PR ([5a79cd1](https://github.com/serialexp/mycoverage/commit/5a79cd1725f0311bc6175012d6fa8e14a92e4fe2))
+
 ## [1.35.4](https://github.com/serialexp/mycoverage/compare/v1.35.3...v1.35.4) (2024-03-28)
 
 
