@@ -109,29 +109,45 @@ export const loadUserPermissions = async (
         })
 
         const existingRepositories = await db.project.findMany({
+          select: {
+            name: true,
+          },
           where: {
-            name: {
-              in: repositories.map((r) => r.name),
-            },
             groupId: existingOwner.id,
           },
         })
 
         const existingRepositoryNames = new Set(
-          existingRepositories.map((r) => r.name),
+          existingRepositories.map((r) => r.name.toLowerCase()),
         )
         const newRepositories = repositories.filter(
-          (r) => !existingRepositoryNames.has(r.name),
+          (r) => !existingRepositoryNames.has(r.name.toLowerCase()),
         )
-        await db.project.createMany({
-          data: newRepositories.map((r) => ({
-            name: r.name,
-            defaultBaseBranch: r.default_branch,
-            groupId: existingOwner.id,
-            slug: r.name,
-            githubName: r.name,
-          })),
-        })
+
+        console.log(
+          "Attemping to create ",
+          newRepositories.length,
+          " new repositories",
+          newRepositories.map((n) => n.name).join(", "),
+        )
+        for (const r of newRepositories) {
+          try {
+            await db.project.create({
+              data: {
+                name: r.name,
+                defaultBaseBranch: r.default_branch,
+                groupId: existingOwner.id,
+                slug: r.name,
+                githubName: r.name,
+              },
+            })
+          } catch (error) {
+            console.error(
+              `Failed to create repository ${r.name} for owner ${owner}`,
+              error,
+            )
+          }
+        }
         const accessibleRepositories = await db.project.findMany({
           select: {
             id: true,
@@ -160,6 +176,7 @@ export const loadUserPermissions = async (
             },
           },
         })
+        console.log(`User ${userId} updated with accessible repositories`)
       }
     })
 }
