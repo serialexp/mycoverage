@@ -1,3 +1,10 @@
+## [1.35.6](https://github.com/serialexp/mycoverage/compare/v1.35.5...v1.35.6) (2024-07-19)
+
+
+### Bug Fixes
+
+* check existing repositories with lowercase values so mysql and node align ([2e0c64c](https://github.com/serialexp/mycoverage/commit/2e0c64cd5b67660a70d42a289476d9fddb930c54))
+
 ## [1.35.5](https://github.com/serialexp/mycoverage/compare/v1.35.4...v1.35.5) (2024-05-24)
 
 
