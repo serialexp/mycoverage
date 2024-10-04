@@ -123,6 +123,7 @@ model Lighthouse {
 model Test {
   id                  Int               @id @default(autoincrement())
   commitId            Int
+  copyOf              Int?
   testName            String
   statements          Int
   conditionals        Int
@@ -170,6 +171,7 @@ model TestInstance {
   id                    Int                   @id @default(autoincrement())
   index                 Int
   testId                Int
+  copyOf                Int?
   statements            Int
   conditionals          Int
   methods               Int
