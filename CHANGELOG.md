@@ -1,3 +1,15 @@
+# [1.36.0](https://github.com/serialexp/mycoverage/compare/v1.35.6...v1.36.0) (2024-10-04)
+
+
+### Bug Fixes
+
+* remove hardcoded credentials ([e9f6d47](https://github.com/serialexp/mycoverage/commit/e9f6d47982588c1ba253b0849309be820b3bad5b))
+
+
+### Features
+
+* allow copying coverage results from previous commit ([f6a8e4f](https://github.com/serialexp/mycoverage/commit/f6a8e4fa5ee832eaf84d66baf2023dbbbb3ab9be))
+
 ## [1.35.6](https://github.com/serialexp/mycoverage/compare/v1.35.5...v1.35.6) (2024-07-19)
 
 
