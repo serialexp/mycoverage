@@ -221,6 +221,7 @@ export default async function handler(
         })
       }
 
+      log("locating previous commit for copy behavior on branch", branch.name)
       const previousCommitOnBranch = await mydb.commitOnBranch.findMany({
         where: {
           branchId: branch.id,
@@ -255,9 +256,11 @@ export default async function handler(
           "found previous commit on branch",
           previousCommitOnBranch[0]?.Commit.ref,
         )
+        log("finding matches for ", query.testName, testInstanceIndex)
         for (const previousCommit of previousCommitOnBranch) {
           for (const test of previousCommit.Commit.Test) {
             if (test.testName === query.testName) {
+              log("copying matching test", test.testName)
               // create copy of test
               const newTest = await mydb.test.create({
                 data: {
@@ -271,6 +274,7 @@ export default async function handler(
               // copy test instances
               for (const testInstance of test.TestInstance) {
                 if (testInstance.index === testInstanceIndex || !query.index) {
+                  log("copying test instance", testInstance.index)
                   const newTestInstance = await mydb.testInstance.create({
                     data: {
                       ...testInstance,
@@ -307,7 +311,7 @@ export default async function handler(
           commitRef: query.ref,
           namespace: query.groupId,
           repository: query.projectId,
-          message: `Success copying results from previous commit for ${query.testName}:${query.index}`,
+          message: `Success copying results from previous commit ${previousCommitOnBranch[0]?.Commit.ref} for ${query.testName}:${query.index} copying ${allNewTestInstanceIds.length} test instances`,
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
