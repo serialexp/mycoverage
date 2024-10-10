@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/serialexp/mycoverage/compare/v1.36.0...v1.36.1) (2024-10-10)
+
+
+### Bug Fixes
+
+* more logging for copy endpoint ([acb5ca7](https://github.com/serialexp/mycoverage/commit/acb5ca73e77d51a6c3521ce8178b2dbb3155bacf))
+
 # [1.36.0](https://github.com/serialexp/mycoverage/compare/v1.35.6...v1.36.0) (2024-10-04)
 
 
