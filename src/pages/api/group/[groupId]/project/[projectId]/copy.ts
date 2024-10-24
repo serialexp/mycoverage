@@ -5,6 +5,7 @@ import { log } from "src/library/log"
 import { slugify } from "src/library/slugify"
 import { combineCoverageJob } from "src/queues/CombineCoverage"
 import db, { CoverageProcessStatus, type TestInstance } from "db"
+import { getAppOctokit } from "src/library/github"
 
 export default async function handler(
   req: NextApiRequest,
@@ -221,70 +222,66 @@ export default async function handler(
         })
       }
 
+      // need to use github (or vcs anyway) to locate the proper previosu commit, can't rely just on branch name because mycoverage has no concept of base branches
+      const octokit = await getAppOctokit()
+      const ghCommit = await octokit.repos.getCommit({
+        owner: group.githubName,
+        repo: project.githubName,
+        ref: query.ref,
+      })
+      if (ghCommit.data.parents.length === 0) {
+        throw new Error("no parents found for commit on Github")
+      }
+      const parentSha = ghCommit.data.parents[0]?.sha
+
       log("locating previous commit for copy behavior on branch", branch.name)
-      const previousCommitOnBranch = await mydb.commitOnBranch.findMany({
+      const previousCommitOnBranch = await mydb.commit.findFirst({
         where: {
-          branchId: branch.id,
-          Commit: {
-            ref: {
-              not: query.ref,
-            },
-          },
+          ref: parentSha,
         },
         include: {
-          Commit: {
+          Test: {
             include: {
-              Test: {
-                include: {
-                  TestInstance: true,
-                },
-              },
+              TestInstance: true,
             },
           },
         },
         orderBy: {
-          Commit: {
-            createdDate: "desc",
-          },
+          createdDate: "desc",
         },
-        take: 1,
       })
 
       const allNewTestInstanceIds: TestInstance[] = []
-      if (previousCommitOnBranch.length > 0) {
-        log(
-          "found previous commit on branch",
-          previousCommitOnBranch[0]?.Commit.ref,
-        )
+      if (previousCommitOnBranch) {
+        log("found previous commit on branch", previousCommitOnBranch.ref)
         log("finding matches for ", query.testName, testInstanceIndex)
-        for (const previousCommit of previousCommitOnBranch) {
-          for (const test of previousCommit.Commit.Test) {
-            if (test.testName === query.testName) {
-              log("copying matching test", test.testName)
-              // create copy of test
-              const newTest = await mydb.test.create({
-                data: {
-                  ...test,
-                  commitId: commit.id,
-                  id: undefined,
-                  copyOf: test.id,
-                  TestInstance: undefined,
-                },
-              })
-              // copy test instances
-              for (const testInstance of test.TestInstance) {
-                if (testInstance.index === testInstanceIndex || !query.index) {
-                  log("copying test instance", testInstance.index)
-                  const newTestInstance = await mydb.testInstance.create({
-                    data: {
-                      ...testInstance,
-                      id: undefined,
-                      copyOf: testInstance.id,
-                      testId: newTest.id,
-                    },
-                  })
-                  allNewTestInstanceIds.push(newTestInstance)
-                }
+
+        for (const test of previousCommitOnBranch.Test) {
+          if (test.testName === query.testName) {
+            log("copying matching test", test.testName)
+            // create copy of test
+            const newTest = await mydb.test.create({
+              data: {
+                ...test,
+                commitId: commit.id,
+                id: undefined,
+                copyOf: test.id,
+                TestInstance: undefined,
+              },
+            })
+            // copy test instances
+            for (const testInstance of test.TestInstance) {
+              if (testInstance.index === testInstanceIndex || !query.index) {
+                log("copying test instance", testInstance.index)
+                const newTestInstance = await mydb.testInstance.create({
+                  data: {
+                    ...testInstance,
+                    id: undefined,
+                    copyOf: testInstance.id,
+                    testId: newTest.id,
+                  },
+                })
+                allNewTestInstanceIds.push(newTestInstance)
               }
             }
           }
@@ -311,7 +308,7 @@ export default async function handler(
           commitRef: query.ref,
           namespace: query.groupId,
           repository: query.projectId,
-          message: `Success copying results from previous commit ${previousCommitOnBranch[0]?.Commit.ref} for ${query.testName}:${query.index} copying ${allNewTestInstanceIds.length} test instances`,
+          message: `Success copying results from previous commit ${previousCommitOnBranch?.ref} for ${query.testName}:${query.index} copying ${allNewTestInstanceIds.length} test instances`,
           timeTaken: new Date().getTime() - startTime.getTime(),
         },
       })
