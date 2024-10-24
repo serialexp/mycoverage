@@ -1,3 +1,10 @@
+## [1.36.2](https://github.com/serialexp/mycoverage/compare/v1.36.1...v1.36.2) (2024-10-24)
+
+
+### Bug Fixes
+
+* get previous commit from github ([e1f139b](https://github.com/serialexp/mycoverage/commit/e1f139ba26e1e6e3a6c130af578ad36471722d20))
+
 ## [1.36.1](https://github.com/serialexp/mycoverage/compare/v1.36.0...v1.36.1) (2024-10-10)
 
 
