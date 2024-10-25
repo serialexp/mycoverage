@@ -1,3 +1,10 @@
+## [1.36.3](https://github.com/serialexp/mycoverage/compare/v1.36.2...v1.36.3) (2024-10-25)
+
+
+### Bug Fixes
+
+* copy uses group and project slug instead of githubName ([b02a3c3](https://github.com/serialexp/mycoverage/commit/b02a3c327f80b440aea1a7e0bd20b54514d66c2d))
+
 ## [1.36.2](https://github.com/serialexp/mycoverage/compare/v1.36.1...v1.36.2) (2024-10-24)
 
 
