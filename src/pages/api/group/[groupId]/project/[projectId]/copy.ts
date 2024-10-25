@@ -225,8 +225,8 @@ export default async function handler(
       // need to use github (or vcs anyway) to locate the proper previosu commit, can't rely just on branch name because mycoverage has no concept of base branches
       const octokit = await getAppOctokit()
       const ghCommit = await octokit.repos.getCommit({
-        owner: group.githubName,
-        repo: project.githubName,
+        owner: group.slug,
+        repo: project.slug,
         ref: query.ref,
       })
       if (ghCommit.data.parents.length === 0) {
