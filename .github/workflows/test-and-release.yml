@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Run unit tests
@@ -38,7 +38,7 @@ jobs:
         ports:
           - 9000:9000
     env:
-      NODE_OPTIONS: '--max-old-space-size=5384'
+      NODE_OPTIONS: "--max-old-space-size=5384"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,14 +50,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
+          node-version: "lts/*"
+          cache: "pnpm"
       - name: Wait a bit for service to come up
         run: sleep 60
       - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '21'
+          distribution: "zulu"
+          java-version: "21"
       - name: Check index
         run: wget -qO- http://localhost:9000/batch/index
       - name: Run Sonarqube
@@ -90,7 +90,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install && node_modules/.bin/prisma generate
       - name: Run typescript
@@ -110,11 +110,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
-      - name: Run linter
-        run: pnpm run lint
+      - name: Run Biome
+        run: pnpm run check
   release:
     name: Release
     if: "!contains(github.event.head_commit.message , '[skip release]') && github.ref == 'refs/heads/master'"
@@ -134,7 +134,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Install dependencies
         run: pnpm install
       - name: Release

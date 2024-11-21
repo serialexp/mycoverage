@@ -17,6 +17,7 @@ describe("formatPerformanceDifference", () => {
           endpoints: [
             {
               name: "GET /users",
+              // @ts-expect-error: Mock data
               beforeMetrics: {
                 p95Microseconds: 1000,
                 avgMicroseconds: 0,
@@ -24,6 +25,7 @@ describe("formatPerformanceDifference", () => {
                 p99Microseconds: 0,
                 sampleSize: 0,
               },
+              // @ts-expect-error: Mock data
               afterMetrics: {
                 p95Microseconds: 1200,
                 avgMicroseconds: 0,
@@ -61,6 +63,7 @@ describe("formatPerformanceDifference", () => {
         endpoints: [
           {
             name: "POST /users",
+            // @ts-expect-error: Mock data
             beforeMetrics: {
               p95Microseconds: 500,
               avgMicroseconds: 0,
@@ -68,6 +71,7 @@ describe("formatPerformanceDifference", () => {
               p99Microseconds: 0,
               sampleSize: 200,
             },
+            // @ts-expect-error: Mock data
             afterMetrics: {
               p95Microseconds: 500,
               avgMicroseconds: 0,

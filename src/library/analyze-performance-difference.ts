@@ -249,13 +249,6 @@ const calculateSignificance = (
     percentageChange >= SIGNIFICANCE_THRESHOLD * 100 &&
     Math.abs(p95Diff) >= MIN_MICROSECONDS_THRESHOLD
 
-  console.log(
-    "isSignificant",
-    before.name,
-    isSignificant,
-    percentageChange,
-    p95Diff,
-  )
   return {
     isSignificant,
     trend: p95Diff > 0 ? "increased" : p95Diff < 0 ? "decreased" : "unchanged",
