@@ -1,3 +1,15 @@
+# [1.37.0](https://github.com/serialexp/mycoverage/compare/v1.36.3...v1.37.0) (2024-11-21)
+
+
+### Bug Fixes
+
+* do not output pointless console.log messages ([4299ae5](https://github.com/serialexp/mycoverage/commit/4299ae51310c512aa9ce0aac3744bf9a719bacb9))
+
+
+### Features
+
+* add performance tracking to mycoverage ([c7cc6d5](https://github.com/serialexp/mycoverage/commit/c7cc6d5ea497a3367caea771386dbd4ba1c29a60))
+
 ## [1.36.3](https://github.com/serialexp/mycoverage/compare/v1.36.2...v1.36.3) (2024-10-25)
 
 
