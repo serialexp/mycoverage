@@ -116,14 +116,17 @@ export const formatPerformanceDifference = async (
         (stat.afterMetrics?.p95Microseconds ?? 0) >
         (stat.beforeMetrics?.p95Microseconds ?? 0)
       ) {
-        changeIcon = `![increase](${publicUrl}arrow-up.svg)`
+        changeIcon =
+          "![increase](https://raw.githubusercontent.com/serialexp/mycoverage/refs/heads/master/public/arrow-up.svg)"
       } else if (
         (stat.afterMetrics?.p95Microseconds ?? 0) <
         (stat.beforeMetrics?.p95Microseconds ?? 0)
       ) {
-        changeIcon = `![decrease](${publicUrl}arrow-down.svg)`
+        changeIcon =
+          "![decrease](https://raw.githubusercontent.com/serialexp/mycoverage/refs/heads/master/public/arrow-down.svg)"
       } else {
-        changeIcon = `![no change](${publicUrl}dot.svg)`
+        changeIcon =
+          "![no change](https://raw.githubusercontent.com/serialexp/mycoverage/refs/heads/master/public/dot.svg)"
       }
 
       return [
