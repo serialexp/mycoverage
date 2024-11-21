@@ -39,6 +39,7 @@ import { Table, Td, Tr } from "@chakra-ui/react"
 import { FaCheck, FaClock } from "react-icons/fa"
 import { slugify } from "src/library/slugify"
 import syncGithubState from "src/coverage/mutations/syncGithubState"
+import { PerformanceDifferences } from "src/library/components/PerformanceDifferences"
 
 const PullRequestPage: BlitzPage = () => {
   const groupId = useParam("groupId", "string")
@@ -276,15 +277,30 @@ const PullRequestPage: BlitzPage = () => {
         </Box>
       ) : null}
       <Subheading>Pull Request Commits</Subheading>
-      <Box p={4}>
-        <div>Head: {pullRequest.commit?.ref.substring(0, 10)}</div>
-        <div>Merge: {pullRequest.mergeCommit?.ref.substring(0, 10)}</div>
-        <div>Base: {pullRequest.baseCommit?.ref.substring(0, 10)}</div>
-        <div>
+      <Flex gap={4} p={4}>
+        <Box bg="gray.300" p={2}>
+          Head:{" "}
+          <strong>{pullRequest.commit?.ref.substring(0, 10) ?? "--"}</strong>
+        </Box>
+        <Box bg="gray.300" p={2}>
+          Merge:{" "}
+          <strong>
+            {pullRequest.mergeCommit?.ref.substring(0, 10) ?? "--"}
+          </strong>
+        </Box>
+        <Box bg="gray.300" p={2}>
+          Base:{" "}
+          <strong>
+            {pullRequest.baseCommit?.ref.substring(0, 10) ?? "--"}
+          </strong>
+        </Box>
+        <Box bg="gray.300" p={2}>
           Base processed:{" "}
-          {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10)}
-        </div>
-      </Box>
+          <strong>
+            {baseBuildInfo.lastProcessedCommit?.ref.substring(0, 10) ?? "--"}
+          </strong>
+        </Box>
+      </Flex>
       <Subheading mt={4} size={"md"}>
         {pullRequest?.mergeCommit?.ref
           ? "Last Merge Commit (used for PR's)"
@@ -309,6 +325,11 @@ const PullRequestPage: BlitzPage = () => {
           baseMetrics={baseBuildInfo.lastProcessedCommit ?? undefined}
         />
       ) : null}
+
+      <PerformanceDifferences
+        beforeCommitId={pullRequest.baseCommit?.id}
+        afterCommitId={commit.id}
+      />
 
       <Section
         title={`Test results (${commit?.Test.length})`}

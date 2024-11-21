@@ -1,10 +1,8 @@
 import type { Commit, Test, ExpectedResult } from "db"
+import type { CoverageCommit } from "./pr-comment/types"
 
 export const satisfiesExpectedResults = (
-  commit:
-    | (Commit & { Test: (Test & { TestInstance: { index: number }[] })[] })
-    | null
-    | undefined,
+  commit: CoverageCommit | null | undefined,
   expectedResults: ExpectedResult[],
   baseBranchName: string,
 ) => {
