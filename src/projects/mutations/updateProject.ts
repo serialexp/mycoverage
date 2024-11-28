@@ -6,6 +6,8 @@ const UpdateProject = z.object({
   id: z.number(),
   defaultBaseBranch: z.string().optional(),
   requireCoverageIncrease: z.boolean().optional(),
+  performanceSignificanceTreshold: z.number({ coerce: true }).optional(),
+  performanceMinMicrosecondsTreshold: z.number({ coerce: true }).optional(),
   defaultLighthouseUrl: z.string().optional(),
 })
 

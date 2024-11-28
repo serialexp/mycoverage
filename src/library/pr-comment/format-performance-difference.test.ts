@@ -117,13 +117,13 @@ describe("formatPerformanceDifference", () => {
     // Check specific rows
     // GET /users - performance increase
     expect(result).toContain(
-      "| **GET /users** | ![increase](http://example.com/arrow-up.svg)",
+      "| **GET /users** | ![increase](https://raw.githubusercontent.com/serialexp/mycoverage/refs/heads/master/public/arrow-up.svg)",
     )
     expect(result).toContain("20.00%") // (1200 - 1000) / 1000 * 100
 
     // POST /users - no significant change
     expect(result).not.toContain(
-      "| **POST /users** | ![decrease](http://example.com/arrow-down.svg)",
+      "| **POST /users** | ![decrease](https://raw.githubusercontent.com/serialexp/mycoverage/refs/heads/master/public/arrow-down.svg)",
     )
     expect(result).not.toContain("| 0.00%") // (500 - 500) / 500 * 100
   })

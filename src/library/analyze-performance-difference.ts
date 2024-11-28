@@ -13,6 +13,11 @@ export interface EndpointStats {
   }
 }
 
+export type TresholdValues = {
+  significance?: number
+  minMicroSeconds?: number
+}
+
 export type EnhancedEndpointStats = Omit<
   PerformanceStats["endpoints"][number],
   "differences"
@@ -59,12 +64,13 @@ export interface EnhancedPerformanceAnalysis {
 }
 
 // Constants for significance thresholds
-const SIGNIFICANCE_THRESHOLD = 0.05 // 5% change
-const MIN_MICROSECONDS_THRESHOLD = 1000 // 1ms in microseconds
+const DEFAULT_SIGNIFICANCE_THRESHOLD = 0.1 // 10% change
+const DEFAULT_MIN_MICROSECONDS_THRESHOLD = 1000 // 1ms in microseconds
 
 export const analyzePerformanceDifference = (
   beforePerformance: ComponentPerformance[],
   afterPerformance: ComponentPerformance[],
+  tresholds?: TresholdValues,
 ): EnhancedPerformanceAnalysis => {
   // Group metrics by category
   const beforeByCategory = groupByCategory(beforePerformance)
@@ -87,12 +93,14 @@ export const analyzePerformanceDifference = (
       result.uncategorized = analyzeCategory(
         beforeByCategory[category] || [],
         afterByCategory[category] || [],
+        tresholds,
       )
       result.count += result.uncategorized.endpoints.length
     } else {
       result.categorizedResults[category] = analyzeCategory(
         beforeByCategory[category] || [],
         afterByCategory[category] || [],
+        tresholds,
       )
       result.count += result.categorizedResults[category]?.endpoints.length ?? 0
     }
@@ -133,6 +141,7 @@ const createEmptyStats = (): EnhancedPerformanceStats => ({
 const analyzeCategory = (
   beforeMetrics: ComponentPerformance[],
   afterMetrics: ComponentPerformance[],
+  tresholds?: TresholdValues,
 ): EnhancedPerformanceStats => {
   const stats = createEmptyStats()
   const processedEndpoints: Set<string> = new Set()
@@ -142,7 +151,7 @@ const analyzeCategory = (
     const after = afterMetrics.find((a) => a.name === before.name)
     processedEndpoints.add(before.name)
     const differences = calculateDifferences(before, after)
-    const significance = calculateSignificance(before, after)
+    const significance = calculateSignificance(before, after, tresholds)
 
     stats.endpoints.push({
       name: before.name,
@@ -167,7 +176,7 @@ const analyzeCategory = (
     (after) => !processedEndpoints.has(after.name),
   )) {
     const differences = calculateDifferences(undefined, after)
-    const significance = calculateSignificance(undefined, after)
+    const significance = calculateSignificance(undefined, after, tresholds)
     stats.endpoints.push({
       name: after.name,
       beforeMetrics: undefined,
@@ -222,6 +231,7 @@ const calculateDifferences = (
 const calculateSignificance = (
   before: ComponentPerformance | undefined,
   after: ComponentPerformance | undefined,
+  tresholds?: TresholdValues,
 ): PerformanceSignificance => {
   if (!before) {
     return {
@@ -245,9 +255,14 @@ const calculateSignificance = (
   // Use the larger of the two percentage changes
   const percentageChange = Math.max(Math.abs(p95PercentChange)) * 100
 
+  const significanceThreshold =
+    tresholds?.significance || DEFAULT_SIGNIFICANCE_THRESHOLD
+  const minMicrosecondsThreshold =
+    tresholds?.minMicroSeconds || DEFAULT_MIN_MICROSECONDS_THRESHOLD
+
   const isSignificant =
-    percentageChange >= SIGNIFICANCE_THRESHOLD * 100 &&
-    Math.abs(p95Diff) >= MIN_MICROSECONDS_THRESHOLD
+    percentageChange >= significanceThreshold * 100 &&
+    Math.abs(p95Diff) >= minMicrosecondsThreshold
 
   return {
     isSignificant,

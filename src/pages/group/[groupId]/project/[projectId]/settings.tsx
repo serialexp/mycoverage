@@ -23,6 +23,8 @@ import {
   Checkbox,
   Thead,
   Th,
+  InputRightAddon,
+  InputGroup,
 } from "@chakra-ui/react"
 import { useState } from "react"
 
@@ -50,6 +52,12 @@ const ProjectSettingsPage: BlitzPage = () => {
   const [defaultBaseBranch, setDefaultBaseBranch] = useState(
     project?.defaultBaseBranch,
   )
+  const [performanceSignificanceTreshold, setPerformanceSignifiganceTreshold] =
+    useState<string>(project?.performanceSignificanceTreshold?.toString() ?? "")
+  const [performanceSignificanceMin, setPerformanceMinTreshold] =
+    useState<string>(
+      project?.performanceMinMicrosecondsTreshold?.toString() ?? "",
+    )
   const [defaultLighthouseUrl, setDefaultLighthouseUrl] = useState(
     project?.defaultLighthouseUrl ?? "",
   )
@@ -94,6 +102,59 @@ const ProjectSettingsPage: BlitzPage = () => {
           <FormHelperText>
             The base branch to use for comparison if nothing has been specified
             for any specific commit.
+          </FormHelperText>
+        </FormControl>
+        <FormControl id="email">
+          <FormLabel>Performance Difference Significance</FormLabel>
+          <InputGroup size="sm">
+            <Input
+              type="text"
+              value={performanceSignificanceTreshold}
+              onChange={(e) => {
+                setPerformanceSignifiganceTreshold(e.target.value)
+              }}
+              onBlur={async () => {
+                await updateProj({
+                  id: project.id,
+                  performanceSignificanceTreshold:
+                    performanceSignificanceTreshold
+                      ? Number.parseInt(performanceSignificanceTreshold)
+                      : 0,
+                })
+              }}
+            />
+            <InputRightAddon>%</InputRightAddon>
+          </InputGroup>
+          <FormHelperText>
+            The percentage difference in performance between two commits that's
+            considered significant.
+          </FormHelperText>
+        </FormControl>
+        <FormControl id="email">
+          <FormLabel>Performance Difference Significance Minimum</FormLabel>
+          <InputGroup size="sm">
+            <Input
+              type="text"
+              value={performanceSignificanceMin}
+              onChange={(e) => {
+                setPerformanceMinTreshold(e.target.value)
+              }}
+              onBlur={async () => {
+                await updateProj({
+                  id: project.id,
+                  performanceMinMicrosecondsTreshold: performanceSignificanceMin
+                    ? Number.parseInt(performanceSignificanceMin)
+                    : 0,
+                })
+              }}
+            />
+            <InputRightAddon>Microseconds</InputRightAddon>
+          </InputGroup>
+          <FormHelperText>
+            The minimum difference in microseconds (note, not milliseconds)
+            performance between two commits that's considered significant. If a
+            percentage difference is met, but is below this value, it will not
+            be considered significant.
           </FormHelperText>
         </FormControl>
         <FormControl id="email">

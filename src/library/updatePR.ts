@@ -58,11 +58,6 @@ export async function updatePR(pullRequest: PRUpdateInput): Promise<boolean> {
         pullRequest,
       )
 
-      console.log({
-        baseCommit: originalBaseCommit.id,
-        coverageCommit: coverageCommit.id,
-      })
-
       const beforeComponentPerformance = await db.componentPerformance.findMany(
         {
           where: {
@@ -79,6 +74,14 @@ export async function updatePR(pullRequest: PRUpdateInput): Promise<boolean> {
       const performanceDifference = analyzePerformanceDifference(
         beforeComponentPerformance,
         afterComponentPerformance,
+        {
+          significance: project.performanceSignificanceTreshold
+            ? project.performanceSignificanceTreshold / 100
+            : undefined,
+          minMicroSeconds: project.performanceMinMicrosecondsTreshold
+            ? project.performanceMinMicrosecondsTreshold
+            : undefined,
+        },
       )
       let formattedPerformanceDifference: string | undefined = undefined
       if (performanceDifference.count > 0) {
