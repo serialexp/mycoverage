@@ -1,3 +1,15 @@
+# [1.38.0](https://github.com/serialexp/mycoverage/compare/v1.37.0...v1.38.0) (2024-11-28)
+
+
+### Bug Fixes
+
+* use image urls from github ([1d88304](https://github.com/serialexp/mycoverage/commit/1d8830477ad6f28334ddac2176e4ef9ab02670a6))
+
+
+### Features
+
+* allow defining significance tresholds per project ([e7d7871](https://github.com/serialexp/mycoverage/commit/e7d787173ad1f37f6d3fb61e233c3aa0dbfe272f))
+
 # [1.37.0](https://github.com/serialexp/mycoverage/compare/v1.36.3...v1.37.0) (2024-11-21)
 
 
