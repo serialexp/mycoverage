@@ -1,3 +1,4 @@
+import type { Commit } from "db"
 import type {
   EndpointStats,
   EnhancedPerformanceAnalysis,
@@ -9,9 +10,12 @@ export const formatPerformanceDifference = async (
   performanceStats: EnhancedPerformanceAnalysis,
   options: {
     publicUrl: string
+    originalBaseCommit: Commit | null | undefined
+    switchedBaseCommitPerformance: Commit | null | undefined
   },
 ) => {
-  const { publicUrl } = options
+  const { publicUrl, originalBaseCommit, switchedBaseCommitPerformance } =
+    options
   const combinedResults: Record<string, EnhancedPerformanceStats> = {
     ...performanceStats.categorizedResults,
     uncategorized: performanceStats.uncategorized,
@@ -169,6 +173,15 @@ export const formatPerformanceDifference = async (
       ? "![passed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/passed-16px.png)"
       : "![failed](https://raw.githubusercontent.com/SonarSource/sonarqube-static-resources/master/v97/checks/QualityGateBadge/failed-16px.png)"
   }\n\n`
+  if (options.switchedBaseCommitPerformance) {
+    output += `The commit ${options.switchedBaseCommitPerformance.ref.substring(
+      0,
+      12,
+    )} was used as the base commit for this PR instead of ${originalBaseCommit?.ref.substring(
+      0,
+      12,
+    )} which has no performance data. The performance results are as follows:\n\n`
+  }
   output += categorizedTable
   output += "\n\n"
 

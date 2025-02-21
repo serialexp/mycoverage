@@ -14,8 +14,9 @@ import { handleNotFound } from "./pr-comment/handle-not-found"
 import { analyzeCoverageDifferences } from "./pr-comment/analyze-coverage-differences"
 import { formatCoverageResults } from "./pr-comment/result-formatter"
 import { analyzePerformanceDifference } from "./analyze-performance-difference"
-import db from "db"
+import db, { type Commit } from "db"
 import { formatPerformanceDifference } from "./pr-comment/format-performance-difference"
+import { slugify } from "./slugify"
 
 export async function updatePR(pullRequest: PRUpdateInput): Promise<boolean> {
   const octokit = await getAppOctokit()
@@ -58,14 +59,63 @@ export async function updatePR(pullRequest: PRUpdateInput): Promise<boolean> {
         pullRequest,
       )
 
-      const beforeComponentPerformance = await db.componentPerformance.findMany(
-        {
-          where: {
-            // we can use the original base commit here because the performance data is not affected by coverage data existence
-            commitId: originalBaseCommit.id,
-          },
+      let beforeComponentPerformance = await db.componentPerformance.findMany({
+        where: {
+          // we can use the original base commit here because the performance data is not affected by coverage data existence
+          commitId: originalBaseCommit.id,
         },
-      )
+      })
+      let switchedBaseCommitPerformance: Commit | null | undefined = undefined
+      if (beforeComponentPerformance.length === 0) {
+        console.log(
+          "trying to get switched base commit performance on branch",
+          slugify(pullRequest.baseBranch),
+          "in project",
+          project.id,
+        )
+        // try to get a commit that has performance data
+        const latestCommitWithPerformance = await db.commitOnBranch.findMany({
+          where: {
+            Branch: {
+              name: slugify(pullRequest.baseBranch),
+              projectId: project.id,
+            },
+            Commit: {
+              componentPerformance: {
+                some: {
+                  id: {
+                    not: {
+                      equals: undefined,
+                    },
+                  },
+                },
+              },
+              createdDate: {
+                lte: coverageCommit.createdDate,
+              },
+            },
+          },
+          orderBy: {
+            Commit: {
+              createdDate: "desc",
+            },
+          },
+          take: 1,
+        })
+
+        if (latestCommitWithPerformance.length > 0) {
+          beforeComponentPerformance = await db.componentPerformance.findMany({
+            where: {
+              commitId: latestCommitWithPerformance[0]?.commitId,
+            },
+          })
+          switchedBaseCommitPerformance = await db.commit.findFirst({
+            where: {
+              id: latestCommitWithPerformance[0]?.commitId,
+            },
+          })
+        }
+      }
       const afterComponentPerformance = await db.componentPerformance.findMany({
         where: {
           commitId: coverageCommit.id,
@@ -89,6 +139,8 @@ export async function updatePR(pullRequest: PRUpdateInput): Promise<boolean> {
           performanceDifference,
           {
             publicUrl: baseUrl ?? "",
+            originalBaseCommit,
+            switchedBaseCommitPerformance,
           },
         )
       }

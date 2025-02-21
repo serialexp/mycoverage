@@ -104,9 +104,10 @@ describe("formatPerformanceDifference", () => {
 
     const result = await formatPerformanceDifference(mockAnalysis, {
       publicUrl: mockPublicUrl,
+      originalBaseCommit: null,
+      switchedBaseCommitPerformance: null,
     })
 
-    console.log(result)
     // Expected table format
     expect(result).toContain("**Performance quality gate**")
     expect(result).toContain(
@@ -149,6 +150,8 @@ describe("formatPerformanceDifference", () => {
 
     const result = await formatPerformanceDifference(emptyAnalysis, {
       publicUrl: mockPublicUrl,
+      originalBaseCommit: null,
+      switchedBaseCommitPerformance: null,
     })
 
     expect(result).toBe(
