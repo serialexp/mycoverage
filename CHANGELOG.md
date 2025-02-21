@@ -1,3 +1,10 @@
+## [1.38.1](https://github.com/serialexp/mycoverage/compare/v1.38.0...v1.38.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* find the last commit that had performance data ([26ba5c1](https://github.com/serialexp/mycoverage/commit/26ba5c1f09f8833202810b7c3363a2eb56e3576c))
+
 # [1.38.0](https://github.com/serialexp/mycoverage/compare/v1.37.0...v1.38.0) (2024-11-28)
 
 
