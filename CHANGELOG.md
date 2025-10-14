@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/serialexp/mycoverage/compare/v1.38.1...v1.39.0) (2025-10-14)
+
+
+### Features
+
+* add coverage badges ([b03cd42](https://github.com/serialexp/mycoverage/commit/b03cd42dc2776afb49fce1f2c32d38badaa401a9))
+
 ## [1.38.1](https://github.com/serialexp/mycoverage/compare/v1.38.0...v1.38.1) (2025-02-21)
 
 
