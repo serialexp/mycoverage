@@ -32,9 +32,11 @@ import {
   Box,
   Button,
   Code,
+  Image,
   Link as ChakraLink,
   Tag,
   Tbody,
+  Textarea,
   Th,
   Thead,
 } from "@chakra-ui/react"
@@ -47,6 +49,7 @@ import {
 } from "react-icons/fa6"
 import { Section } from "src/library/components/Section"
 import { IssueSummary } from "src/library/components/IssueSummary"
+import getBaseUrl from "src/settings/queries/getBaseUrl"
 
 const format = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
 
@@ -65,6 +68,11 @@ const ProjectPage: BlitzPage = () => {
     projectId: project?.id || 0,
     branchSlug: slugify(project?.defaultBaseBranch),
   })
+  const [baseUrl] = useQuery(getBaseUrl, undefined)
+
+  const badgeUrl = `${baseUrl}api/group/${groupId}/project/${projectId}/badge`
+  const markdownBadge = `![Coverage Badge](${badgeUrl})`
+  const htmlBadge = `<img src="${badgeUrl}" alt="Coverage Badge" />`
 
   return groupId && projectId && project ? (
     <>
@@ -127,6 +135,35 @@ const ProjectPage: BlitzPage = () => {
           </Alert>
         </Box>
       ) : null}
+      <Section title="Coverage Badge" defaultOpen={false}>
+        <Box px={4} py={2}>
+          <Box mb={4}>
+            {badgeUrl && <Image src={badgeUrl} alt="Coverage Badge" />}
+          </Box>
+          <Box mb={4}>
+            <Subheading size="sm">Markdown (for README.md)</Subheading>
+            <Textarea
+              value={markdownBadge}
+              readOnly
+              rows={2}
+              fontFamily="monospace"
+              fontSize="sm"
+              onClick={(e) => e.currentTarget.select()}
+            />
+          </Box>
+          <Box>
+            <Subheading size="sm">HTML</Subheading>
+            <Textarea
+              value={htmlBadge}
+              readOnly
+              rows={2}
+              fontFamily="monospace"
+              fontSize="sm"
+              onClick={(e) => e.currentTarget.select()}
+            />
+          </Box>
+        </Box>
+      </Section>
       <Subheading>Current coverage</Subheading>
       {buildInfo.lastProcessedCommit ? (
         <>

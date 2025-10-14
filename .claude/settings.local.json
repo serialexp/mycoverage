@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(while read commit)",
+      "Bash(do git grep -l \"makeBadge\\|badge-maker\" $commit)",
+      "Bash(echo \"Found in: $commit\")",
+      "Bash(done)",
+      "Bash(npm run test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
