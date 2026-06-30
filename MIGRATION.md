@@ -134,7 +134,17 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
         graph called it until `github-coverage`).
       - `@octokit/webhooks-types` added to `apps/server` (type-only, for the webhook handler).
       - All three packages tsc-clean (server/core/worker = 0); core vitest 39/39; biome 0 errors.
-      - **Live boot/upload/webhook smoke deferred to Phase 6** (needs DB + Redis + S3 + the action).
+      - **Repeatable test suite** (`apps/server`, run with `pnpm --filter @mycoverage/server test`):
+        in-process `restRoutes.request(...)` drives every route against a throwaway migrated DB
+        (`test/global-setup.ts` creates `mycoverage_test_*` on localhost, runs `prisma migrate
+        deploy`, drops it on teardown). Covers the wiring battery (index, content-type/param
+        guards, sonar alias, 404), the badge DB-read happy path, and the upload write path
+        (rows + enqueue) with S3 + the upload queue `vi.mock`ed so the suite never touches the
+        shared bucket or Redis. 9/9 green.
+      - **Prereq refactor:** BullMQ queues are now built lazily (`getXQueue()`), so importing a
+        REST handler no longer opens a Redis connection on import — which is what makes the
+        handlers testable without infra.
+      - Full live upload→worker→GitHub round-trip still needs the GitHub App; deferred to Phase 6.
 - [ ] **4. Client SPA** — port 37 pages, router, hook swap, providers.
 - [ ] **5. Build/Docker/deps cleanup** — vite build, server bundle, Dockerfile, drop
       passport/blitz leftovers, prune dead deps.

@@ -10,7 +10,12 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsx scripts/build-server.ts",
     "start": "node dist/index.js",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
     "test:tsc": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "mariadb": "^3.5.3"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.6",
