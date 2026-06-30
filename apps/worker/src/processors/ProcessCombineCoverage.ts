@@ -1,9 +1,9 @@
 import type { PrismaClient } from "@mycoverage/db"
 import { log } from "@mycoverage/core/library/log"
+import { processAllTestInstances } from "@mycoverage/core/library/ProcessCombineCoverage/processAllTestInstances"
+import { processCommit } from "@mycoverage/core/library/ProcessCombineCoverage/processCommit"
+import { processTestInstance } from "@mycoverage/core/library/ProcessCombineCoverage/processTestInstance"
 import { addEventListeners } from "./addEventListeners"
-import { processAllTestInstances } from "./ProcessCombineCoverage/processAllTestInstances"
-import { processCommit } from "./ProcessCombineCoverage/processCommit"
-import { processTestInstance } from "./ProcessCombineCoverage/processTestInstance"
 import {
   combineCoverageJob,
   combineCoverageQueue,

@@ -86,7 +86,32 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
       correct redirect_uri/scope/PKCE-S256/state, sealed `mc_login` cookie; `auth.me`
       returns null when logged out. **Pending Bart:** browser callback test (needs real
       IdP creds) + auto-provision policy decision (see open items).
-- [ ] **2. tRPC router** — port 64 resolvers feature-by-feature.
+- [~] **2. tRPC router** — port 64 resolvers feature-by-feature. **63/64 ported**; the
+      `coverage` router is wired into the root (`trpc.coverage.*`). Mapping: bare
+      `resolver.authorize()` → `protectedProcedure` (reads `ctx.session.userId`); the rest
+      stay `publicProcedure`. Resolvers that had no `authorize()` upstream but mutate data
+      (`updateProject`, `deleteProject`, `createProject`, `syncGithubState`, `updateSetting`,
+      `updatePrComment`) are faithfully kept **public** and flagged in-code for review.
+      All three packages tsc-clean (core/server/worker = 0); core vitest 39/39.
+      - **Core Prisma-7 fix (done, same phase):** added `packages/core/src/library/bytes.ts`
+        (`toBytes`/`bytesToBase64`/`base64ToBytes`). Prisma 7 types `Bytes` as
+        `Uint8Array<ArrayBuffer>`, not `Buffer`; `.toString("base64")` and
+        `Buffer.from(b64,"base64")` no longer typecheck against it. Rewrote all Bytes sites
+        in `getPathToPackageFileIds`, `generateDifferences`, `insertCoverageData`,
+        `CoverageData`, `InternalCoverage`, `analyze-performance-difference`,
+        `create-github-check`, plus the worker `ProcessSonarqube` consumer. Behaviour
+        guarded by the vitest suite (added `packages/core/vitest.config.ts`).
+      - **`combineCoverage` (done):** per Bart's call, the three pure helpers
+        `ProcessCombineCoverage/{processAllTestInstances,processCommit,processTestInstance}`
+        were moved from `apps/worker/src/processors/` into
+        `@mycoverage/core/library/ProcessCombineCoverage/` (their imports were already all
+        `@mycoverage/core` + `@mycoverage/db`, so the move was clean). The worker's
+        `ProcessCombineCoverage.ts` job wrapper now imports them from core. The tRPC
+        procedure (`coverage/combine.ts`) is a faithful port incl. the in-process `sync`
+        path. `bullmq` added to `apps/server` deps (also used by `getQueues`).
+      - **Deferred to Phase 4 (presentation):**
+        - `getTree` (query) — pulls `@chakra-ui/theme` + `d3-scale` + a React `TreeMap`
+          component into the backend. Belongs in the SPA; port alongside the pages.
 - [ ] **3. REST routes** — port 16 api handlers to Hono at identical paths.
 - [ ] **4. Client SPA** — port 37 pages, router, hook swap, providers.
 - [ ] **5. Build/Docker/deps cleanup** — vite build, server bundle, Dockerfile, drop
@@ -107,9 +132,9 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
 - **Server build (Phase 5):** `apps/server` build script points at `scripts/build-server.ts`
   which isn't written yet.
 - `getLastBuildInfo` moved to `@mycoverage/core/library/getLastBuildInfo` (it was a
-  Blitz resolver with an unused `Ctx` import). `legacy/coverage/queries/getLastBuildInfo.ts`
-  is now a re-export shim; delete it once the coverage queries are ported (Phase 2) and
-  wrap the core fn in a thin tRPC procedure.
+  Blitz resolver with an unused `Ctx` import). It is now wrapped by a thin tRPC procedure
+  in `coverage/commits.ts`. The `legacy/**` originals (incl. the re-export shim) are
+  deleted wholesale in cleanup once Phases 3–4 stop referencing them.
 - `next.config.js`, `blitz-*.ts`, `next-env.d.ts`, `blitz-env.d.ts`, root `legacy/blitz-*.ts`
   to be deleted in cleanup.
 - `legacy/**` stays excluded from tsc until ported file-by-file, then deleted.
