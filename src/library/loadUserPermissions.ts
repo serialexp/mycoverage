@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest"
-import db from "db"
 import { log } from "src/library/log"
+import { syncOwnerRepositories } from "src/library/syncRepositories"
 
 export const loadUserPermissions = async (
   userId: number,
@@ -96,87 +96,7 @@ export const loadUserPermissions = async (
       }
 
       for (const [owner, repositories] of repositoriesPerOwner) {
-        const existingOwner = await db.group.upsert({
-          where: {
-            name: owner,
-          },
-          create: {
-            name: owner,
-            slug: owner,
-            githubName: owner,
-          },
-          update: {},
-        })
-
-        const existingRepositories = await db.project.findMany({
-          select: {
-            name: true,
-          },
-          where: {
-            groupId: existingOwner.id,
-          },
-        })
-
-        const existingRepositoryNames = new Set(
-          existingRepositories.map((r) => r.name.toLowerCase()),
-        )
-        const newRepositories = repositories.filter(
-          (r) => !existingRepositoryNames.has(r.name.toLowerCase()),
-        )
-
-        console.log(
-          "Attemping to create ",
-          newRepositories.length,
-          " new repositories",
-          newRepositories.map((n) => n.name).join(", "),
-        )
-        for (const r of newRepositories) {
-          try {
-            await db.project.create({
-              data: {
-                name: r.name,
-                defaultBaseBranch: r.default_branch,
-                groupId: existingOwner.id,
-                slug: r.name,
-                githubName: r.name,
-              },
-            })
-          } catch (error) {
-            console.error(
-              `Failed to create repository ${r.name} for owner ${owner}`,
-              error,
-            )
-          }
-        }
-        const accessibleRepositories = await db.project.findMany({
-          select: {
-            id: true,
-          },
-          where: {
-            name: {
-              in: repositories.map((r) => r.name),
-            },
-          },
-        })
-
-        await db.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            accessibleRepositories: {
-              connect: accessibleRepositories.map((r) => ({
-                id: r.id,
-              })),
-            },
-            accessibleGroups: {
-              connect: {
-                id: existingOwner.id,
-              },
-            },
-          },
-        })
-        console.log(`User ${userId} updated with accessible repositories`)
+        await syncOwnerRepositories(userId, owner, repositories)
       }
     })
 }

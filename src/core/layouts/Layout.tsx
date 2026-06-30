@@ -43,6 +43,7 @@ const Layout = ({ title, children }: LayoutProps) => {
           </Flex>
           <Flex ml={"auto"} textAlign={"right"} alignItems={"center"} gap={4}>
             <Link href={Routes.Home()}>Home</Link>
+            <Link href={Routes.ImportRepositoriesPage()}>Import Repos</Link>
             <Link href={Routes.Logs()}>Logs</Link>
             <Link href={Routes.Queues()}>Queues</Link>
             <Link href={Routes.SettingsPage()}>System Settings</Link>
