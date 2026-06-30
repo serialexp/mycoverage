@@ -1,6 +1,15 @@
 name: Test and release
 on:
   push:
+  # Manually start a prerelease cycle (alpha/beta/rc) from a stable version.
+  # Once the first prerelease lands, subsequent push-triggered runs auto-
+  # increment the counter — you don't need to dispatch again.
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: "Start a prerelease cycle with this tag (e.g. alpha, beta, rc). Leave blank for a normal release."
+        required: false
+        default: ""
 
 jobs:
   unit_test:
@@ -115,31 +124,86 @@ jobs:
         run: pnpm install
       - name: Run Biome
         run: pnpm run check
+  # On a normal push to master, just-release opens or updates a release PR
+  # (branch release/YYYY-MM-DD) with the version bump and changelog. Nothing is
+  # released until that PR is merged.
   release:
-    name: Release
-    if: "!contains(github.event.head_commit.message , '[skip release]') && github.ref == 'refs/heads/master'"
+    name: Release PR
+    if: >-
+      github.ref == 'refs/heads/master' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (!startsWith(github.event.head_commit.message, 'release:') &&
+        !(startsWith(github.event.head_commit.message, 'Merge') && contains(github.event.head_commit.message, 'release/'))))
     needs: [unit_test, typescript]
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: mysql://localhost
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v2
-        with:
-          version: latest
+          fetch-depth: 0 # Required to analyse all commits since the last release
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-          cache: "pnpm"
-      - name: Install dependencies
-        run: pnpm install
-      - name: Release
+      - name: Run just-release
+        run: npx just-release
         env:
+          CI: 1
+          # PAT (not the default GITHUB_TOKEN) so the release PR's branch push
+          # triggers the test jobs above.
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Only non-empty on a workflow_dispatch that starts a prerelease cycle.
+          JUST_RELEASE_PRERELEASE: ${{ github.event.inputs.prerelease }}
+
+  # When the release PR is merged (a `release: X.Y.Z` commit lands on master),
+  # build & push the Docker image, then let just-release create the GitHub
+  # release and vX.Y.Z tag. npm publishing is skipped automatically because the
+  # package is marked private.
+  publish:
+    name: Publish
+    if: >-
+      github.ref == 'refs/heads/master' &&
+      github.event_name == 'push' &&
+      (startsWith(github.event.head_commit.message, 'release:') ||
+       (startsWith(github.event.head_commit.message, 'Merge') && contains(github.event.head_commit.message, 'release/')))
+    needs: [unit_test, typescript]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Build and push Docker image
+        env:
           DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-        run: pnpx semantic-release
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          IFS=. read -r MAJOR MINOR _ <<< "$VERSION"
+          IMAGE=aeolun/mycoverage
+          echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USER" --password-stdin
+          docker build \
+            -t "$IMAGE:latest" \
+            -t "$IMAGE:$VERSION" \
+            -t "$IMAGE:${MAJOR}-latest" \
+            -t "$IMAGE:${MAJOR}.${MINOR}" \
+            .
+          docker push --all-tags "$IMAGE"
+      - name: Create GitHub release and tag
+        run: npx just-release
+        env:
+          CI: 1
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

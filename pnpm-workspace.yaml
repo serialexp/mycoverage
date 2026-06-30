@@ -1,0 +1,17 @@
+# pnpm v11 no longer runs dependency build/postinstall scripts unless each is
+# explicitly approved here; otherwise `pnpm install` fails with
+# ERR_PNPM_IGNORED_BUILDS (strictDepBuilds defaults to true).
+# https://pnpm.io/11.x/settings#allowbuilds
+allowBuilds:
+  "@biomejs/biome": true
+  "@blitzjs/next": true
+  "@fortawesome/fontawesome-common-types": true
+  "@fortawesome/fontawesome-svg-core": true
+  "@fortawesome/free-solid-svg-icons": true
+  "@prisma/client": true
+  "@prisma/engines": true
+  "@swc/core": true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true
+  protobufjs: true
