@@ -1,0 +1,143 @@
+import type { PrismaClient } from "@mycoverage/db"
+import { log } from "@mycoverage/core/library/log"
+import { addEventListeners } from "./addEventListeners"
+import { processAllTestInstances } from "./ProcessCombineCoverage/processAllTestInstances"
+import { processCommit } from "./ProcessCombineCoverage/processCommit"
+import { processTestInstance } from "./ProcessCombineCoverage/processTestInstance"
+import {
+  combineCoverageJob,
+  combineCoverageQueue,
+  type ProcessCombineCoveragePayload,
+} from "@mycoverage/core/queues/CombineCoverage"
+import { queueConfig } from "@mycoverage/core/queues/config"
+import { Worker } from "bullmq"
+import db, { Test } from "@mycoverage/db"
+
+export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
+  "combinecoverage",
+  async (job) => {
+    // if we don't finish in 5 minutes, we'll kill the process
+    const timeout = setTimeout(async () => {
+      log("worker timed out, killing this process")
+      process.exit(1)
+    }, 300 * 1000)
+
+    const startTime = new Date()
+    const {
+      commit,
+      testInstance,
+      namespaceSlug,
+      repositorySlug,
+      delay,
+      options,
+    } = job.data
+
+    log("Executing combine coverage job")
+    const mydb: PrismaClient = db
+
+    // do not run two jobs for the same commit at a time, since the job will be removing coverage data
+    const activeJobs = await combineCoverageQueue.getActive()
+    const nonNullJobs = activeJobs.filter((j) => j)
+    log("current combine coverage jobs", {
+      id: job.id,
+      ref: commit.ref,
+      otherJobs: nonNullJobs.map((j) => ({
+        id: j.id,
+        ref: j.data.commit.ref,
+      })),
+    })
+    if (
+      nonNullJobs.find(
+        (j) => j.data.commit.ref === commit.ref && j.id !== job.id,
+      )
+    ) {
+      // delay by 10s
+      log(
+        `Delaying combine coverage job for commit "${commit.ref}" because it is already running`,
+      )
+      try {
+        // stick in a new job since we cannot delay the existing one, wait only 5 seconds so we quickly retry at the end of the line
+        combineCoverageJob({
+          ...job.data,
+          delay: 5000,
+        }).catch((error) => {
+          log("error re-adding processCoverage job", error)
+        })
+        log("Delayed successfully")
+      } catch (error) {
+        log("Error moving combine coverage job to delayed: ", error)
+      }
+      clearTimeout(timeout)
+      return true
+    }
+
+    try {
+      await mydb.commit.update({
+        where: {
+          id: commit.id,
+        },
+        data: {
+          coverageProcessStatus: "PROCESSING",
+        },
+      })
+
+      if (testInstance) {
+        await processTestInstance(testInstance)
+      } else if (options?.full) {
+        await processAllTestInstances(commit)
+      }
+
+      await job.updateProgress(60)
+
+      await processCommit({
+        commit,
+        namespaceSlug,
+        repositorySlug,
+        full: options?.full,
+      })
+
+      await mydb.jobLog.create({
+        data: {
+          name: "combinecoverage",
+          commitRef: commit.ref,
+          namespace: namespaceSlug,
+          repository: repositorySlug,
+          message: `Combined coverage for commit ${commit.ref.substr(0, 10)}${
+            testInstance ? ` and test instance ${testInstance.id}` : ""
+          }`,
+          timeTaken: new Date().getTime() - startTime.getTime(),
+        },
+      })
+
+      clearTimeout(timeout)
+      return true
+    } catch (error) {
+      log("Failure processing test instance", error)
+      if (error instanceof Error) {
+        await db.jobLog.create({
+          data: {
+            name: "combinecoverage",
+            commitRef: commit.ref,
+            namespace: namespaceSlug,
+            repository: repositorySlug,
+            message: `Failure processing commit ${commit.ref.substr(0, 10)}${
+              testInstance ? ` and test instance ${testInstance.id}` : ""
+            }, error ${error.toString()}`,
+            timeTaken: new Date().getTime() - startTime.getTime(),
+          },
+        })
+      }
+      clearTimeout(timeout)
+      return false
+    }
+  },
+  {
+    connection: queueConfig,
+    lockDuration: 300 * 1000,
+    concurrency: 1,
+    autorun: false,
+    stalledInterval: 300 * 1000,
+  },
+)
+
+addEventListeners(combineCoverageWorker)

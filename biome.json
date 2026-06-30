@@ -1,6 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.2.2/schema.json",
-  "organizeImports": {
+  "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist/**",
+      "!legacy/**",
+      "!**/proto_coverage.ts"
+    ]
+  },
+  "assist": {
     "enabled": false
   },
   "formatter": {
@@ -11,8 +24,7 @@
     "enabled": true,
     "rules": {
       "recommended": true
-    },
-    "ignore": ["proto_coverage.ts"]
+    }
   },
   "javascript": {
     "formatter": {
