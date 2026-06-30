@@ -1,4 +1,5 @@
 import { base64ToBytes, bytesToBase64 } from "@mycoverage/core/library/bytes"
+import { getFileCoverageForCommit as getFileCoverageForCommitData } from "@mycoverage/core/library/getFileCoverageForCommit"
 import { getFileData as getGithubFileData } from "@mycoverage/core/library/github"
 import { getLineCoverageData as getInternalLineCoverageData } from "@mycoverage/core/library/getLineCoverageData"
 import db from "@mycoverage/db"
@@ -90,17 +91,7 @@ export const fileProcedures = {
   getFileCoverageForCommit: publicProcedure
     .input(z.object({ commitId: z.number().nullish() }))
     .query(async ({ input }) => {
-      if (!input.commitId) return []
-      return db.packageCoverage.findMany({
-        where: { commitId: input.commitId },
-        select: {
-          id: true,
-          name: true,
-          FileCoverage: {
-            select: { id: true, name: true, coverageData: true },
-          },
-        },
-      })
+      return getFileCoverageForCommitData({ commitId: input.commitId })
     }),
 
   getLineCoverageData: publicProcedure

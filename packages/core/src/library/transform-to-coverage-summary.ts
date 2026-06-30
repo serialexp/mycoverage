@@ -2,9 +2,13 @@ import { CoverageData } from "@mycoverage/core/library/CoverageData"
 
 export function transformToCoverageSummary(
   data: {
-    id: Buffer
+    id: Uint8Array<ArrayBuffer>
     name: string
-    FileCoverage: { id: Buffer; name: string; coverageData: Buffer }[]
+    FileCoverage: {
+      id: Uint8Array<ArrayBuffer>
+      name: string
+      coverageData: Uint8Array<ArrayBuffer>
+    }[]
   }[],
   onlyPaths?: string[],
 ) {
