@@ -13,28 +13,12 @@ model User {
   updatedAt              DateTime  @updatedAt
   name                   String?
   email                  String    @unique
+  oidcSub                String?   @unique
   hashedPassword         String?
   role                   String    @default("USER")
-  sessions               Session[]
   tokens                 Token[]
   accessibleRepositories Project[]
   accessibleGroups       Group[]
-}
-
-model Session {
-  id                 Int       @id @default(autoincrement())
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  expiresAt          DateTime?
-  handle             String    @unique
-  hashedSessionToken String?
-  antiCSRFToken      String?
-  publicData         String?   @db.Text
-  privateData        String?   @db.Text
-  userId             Int?
-  user               User?     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
 }
 
 model Token {

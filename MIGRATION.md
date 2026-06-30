@@ -80,8 +80,12 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
       (apps/* + packages/*), Prisma 7 client generated, imports rewritten.
       Verified: server boots, Vite serves + proxies `/trpc/health`, the whole
       worker import graph resolves (tsc, no TS2307).
-- [ ] **1. Auth (OIDC)** — login/callback/logout on Hono, iron-session, `me` query,
-      `protectedProcedure`. Verify against real Hydra. Schema: drop Session, add oidcSub.
+- [~] **1. Auth (OIDC)** — login/callback/logout on Hono, iron-session, `me` query,
+      `protectedProcedure`. Schema migration (drop Session, add oidcSub) **applied**.
+      Headless-verified against real Hydra: discovery + `/api/auth/login` 302 with
+      correct redirect_uri/scope/PKCE-S256/state, sealed `mc_login` cookie; `auth.me`
+      returns null when logged out. **Pending Bart:** browser callback test (needs real
+      IdP creds) + auto-provision policy decision (see open items).
 - [ ] **2. tRPC router** — port 64 resolvers feature-by-feature.
 - [ ] **3. REST routes** — port 16 api handlers to Hono at identical paths.
 - [ ] **4. Client SPA** — port 37 pages, router, hook swap, providers.
@@ -111,3 +115,14 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
 - `legacy/**` stays excluded from tsc until ported file-by-file, then deleted.
 - Authorization model after decoupling: project visibility still gated by
   `accessibleGroups`/`accessibleRepositories`, seeded via the import flow (not per-login).
+- **Auto-provision decision (Phase 1, open):** the callback resolves a user as
+  oidcSub-match → email-match (link `oidcSub`) → **else create a new `role:"USER"`**.
+  The locked plan only specified "match by email"; auto-provision was added because the
+  local DB has zero users (otherwise nobody can log in) and the IdP already gates who can
+  authenticate. If Bart prefers match-only (reject unknown emails / pre-seed allowed
+  accounts), it's a ~5-line change in `apps/server/src/routes/auth.ts`.
+- **db driver adapter (Prisma 7):** `packages/db/index.ts` now constructs
+  `new PrismaClient({ adapter: new PrismaMariaDb(DATABASE_URL) })` and **throws at import
+  if `DATABASE_URL` is unset**. `apps/server` loads it safely (`./env` imported first).
+  `apps/worker/src/worker.ts` must likewise load dotenv before importing `@mycoverage/db`
+  — verify in Phase 5.
