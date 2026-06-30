@@ -18,9 +18,7 @@
     "test:tsc": "pnpm -r test:tsc",
     "check": "biome check apps packages",
     "check:fix": "biome check --write --unsafe apps packages",
-    "test": "vitest run --passWithNoTests",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest",
+    "test": "pnpm -r --if-present test",
     "prepare": "husky"
   },
   "lint-staged": {
