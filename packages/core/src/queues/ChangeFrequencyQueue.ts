@@ -4,12 +4,20 @@ import { queueConfig } from "@mycoverage/core/queues/config"
 import type { Commit } from "@mycoverage/db"
 import { Queue } from "bullmq"
 
-export const changeFrequencyQueue = new Queue("changefrequency", {
-  connection: queueConfig,
-  defaultJobOptions: {
-    removeOnFail: true,
-  },
-})
+// Built lazily on first use so importing this module does not open a Redis
+// connection (see UploadQueue for rationale).
+let changeFrequencyQueue: Queue | undefined
+export const getChangeFrequencyQueue = () => {
+  if (!changeFrequencyQueue) {
+    changeFrequencyQueue = new Queue("changefrequency", {
+      connection: queueConfig,
+      defaultJobOptions: {
+        removeOnFail: true,
+      },
+    })
+  }
+  return changeFrequencyQueue
+}
 
 export const changeFrequencyJob = (
   postData: ChangeFrequencyData,
@@ -18,7 +26,7 @@ export const changeFrequencyJob = (
   repositorySlug: string,
 ) => {
   log("Adding changefrequency job to queue")
-  return changeFrequencyQueue.add(
+  return getChangeFrequencyQueue().add(
     "changefrequency",
     {
       postData,

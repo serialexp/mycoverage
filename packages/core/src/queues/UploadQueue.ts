@@ -8,12 +8,21 @@ import { queueConfig } from "@mycoverage/core/queues/config"
 import db, { Test, type Commit, TestInstance } from "@mycoverage/db"
 import { Queue } from "bullmq"
 
-export const uploadQueue = new Queue("upload", {
-  connection: queueConfig,
-  defaultJobOptions: {
-    removeOnFail: true,
-  },
-})
+// Built lazily on first use so that merely importing this module (e.g. a REST
+// handler pulling in `uploadJob`) does not open a Redis connection. Tests and
+// any import-only consumer therefore stay infra-free.
+let uploadQueue: Queue | undefined
+export const getUploadQueue = () => {
+  if (!uploadQueue) {
+    uploadQueue = new Queue("upload", {
+      connection: queueConfig,
+      defaultJobOptions: {
+        removeOnFail: true,
+      },
+    })
+  }
+  return uploadQueue
+}
 
 export const uploadJob = async (
   coverageFileKey: string,
@@ -34,9 +43,10 @@ export const uploadJob = async (
     namespaceSlug,
     repositorySlug,
   })
-  const activeJobs = await uploadQueue.getActive()
+  const queue = getUploadQueue()
+  const activeJobs = await queue.getActive()
   log("Active jobs", activeJobs)
-  const res = await uploadQueue.add(
+  const res = await queue.add(
     "upload",
     {
       coverageFileKey,

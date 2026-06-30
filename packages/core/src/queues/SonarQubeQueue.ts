@@ -4,12 +4,20 @@ import { queueConfig } from "@mycoverage/core/queues/config"
 import db, { Test, type Commit, TestInstance } from "@mycoverage/db"
 import { Queue } from "bullmq"
 
-export const sonarqubeQueue = new Queue("sonarqube", {
-  connection: queueConfig,
-  defaultJobOptions: {
-    removeOnFail: true,
-  },
-})
+// Built lazily on first use so importing this module does not open a Redis
+// connection (see UploadQueue for rationale).
+let sonarqubeQueue: Queue | undefined
+export const getSonarqubeQueue = () => {
+  if (!sonarqubeQueue) {
+    sonarqubeQueue = new Queue("sonarqube", {
+      connection: queueConfig,
+      defaultJobOptions: {
+        removeOnFail: true,
+      },
+    })
+  }
+  return sonarqubeQueue
+}
 
 export const sonarqubeJob = (
   issues: SonarIssue[],
@@ -18,7 +26,7 @@ export const sonarqubeJob = (
   repositorySlug: string,
 ) => {
   log("Adding sonarqube job to queue")
-  return sonarqubeQueue.add(
+  return getSonarqubeQueue().add(
     "sonarqube",
     {
       issues,

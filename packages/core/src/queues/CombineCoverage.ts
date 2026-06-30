@@ -16,19 +16,27 @@ export interface ProcessCombineCoveragePayload {
   }
 }
 
-export const combineCoverageQueue = new Queue<ProcessCombineCoveragePayload>(
-  "combinecoverage",
-  {
-    connection: queueConfig,
-    defaultJobOptions: {
-      removeOnFail: true,
-    },
-  },
-)
+// Built lazily on first use so importing this module does not open a Redis
+// connection (see UploadQueue for rationale).
+let combineCoverageQueue: Queue<ProcessCombineCoveragePayload> | undefined
+export const getCombineCoverageQueue = () => {
+  if (!combineCoverageQueue) {
+    combineCoverageQueue = new Queue<ProcessCombineCoveragePayload>(
+      "combinecoverage",
+      {
+        connection: queueConfig,
+        defaultJobOptions: {
+          removeOnFail: true,
+        },
+      },
+    )
+  }
+  return combineCoverageQueue
+}
 
 export const combineCoverageJob = (payload: ProcessCombineCoveragePayload) => {
   log(`Adding new combine coverage job for ${payload.commit.ref}`)
-  return combineCoverageQueue.add("combinecoverage", payload, {
+  return getCombineCoverageQueue().add("combinecoverage", payload, {
     removeOnComplete: true,
     removeOnFail: true,
     delay: payload.delay,

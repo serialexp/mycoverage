@@ -1,7 +1,7 @@
-import { changeFrequencyQueue } from "@mycoverage/core/queues/ChangeFrequencyQueue"
-import { combineCoverageQueue } from "@mycoverage/core/queues/CombineCoverage"
-import { sonarqubeQueue } from "@mycoverage/core/queues/SonarQubeQueue"
-import { uploadQueue } from "@mycoverage/core/queues/UploadQueue"
+import { getChangeFrequencyQueue } from "@mycoverage/core/queues/ChangeFrequencyQueue"
+import { getCombineCoverageQueue } from "@mycoverage/core/queues/CombineCoverage"
+import { getSonarqubeQueue } from "@mycoverage/core/queues/SonarQubeQueue"
+import { getUploadQueue } from "@mycoverage/core/queues/UploadQueue"
 import type { Job, Queue } from "bullmq"
 import { protectedProcedure } from "../../trpc"
 
@@ -10,10 +10,10 @@ export const queueProcedures = {
   // coverage data, so it requires a session.
   getQueues: protectedProcedure.query(async () => {
     const queues: Queue[] = [
-      changeFrequencyQueue,
-      combineCoverageQueue,
-      sonarqubeQueue,
-      uploadQueue,
+      getChangeFrequencyQueue(),
+      getCombineCoverageQueue(),
+      getSonarqubeQueue(),
+      getUploadQueue(),
     ]
 
     const jobs: {

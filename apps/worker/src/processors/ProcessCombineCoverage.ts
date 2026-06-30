@@ -6,7 +6,7 @@ import { processTestInstance } from "@mycoverage/core/library/ProcessCombineCove
 import { addEventListeners } from "./addEventListeners"
 import {
   combineCoverageJob,
-  combineCoverageQueue,
+  getCombineCoverageQueue,
   type ProcessCombineCoveragePayload,
 } from "@mycoverage/core/queues/CombineCoverage"
 import { queueConfig } from "@mycoverage/core/queues/config"
@@ -36,7 +36,7 @@ export const combineCoverageWorker = new Worker<ProcessCombineCoveragePayload>(
     const mydb: PrismaClient = db
 
     // do not run two jobs for the same commit at a time, since the job will be removing coverage data
-    const activeJobs = await combineCoverageQueue.getActive()
+    const activeJobs = await getCombineCoverageQueue().getActive()
     const nonNullJobs = activeJobs.filter((j) => j)
     log("current combine coverage jobs", {
       id: job.id,
