@@ -195,7 +195,8 @@ class InternalFile {
           existingItem.type === "conditional"
         ) {
           for (const [branch, hits] of Object.entries(newItem.hitsPerBranch)) {
-            existingItem.hitsPerBranch[branch] += hits
+            existingItem.hitsPerBranch[branch] =
+              (existingItem.hitsPerBranch[branch] ?? 0) + hits
           }
         }
         const hitsFromSource = existingItem.hitsFromSource

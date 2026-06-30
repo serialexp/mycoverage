@@ -32,9 +32,13 @@ export async function createGithubCheck(
       repo: pullRequest.project.name,
       head_sha: commitSha,
       details_url: statusUrl,
-      status: checkStatus,
+      status: checkStatus as NonNullable<
+        Parameters<Octokit["checks"]["create"]>[0]
+      >["status"],
       name: "Coverage",
-      conclusion: checkConclusion,
+      conclusion: checkConclusion as NonNullable<
+        Parameters<Octokit["checks"]["create"]>[0]
+      >["conclusion"],
       completed_at: new Date().toISOString(),
       output: {
         title: "Coverage",

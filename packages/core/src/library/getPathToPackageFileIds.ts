@@ -1,3 +1,4 @@
+import { bytesToBase64 } from "@mycoverage/core/library/bytes"
 import db, { type Prisma } from "@mycoverage/db"
 
 export async function getPathToPackageFileIds(
@@ -15,8 +16,8 @@ export async function getPathToPackageFileIds(
   const packageCoverageIds = packagesCoverages.map((res) => res.id)
   for (const pk of packagesCoverages) {
     const name = pk.name.replace(/\./g, "/")
-    packageIdToPath[pk.id.toString("base64")] = name
-    packagePathToId[name] = pk.id.toString("base64")
+    packageIdToPath[bytesToBase64(pk.id)] = name
+    packagePathToId[name] = bytesToBase64(pk.id)
   }
 
   const fileCoverages = await db.fileCoverage.findMany({
@@ -32,10 +33,10 @@ export async function getPathToPackageFileIds(
     },
   })
 
-  const pathToFileId: Record<string, Buffer> = {}
+  const pathToFileId: Record<string, Uint8Array<ArrayBuffer>> = {}
   for (const coverage of fileCoverages) {
     const originalPath = coverage.packageCoverageId
-      ? packageIdToPath[coverage.packageCoverageId.toString("base64")]
+      ? packageIdToPath[bytesToBase64(coverage.packageCoverageId)]
       : undefined
     if (originalPath) {
       pathToFileId[`${originalPath}/${coverage.name}`] = coverage.id

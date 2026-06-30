@@ -1,3 +1,4 @@
+import { base64ToBytes, bytesToBase64 } from "@mycoverage/core/library/bytes"
 import { executeForEachSubpath } from "@mycoverage/core/library/executeForEachSubpath"
 import { getPathToPackageFileIds } from "@mycoverage/core/library/getPathToPackageFileIds"
 import { log } from "@mycoverage/core/library/log"
@@ -29,8 +30,7 @@ export const sonarqubeWorker = new Worker<{
       log("starting to insert")
       const severities: Record<string, number> = {}
       for (const issue of issues) {
-        if (!severities[issue.severity]) severities[issue.severity] = 0
-        severities[issue.severity]++
+        severities[issue.severity] = (severities[issue.severity] ?? 0) + 1
       }
 
       const hashes = issues
@@ -197,7 +197,7 @@ export const sonarqubeWorker = new Worker<{
       const changesPerPackage: Record<string, number> = {}
       for (const issue of refreshedIssues) {
         const fileIdBuffer = pathToFileId[issue.file]
-        const fileId = pathToFileId[issue.file]?.toString("base64")
+        const fileId = fileIdBuffer ? bytesToBase64(fileIdBuffer) : undefined
         if (fileId && fileIdBuffer) {
           if (
             !existingFileIssues.find(
@@ -239,7 +239,7 @@ export const sonarqubeWorker = new Worker<{
         Object.keys(totalIssuesOnFile).map((fileId) => {
           return db.fileCoverage.update({
             where: {
-              id: Buffer.from(fileId, "base64"),
+              id: base64ToBytes(fileId),
             },
             data: {
               codeIssues: totalIssuesOnFile[fileId],

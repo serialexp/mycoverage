@@ -116,7 +116,6 @@ const groupByCategory = (metrics: ComponentPerformance[]) => {
       if (!acc[category]) {
         acc[category] = []
       }
-      // @ts-expect-error: It's not possibly undefined
       acc[category].push(metric)
       return acc
     },

@@ -1,5 +1,6 @@
 import db from "@mycoverage/db"
 import fs from "node:fs"
+import { base64ToBytes, bytesToBase64 } from "@mycoverage/core/library/bytes"
 import { CoverageData } from "@mycoverage/core/library/CoverageData"
 
 export type CoverageDifference = {
@@ -52,7 +53,7 @@ interface PackageCoverage {
 }
 
 interface FileCoverage {
-  id: Buffer
+  id: Uint8Array<ArrayBuffer>
   name: string
   elements: number
   coveredElements: number
@@ -82,12 +83,12 @@ export async function generateDifferences(
         ) {
           const base = {
             ...baseFile,
-            id: baseFile.id.toString("base64"),
+            id: bytesToBase64(baseFile.id),
             name: `${fixName(basePackage.name)}/${baseFile.name}`,
           }
           const next = {
             ...nextFile,
-            id: nextFile.id.toString("base64"),
+            id: bytesToBase64(nextFile.id),
             name: `${fixName(nextPackage.name)}/${nextFile.name}`,
           }
           changedFiles.push({
@@ -102,7 +103,7 @@ export async function generateDifferences(
         } else if (!nextFile) {
           const base = {
             ...baseFile,
-            id: baseFile.id.toString("base64"),
+            id: bytesToBase64(baseFile.id),
             name: `${fixName(basePackage.name)}/${baseFile.name}`,
           }
           changedFiles.push({
@@ -126,7 +127,7 @@ export async function generateDifferences(
         if (!baseFile) {
           const next = {
             ...nextFile,
-            id: nextFile.id.toString("base64"),
+            id: bytesToBase64(nextFile.id),
             name: `${fixName(nextPackage.name)}/${nextFile.name}`,
           }
           changedFiles.push({
@@ -145,14 +146,14 @@ export async function generateDifferences(
 
   const changedFileIds = changedFiles.reduce((ids, item) => {
     if (item.next) {
-      ids.push(Buffer.from(item.next.id, "base64"))
+      ids.push(base64ToBytes(item.next.id))
     }
     if (item.base) {
-      ids.push(Buffer.from(item.base.id, "base64"))
+      ids.push(base64ToBytes(item.base.id))
     }
 
     return ids
-  }, [] as Buffer[])
+  }, [] as Uint8Array<ArrayBuffer>[])
 
   const changedFileFileCoverageData = await db.fileCoverage.findMany({
     select: {
@@ -167,7 +168,7 @@ export async function generateDifferences(
   })
   const coverageData: Record<string, CoverageData> = {}
   for (const item of changedFileFileCoverageData) {
-    coverageData[item.id.toString("base64")] = CoverageData.fromProtobuf(
+    coverageData[bytesToBase64(item.id)] = CoverageData.fromProtobuf(
       item.coverageData,
     )
   }

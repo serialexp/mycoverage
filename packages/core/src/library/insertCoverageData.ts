@@ -6,6 +6,7 @@ import {
 import { CoverageData } from "@mycoverage/core/library/CoverageData"
 import { coveredPercentage } from "@mycoverage/core/library/coveredPercentage"
 import { SourceHits } from "@mycoverage/core/library/types"
+import { toBytes } from "@mycoverage/core/library/bytes"
 import db, { Commit, Test, TestInstance, type Prisma } from "@mycoverage/db"
 import { uuidv7obj } from "uuidv7"
 
@@ -16,7 +17,7 @@ export const insertCoverageData = async (
   const mydb: PrismaClient = db
 
   const packageDatas: {
-    id: Buffer
+    id: Uint8Array<ArrayBuffer>
     name: string
     statements: number
     packageCoverageId?: number
@@ -31,10 +32,10 @@ export const insertCoverageData = async (
     coveredPercentage: number
   }[] = []
   const fileDatas: {
-    id: Buffer
+    id: Uint8Array<ArrayBuffer>
     name: string
     statements: number
-    packageCoverageId?: Buffer
+    packageCoverageId?: Uint8Array<ArrayBuffer>
     conditionals: number
     methods: number
     hits: number
@@ -44,13 +45,13 @@ export const insertCoverageData = async (
     coveredElements: number
     elements: number
     coveredPercentage: number
-    coverageData: Buffer
+    coverageData: Uint8Array<ArrayBuffer>
   }[] = []
 
   for (const pkg of covInfo.flattenDirectories()) {
     const packageData = {
       ...where,
-      id: Buffer.from(uuidv7obj().bytes),
+      id: toBytes(uuidv7obj().bytes),
       name: pkg.fileName.replaceAll("/", "."),
       statements: pkg.metrics?.statements ?? 0,
       conditionals: pkg.metrics?.conditionals ?? 0,
@@ -81,7 +82,7 @@ export const insertCoverageData = async (
       ...where,
     },
   })
-  const packageCoverageIds: Record<string, Buffer> = {}
+  const packageCoverageIds: Record<string, Uint8Array<ArrayBuffer>> = {}
   for (const coverage of packagesCoverages) {
     packageCoverageIds[coverage.name] = coverage.id
   }
@@ -93,7 +94,7 @@ export const insertCoverageData = async (
         throw new Error(`No package coverage id known for ${pkgName}`)
       }
       fileDatas.push({
-        id: Buffer.from(uuidv7obj().bytes),
+        id: toBytes(uuidv7obj().bytes),
         name: file.name,
         packageCoverageId: packageId,
         statements: file.metrics?.statements ?? 0,
@@ -103,7 +104,7 @@ export const insertCoverageData = async (
         coveredStatements: file.metrics?.coveredstatements ?? 0,
         coveredConditionals: file.metrics?.coveredconditionals ?? 0,
         coveredMethods: file.metrics?.coveredmethods ?? 0,
-        coverageData: Buffer.from(
+        coverageData: toBytes(
           CoverageData.fromInternalCoverage(file.coverage).toProtobuf(),
         ),
         coveredElements: file.metrics?.coveredelements ?? 0,

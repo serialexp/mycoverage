@@ -255,10 +255,11 @@ export class CoverageData {
             ? lineData[instance]
             : lineData
         } else {
-          hitsBySource[source.source] = Array.isArray(source[type][lineNr])
-            ? //@ts-expect-error need to fix this
-              [source[type][lineNr]?.[instance]]
-            : [source[type][lineNr]]
+          hitsBySource[source.source] = (
+            Array.isArray(source[type][lineNr])
+              ? [source[type][lineNr]?.[instance]]
+              : [source[type][lineNr]]
+          ) as number[]
         }
       }
       return hitsBySource
