@@ -65,6 +65,9 @@ importers:
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
+      '@octokit/webhooks-types':
+        specifier: ^7.6.1
+        version: 7.6.1
       '@trpc/server':
         specifier: ^11.18.0
         version: 11.18.0(typescript@6.0.3)

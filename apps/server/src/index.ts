@@ -5,6 +5,7 @@ import { serve } from "@hono/node-server"
 import { trpcServer } from "@hono/trpc-server"
 import { Hono } from "hono"
 import { authRoutes } from "./routes/auth"
+import { restRoutes } from "./routes/rest"
 import { createContext } from "./trpc/context"
 import { appRouter } from "./trpc/router"
 
@@ -13,6 +14,9 @@ const app = new Hono()
 app.get("/api/healthz", (c) => c.json({ ok: true }))
 
 app.route("/api/auth", authRoutes)
+
+// Machine-to-machine REST endpoints (CI uploads + GitHub webhooks).
+app.route("/api", restRoutes)
 
 app.use(
   "/trpc/*",

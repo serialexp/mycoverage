@@ -112,7 +112,29 @@ Prod: Hono serves the built SPA (apps/web/dist) + the API. One Docker image. Wor
       - **Deferred to Phase 4 (presentation):**
         - `getTree` (query) — pulls `@chakra-ui/theme` + `d3-scale` + a React `TreeMap`
           component into the backend. Belongs in the SPA; port alongside the pages.
-- [ ] **3. REST routes** — port 16 api handlers to Hono at identical paths.
+- [x] **3. REST routes** — ported to Hono at identical paths under `apps/server/src/routes/rest/`
+      (mounted at `/api`). Of the 16 legacy `pages/api/**` files, 2 are superseded and were
+      NOT ported: `auth/[...auth].ts` (→ OIDC, Phase 1) and `rpc/[[...blitz]].ts` (→ tRPC,
+      Phase 2). The remaining 14 (13 handlers + the `/api` index string) are faithful ports;
+      `upload-sonar` is registered as an alias of the `upload-sonarqube` handler (matching the
+      legacy re-export). Per-route body-size limits mirror the originals via `hono/body-limit`.
+      These are machine-to-machine (CI uploads + GitHub webhooks) and carry **no** session.
+      - **Next→Hono translation:** path+query params merged via
+        `fixQuery({ ...c.req.queries(), ...c.req.param() })`; `c.req.text()` for the raw-XML
+        `upload`, `c.req.json()` elsewhere; strict content-type guards kept; `res.status().json()`
+        → `c.json(x, status)`; `"PENDING"` string literal for `coverageProcessStatus`.
+      - **Dead code dropped** (behaviour-preserving): `upload-with-hits`'s no-op `measure`/
+        `timeSinceLast` instrumentation + two unused base-commit reads; `upload-sonarqube`'s
+        unused `CoverageProcessStatus` import. `upload-codeclimate` was a Next stub (content-type
+        check, no response) → returns an empty 200 (Hono needs a Response).
+      - **Two `@mycoverage/core` edits:** extracted `getFileCoverageForCommit.ts` (the legacy
+        Blitz query the `github-coverage` route needs; the tRPC `coverage/files.ts` procedure now
+        calls it too — dedup); and fixed `transform-to-coverage-summary.ts` Bytes types
+        `Buffer`→`Uint8Array<ArrayBuffer>` (a Prisma-7 fix Phase 2 missed — nothing in the tsc
+        graph called it until `github-coverage`).
+      - `@octokit/webhooks-types` added to `apps/server` (type-only, for the webhook handler).
+      - All three packages tsc-clean (server/core/worker = 0); core vitest 39/39; biome 0 errors.
+      - **Live boot/upload/webhook smoke deferred to Phase 6** (needs DB + Redis + S3 + the action).
 - [ ] **4. Client SPA** — port 37 pages, router, hook swap, providers.
 - [ ] **5. Build/Docker/deps cleanup** — vite build, server bundle, Dockerfile, drop
       passport/blitz leftovers, prune dead deps.
