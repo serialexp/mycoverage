@@ -4,8 +4,9 @@ import db, { type Prisma } from "@mycoverage/db"
 import { z } from "zod"
 import { protectedProcedure, publicProcedure, router } from "../trpc"
 
-// NOTE: faithful port of the Blitz resolvers. `updateSetting` had no
-// `resolver.authorize()` upstream, so it stays public here — flagged for review.
+// `updateSetting` mutates global admin config, so it requires a session. The
+// read-only `getSetting`/`getBaseUrl` stay public: they back display chrome
+// (e.g. the base URL) that loads before/without auth.
 type GetSettingsInput = Pick<
   Prisma.SettingFindManyArgs,
   "where" | "orderBy" | "skip" | "take"
@@ -47,8 +48,7 @@ export const settingsRouter = router({
       return db.setting.create({ data: input })
     }),
 
-  // Faithful: no authorize() upstream — public. Flagged for review.
-  updateSetting: publicProcedure
+  updateSetting: protectedProcedure
     .input(z.object({ value: z.string(), name: z.string() }))
     .mutation(async ({ input: { name, ...data } }) => {
       return db.setting.upsert({

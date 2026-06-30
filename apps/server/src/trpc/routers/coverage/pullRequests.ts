@@ -1,11 +1,12 @@
 import { updatePR } from "@mycoverage/core/library/updatePR"
 import db from "@mycoverage/db"
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure, publicProcedure } from "../../trpc"
 
 export const pullRequestProcedures = {
-  // Faithful: no authorize() upstream — public. Flagged for review.
-  updatePrComment: publicProcedure
+  // Mutates a GitHub PR comment, so it requires a session. The read-only
+  // getters below stay public for coverage views linked from PR comments.
+  updatePrComment: protectedProcedure
     .input(z.object({ prId: z.number().optional() }))
     .mutation(async ({ input }) => {
       if (!input.prId) return false

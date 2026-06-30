@@ -3,10 +3,12 @@ import { combineCoverageQueue } from "@mycoverage/core/queues/CombineCoverage"
 import { sonarqubeQueue } from "@mycoverage/core/queues/SonarQubeQueue"
 import { uploadQueue } from "@mycoverage/core/queues/UploadQueue"
 import type { Job, Queue } from "bullmq"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 
 export const queueProcedures = {
-  getQueues: publicProcedure.query(async () => {
+  // Exposes internal job/queue state (an operational dashboard), not public
+  // coverage data, so it requires a session.
+  getQueues: protectedProcedure.query(async () => {
     const queues: Queue[] = [
       changeFrequencyQueue,
       combineCoverageQueue,

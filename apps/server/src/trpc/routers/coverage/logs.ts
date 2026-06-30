@@ -1,9 +1,10 @@
 import db, { type Prisma } from "@mycoverage/db"
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 
 export const logProcedures = {
-  getLogs: publicProcedure
+  // Internal job logs (an operational view), not public coverage data.
+  getLogs: protectedProcedure
     .input(
       z.object({
         filter: z.string().optional(),

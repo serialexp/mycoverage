@@ -1,6 +1,6 @@
 import db from "@mycoverage/db"
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure, publicProcedure } from "../../trpc"
 
 export const groupProcedures = {
   getGroup: publicProcedure
@@ -16,7 +16,7 @@ export const groupProcedures = {
     })
   }),
 
-  createGroup: publicProcedure
+  createGroup: protectedProcedure
     .input(
       z.object({
         name: z.string(),

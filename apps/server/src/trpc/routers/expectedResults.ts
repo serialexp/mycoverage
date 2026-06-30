@@ -2,9 +2,10 @@ import { paginate } from "@mycoverage/core/library/paginate"
 import db, { type Prisma } from "@mycoverage/db"
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
-import { publicProcedure, router } from "../trpc"
+import { protectedProcedure, publicProcedure, router } from "../trpc"
 
-// Faithful port — none of these resolvers had `resolver.authorize()` upstream.
+// The mutations require a session (no anonymous writes). The read-only
+// `getExpectedResult`/`getExpectedResults` stay public for coverage display.
 type GetExpectedResultsInput = Pick<
   Prisma.ExpectedResultFindManyArgs,
   "where" | "orderBy" | "skip" | "take"
@@ -40,7 +41,7 @@ export const expectedResultsRouter = router({
       return { expectedResults, nextPage, hasMore, count }
     }),
 
-  createExpectedResult: publicProcedure
+  createExpectedResult: protectedProcedure
     .input(
       z.object({
         projectId: z.number(),
@@ -54,13 +55,13 @@ export const expectedResultsRouter = router({
       return db.expectedResult.create({ data: input })
     }),
 
-  updateExpectedResult: publicProcedure
+  updateExpectedResult: protectedProcedure
     .input(z.object({ id: z.number(), testName: z.string() }))
     .mutation(async ({ input: { id, ...data } }) => {
       return db.expectedResult.update({ where: { id }, data })
     }),
 
-  deleteExpectedResult: publicProcedure
+  deleteExpectedResult: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input: { id } }) => {
       return db.expectedResult.deleteMany({ where: { id } })

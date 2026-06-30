@@ -4,11 +4,11 @@ import { processCommit } from "@mycoverage/core/library/ProcessCombineCoverage/p
 import { combineCoverageJob } from "@mycoverage/core/queues/CombineCoverage"
 import db from "@mycoverage/db"
 import { z } from "zod"
-import { publicProcedure } from "../../trpc"
+import { protectedProcedure } from "../../trpc"
 
 export const combineProcedures = {
-  // Faithful: no authorize() upstream — public. Flagged for review.
-  combineCoverage: publicProcedure
+  // Destructive: deletes and re-processes a commit's coverage. Requires a session.
+  combineCoverage: protectedProcedure
     .input(
       z.object({
         commitId: z.number(),

@@ -17,11 +17,11 @@ export type ImportableAccount = {
   type: "User" | "Organization"
 }
 
-// NOTE: faithful port. `updateProject`, `deleteProject`, `getProject`,
-// `createProject`, `getAccessibleRepositories` and `syncGithubState` had no
-// `resolver.authorize()` upstream, so they stay public — flagged for review.
-// `getProjects`, `listAccountsForToken` and `importAccountRepositories` were
-// authorized, so they map to protectedProcedure.
+// Authentication policy: every mutation requires a session, since no anonymous
+// caller should create/update/delete data or trigger GitHub side-effects.
+// `getAccessibleRepositories` is also gated because it leaks private repository
+// names from the GitHub app. The read-only `getProject` stays public: it backs
+// coverage views that are linked from GitHub PR comments and viewed by anyone.
 export const projectsRouter = router({
   getProject: publicProcedure
     .input(
@@ -94,8 +94,7 @@ export const projectsRouter = router({
       return { projects, nextPage, hasMore, count }
     }),
 
-  // Faithful: no authorize() upstream — public. Flagged for review.
-  createProject: publicProcedure
+  createProject: protectedProcedure
     .input(
       z.object({
         name: z.string(),
@@ -108,7 +107,7 @@ export const projectsRouter = router({
       return db.project.create({ data: input })
     }),
 
-  updateProject: publicProcedure
+  updateProject: protectedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -151,13 +150,13 @@ export const projectsRouter = router({
       return db.project.update({ where: { id }, data: updateData })
     }),
 
-  deleteProject: publicProcedure
+  deleteProject: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input: { id } }) => {
       return db.project.deleteMany({ where: { id } })
     }),
 
-  getAccessibleRepositories: publicProcedure.query(async () => {
+  getAccessibleRepositories: protectedProcedure.query(async () => {
     return getGithubAccessibleRepositories()
   }),
 
@@ -258,8 +257,7 @@ export const projectsRouter = router({
       return syncOwnerRepositories(userId, account, repositories)
     }),
 
-  // Faithful: no authorize() upstream — public. Flagged for review.
-  syncGithubState: publicProcedure
+  syncGithubState: protectedProcedure
     .input(z.object({ prId: z.number().optional() }))
     .mutation(async ({ input }) => {
       if (!input.prId) return false
